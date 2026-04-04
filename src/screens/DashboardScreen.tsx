@@ -36,13 +36,13 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm }: DashboardS
 				<button
 					type="button"
 					onClick={() => setScreen("settings")}
-					className="bg-surface-alt border border-border rounded-xl w-9 h-9 flex items-center justify-center cursor-pointer mt-1"
+					className="bg-surface-alt border border-border rounded-xl w-11 h-11 flex items-center justify-center cursor-pointer mt-1"
 				>
 					<Settings size={16} className="text-text-muted" />
 				</button>
 			</div>
 
-			<div className="grid grid-cols-2 gap-2.5">
+			<div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
 				{[
 					{ icon: Snowflake, label: "En stock", value: stockCount, color: T.blue },
 					{ icon: Camera, label: "Chargées", value: loadedCount, color: T.green },
@@ -75,7 +75,7 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm }: DashboardS
 							Péremption proche
 						</span>
 					</div>
-					<div className="flex flex-col gap-2">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 						{expiring.slice(0, 3).map((f) => (
 							<FilmRow
 								key={f.id}
@@ -96,7 +96,7 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm }: DashboardS
 					<div className="flex items-center justify-between mb-3">
 						<span className="text-[13px] font-bold text-text-sec font-body">Dans les appareils</span>
 					</div>
-					<div className="flex flex-col gap-2">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 						{loaded.map((f) => (
 							<FilmRow
 								key={f.id}

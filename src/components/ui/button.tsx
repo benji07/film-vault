@@ -26,7 +26,7 @@ export function Button({ children, variant = "primary", onClick, disabled, class
 			type="button"
 			className={cn(
 				"inline-flex items-center gap-1.5 border-none cursor-pointer font-body font-semibold rounded-xl transition-all",
-				small ? "py-1.5 px-3 text-xs" : "py-2.5 px-4.5 text-[13px]",
+				small ? "py-2 px-3 text-xs min-h-[44px]" : "py-2.5 px-4.5 text-[13px] min-h-[44px]",
 				disabled && "opacity-40 cursor-not-allowed",
 				variants[variant],
 				className,

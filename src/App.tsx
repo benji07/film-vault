@@ -83,12 +83,22 @@ function FilmVaultInner() {
 	const showTabBar = !["addFilm", "filmDetail", "settings"].includes(screen);
 
 	return (
-		<div className="min-h-screen bg-bg text-text-primary font-body max-w-[480px] mx-auto relative">
-			<div className={`px-4 pt-5 ${showTabBar ? "pb-20" : "pb-5"}`}>
-				<div key={`${screen}-${selectedFilm || ""}`} className="animate-screen-enter">
-					{renderScreen()}
+		<div className="h-[100dvh] bg-bg text-text-primary font-body flex flex-col md:flex-row relative">
+			{/* Sidebar — desktop only, always visible */}
+			<TabBar screen={screen} setScreen={setScreen} variant="sidebar" className="hidden md:flex" />
+
+			<main className="flex-1 flex flex-col min-h-0 min-w-0">
+				<div className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-5 pt-[max(1.25rem,env(safe-area-inset-top))]">
+					<div className="max-w-3xl mx-auto">
+						<div key={`${screen}-${selectedFilm || ""}`} className="animate-screen-enter">
+							{renderScreen()}
+						</div>
+					</div>
 				</div>
-			</div>
+
+				{/* Bottom TabBar — mobile only */}
+				{showTabBar && <TabBar screen={screen} setScreen={setScreen} className="md:hidden" />}
+			</main>
 
 			{/* Mode indicator */}
 			<div
@@ -97,8 +107,6 @@ function FilmVaultInner() {
 				<div className={`w-[5px] h-[5px] rounded-full ${persistent ? "bg-green" : "bg-amber"}`} />
 				{persistent ? "sync" : "session"}
 			</div>
-
-			{showTabBar && <TabBar screen={screen} setScreen={setScreen} />}
 		</div>
 	);
 }

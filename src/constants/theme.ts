@@ -8,7 +8,7 @@ export const T = {
 	borderLight: "#333",
 	text: "#E8E4DF",
 	textSec: "#A09A92",
-	textMuted: "#6B665F",
+	textMuted: "#827D75",
 	accent: "#C4392D",
 	accentHover: "#D44435",
 	accentSoft: "rgba(196,57,45,0.12)",

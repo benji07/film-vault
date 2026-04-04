@@ -145,7 +145,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 									<button
 										type="button"
 										onClick={() => setEditCam({ ...cam })}
-										className="bg-surface-alt border border-border rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer"
+										className="bg-surface-alt border border-border rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
 									>
 										<Edit3 size={14} className="text-text-sec" />
 									</button>
@@ -153,7 +153,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 										<button
 											type="button"
 											onClick={() => setShowBackModal(cam.id)}
-											className="bg-surface-alt border border-border rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer"
+											className="bg-surface-alt border border-border rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
 										>
 											<Plus size={14} className="text-text-sec" />
 										</button>
@@ -161,7 +161,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 									<button
 										type="button"
 										onClick={() => deleteCamera(cam.id)}
-										className="bg-accent-soft border-none rounded-lg w-8 h-8 flex items-center justify-center cursor-pointer"
+										className="bg-accent-soft border-none rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
 									>
 										<Trash2 size={14} className="text-accent" />
 									</button>
@@ -186,7 +186,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 													<button
 														type="button"
 														onClick={() => setEditBack({ camId: cam.id, back: { ...b } })}
-														className="bg-transparent border-none cursor-pointer p-1"
+														className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
 													>
 														<Edit3 size={12} className="text-text-muted" />
 													</button>

@@ -63,27 +63,29 @@ export function StatsScreen({ data }: StatsScreenProps) {
 		<div className="flex flex-col gap-5">
 			<h2 className="font-display text-2xl text-text-primary m-0 italic">Statistiques</h2>
 
-			<div className="grid grid-cols-2 gap-2.5">
+			<div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
 				<StatCard icon={Film} label="Total pellicules" value={films.length} color={T.blue} />
 				<StatCard icon={Eye} label="Shootées" value={allShot.length} color={T.green} />
 				<StatCard icon={Archive} label="Développées" value={developed.length} color={T.textSec} />
 				<StatCard icon={Hash} label="Dépensé" value={`${totalSpent.toFixed(0)}€`} color={T.amber} />
 			</div>
 
-			<Card>
-				<span className="text-sm font-bold text-text-primary font-body mb-3 block">Par type</span>
-				<BarChart data={byType} color={T.accent} />
-			</Card>
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+				<Card>
+					<span className="text-sm font-bold text-text-primary font-body mb-3 block">Par type</span>
+					<BarChart data={byType} color={T.accent} />
+				</Card>
 
-			<Card>
-				<span className="text-sm font-bold text-text-primary font-body mb-3 block">Par marque</span>
-				<BarChart data={byBrand} color={T.blue} />
-			</Card>
+				<Card>
+					<span className="text-sm font-bold text-text-primary font-body mb-3 block">Par marque</span>
+					<BarChart data={byBrand} color={T.blue} />
+				</Card>
 
-			<Card>
-				<span className="text-sm font-bold text-text-primary font-body mb-3 block">Par format</span>
-				<BarChart data={byFormat} color={T.green} />
-			</Card>
+				<Card>
+					<span className="text-sm font-bold text-text-primary font-body mb-3 block">Par format</span>
+					<BarChart data={byFormat} color={T.green} />
+				</Card>
+			</div>
 
 			{Object.keys(byCamera).length > 0 && (
 				<Card>
