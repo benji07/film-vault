@@ -4,6 +4,7 @@ import { fmtDate } from "@/utils/helpers";
 
 interface TimelineProps {
 	entries: HistoryEntry[];
+	onPhotoClick?: (photos: string[], index: number) => void;
 }
 
 function getActionIcon(action: string): LucideIcon {
@@ -18,7 +19,7 @@ function getActionIcon(action: string): LucideIcon {
 	return Plus;
 }
 
-export function Timeline({ entries }: TimelineProps) {
+export function Timeline({ entries, onPhotoClick }: TimelineProps) {
 	return (
 		<div>
 			<span className="text-[11px] font-bold text-text-muted font-body uppercase tracking-wide">Historique</span>
@@ -48,6 +49,20 @@ export function Timeline({ entries }: TimelineProps) {
 								<span className={`text-xs font-body ${isFirst ? "text-text-primary" : "text-text-sec"}`}>
 									{h.action}
 								</span>
+								{h.photos && h.photos.length > 0 && (
+									<div className="flex gap-1.5 mt-1.5">
+										{h.photos.map((photo, pi) => (
+											<button
+												key={photo.slice(-20)}
+												type="button"
+												onClick={() => onPhotoClick?.(h.photos!, pi)}
+												className="w-10 h-10 rounded-md overflow-hidden border border-border bg-surface-alt cursor-pointer p-0"
+											>
+												<img src={photo} className="w-full h-full object-cover" alt="" />
+											</button>
+										))}
+									</div>
+								)}
 							</div>
 						</div>
 					);

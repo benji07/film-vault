@@ -7,6 +7,7 @@ export type FilmState = "stock" | "loaded" | "partial" | "exposed" | "developed"
 export interface HistoryEntry {
 	date: string;
 	action: string;
+	photos?: string[];
 }
 
 export interface Film {
@@ -39,6 +40,7 @@ export interface Back {
 	id: string;
 	name: string;
 	ref?: string;
+	photo?: string;
 }
 
 export interface Camera {
@@ -50,6 +52,7 @@ export interface Camera {
 	format: string;
 	hasInterchangeableBack: boolean;
 	backs: Back[];
+	photo?: string;
 }
 
 export interface AppData {

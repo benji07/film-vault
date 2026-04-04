@@ -1,6 +1,7 @@
 import { Camera, Check, Edit3, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
+import { PhotoPicker } from "@/components/PhotoPicker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -33,9 +34,10 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 		serial: "",
 		format: "35mm",
 		hasInterchangeableBack: false,
+		photo: undefined as string | undefined,
 	});
 	const [showBackModal, setShowBackModal] = useState<string | null>(null);
-	const [newBack, setNewBack] = useState({ name: "", ref: "" });
+	const [newBack, setNewBack] = useState({ name: "", ref: "", photo: undefined as string | undefined });
 	const [editCam, setEditCam] = useState<CameraType | null>(null);
 	const [editBack, setEditBack] = useState<EditBackState | null>(null);
 
@@ -50,10 +52,19 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			format: newCam.format,
 			hasInterchangeableBack: newCam.hasInterchangeableBack || false,
 			backs: [],
+			photo: newCam.photo,
 		};
 		setData({ ...data, cameras: [...data.cameras, camera] });
 		setShowAdd(false);
-		setNewCam({ brand: "", model: "", nickname: "", serial: "", format: "35mm", hasInterchangeableBack: false });
+		setNewCam({
+			brand: "",
+			model: "",
+			nickname: "",
+			serial: "",
+			format: "35mm",
+			hasInterchangeableBack: false,
+			photo: undefined,
+		});
 	};
 
 	const saveEditCamera = () => {
@@ -68,6 +79,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 						serial: editCam.serial,
 						format: editCam.format,
 						hasInterchangeableBack: editCam.hasInterchangeableBack || false,
+						photo: editCam.photo,
 					}
 				: c,
 		);
@@ -77,11 +89,11 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 
 	const addBack = (camId: string) => {
 		if (!newBack.name) return;
-		const back: Back = { id: uid(), name: newBack.name, ref: newBack.ref };
+		const back: Back = { id: uid(), name: newBack.name, ref: newBack.ref, photo: newBack.photo };
 		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, backs: [...c.backs, back] } : c));
 		setData({ ...data, cameras: newCams });
 		setShowBackModal(null);
-		setNewBack({ name: "", ref: "" });
+		setNewBack({ name: "", ref: "", photo: undefined });
 	};
 
 	const saveEditBack = () => {
@@ -91,7 +103,9 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			return {
 				...c,
 				backs: c.backs.map((b) =>
-					b.id === editBack.back.id ? { ...b, name: editBack.back.name, ref: editBack.back.ref } : b,
+					b.id === editBack.back.id
+						? { ...b, name: editBack.back.name, ref: editBack.back.ref, photo: editBack.back.photo }
+						: b,
 				),
 			};
 		});
@@ -127,18 +141,33 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 					return (
 						<Card key={cam.id}>
 							<div className="flex items-center justify-between">
-								<div>
-									<div className="text-[15px] font-semibold text-text-primary font-body">{cameraDisplayName(cam)}</div>
-									<div className="flex gap-1.5 mt-1.5">
-										<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>{cam.format}</Badge>
-										{cam.backs.length > 0 && (
-											<Badge style={{ color: T.blue, background: `${T.blue}18` }}>{cam.backs.length} dos</Badge>
-										)}
-										{loadedFilms.length > 0 && (
-											<Badge style={{ color: T.green, background: `${T.green}18` }}>
-												{loadedFilms.length} chargée{loadedFilms.length > 1 ? "s" : ""}
-											</Badge>
-										)}
+								<div className="flex items-center gap-3">
+									{cam.photo ? (
+										<img
+											src={cam.photo}
+											alt=""
+											className="w-12 h-12 rounded-lg object-cover shrink-0 border border-border"
+										/>
+									) : (
+										<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
+											<Camera size={20} className="text-text-muted opacity-40" />
+										</div>
+									)}
+									<div>
+										<div className="text-[15px] font-semibold text-text-primary font-body">
+											{cameraDisplayName(cam)}
+										</div>
+										<div className="flex gap-1.5 mt-1.5">
+											<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>{cam.format}</Badge>
+											{cam.backs.length > 0 && (
+												<Badge style={{ color: T.blue, background: `${T.blue}18` }}>{cam.backs.length} dos</Badge>
+											)}
+											{loadedFilms.length > 0 && (
+												<Badge style={{ color: T.green, background: `${T.green}18` }}>
+													{loadedFilms.length} chargée{loadedFilms.length > 1 ? "s" : ""}
+												</Badge>
+											)}
+										</div>
 									</div>
 								</div>
 								<div className="flex gap-1.5">
@@ -175,9 +204,22 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 										);
 										return (
 											<div key={b.id} className="flex items-center justify-between py-1.5">
-												<div className="flex-1">
-													<span className="text-[13px] text-text-sec font-body">{b.name}</span>
-													{b.ref && <span className="text-[11px] text-text-muted font-mono ml-2">{b.ref}</span>}
+												<div className="flex items-center gap-2 flex-1">
+													{b.photo ? (
+														<img
+															src={b.photo}
+															alt=""
+															className="w-8 h-8 rounded-md object-cover shrink-0 border border-border"
+														/>
+													) : (
+														<div className="w-8 h-8 rounded-md bg-surface-alt flex items-center justify-center shrink-0">
+															<Camera size={14} className="text-text-muted opacity-40" />
+														</div>
+													)}
+													<div>
+														<span className="text-[13px] text-text-sec font-body">{b.name}</span>
+														{b.ref && <span className="text-[11px] text-text-muted font-mono ml-2">{b.ref}</span>}
+													</div>
 												</div>
 												<div className="flex items-center gap-1.5">
 													{backFilm && (
@@ -216,6 +258,14 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			{/* Add camera modal */}
 			<Sheet open={showAdd} onClose={() => setShowAdd(false)} title="Nouvel appareil">
 				<div className="flex flex-col gap-4">
+					<PhotoPicker
+						photos={newCam.photo ? [newCam.photo] : []}
+						onChange={(p) => setNewCam({ ...newCam, photo: p[0] || undefined })}
+						max={1}
+						size={48}
+						placeholderIcon
+						label="Photo"
+					/>
 					<Input
 						label="Marque"
 						value={newCam.brand}
@@ -265,6 +315,14 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			<Sheet open={!!editCam} onClose={() => setEditCam(null)} title="Modifier l'appareil">
 				{editCam && (
 					<div className="flex flex-col gap-4">
+						<PhotoPicker
+							photos={editCam.photo ? [editCam.photo] : []}
+							onChange={(p) => setEditCam({ ...editCam, photo: p[0] || undefined })}
+							max={1}
+							size={48}
+							placeholderIcon
+							label="Photo"
+						/>
 						<Input label="Marque" value={editCam.brand} onChange={(v) => setEditCam({ ...editCam, brand: v })} />
 						<Input label="Modèle" value={editCam.model} onChange={(v) => setEditCam({ ...editCam, model: v })} />
 						<Input
@@ -306,6 +364,14 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			{/* Add back modal */}
 			<Sheet open={!!showBackModal} onClose={() => setShowBackModal(null)} title="Ajouter un dos">
 				<div className="flex flex-col gap-4">
+					<PhotoPicker
+						photos={newBack.photo ? [newBack.photo] : []}
+						onChange={(p) => setNewBack({ ...newBack, photo: p[0] || undefined })}
+						max={1}
+						size={32}
+						placeholderIcon
+						label="Photo"
+					/>
 					<Input
 						label="Nom du dos"
 						value={newBack.name}
@@ -332,6 +398,14 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			<Sheet open={!!editBack} onClose={() => setEditBack(null)} title="Modifier le dos">
 				{editBack && (
 					<div className="flex flex-col gap-4">
+						<PhotoPicker
+							photos={editBack.back.photo ? [editBack.back.photo] : []}
+							onChange={(p) => setEditBack({ ...editBack, back: { ...editBack.back, photo: p[0] || undefined } })}
+							max={1}
+							size={32}
+							placeholderIcon
+							label="Photo"
+						/>
 						<Input
 							label="Nom du dos"
 							value={editBack.back.name}

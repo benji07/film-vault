@@ -20,6 +20,8 @@ import {
 import { useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { InfoLine } from "@/components/InfoLine";
+import { PhotoPicker } from "@/components/PhotoPicker";
+import { PhotoViewer } from "@/components/PhotoViewer";
 import { Timeline } from "@/components/Timeline";
 import { useToast } from "@/components/Toast";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
@@ -49,6 +51,7 @@ interface ActionData {
 	posesShot?: string;
 	lab?: string;
 	devDate?: string;
+	photos?: string[];
 }
 
 interface EditData {
@@ -85,6 +88,8 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 	});
 	const { toast } = useToast();
 	const { brands, modelsForBrand, filmDataFor } = useFilmSuggestions(data.films);
+	const [viewerPhotos, setViewerPhotos] = useState<string[] | null>(null);
+	const [viewerIndex, setViewerIndex] = useState(0);
 
 	if (!film)
 		return (
@@ -231,7 +236,15 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 			</div>
 
 			{/* History */}
-			{film.history && film.history.length > 0 && <Timeline entries={film.history} />}
+			{film.history && film.history.length > 0 && (
+				<Timeline
+					entries={film.history}
+					onPhotoClick={(photos, index) => {
+						setViewerPhotos(photos);
+						setViewerIndex(index);
+					}}
+				/>
+			)}
 
 			{/* MODALS */}
 			<Sheet open={showAction === "load"} onClose={() => setShowAction(null)} title="Charger dans un appareil">
@@ -275,10 +288,17 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						value={actionData.comment || ""}
 						onChange={(v) => setActionData({ ...actionData, comment: v })}
 					/>
+					<PhotoPicker
+						photos={actionData.photos || []}
+						onChange={(p) => setActionData({ ...actionData, photos: p })}
+						max={3}
+						label={`Photos (${(actionData.photos || []).length}/3)`}
+					/>
 					<Button
 						disabled={!actionData.cameraId}
 						onClick={() => {
 							const loadCam = data.cameras.find((c) => c.id === actionData.cameraId);
+							const photos = actionData.photos?.length ? actionData.photos : undefined;
 							updateFilm(
 								{
 									state: "loaded",
@@ -292,6 +312,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 										{
 											date: today(),
 											action: `Chargée dans ${loadCam ? cameraDisplayName(loadCam) : "?"}`,
+											photos,
 										},
 									],
 								},
@@ -319,8 +340,15 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						value={actionData.comment || ""}
 						onChange={(v) => setActionData({ ...actionData, comment: v })}
 					/>
+					<PhotoPicker
+						photos={actionData.photos || []}
+						onChange={(p) => setActionData({ ...actionData, photos: p })}
+						max={3}
+						label={`Photos (${(actionData.photos || []).length}/3)`}
+					/>
 					<Button
-						onClick={() =>
+						onClick={() => {
+							const photos = actionData.photos?.length ? actionData.photos : undefined;
 							updateFilm(
 								{
 									state: "exposed",
@@ -330,12 +358,12 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 									backId: null,
 									history: [
 										...(film.history || []),
-										{ date: today(), action: "Exposée — en attente de développement" },
+										{ date: today(), action: "Exposée — en attente de développement", photos },
 									],
 								},
 								"Pellicule exposée",
-							)
-						}
+							);
+						}}
 						className="w-full justify-center"
 					>
 						<Check size={16} /> Confirmer
@@ -363,8 +391,15 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						value={actionData.comment || ""}
 						onChange={(v) => setActionData({ ...actionData, comment: v })}
 					/>
+					<PhotoPicker
+						photos={actionData.photos || []}
+						onChange={(p) => setActionData({ ...actionData, photos: p })}
+						max={3}
+						label={`Photos (${(actionData.photos || []).length}/3)`}
+					/>
 					<Button
-						onClick={() =>
+						onClick={() => {
+							const photos = actionData.photos?.length ? actionData.photos : undefined;
 							updateFilm(
 								{
 									state: "partial",
@@ -377,12 +412,13 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 										{
 											date: today(),
 											action: `Retirée partiellement (${actionData.posesShot || 0}/${film.posesTotal} poses)`,
+											photos,
 										},
 									],
 								},
 								"Pellicule retirée",
-							)
-						}
+							);
+						}}
 						className="w-full justify-center"
 					>
 						<Clock size={16} /> Retirer
@@ -411,10 +447,17 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						onChange={(v) => setActionData({ ...actionData, startDate: v })}
 						mono
 					/>
+					<PhotoPicker
+						photos={actionData.photos || []}
+						onChange={(p) => setActionData({ ...actionData, photos: p })}
+						max={3}
+						label={`Photos (${(actionData.photos || []).length}/3)`}
+					/>
 					<Button
 						disabled={!actionData.cameraId}
 						onClick={() => {
 							const reloadCam = data.cameras.find((c) => c.id === actionData.cameraId);
+							const photos = actionData.photos?.length ? actionData.photos : undefined;
 							updateFilm(
 								{
 									state: "loaded",
@@ -426,6 +469,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 										{
 											date: today(),
 											action: `Rechargée dans ${reloadCam ? cameraDisplayName(reloadCam) : "?"}`,
+											photos,
 										},
 									],
 								},
@@ -453,18 +497,28 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						value={actionData.comment || ""}
 						onChange={(v) => setActionData({ ...actionData, comment: v })}
 					/>
+					<PhotoPicker
+						photos={actionData.photos || []}
+						onChange={(p) => setActionData({ ...actionData, photos: p })}
+						max={3}
+						label={`Photos (${(actionData.photos || []).length}/3)`}
+					/>
 					<Button
-						onClick={() =>
+						onClick={() => {
+							const photos = actionData.photos?.length ? actionData.photos : undefined;
 							updateFilm(
 								{
 									state: "exposed",
 									endDate: actionData.endDate || today(),
 									comment: actionData.comment || film.comment,
-									history: [...(film.history || []), { date: today(), action: "Envoyée au développement (partielle)" }],
+									history: [
+										...(film.history || []),
+										{ date: today(), action: "Envoyée au développement (partielle)", photos },
+									],
 								},
 								"Envoyée au développement",
-							)
-						}
+							);
+						}}
 						className="w-full justify-center"
 					>
 						<Send size={16} /> Envoyer
@@ -492,8 +546,15 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						value={actionData.comment || ""}
 						onChange={(v) => setActionData({ ...actionData, comment: v })}
 					/>
+					<PhotoPicker
+						photos={actionData.photos || []}
+						onChange={(p) => setActionData({ ...actionData, photos: p })}
+						max={3}
+						label={`Photos (${(actionData.photos || []).length}/3)`}
+					/>
 					<Button
-						onClick={() =>
+						onClick={() => {
+							const photos = actionData.photos?.length ? actionData.photos : undefined;
 							updateFilm(
 								{
 									state: "developed",
@@ -505,12 +566,13 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 										{
 											date: today(),
 											action: `Développée${actionData.lab ? ` chez ${actionData.lab}` : ""}`,
+											photos,
 										},
 									],
 								},
 								"Pellicule développée",
-							)
-						}
+							);
+						}}
 						className="w-full justify-center"
 					>
 						<Archive size={16} /> Confirmer
@@ -626,6 +688,10 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 					</Button>
 				</div>
 			</Sheet>
+
+			{viewerPhotos && (
+				<PhotoViewer photos={viewerPhotos} initialIndex={viewerIndex} onClose={() => setViewerPhotos(null)} />
+			)}
 		</div>
 	);
 }
