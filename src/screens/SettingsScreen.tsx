@@ -51,7 +51,7 @@ export function SettingsScreen({ data, setData, setScreen }: SettingsScreenProps
 				<button
 					type="button"
 					onClick={() => setScreen("home")}
-					className="bg-transparent border-none cursor-pointer p-1"
+					className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
 				>
 					<ArrowLeft size={20} className="text-text-sec" />
 				</button>

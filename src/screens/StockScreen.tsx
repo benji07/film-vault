@@ -60,7 +60,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm }: StockScreenPro
 						type="button"
 						key={t.key}
 						onClick={() => setFilter(t.key)}
-						className={`py-1.5 px-3 rounded-full border-none cursor-pointer text-xs font-semibold font-body whitespace-nowrap transition-all ${
+						className={`py-2.5 px-4 rounded-full border-none cursor-pointer text-xs font-semibold font-body whitespace-nowrap transition-all min-h-[44px] ${
 							filter === t.key ? "bg-accent text-white" : "bg-surface-alt text-text-sec"
 						}`}
 					>
@@ -69,7 +69,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm }: StockScreenPro
 				))}
 			</div>
 
-			<div className="flex flex-col gap-2">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 				{filtered.map((f, i) => (
 					<div key={f.id} className="animate-stagger-item" style={{ animationDelay: `${Math.min(i * 40, 400)}ms` }}>
 						<FilmRow
