@@ -20,6 +20,14 @@ export const T = {
 	blueSoft: "rgba(91,127,165,0.10)",
 } as const;
 
+export const FILM_TYPE_COLORS: Record<string, string> = {
+	Couleur: T.amber,
+	"N&B": T.textSec,
+	Diapo: T.blue,
+	"ECN-2": T.accent,
+	Instant: T.green,
+};
+
 export const FONT = {
 	display: "'Instrument Serif', serif",
 	body: "'DM Sans', sans-serif",

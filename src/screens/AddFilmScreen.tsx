@@ -1,5 +1,6 @@
 import { ArrowLeft, Plus } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -13,6 +14,7 @@ interface AddFilmScreenProps {
 }
 
 export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) {
+	const { toast } = useToast();
 	const [brand, setBrand] = useState("");
 	const [model, setModel] = useState("");
 	const [iso, setIso] = useState("");
@@ -53,6 +55,7 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 		}
 		const updated = { ...data, films: [...data.films, ...newFilms] };
 		setData(updated);
+		toast(qty > 1 ? `${qty} pellicules ajoutées` : "Pellicule ajoutée");
 		setScreen("stock");
 	};
 

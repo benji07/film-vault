@@ -12,11 +12,11 @@ export function Sheet({ open, onClose, title, children }: SheetProps) {
 	if (!open) return null;
 	return (
 		<div className="fixed inset-0 z-[1000] flex items-end justify-center" onClick={onClose} onKeyDown={undefined}>
-			<div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+			<div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-backdrop-fade-in" />
 			<div
 				onClick={(e) => e.stopPropagation()}
 				onKeyDown={undefined}
-				className="relative w-full max-w-[480px] max-h-[85vh] overflow-auto bg-surface rounded-t-[20px] px-5 pt-6 pb-8 border border-border border-b-0"
+				className="relative w-full max-w-[480px] max-h-[85vh] overflow-auto bg-surface rounded-t-[20px] px-5 pt-6 pb-8 border border-border border-b-0 animate-slide-up"
 			>
 				<div className="flex justify-between items-center mb-5">
 					<span className="font-display text-[22px] text-text-primary italic">{title}</span>

@@ -18,6 +18,8 @@ import {
 import { useState } from "react";
 import { EmptyState } from "@/components/EmptyState";
 import { InfoLine } from "@/components/InfoLine";
+import { Timeline } from "@/components/Timeline";
+import { useToast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -56,6 +58,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 	const film = data.films.find((f) => f.id === filmId);
 	const [showAction, setShowAction] = useState<ActionType>(null);
 	const [actionData, setActionData] = useState<ActionData>({});
+	const { toast } = useToast();
 
 	if (!film)
 		return (
@@ -71,15 +74,17 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 	const back = film.backId && cam ? cam.backs.find((b) => b.id === film.backId) : null;
 	const fIso = filmIso(film);
 
-	const updateFilm = (updates: Partial<FilmType>) => {
+	const updateFilm = (updates: Partial<FilmType>, toastMessage?: string) => {
 		const newFilms = data.films.map((f) => (f.id === filmId ? { ...f, ...updates } : f));
 		setData({ ...data, films: newFilms });
 		setShowAction(null);
 		setActionData({});
+		if (toastMessage) toast(toastMessage);
 	};
 
 	const deleteFilm = () => {
 		setData({ ...data, films: data.films.filter((f) => f.id !== filmId) });
+		toast("Pellicule supprimée", "info");
 		setScreen("stock");
 	};
 
@@ -179,25 +184,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 			</div>
 
 			{/* History */}
-			{film.history && film.history.length > 0 && (
-				<div>
-					<span className="text-[11px] font-bold text-text-muted font-body uppercase tracking-wide">Historique</span>
-					<div className="mt-2.5 flex flex-col gap-0.5">
-						{film.history.map((h, i) => (
-							<div
-								key={`${h.date}-${h.action}`}
-								className="flex gap-2.5 py-2"
-								style={{
-									borderBottom: i < film.history.length - 1 ? "1px solid var(--color-border)" : "none",
-								}}
-							>
-								<span className="text-[11px] text-text-muted font-mono whitespace-nowrap">{fmtDate(h.date)}</span>
-								<span className="text-xs text-text-sec font-body">{h.action}</span>
-							</div>
-						))}
-					</div>
-				</div>
-			)}
+			{film.history && film.history.length > 0 && <Timeline entries={film.history} />}
 
 			{/* MODALS */}
 			<Sheet open={showAction === "load"} onClose={() => setShowAction(null)} title="Charger dans un appareil">
@@ -245,21 +232,24 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						disabled={!actionData.cameraId}
 						onClick={() => {
 							const loadCam = data.cameras.find((c) => c.id === actionData.cameraId);
-							updateFilm({
-								state: "loaded",
-								cameraId: actionData.cameraId,
-								backId: actionData.backId || null,
-								shootIso: Number.parseInt(actionData.shootIso || "", 10) || (typeof fIso === "number" ? fIso : 0),
-								startDate: actionData.startDate || today(),
-								comment: actionData.comment || film.comment,
-								history: [
-									...(film.history || []),
-									{
-										date: today(),
-										action: `Chargée dans ${loadCam ? cameraDisplayName(loadCam) : "?"}`,
-									},
-								],
-							});
+							updateFilm(
+								{
+									state: "loaded",
+									cameraId: actionData.cameraId,
+									backId: actionData.backId || null,
+									shootIso: Number.parseInt(actionData.shootIso || "", 10) || (typeof fIso === "number" ? fIso : 0),
+									startDate: actionData.startDate || today(),
+									comment: actionData.comment || film.comment,
+									history: [
+										...(film.history || []),
+										{
+											date: today(),
+											action: `Chargée dans ${loadCam ? cameraDisplayName(loadCam) : "?"}`,
+										},
+									],
+								},
+								"Pellicule chargée",
+							);
 						}}
 						className="w-full justify-center"
 					>
@@ -284,14 +274,20 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 					/>
 					<Button
 						onClick={() =>
-							updateFilm({
-								state: "exposed",
-								endDate: actionData.endDate || today(),
-								comment: actionData.comment || film.comment,
-								cameraId: null,
-								backId: null,
-								history: [...(film.history || []), { date: today(), action: "Exposée — en attente de développement" }],
-							})
+							updateFilm(
+								{
+									state: "exposed",
+									endDate: actionData.endDate || today(),
+									comment: actionData.comment || film.comment,
+									cameraId: null,
+									backId: null,
+									history: [
+										...(film.history || []),
+										{ date: today(), action: "Exposée — en attente de développement" },
+									],
+								},
+								"Pellicule exposée",
+							)
 						}
 						className="w-full justify-center"
 					>
@@ -322,20 +318,23 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 					/>
 					<Button
 						onClick={() =>
-							updateFilm({
-								state: "partial",
-								posesShot: Number.parseInt(actionData.posesShot || "", 10) || 0,
-								comment: actionData.comment || film.comment,
-								cameraId: null,
-								backId: null,
-								history: [
-									...(film.history || []),
-									{
-										date: today(),
-										action: `Retirée partiellement (${actionData.posesShot || 0}/${film.posesTotal} poses)`,
-									},
-								],
-							})
+							updateFilm(
+								{
+									state: "partial",
+									posesShot: Number.parseInt(actionData.posesShot || "", 10) || 0,
+									comment: actionData.comment || film.comment,
+									cameraId: null,
+									backId: null,
+									history: [
+										...(film.history || []),
+										{
+											date: today(),
+											action: `Retirée partiellement (${actionData.posesShot || 0}/${film.posesTotal} poses)`,
+										},
+									],
+								},
+								"Pellicule retirée",
+							)
 						}
 						className="w-full justify-center"
 					>
@@ -369,19 +368,22 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						disabled={!actionData.cameraId}
 						onClick={() => {
 							const reloadCam = data.cameras.find((c) => c.id === actionData.cameraId);
-							updateFilm({
-								state: "loaded",
-								cameraId: actionData.cameraId,
-								backId: actionData.backId || null,
-								startDate: actionData.startDate || today(),
-								history: [
-									...(film.history || []),
-									{
-										date: today(),
-										action: `Rechargée dans ${reloadCam ? cameraDisplayName(reloadCam) : "?"}`,
-									},
-								],
-							});
+							updateFilm(
+								{
+									state: "loaded",
+									cameraId: actionData.cameraId,
+									backId: actionData.backId || null,
+									startDate: actionData.startDate || today(),
+									history: [
+										...(film.history || []),
+										{
+											date: today(),
+											action: `Rechargée dans ${reloadCam ? cameraDisplayName(reloadCam) : "?"}`,
+										},
+									],
+								},
+								"Pellicule rechargée",
+							);
 						}}
 						className="w-full justify-center"
 					>
@@ -406,12 +408,15 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 					/>
 					<Button
 						onClick={() =>
-							updateFilm({
-								state: "exposed",
-								endDate: actionData.endDate || today(),
-								comment: actionData.comment || film.comment,
-								history: [...(film.history || []), { date: today(), action: "Envoyée au développement (partielle)" }],
-							})
+							updateFilm(
+								{
+									state: "exposed",
+									endDate: actionData.endDate || today(),
+									comment: actionData.comment || film.comment,
+									history: [...(film.history || []), { date: today(), action: "Envoyée au développement (partielle)" }],
+								},
+								"Envoyée au développement",
+							)
 						}
 						className="w-full justify-center"
 					>
@@ -442,19 +447,22 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 					/>
 					<Button
 						onClick={() =>
-							updateFilm({
-								state: "developed",
-								lab: actionData.lab || null,
-								devDate: actionData.devDate || today(),
-								comment: actionData.comment || film.comment,
-								history: [
-									...(film.history || []),
-									{
-										date: today(),
-										action: `Développée${actionData.lab ? ` chez ${actionData.lab}` : ""}`,
-									},
-								],
-							})
+							updateFilm(
+								{
+									state: "developed",
+									lab: actionData.lab || null,
+									devDate: actionData.devDate || today(),
+									comment: actionData.comment || film.comment,
+									history: [
+										...(film.history || []),
+										{
+											date: today(),
+											action: `Développée${actionData.lab ? ` chez ${actionData.lab}` : ""}`,
+										},
+									],
+								},
+								"Pellicule développée",
+							)
 						}
 						className="w-full justify-center"
 					>
