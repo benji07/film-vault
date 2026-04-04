@@ -32,7 +32,7 @@ export function AutocompleteInput({
 	};
 
 	return (
-		<div className={cn("flex flex-col gap-1.5 relative", className)}>
+		<div className={cn("flex flex-col gap-1.5", className)}>
 			{label && (
 				<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">{label}</label>
 			)}
@@ -58,7 +58,7 @@ export function AutocompleteInput({
 				autoComplete="off"
 			/>
 			{isOpen && filtered.length > 0 && (
-				<ul className="absolute top-full left-0 right-0 z-50 mt-1 bg-surface-alt border border-border rounded-[10px] overflow-hidden shadow-lg max-h-[220px] overflow-y-auto">
+				<ul className="bg-surface-alt border border-border rounded-[10px] overflow-hidden shadow-lg max-h-[220px] overflow-y-auto -mt-1">
 					{filtered.map((item) => (
 						<li key={item}>
 							<button
