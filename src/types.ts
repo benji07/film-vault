@@ -4,15 +4,6 @@ export type FilmFormat = "35mm" | "120" | "Instant";
 export type FilmType = "Couleur" | "N&B" | "Diapo" | "ECN-2" | "Instant";
 export type FilmState = "stock" | "loaded" | "partial" | "exposed" | "developed";
 
-export interface CatalogFilm {
-	id: string;
-	name: string;
-	brand: string;
-	iso: number;
-	type: FilmType;
-	formats: FilmFormat[];
-}
-
 export interface HistoryEntry {
 	date: string;
 	action: string;
@@ -20,7 +11,6 @@ export interface HistoryEntry {
 
 export interface Film {
 	id: string;
-	catalogId: string | null;
 	brand?: string;
 	model?: string;
 	customName?: string;

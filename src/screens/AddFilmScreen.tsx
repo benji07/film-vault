@@ -29,7 +29,6 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 		for (let i = 0; i < qty; i++) {
 			newFilms.push({
 				id: uid(),
-				catalogId: null,
 				brand,
 				model,
 				iso: Number.parseInt(iso, 10) || 0,
