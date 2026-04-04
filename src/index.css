@@ -27,28 +27,30 @@
 	--font-mono: "DM Mono", monospace;
 }
 
-* {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
-}
-html,
-body,
-#root {
-	height: 100%;
-}
-body {
-	background: var(--color-bg);
-	overflow-x: hidden;
-	-webkit-font-smoothing: antialiased;
-}
-::-webkit-scrollbar {
-	display: none;
-}
-input,
-select,
-button {
-	font-family: inherit;
+@layer base {
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
+	html,
+	body,
+	#root {
+		height: 100%;
+	}
+	body {
+		background: var(--color-bg);
+		overflow-x: hidden;
+		-webkit-font-smoothing: antialiased;
+	}
+	::-webkit-scrollbar {
+		display: none;
+	}
+	input,
+	select,
+	button {
+		font-family: inherit;
+	}
 }
 
 @keyframes fadeIn {
