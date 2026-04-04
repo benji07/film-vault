@@ -83,8 +83,8 @@ function FilmVaultInner() {
 	const showTabBar = !["addFilm", "filmDetail", "settings"].includes(screen);
 
 	return (
-		<div className="min-h-screen bg-bg text-text-primary font-body max-w-[480px] mx-auto relative">
-			<div className={`px-4 pt-5 ${showTabBar ? "pb-20" : "pb-5"}`}>
+		<div className="h-[100dvh] bg-bg text-text-primary font-body max-w-[480px] mx-auto flex flex-col relative">
+			<div className="flex-1 overflow-y-auto px-4 pt-5 pb-5">
 				<div key={`${screen}-${selectedFilm || ""}`} className="animate-screen-enter">
 					{renderScreen()}
 				</div>

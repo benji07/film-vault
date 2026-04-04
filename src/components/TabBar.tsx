@@ -21,7 +21,7 @@ interface TabBarProps {
 
 export function TabBar({ screen, setScreen }: TabBarProps) {
 	return (
-		<div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-surface border-t border-border flex justify-around pt-2.5 pb-4.5 z-[100]">
+		<div className="shrink-0 w-full bg-surface border-t border-border flex justify-around pt-2.5 pb-4.5">
 			{tabs.map((t) => {
 				const active = screen === t.key;
 				return (
