@@ -5,6 +5,7 @@ import { AddFilmScreen } from "@/screens/AddFilmScreen";
 import { CamerasScreen } from "@/screens/CamerasScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { FilmDetailScreen } from "@/screens/FilmDetailScreen";
+import { SettingsScreen } from "@/screens/SettingsScreen";
 import { StatsScreen } from "@/screens/StatsScreen";
 import { StockScreen } from "@/screens/StockScreen";
 import type { AppData, ScreenName } from "@/types";
@@ -72,12 +73,14 @@ export default function FilmVaultApp() {
 				return <CamerasScreen data={data} setData={updateData} />;
 			case "stats":
 				return <StatsScreen data={data} />;
+			case "settings":
+				return <SettingsScreen data={data} setData={updateData} setScreen={setScreen} />;
 			default:
 				return <DashboardScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} />;
 		}
 	};
 
-	const showTabBar = !["addFilm", "filmDetail"].includes(screen);
+	const showTabBar = !["addFilm", "filmDetail", "settings"].includes(screen);
 
 	return (
 		<div className="min-h-screen bg-bg text-text-primary font-body max-w-[480px] mx-auto relative">

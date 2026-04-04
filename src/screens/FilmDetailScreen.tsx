@@ -27,6 +27,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { STATES } from "@/constants/films";
 import { T } from "@/constants/theme";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
+import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { fmtDate, today } from "@/utils/helpers";
 
@@ -121,7 +122,13 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 					)}
 					{film.price && <InfoLine icon={Hash} label="Prix" value={`${film.price.toFixed(2)} €`} />}
 					{film.shootIso && <InfoLine icon={Aperture} label="ISO de prise de vue" value={film.shootIso} />}
-					{cam && <InfoLine icon={Camera} label="Appareil" value={`${cam.name}${back ? ` · ${back.name}` : ""}`} />}
+					{cam && (
+						<InfoLine
+							icon={Camera}
+							label="Appareil"
+							value={`${cameraDisplayName(cam)}${back ? ` · ${back.name}` : ""}`}
+						/>
+					)}
 					{film.startDate && <InfoLine icon={Calendar} label="Début" value={fmtDate(film.startDate)} />}
 					{film.endDate && <InfoLine icon={Calendar} label="Fin" value={fmtDate(film.endDate)} />}
 					{film.posesShot != null && (
@@ -200,7 +207,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						value={actionData.cameraId || ""}
 						onChange={(v) => setActionData({ ...actionData, cameraId: v, backId: "" })}
 						placeholder="Choisir…"
-						options={getAvailableCameras().map((c) => ({ value: c.id, label: c.name }))}
+						options={getAvailableCameras().map((c) => ({ value: c.id, label: cameraDisplayName(c) }))}
 					/>
 					{actionData.cameraId && (data.cameras.find((c) => c.id === actionData.cameraId)?.backs?.length ?? 0) > 0 && (
 						<Select
@@ -236,7 +243,8 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 					/>
 					<Button
 						disabled={!actionData.cameraId}
-						onClick={() =>
+						onClick={() => {
+							const loadCam = data.cameras.find((c) => c.id === actionData.cameraId);
 							updateFilm({
 								state: "loaded",
 								cameraId: actionData.cameraId,
@@ -248,11 +256,11 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 									...(film.history || []),
 									{
 										date: today(),
-										action: `Chargée dans ${data.cameras.find((c) => c.id === actionData.cameraId)?.name}`,
+										action: `Chargée dans ${loadCam ? cameraDisplayName(loadCam) : "?"}`,
 									},
 								],
-							})
-						}
+							});
+						}}
 						className="w-full justify-center"
 					>
 						<Camera size={16} /> Charger
@@ -348,7 +356,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						value={actionData.cameraId || ""}
 						onChange={(v) => setActionData({ ...actionData, cameraId: v, backId: "" })}
 						placeholder="Choisir…"
-						options={getAvailableCameras().map((c) => ({ value: c.id, label: c.name }))}
+						options={getAvailableCameras().map((c) => ({ value: c.id, label: cameraDisplayName(c) }))}
 					/>
 					<Input
 						label="Date de reprise"
@@ -359,7 +367,8 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 					/>
 					<Button
 						disabled={!actionData.cameraId}
-						onClick={() =>
+						onClick={() => {
+							const reloadCam = data.cameras.find((c) => c.id === actionData.cameraId);
 							updateFilm({
 								state: "loaded",
 								cameraId: actionData.cameraId,
@@ -369,11 +378,11 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 									...(film.history || []),
 									{
 										date: today(),
-										action: `Rechargée dans ${data.cameras.find((c) => c.id === actionData.cameraId)?.name}`,
+										action: `Rechargée dans ${reloadCam ? cameraDisplayName(reloadCam) : "?"}`,
 									},
 								],
-							})
-						}
+							});
+						}}
 						className="w-full justify-center"
 					>
 						<RotateCcw size={16} /> Recharger
