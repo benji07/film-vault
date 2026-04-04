@@ -53,7 +53,10 @@ export interface Back {
 
 export interface Camera {
 	id: string;
-	name: string;
+	brand: string;
+	model: string;
+	nickname: string;
+	serial: string;
 	format: string;
 	hasInterchangeableBack: boolean;
 	backs: Back[];
@@ -65,7 +68,7 @@ export interface AppData {
 	version: number;
 }
 
-export type ScreenName = "home" | "stock" | "addFilm" | "filmDetail" | "cameras" | "stats";
+export type ScreenName = "home" | "stock" | "addFilm" | "filmDetail" | "cameras" | "stats" | "settings";
 
 export interface StateConfig {
 	label: string;

@@ -1,5 +1,6 @@
 import { DEFAULT_CAMERAS } from "@/constants/cameras";
 import type { AppData } from "@/types";
+import { applyMigrations, CURRENT_VERSION, validateAppData } from "./migrations";
 
 const STORAGE_KEY = "filmvault-data";
 let storageAvailable = false;
@@ -25,8 +26,16 @@ export async function loadData(): Promise<AppData | null> {
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY);
 		if (raw) {
-			const parsed = JSON.parse(raw) as AppData;
-			if (parsed && Array.isArray(parsed.films)) return parsed;
+			const parsed = JSON.parse(raw);
+			if (!validateAppData(parsed)) return null;
+
+			if ((parsed.version ?? 1) < CURRENT_VERSION) {
+				const migrated = applyMigrations(parsed as unknown as Record<string, unknown>);
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+				return migrated;
+			}
+
+			return parsed;
 		}
 	} catch (e) {
 		console.log("Load error:", e instanceof Error ? e.message : e);
@@ -48,6 +57,54 @@ export function getInitialData(): AppData {
 	return {
 		films: [],
 		cameras: DEFAULT_CAMERAS,
-		version: 1,
+		version: CURRENT_VERSION,
 	};
+}
+
+export function exportData(data: AppData): void {
+	const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = `filmvault-backup-${new Date().toISOString().slice(0, 10)}.json`;
+	a.click();
+	URL.revokeObjectURL(url);
+}
+
+export interface ImportResult {
+	success: true;
+	data: AppData;
+	error?: never;
+}
+
+export interface ImportError {
+	success: false;
+	error: string;
+	data?: never;
+}
+
+export async function parseImportFile(file: File): Promise<ImportResult | ImportError> {
+	try {
+		const text = await file.text();
+		const parsed = JSON.parse(text);
+
+		if (!validateAppData(parsed)) {
+			return { success: false, error: "Le fichier ne contient pas de données FilmVault valides." };
+		}
+
+		const version = parsed.version ?? 1;
+
+		if (version > CURRENT_VERSION) {
+			return { success: false, error: "Ce fichier provient d'une version plus récente de FilmVault." };
+		}
+
+		if (version < CURRENT_VERSION) {
+			const migrated = applyMigrations(parsed as unknown as Record<string, unknown>);
+			return { success: true, data: migrated };
+		}
+
+		return { success: true, data: parsed };
+	} catch {
+		return { success: false, error: "Le fichier n'est pas un JSON valide." };
+	}
 }

@@ -10,6 +10,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { T } from "@/constants/theme";
 import type { AppData, Back, Camera as CameraType } from "@/types";
+import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
 import { uid } from "@/utils/helpers";
 
@@ -25,33 +26,46 @@ interface EditBackState {
 
 export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 	const [showAdd, setShowAdd] = useState(false);
-	const [newCam, setNewCam] = useState({ name: "", format: "35mm", hasInterchangeableBack: false });
+	const [newCam, setNewCam] = useState({
+		brand: "",
+		model: "",
+		nickname: "",
+		serial: "",
+		format: "35mm",
+		hasInterchangeableBack: false,
+	});
 	const [showBackModal, setShowBackModal] = useState<string | null>(null);
 	const [newBack, setNewBack] = useState({ name: "", ref: "" });
 	const [editCam, setEditCam] = useState<CameraType | null>(null);
 	const [editBack, setEditBack] = useState<EditBackState | null>(null);
 
 	const addCamera = () => {
-		if (!newCam.name) return;
+		if (!newCam.brand && !newCam.model) return;
 		const camera: CameraType = {
 			id: uid(),
-			name: newCam.name,
+			brand: newCam.brand,
+			model: newCam.model,
+			nickname: newCam.nickname,
+			serial: newCam.serial,
 			format: newCam.format,
 			hasInterchangeableBack: newCam.hasInterchangeableBack || false,
 			backs: [],
 		};
 		setData({ ...data, cameras: [...data.cameras, camera] });
 		setShowAdd(false);
-		setNewCam({ name: "", format: "35mm", hasInterchangeableBack: false });
+		setNewCam({ brand: "", model: "", nickname: "", serial: "", format: "35mm", hasInterchangeableBack: false });
 	};
 
 	const saveEditCamera = () => {
-		if (!editCam?.name) return;
+		if (!editCam?.brand && !editCam?.model) return;
 		const newCams = data.cameras.map((c) =>
 			c.id === editCam.id
 				? {
 						...c,
-						name: editCam.name,
+						brand: editCam.brand,
+						model: editCam.model,
+						nickname: editCam.nickname,
+						serial: editCam.serial,
 						format: editCam.format,
 						hasInterchangeableBack: editCam.hasInterchangeableBack || false,
 					}
@@ -114,7 +128,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 						<Card key={cam.id}>
 							<div className="flex items-center justify-between">
 								<div>
-									<div className="text-[15px] font-semibold text-text-primary font-body">{cam.name}</div>
+									<div className="text-[15px] font-semibold text-text-primary font-body">{cameraDisplayName(cam)}</div>
 									<div className="flex gap-1.5 mt-1.5">
 										<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>{cam.format}</Badge>
 										{cam.backs.length > 0 && (
@@ -203,10 +217,28 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			<Sheet open={showAdd} onClose={() => setShowAdd(false)} title="Nouvel appareil">
 				<div className="flex flex-col gap-4">
 					<Input
-						label="Nom du boîtier"
-						value={newCam.name}
-						onChange={(v) => setNewCam({ ...newCam, name: v })}
-						placeholder="Ex: Canon A-1"
+						label="Marque"
+						value={newCam.brand}
+						onChange={(v) => setNewCam({ ...newCam, brand: v })}
+						placeholder="Ex: Canon"
+					/>
+					<Input
+						label="Modèle"
+						value={newCam.model}
+						onChange={(v) => setNewCam({ ...newCam, model: v })}
+						placeholder="Ex: A-1"
+					/>
+					<Input
+						label="Surnom (optionnel)"
+						value={newCam.nickname}
+						onChange={(v) => setNewCam({ ...newCam, nickname: v })}
+						placeholder="Ex: Mon Canon préféré"
+					/>
+					<Input
+						label="N° de série (optionnel)"
+						value={newCam.serial}
+						onChange={(v) => setNewCam({ ...newCam, serial: v })}
+						placeholder="Ex: 123456"
 					/>
 					<Select
 						label="Format"
@@ -223,7 +255,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 						checked={newCam.hasInterchangeableBack}
 						onChange={(v) => setNewCam({ ...newCam, hasInterchangeableBack: v })}
 					/>
-					<Button onClick={addCamera} disabled={!newCam.name} className="w-full justify-center">
+					<Button onClick={addCamera} disabled={!newCam.brand && !newCam.model} className="w-full justify-center">
 						<Plus size={16} /> Ajouter
 					</Button>
 				</div>
@@ -233,7 +265,18 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			<Sheet open={!!editCam} onClose={() => setEditCam(null)} title="Modifier l'appareil">
 				{editCam && (
 					<div className="flex flex-col gap-4">
-						<Input label="Nom du boîtier" value={editCam.name} onChange={(v) => setEditCam({ ...editCam, name: v })} />
+						<Input label="Marque" value={editCam.brand} onChange={(v) => setEditCam({ ...editCam, brand: v })} />
+						<Input label="Modèle" value={editCam.model} onChange={(v) => setEditCam({ ...editCam, model: v })} />
+						<Input
+							label="Surnom (optionnel)"
+							value={editCam.nickname}
+							onChange={(v) => setEditCam({ ...editCam, nickname: v })}
+						/>
+						<Input
+							label="N° de série (optionnel)"
+							value={editCam.serial}
+							onChange={(v) => setEditCam({ ...editCam, serial: v })}
+						/>
 						<Select
 							label="Format"
 							value={editCam.format}
@@ -249,7 +292,11 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 							checked={editCam.hasInterchangeableBack || false}
 							onChange={(v) => setEditCam({ ...editCam, hasInterchangeableBack: v })}
 						/>
-						<Button onClick={saveEditCamera} disabled={!editCam.name} className="w-full justify-center">
+						<Button
+							onClick={saveEditCamera}
+							disabled={!editCam.brand && !editCam.model}
+							className="w-full justify-center"
+						>
 							<Check size={16} /> Enregistrer
 						</Button>
 					</div>

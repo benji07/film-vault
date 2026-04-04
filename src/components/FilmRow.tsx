@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { STATES } from "@/constants/films";
 import { T } from "@/constants/theme";
 import type { Camera, Film } from "@/types";
+import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmIso, filmName } from "@/utils/film-helpers";
 
 interface FilmRowProps {
@@ -46,7 +47,7 @@ export function FilmRow({ film, onClick, cameras }: FilmRowProps) {
 					)}
 					{cam && (
 						<Badge style={{ color: T.green, background: `${T.green}18` }}>
-							{cam.name}
+							{cameraDisplayName(cam)}
 							{back ? ` · ${back.name}` : ""}
 						</Badge>
 					)}

@@ -1,4 +1,4 @@
-import { AlertTriangle, Archive, Camera, Clock, Eye, Film, Plus, Snowflake } from "lucide-react";
+import { AlertTriangle, Archive, Camera, Clock, Eye, Film, Plus, Settings, Snowflake } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmRow } from "@/components/FilmRow";
 import { StatCard } from "@/components/StatCard";
@@ -28,9 +28,18 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm }: DashboardS
 
 	return (
 		<div className="flex flex-col gap-5">
-			<div>
-				<h1 className="font-display text-[28px] text-text-primary m-0 italic">FilmVault</h1>
-				<p className="font-body text-[13px] text-text-muted mt-1">Ton inventaire argentique</p>
+			<div className="flex justify-between items-start">
+				<div>
+					<h1 className="font-display text-[28px] text-text-primary m-0 italic">FilmVault</h1>
+					<p className="font-body text-[13px] text-text-muted mt-1">Ton inventaire argentique</p>
+				</div>
+				<button
+					type="button"
+					onClick={() => setScreen("settings")}
+					className="bg-surface-alt border border-border rounded-xl w-9 h-9 flex items-center justify-center cursor-pointer mt-1"
+				>
+					<Settings size={16} className="text-text-muted" />
+				</button>
 			</div>
 
 			<div className="grid grid-cols-2 gap-2.5">

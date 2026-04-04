@@ -5,6 +5,7 @@ import { StatCard } from "@/components/StatCard";
 import { Card } from "@/components/ui/card";
 import { T } from "@/constants/theme";
 import type { AppData } from "@/types";
+import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmBrand, filmName, filmType } from "@/utils/film-helpers";
 
 interface StatsScreenProps {
@@ -34,7 +35,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 	for (const f of allShot) {
 		if (f.cameraId) {
 			const cam = data.cameras.find((c) => c.id === f.cameraId);
-			const name = cam?.name || "Inconnu";
+			const name = cam ? cameraDisplayName(cam) : "Inconnu";
 			byCamera[name] = (byCamera[name] || 0) + 1;
 		}
 	}
