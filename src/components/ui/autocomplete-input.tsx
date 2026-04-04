@@ -23,9 +23,7 @@ export function AutocompleteInput({
 	const [isOpen, setIsOpen] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	const filtered = value
-		? suggestions.filter((s) => s.toLowerCase().includes(value.toLowerCase())).slice(0, 6)
-		: [];
+	const filtered = value ? suggestions.filter((s) => s.toLowerCase().includes(value.toLowerCase())).slice(0, 6) : [];
 
 	const handleSelect = (item: string) => {
 		onChange(item);
@@ -36,9 +34,7 @@ export function AutocompleteInput({
 	return (
 		<div className={cn("flex flex-col gap-1.5 relative", className)}>
 			{label && (
-				<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
-					{label}
-				</label>
+				<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">{label}</label>
 			)}
 			<input
 				ref={inputRef}

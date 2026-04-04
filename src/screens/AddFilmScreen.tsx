@@ -84,8 +84,21 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 				<h2 className="font-display text-[22px] text-text-primary m-0 italic">Ajouter une pellicule</h2>
 			</div>
 
-			<AutocompleteInput label="Marque" value={brand} onChange={setBrand} suggestions={brands} placeholder="Ex : Kodak, Ilford, Fujifilm…" />
-			<AutocompleteInput label="Modèle" value={model} onChange={setModel} onSelect={handleModelSelect} suggestions={modelsForBrand(brand)} placeholder="Ex : Portra 400, HP5 Plus…" />
+			<AutocompleteInput
+				label="Marque"
+				value={brand}
+				onChange={setBrand}
+				suggestions={brands}
+				placeholder="Ex : Kodak, Ilford, Fujifilm…"
+			/>
+			<AutocompleteInput
+				label="Modèle"
+				value={model}
+				onChange={setModel}
+				onSelect={handleModelSelect}
+				suggestions={modelsForBrand(brand)}
+				placeholder="Ex : Portra 400, HP5 Plus…"
+			/>
 
 			<div className="grid grid-cols-2 gap-3">
 				<Input label="ISO" type="number" value={iso} onChange={setIso} placeholder="400" mono />
