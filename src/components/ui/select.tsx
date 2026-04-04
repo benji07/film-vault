@@ -12,9 +12,10 @@ interface SelectProps {
 	options: SelectOption[];
 	placeholder?: string;
 	className?: string;
+	disabled?: boolean;
 }
 
-export function Select({ label, value, onChange, options, placeholder, className }: SelectProps) {
+export function Select({ label, value, onChange, options, placeholder, className, disabled }: SelectProps) {
 	return (
 		<div className="flex flex-col gap-1.5">
 			{label && (
@@ -23,11 +24,13 @@ export function Select({ label, value, onChange, options, placeholder, className
 			<select
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
+				disabled={disabled}
 				className={cn(
 					"bg-surface-alt border border-border rounded-[10px] py-2.5 px-3.5",
 					"text-sm font-body outline-none appearance-none",
 					"bg-no-repeat bg-[right_12px_center]",
 					value ? "text-text-primary" : "text-text-muted",
+					disabled && "opacity-50 cursor-not-allowed",
 					className,
 				)}
 				style={{
