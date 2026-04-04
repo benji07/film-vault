@@ -11,7 +11,11 @@ interface SheetProps {
 export function Sheet({ open, onClose, title, children }: SheetProps) {
 	if (!open) return null;
 	return (
-		<div className="fixed inset-0 z-[1000] flex items-end md:items-center justify-center" onClick={onClose} onKeyDown={undefined}>
+		<div
+			className="fixed inset-0 z-[1000] flex items-end md:items-center justify-center"
+			onClick={onClose}
+			onKeyDown={undefined}
+		>
 			<div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-backdrop-fade-in" />
 			<div
 				onClick={(e) => e.stopPropagation()}
