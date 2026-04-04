@@ -11,7 +11,9 @@ import {
 	Hash,
 	MessageSquare,
 	Package,
+	Pencil,
 	RotateCcw,
+	Save,
 	Send,
 	Trash2,
 } from "lucide-react";
@@ -33,7 +35,7 @@ import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { fmtDate, today } from "@/utils/helpers";
 
-type ActionType = "load" | "finish" | "partial" | "reload" | "sendDev" | "develop" | null;
+type ActionType = "load" | "finish" | "partial" | "reload" | "sendDev" | "develop" | "edit" | null;
 
 interface ActionData {
 	cameraId?: string;
@@ -47,6 +49,17 @@ interface ActionData {
 	devDate?: string;
 }
 
+interface EditData {
+	brand: string;
+	model: string;
+	iso: string;
+	type: string;
+	format: string;
+	expDate: string;
+	price: string;
+	comment: string;
+}
+
 interface FilmDetailScreenProps {
 	data: AppData;
 	setData: (data: AppData) => void;
@@ -58,6 +71,16 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 	const film = data.films.find((f) => f.id === filmId);
 	const [showAction, setShowAction] = useState<ActionType>(null);
 	const [actionData, setActionData] = useState<ActionData>({});
+	const [editData, setEditData] = useState<EditData>({
+		brand: "",
+		model: "",
+		iso: "",
+		type: "",
+		format: "",
+		expDate: "",
+		price: "",
+		comment: "",
+	});
 	const { toast } = useToast();
 
 	if (!film)
@@ -68,6 +91,20 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 				action={<Button onClick={() => setScreen("stock")}>Retour</Button>}
 			/>
 		);
+
+	const openEdit = () => {
+		setEditData({
+			brand: film.brand || "",
+			model: film.model || "",
+			iso: film.iso != null ? String(film.iso) : "",
+			type: film.type || "Couleur",
+			format: film.format || "35mm",
+			expDate: film.expDate || "",
+			price: film.price != null ? String(film.price) : "",
+			comment: film.comment || "",
+		});
+		setShowAction("edit");
+	};
 
 	const st = STATES[film.state];
 	const cam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
@@ -106,7 +143,14 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 				>
 					<ArrowLeft size={20} className="text-text-sec" />
 				</button>
-				<h2 className="font-display text-[22px] text-text-primary m-0 italic">{filmName(film)}</h2>
+				<h2 className="font-display text-[22px] text-text-primary m-0 italic flex-1">{filmName(film)}</h2>
+				<button
+					type="button"
+					onClick={openEdit}
+					className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
+				>
+					<Pencil size={18} className="text-text-sec" />
+				</button>
 			</div>
 
 			<Card>
@@ -467,6 +511,101 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						className="w-full justify-center"
 					>
 						<Archive size={16} /> Confirmer
+					</Button>
+				</div>
+			</Sheet>
+
+			<Sheet open={showAction === "edit"} onClose={() => setShowAction(null)} title="Modifier la pellicule">
+				<div className="flex flex-col gap-4">
+					<Input
+						label="Marque"
+						value={editData.brand}
+						onChange={(v) => setEditData({ ...editData, brand: v })}
+						placeholder="Ex : Kodak, Ilford, Fujifilm…"
+					/>
+					<Input
+						label="Modèle"
+						value={editData.model}
+						onChange={(v) => setEditData({ ...editData, model: v })}
+						placeholder="Ex : Portra 400, HP5 Plus…"
+					/>
+					<div className="grid grid-cols-2 gap-3">
+						<Input
+							label="ISO"
+							type="number"
+							value={editData.iso}
+							onChange={(v) => setEditData({ ...editData, iso: v })}
+							placeholder="400"
+							mono
+						/>
+						<Select
+							label="Type"
+							value={editData.type}
+							onChange={(v) => setEditData({ ...editData, type: v })}
+							options={[
+								{ value: "Couleur", label: "Couleur" },
+								{ value: "N&B", label: "N&B" },
+								{ value: "Diapo", label: "Diapo" },
+								{ value: "ECN-2", label: "ECN-2" },
+								{ value: "Instant", label: "Instant" },
+							]}
+						/>
+					</div>
+					<Select
+						label="Format"
+						value={editData.format}
+						onChange={(v) => setEditData({ ...editData, format: v })}
+						disabled={film.state === "loaded"}
+						options={[
+							{ value: "35mm", label: "35mm" },
+							{ value: "120", label: "Moyen format (120)" },
+							{ value: "Instant", label: "Instant" },
+						]}
+					/>
+					<div className="grid grid-cols-2 gap-3">
+						<Input
+							label="Date d'expiration"
+							type="date"
+							value={editData.expDate}
+							onChange={(v) => setEditData({ ...editData, expDate: v })}
+							mono
+						/>
+						<Input
+							label="Prix (€)"
+							type="number"
+							value={editData.price}
+							onChange={(v) => setEditData({ ...editData, price: v })}
+							placeholder="0.00"
+							mono
+						/>
+					</div>
+					<Input
+						label="Commentaire"
+						value={editData.comment}
+						onChange={(v) => setEditData({ ...editData, comment: v })}
+						placeholder="Notes…"
+					/>
+					<Button
+						disabled={!editData.brand || !editData.model}
+						onClick={() => {
+							updateFilm(
+								{
+									brand: editData.brand,
+									model: editData.model,
+									iso: Number.parseInt(editData.iso, 10) || 0,
+									type: editData.type,
+									format: film.state === "loaded" ? film.format : editData.format,
+									expDate: editData.expDate || null,
+									price: editData.price ? Number.parseFloat(editData.price) : null,
+									comment: editData.comment || null,
+									history: [...(film.history || []), { date: today(), action: "Informations modifiées" }],
+								},
+								"Pellicule modifiée",
+							);
+						}}
+						className="w-full justify-center"
+					>
+						<Save size={16} /> Enregistrer
 					</Button>
 				</div>
 			</Sheet>
