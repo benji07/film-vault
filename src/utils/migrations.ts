@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 2;
+export const CURRENT_VERSION = 3;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -28,8 +28,13 @@ function migrateV1toV2(data: Record<string, unknown>): Record<string, unknown> {
 	return { ...data, cameras: migratedCameras, version: 2 };
 }
 
+function migrateV2toV3(data: Record<string, unknown>): Record<string, unknown> {
+	return { ...data, version: 3 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
+	2: migrateV2toV3,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {
