@@ -70,16 +70,17 @@ export function StockScreen({ data, setScreen, setSelectedFilm }: StockScreenPro
 			</div>
 
 			<div className="flex flex-col gap-2">
-				{filtered.map((f) => (
-					<FilmRow
-						key={f.id}
-						film={f}
-						cameras={cameras}
-						onClick={() => {
-							setSelectedFilm(f.id);
-							setScreen("filmDetail");
-						}}
-					/>
+				{filtered.map((f, i) => (
+					<div key={f.id} className="animate-stagger-item" style={{ animationDelay: `${Math.min(i * 40, 400)}ms` }}>
+						<FilmRow
+							film={f}
+							cameras={cameras}
+							onClick={() => {
+								setSelectedFilm(f.id);
+								setScreen("filmDetail");
+							}}
+						/>
+					</div>
 				))}
 				{filtered.length === 0 && (
 					<EmptyState icon={Film} title="Rien trouvé" subtitle="Aucune pellicule ne correspond à ta recherche" />

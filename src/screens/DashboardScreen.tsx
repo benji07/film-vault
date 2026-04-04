@@ -43,10 +43,16 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm }: DashboardS
 			</div>
 
 			<div className="grid grid-cols-2 gap-2.5">
-				<StatCard icon={Snowflake} label="En stock" value={stockCount} color={T.blue} />
-				<StatCard icon={Camera} label="Chargées" value={loadedCount} color={T.green} />
-				<StatCard icon={Eye} label="Exposées" value={exposedCount} color={T.accent} />
-				<StatCard icon={Archive} label="Développées" value={developedCount} color={T.textSec} />
+				{[
+					{ icon: Snowflake, label: "En stock", value: stockCount, color: T.blue },
+					{ icon: Camera, label: "Chargées", value: loadedCount, color: T.green },
+					{ icon: Eye, label: "Exposées", value: exposedCount, color: T.accent },
+					{ icon: Archive, label: "Développées", value: developedCount, color: T.textSec },
+				].map((stat, i) => (
+					<div key={stat.label} className="animate-stagger-item" style={{ animationDelay: `${i * 60}ms` }}>
+						<StatCard icon={stat.icon} label={stat.label} value={stat.value} color={stat.color} />
+					</div>
+				))}
 			</div>
 
 			{partialCount > 0 && (

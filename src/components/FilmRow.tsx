@@ -1,10 +1,10 @@
 import { ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { STATES } from "@/constants/films";
-import { T } from "@/constants/theme";
+import { FILM_TYPE_COLORS, T } from "@/constants/theme";
 import type { Camera, Film } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
-import { filmIso, filmName } from "@/utils/film-helpers";
+import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 
 interface FilmRowProps {
 	film: Film;
@@ -15,6 +15,7 @@ interface FilmRowProps {
 export function FilmRow({ film, onClick, cameras }: FilmRowProps) {
 	const st = STATES[film.state];
 	const StIcon = st.icon;
+	const typeColor = FILM_TYPE_COLORS[filmType(film)] || T.textMuted;
 	const cam = film.cameraId ? cameras.find((c) => c.id === film.cameraId) : null;
 	const back = film.backId && cam ? cam.backs.find((b) => b.id === film.backId) : null;
 	const isExpiring =
@@ -27,8 +28,9 @@ export function FilmRow({ film, onClick, cameras }: FilmRowProps) {
 			onKeyDown={(e) => {
 				if (e.key === "Enter") onClick();
 			}}
-			className="flex items-center gap-3 py-3.5 px-4 bg-card border border-border rounded-[14px] cursor-pointer transition-all"
+			className="flex items-center gap-3 py-3.5 pr-4 pl-0 bg-card border border-border rounded-[14px] cursor-pointer transition-all overflow-hidden"
 		>
+			<div className="w-[3px] self-stretch shrink-0 rounded-r-full" style={{ backgroundColor: typeColor }} />
 			<div
 				className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
 				style={{ background: `linear-gradient(135deg, ${st.color}22, ${st.color}08)` }}

@@ -1,6 +1,7 @@
-import { Check, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { TabBar } from "@/components/TabBar";
+import { ToastProvider, useToast } from "@/components/Toast";
 import { AddFilmScreen } from "@/screens/AddFilmScreen";
 import { CamerasScreen } from "@/screens/CamerasScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
@@ -11,25 +12,24 @@ import { StockScreen } from "@/screens/StockScreen";
 import type { AppData, ScreenName } from "@/types";
 import { checkStorage, getInitialData, isStorageAvailable, loadData, saveData } from "@/utils/storage";
 
-type SaveStatus = "saving" | "saved" | "error" | null;
-
-export default function FilmVaultApp() {
+function FilmVaultInner() {
 	const [data, setData] = useState<AppData | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [screen, setScreen] = useState<ScreenName>("home");
 	const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
 	const [persistent, setPersistent] = useState(false);
-	const [saveStatus, setSaveStatus] = useState<SaveStatus>(null);
+	const { toast } = useToast();
 
-	const updateData = useCallback(async (newData: AppData) => {
-		setData(newData);
-		if (isStorageAvailable()) {
-			setSaveStatus("saving");
-			const ok = await saveData(newData);
-			setSaveStatus(ok ? "saved" : "error");
-			if (ok) setTimeout(() => setSaveStatus(null), 2000);
-		}
-	}, []);
+	const updateData = useCallback(
+		async (newData: AppData) => {
+			setData(newData);
+			if (isStorageAvailable()) {
+				const ok = await saveData(newData);
+				if (!ok) toast("Erreur de sauvegarde", "error");
+			}
+		},
+		[toast],
+	);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -84,14 +84,11 @@ export default function FilmVaultApp() {
 
 	return (
 		<div className="min-h-screen bg-bg text-text-primary font-body max-w-[480px] mx-auto relative">
-			<div className={`px-4 pt-5 ${showTabBar ? "pb-20" : "pb-5"}`}>{renderScreen()}</div>
-
-			{/* Save status toast */}
-			{saveStatus === "saved" && (
-				<div className="fixed top-3 left-1/2 -translate-x-1/2 bg-green text-white py-1.5 px-4 rounded-full text-xs font-body font-semibold z-[200] animate-[fadeIn_0.2s_ease]">
-					<Check size={12} className="inline mr-1 align-[-2px]" /> Sauvegardé
+			<div className={`px-4 pt-5 ${showTabBar ? "pb-20" : "pb-5"}`}>
+				<div key={`${screen}-${selectedFilm || ""}`} className="animate-screen-enter">
+					{renderScreen()}
 				</div>
-			)}
+			</div>
 
 			{/* Mode indicator */}
 			<div
@@ -103,5 +100,13 @@ export default function FilmVaultApp() {
 
 			{showTabBar && <TabBar screen={screen} setScreen={setScreen} />}
 		</div>
+	);
+}
+
+export default function FilmVaultApp() {
+	return (
+		<ToastProvider>
+			<FilmVaultInner />
+		</ToastProvider>
 	);
 }
