@@ -39,7 +39,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm }: StockScreenPro
 		<div className="flex flex-col gap-4">
 			<div className="flex justify-between items-center">
 				<h2 className="font-display text-2xl text-text-primary m-0 italic">Pellicules</h2>
-				<Button small onClick={() => setScreen("addFilm")}>
+				<Button size="sm" onClick={() => setScreen("addFilm")}>
 					<Plus size={14} /> Ajouter
 				</Button>
 			</div>

@@ -2,7 +2,7 @@ import { AlertTriangle, ArrowLeft, Camera as CameraIcon, Database, Download, Fil
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Sheet } from "@/components/ui/sheet";
+import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { T } from "@/constants/theme";
 import type { AppData, ScreenName } from "@/types";
 import { exportData, parseImportFile } from "@/utils/storage";
@@ -86,82 +86,94 @@ export function SettingsScreen({ data, setData, setScreen }: SettingsScreenProps
 			</Card>
 
 			<div className="flex flex-col gap-2.5">
-				<Button variant="secondary" onClick={() => exportData(data)} className="w-full justify-center">
+				<Button variant="outline" onClick={() => exportData(data)} className="w-full justify-center">
 					<Download size={16} /> Exporter mes données
 				</Button>
-				<Button variant="secondary" onClick={handleImportClick} className="w-full justify-center">
+				<Button variant="outline" onClick={handleImportClick} className="w-full justify-center">
 					<Upload size={16} /> Importer des données
 				</Button>
 				<input ref={fileInputRef} type="file" accept=".json" onChange={handleFileChange} className="hidden" />
 			</div>
 
 			{/* Import error */}
-			<Sheet open={!!importError} onClose={() => setImportError(null)} title="Erreur d'import">
-				<div className="flex flex-col gap-4">
-					<div className="bg-accent-soft border border-accent/20 rounded-xl p-3.5">
-						<span className="text-xs font-body" style={{ color: T.accent }}>
-							{importError}
-						</span>
-					</div>
-					<Button variant="secondary" onClick={() => setImportError(null)} className="w-full justify-center">
-						Fermer
-					</Button>
-				</div>
-			</Sheet>
-
-			{/* Import confirmation */}
-			<Sheet open={!!importPreview} onClose={() => setImportPreview(null)} title="Confirmer l'import">
-				{importPreview && (
+			<Dialog open={!!importError} onOpenChange={(open) => !open && setImportError(null)}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Erreur d'import</DialogTitle>
+						<DialogCloseButton />
+					</DialogHeader>
 					<div className="flex flex-col gap-4">
-						<div className="bg-amber-soft border border-amber/20 rounded-xl p-3.5 flex items-start gap-2.5">
-							<AlertTriangle size={16} className="shrink-0 mt-0.5" style={{ color: T.amber }} />
-							<span className="text-xs font-body" style={{ color: T.amber }}>
-								L'import remplacera toutes vos données actuelles. Cette action est irréversible.
+						<div className="bg-accent-soft border border-accent/20 rounded-xl p-3.5">
+							<span className="text-xs font-body" style={{ color: T.accent }}>
+								{importError}
 							</span>
 						</div>
-
-						<div className="grid grid-cols-2 gap-3">
-							<div className="bg-surface-alt rounded-xl p-3">
-								<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide block mb-2">
-									Données actuelles
-								</span>
-								<div className="flex flex-col gap-1">
-									<span className="text-xs text-text-sec font-body">
-										{data.films.length} pellicule{data.films.length > 1 ? "s" : ""}
-									</span>
-									<span className="text-xs text-text-sec font-body">
-										{data.cameras.length} appareil{data.cameras.length > 1 ? "s" : ""}
-									</span>
-									<span className="text-[10px] font-mono text-text-muted">v{data.version}</span>
-								</div>
-							</div>
-							<div className="bg-surface-alt rounded-xl p-3">
-								<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide block mb-2">
-									Données importées
-								</span>
-								<div className="flex flex-col gap-1">
-									<span className="text-xs text-text-sec font-body">
-										{importPreview.films.length} pellicule{importPreview.films.length > 1 ? "s" : ""}
-									</span>
-									<span className="text-xs text-text-sec font-body">
-										{importPreview.cameras.length} appareil{importPreview.cameras.length > 1 ? "s" : ""}
-									</span>
-									<span className="text-[10px] font-mono text-text-muted">v{importPreview.version}</span>
-								</div>
-							</div>
-						</div>
-
-						<div className="flex flex-col gap-2">
-							<Button variant="danger" onClick={confirmImport} className="w-full justify-center">
-								Confirmer l'import
-							</Button>
-							<Button variant="secondary" onClick={() => setImportPreview(null)} className="w-full justify-center">
-								Annuler
-							</Button>
-						</div>
+						<Button variant="outline" onClick={() => setImportError(null)} className="w-full justify-center">
+							Fermer
+						</Button>
 					</div>
-				)}
-			</Sheet>
+				</DialogContent>
+			</Dialog>
+
+			{/* Import confirmation */}
+			<Dialog open={!!importPreview} onOpenChange={(open) => !open && setImportPreview(null)}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Confirmer l'import</DialogTitle>
+						<DialogCloseButton />
+					</DialogHeader>
+					{importPreview && (
+						<div className="flex flex-col gap-4">
+							<div className="bg-amber-soft border border-amber/20 rounded-xl p-3.5 flex items-start gap-2.5">
+								<AlertTriangle size={16} className="shrink-0 mt-0.5" style={{ color: T.amber }} />
+								<span className="text-xs font-body" style={{ color: T.amber }}>
+									L'import remplacera toutes vos données actuelles. Cette action est irréversible.
+								</span>
+							</div>
+
+							<div className="grid grid-cols-2 gap-3">
+								<div className="bg-surface-alt rounded-xl p-3">
+									<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide block mb-2">
+										Données actuelles
+									</span>
+									<div className="flex flex-col gap-1">
+										<span className="text-xs text-text-sec font-body">
+											{data.films.length} pellicule{data.films.length > 1 ? "s" : ""}
+										</span>
+										<span className="text-xs text-text-sec font-body">
+											{data.cameras.length} appareil{data.cameras.length > 1 ? "s" : ""}
+										</span>
+										<span className="text-[10px] font-mono text-text-muted">v{data.version}</span>
+									</div>
+								</div>
+								<div className="bg-surface-alt rounded-xl p-3">
+									<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide block mb-2">
+										Données importées
+									</span>
+									<div className="flex flex-col gap-1">
+										<span className="text-xs text-text-sec font-body">
+											{importPreview.films.length} pellicule{importPreview.films.length > 1 ? "s" : ""}
+										</span>
+										<span className="text-xs text-text-sec font-body">
+											{importPreview.cameras.length} appareil{importPreview.cameras.length > 1 ? "s" : ""}
+										</span>
+										<span className="text-[10px] font-mono text-text-muted">v{importPreview.version}</span>
+									</div>
+								</div>
+							</div>
+
+							<div className="flex flex-col gap-2">
+								<Button variant="destructive" onClick={confirmImport} className="w-full justify-center">
+									Confirmer l'import
+								</Button>
+								<Button variant="outline" onClick={() => setImportPreview(null)} className="w-full justify-center">
+									Annuler
+								</Button>
+							</div>
+						</div>
+					)}
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

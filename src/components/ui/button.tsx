@@ -1,41 +1,37 @@
-import type { CSSProperties, ReactNode } from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+const buttonVariants = cva(
+	"inline-flex items-center gap-1.5 border-none cursor-pointer font-body font-semibold rounded-xl transition-all justify-center whitespace-nowrap",
+	{
+		variants: {
+			variant: {
+				default: "bg-accent text-white hover:bg-accent-hover",
+				outline: "bg-surface-alt text-text-primary border border-border",
+				ghost: "bg-transparent text-text-sec",
+				destructive: "bg-accent-soft text-accent",
+			},
+			size: {
+				default: "py-2.5 px-4.5 text-[13px] min-h-[44px]",
+				sm: "py-2 px-3 text-xs min-h-[44px]",
+			},
+		},
+		defaultVariants: {
+			variant: "default",
+			size: "default",
+		},
+	},
+);
 
-interface ButtonProps {
-	children: ReactNode;
-	variant?: ButtonVariant;
-	onClick?: () => void;
-	disabled?: boolean;
-	className?: string;
-	small?: boolean;
-	style?: CSSProperties;
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+	asChild?: boolean;
 }
 
-const variants: Record<ButtonVariant, string> = {
-	primary: "bg-accent text-white hover:bg-accent-hover",
-	secondary: "bg-surface-alt text-text-primary border border-border",
-	ghost: "bg-transparent text-text-sec",
-	danger: "bg-accent-soft text-accent",
-};
-
-export function Button({ children, variant = "primary", onClick, disabled, className, small, style }: ButtonProps) {
-	return (
-		<button
-			type="button"
-			className={cn(
-				"inline-flex items-center gap-1.5 border-none cursor-pointer font-body font-semibold rounded-xl transition-all",
-				small ? "py-2 px-3 text-xs min-h-[44px]" : "py-2.5 px-4.5 text-[13px] min-h-[44px]",
-				disabled && "opacity-40 cursor-not-allowed",
-				variants[variant],
-				className,
-			)}
-			onClick={onClick}
-			disabled={disabled}
-			style={style}
-		>
-			{children}
-		</button>
-	);
+function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
+	const Comp = asChild ? Slot : "button";
+	return <Comp type="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />;
 }
+
+export { Button, buttonVariants };

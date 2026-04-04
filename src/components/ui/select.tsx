@@ -1,49 +1,93 @@
+import * as SelectPrimitive from "@radix-ui/react-select";
+import { Check, ChevronDown } from "lucide-react";
+import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
-interface SelectOption {
-	value: string;
-	label: string;
+function Select(props: ComponentProps<typeof SelectPrimitive.Root>) {
+	return <SelectPrimitive.Root {...props} />;
 }
 
-interface SelectProps {
-	label?: string;
-	value: string;
-	onChange: (value: string) => void;
-	options: SelectOption[];
-	placeholder?: string;
-	className?: string;
-	disabled?: boolean;
-}
-
-export function Select({ label, value, onChange, options, placeholder, className, disabled }: SelectProps) {
+function SelectTrigger({ className, children, ...props }: ComponentProps<typeof SelectPrimitive.Trigger>) {
 	return (
-		<div className="flex flex-col gap-1.5">
-			{label && (
-				<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">{label}</label>
+		<SelectPrimitive.Trigger
+			className={cn(
+				"flex h-auto w-full items-center justify-between gap-2",
+				"bg-surface-alt border border-border rounded-[10px] py-2.5 px-3.5",
+				"text-sm font-body text-text-primary outline-none transition-colors",
+				"focus:border-accent",
+				"disabled:cursor-not-allowed disabled:opacity-50",
+				"[&>span]:truncate",
+				className,
 			)}
-			<select
-				value={value}
-				onChange={(e) => onChange(e.target.value)}
-				disabled={disabled}
-				className={cn(
-					"bg-surface-alt border border-border rounded-[10px] py-2.5 px-3.5",
-					"text-sm font-body outline-none appearance-none",
-					"bg-no-repeat bg-[right_12px_center]",
-					value ? "text-text-primary" : "text-text-muted",
-					disabled && "opacity-50 cursor-not-allowed",
-					className,
-				)}
-				style={{
-					backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B665F' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
-				}}
-			>
-				{placeholder && <option value="">{placeholder}</option>}
-				{options.map((o) => (
-					<option key={o.value} value={o.value}>
-						{o.label}
-					</option>
-				))}
-			</select>
-		</div>
+			{...props}
+		>
+			{children}
+			<SelectPrimitive.Icon asChild>
+				<ChevronDown className="h-4 w-4 shrink-0 text-text-muted" />
+			</SelectPrimitive.Icon>
+		</SelectPrimitive.Trigger>
 	);
 }
+
+function SelectContent({
+	className,
+	children,
+	position = "popper",
+	...props
+}: ComponentProps<typeof SelectPrimitive.Content>) {
+	return (
+		<SelectPrimitive.Portal>
+			<SelectPrimitive.Content
+				className={cn(
+					"relative z-50 max-h-[300px] min-w-[8rem] overflow-hidden",
+					"bg-surface-alt border border-border rounded-[10px] shadow-lg",
+					"data-[state=open]:animate-in data-[state=closed]:animate-out",
+					"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+					"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+					position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1",
+					className,
+				)}
+				position={position}
+				{...props}
+			>
+				<SelectPrimitive.Viewport
+					className={cn(
+						"p-1",
+						position === "popper" &&
+							"h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
+					)}
+				>
+					{children}
+				</SelectPrimitive.Viewport>
+			</SelectPrimitive.Content>
+		</SelectPrimitive.Portal>
+	);
+}
+
+function SelectItem({ className, children, ...props }: ComponentProps<typeof SelectPrimitive.Item>) {
+	return (
+		<SelectPrimitive.Item
+			className={cn(
+				"relative flex w-full cursor-pointer select-none items-center rounded-md py-2 pl-8 pr-3",
+				"text-sm font-body text-text-primary outline-none",
+				"focus:bg-surface hover:bg-surface",
+				"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+				className,
+			)}
+			{...props}
+		>
+			<span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+				<SelectPrimitive.ItemIndicator>
+					<Check className="h-4 w-4 text-accent" />
+				</SelectPrimitive.ItemIndicator>
+			</span>
+			<SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+		</SelectPrimitive.Item>
+	);
+}
+
+function SelectValue(props: ComponentProps<typeof SelectPrimitive.Value>) {
+	return <SelectPrimitive.Value {...props} />;
+}
+
+export { Select, SelectContent, SelectItem, SelectTrigger, SelectValue };

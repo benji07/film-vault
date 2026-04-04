@@ -3,8 +3,9 @@ import { useState } from "react";
 import { useToast } from "@/components/Toast";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { AppData, Film, ScreenName } from "@/types";
 import { today, uid } from "@/utils/helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
@@ -101,39 +102,72 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 			/>
 
 			<div className="grid grid-cols-2 gap-3">
-				<Input label="ISO" type="number" value={iso} onChange={setIso} placeholder="400" mono />
-				<Select
-					label="Type"
-					value={type}
-					onChange={setType}
-					options={[
-						{ value: "Couleur", label: "Couleur" },
-						{ value: "N&B", label: "N&B" },
-						{ value: "Diapo", label: "Diapo" },
-						{ value: "ECN-2", label: "ECN-2" },
-						{ value: "Instant", label: "Instant" },
-					]}
-				/>
+				<FormField label="ISO">
+					<Input
+						type="number"
+						value={iso}
+						onChange={(e) => setIso(e.target.value)}
+						placeholder="400"
+						className="font-mono"
+					/>
+				</FormField>
+				<FormField label="Type">
+					<Select value={type} onValueChange={setType}>
+						<SelectTrigger>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="Couleur">Couleur</SelectItem>
+							<SelectItem value="N&B">N&B</SelectItem>
+							<SelectItem value="Diapo">Diapo</SelectItem>
+							<SelectItem value="ECN-2">ECN-2</SelectItem>
+							<SelectItem value="Instant">Instant</SelectItem>
+						</SelectContent>
+					</Select>
+				</FormField>
 			</div>
 
-			<Select
-				label="Format"
-				value={format}
-				onChange={setFormat}
-				options={[
-					{ value: "35mm", label: "35mm" },
-					{ value: "120", label: "Moyen format (120)" },
-					{ value: "Instant", label: "Instant" },
-				]}
-			/>
+			<FormField label="Format">
+				<Select value={format} onValueChange={setFormat}>
+					<SelectTrigger>
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="35mm">35mm</SelectItem>
+						<SelectItem value="120">Moyen format (120)</SelectItem>
+						<SelectItem value="Instant">Instant</SelectItem>
+					</SelectContent>
+				</Select>
+			</FormField>
 
 			<div className="grid grid-cols-2 gap-3">
-				<Input label="Quantité" type="number" value={quantity} onChange={setQuantity} min="1" max="50" mono />
-				<Input label="Prix unitaire (€)" type="number" value={price} onChange={setPrice} placeholder="0.00" mono />
+				<FormField label="Quantité">
+					<Input
+						type="number"
+						value={quantity}
+						onChange={(e) => setQuantity(e.target.value)}
+						min="1"
+						max="50"
+						className="font-mono"
+					/>
+				</FormField>
+				<FormField label="Prix unitaire (€)">
+					<Input
+						type="number"
+						value={price}
+						onChange={(e) => setPrice(e.target.value)}
+						placeholder="0.00"
+						className="font-mono"
+					/>
+				</FormField>
 			</div>
 
-			<Input label="Date d'expiration" type="date" value={expDate} onChange={setExpDate} mono />
-			<Input label="Commentaire" value={comment} onChange={setComment} placeholder="Notes…" />
+			<FormField label="Date d'expiration">
+				<Input type="date" value={expDate} onChange={(e) => setExpDate(e.target.value)} className="font-mono" />
+			</FormField>
+			<FormField label="Commentaire">
+				<Input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Notes…" />
+			</FormField>
 
 			<Button onClick={handleSave} disabled={!brand || !model} className="w-full justify-center py-3.5 px-5">
 				<Plus size={16} /> Ajouter {Number.parseInt(quantity, 10) > 1 ? `${quantity} pellicules` : "la pellicule"}

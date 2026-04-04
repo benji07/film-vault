@@ -1,34 +1,28 @@
-interface SwitchProps {
-	label?: string;
-	checked: boolean;
-	onChange: (checked: boolean) => void;
-}
+import * as SwitchPrimitive from "@radix-ui/react-switch";
+import type { ComponentProps } from "react";
+import { cn } from "@/lib/utils";
 
-export function Switch({ label, checked, onChange }: SwitchProps) {
+function Switch({ className, ...props }: ComponentProps<typeof SwitchPrimitive.Root>) {
 	return (
-		<div className="flex items-center justify-between gap-3">
-			{label && (
-				<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">{label}</label>
+		<SwitchPrimitive.Root
+			className={cn(
+				"peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-border transition-colors",
+				"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+				"disabled:cursor-not-allowed disabled:opacity-50",
+				"data-[state=checked]:bg-accent data-[state=checked]:border-accent data-[state=unchecked]:bg-surface-alt",
+				className,
 			)}
-			<div
-				onClick={() => onChange(!checked)}
-				onKeyDown={(e) => {
-					if (e.key === "Enter" || e.key === " ") onChange(!checked);
-				}}
-				className="w-11 h-6 rounded-full cursor-pointer relative transition-all"
-				style={{
-					background: checked ? "var(--color-accent)" : "var(--color-surface-alt)",
-					border: `1px solid ${checked ? "var(--color-accent)" : "var(--color-border)"}`,
-				}}
-			>
-				<div
-					className="w-[18px] h-[18px] rounded-full absolute top-[2px] transition-all"
-					style={{
-						background: checked ? "#fff" : "var(--color-text-muted)",
-						left: checked ? 22 : 2,
-					}}
-				/>
-			</div>
-		</div>
+			{...props}
+		>
+			<SwitchPrimitive.Thumb
+				className={cn(
+					"pointer-events-none block h-[18px] w-[18px] rounded-full shadow-lg ring-0 transition-transform",
+					"data-[state=checked]:translate-x-[22px] data-[state=checked]:bg-white",
+					"data-[state=unchecked]:translate-x-[2px] data-[state=unchecked]:bg-text-muted",
+				)}
+			/>
+		</SwitchPrimitive.Root>
 	);
 }
+
+export { Switch };
