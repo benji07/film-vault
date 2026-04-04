@@ -73,15 +73,15 @@ const today = () => new Date().toISOString().split("T")[0];
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : "";
 
 const DEFAULT_CAMERAS = [
-  { id: "cam1", name: "Canon A-1", format: "35mm", backs: [] },
-  { id: "cam2", name: "Canon AE-1", format: "35mm", backs: [] },
-  { id: "cam3", name: "Hasselblad 503cx", format: "120", backs: [
+  { id: "cam1", name: "Canon A-1", format: "35mm", hasInterchangeableBack: false, backs: [] },
+  { id: "cam2", name: "Canon AE-1", format: "35mm", hasInterchangeableBack: false, backs: [] },
+  { id: "cam3", name: "Hasselblad 503cx", format: "120", hasInterchangeableBack: true, backs: [
     { id: "back1", name: "A12 — Couleur", ref: "A12" },
     { id: "back2", name: "A12 — N&B", ref: "A12" },
   ]},
-  { id: "cam4", name: "Yashica Mat 124G", format: "120", backs: [] },
-  { id: "cam5", name: "Olympus mju-II", format: "35mm", backs: [] },
-  { id: "cam6", name: "Canon 1000FN", format: "35mm", backs: [] },
+  { id: "cam4", name: "Yashica Mat 124G", format: "120", hasInterchangeableBack: false, backs: [] },
+  { id: "cam5", name: "Olympus mju-II", format: "35mm", hasInterchangeableBack: false, backs: [] },
+  { id: "cam6", name: "Canon 1000FN", format: "35mm", hasInterchangeableBack: false, backs: [] },
 ];
 
 // ── Storage helpers (localStorage) ─────────────────────
@@ -193,6 +193,22 @@ const Select = ({ label, value, onChange, options, placeholder }) => (
       {placeholder && <option value="">{placeholder}</option>}
       {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
+  </div>
+);
+
+const Toggle = ({ label, checked, onChange }) => (
+  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+    {label && <label style={{ fontSize: 11, fontWeight: 600, color: T.textSec, fontFamily: FONT.body, textTransform: "uppercase", letterSpacing: 0.5 }}>{label}</label>}
+    <div onClick={() => onChange(!checked)} style={{
+      width: 44, height: 24, borderRadius: 12, cursor: "pointer",
+      background: checked ? T.accent : T.surfaceAlt, border: `1px solid ${checked ? T.accent : T.border}`,
+      position: "relative", transition: "background 0.2s, border-color 0.2s",
+    }}>
+      <div style={{
+        width: 18, height: 18, borderRadius: 9, background: checked ? "#fff" : T.textMuted,
+        position: "absolute", top: 2, left: checked ? 22 : 2, transition: "left 0.2s, background 0.2s",
+      }} />
+    </div>
   </div>
 );
 
@@ -754,7 +770,7 @@ const InfoLine = ({ icon: Icon, label, value, warn }) => (
 // ── CAMERAS SCREEN ─────────────────────────────────────
 function CamerasScreen({ data, setData, setScreen }) {
   const [showAdd, setShowAdd] = useState(false);
-  const [newCam, setNewCam] = useState({ name: "", format: "35mm" });
+  const [newCam, setNewCam] = useState({ name: "", format: "35mm", hasInterchangeableBack: false });
   const [showBackModal, setShowBackModal] = useState(null); // camId for add
   const [newBack, setNewBack] = useState({ name: "", ref: "" });
   const [editCam, setEditCam] = useState(null); // full camera object
@@ -762,16 +778,16 @@ function CamerasScreen({ data, setData, setScreen }) {
 
   const addCamera = async () => {
     if (!newCam.name) return;
-    const camera = { id: uid(), name: newCam.name, format: newCam.format, backs: [] };
+    const camera = { id: uid(), name: newCam.name, format: newCam.format, hasInterchangeableBack: newCam.hasInterchangeableBack || false, backs: [] };
     const updated = { ...data, cameras: [...data.cameras, camera] };
     setData(updated);
     setShowAdd(false);
-    setNewCam({ name: "", format: "35mm" });
+    setNewCam({ name: "", format: "35mm", hasInterchangeableBack: false });
   };
 
   const saveEditCamera = async () => {
     if (!editCam?.name) return;
-    const newCams = data.cameras.map(c => c.id === editCam.id ? { ...c, name: editCam.name, format: editCam.format } : c);
+    const newCams = data.cameras.map(c => c.id === editCam.id ? { ...c, name: editCam.name, format: editCam.format, hasInterchangeableBack: editCam.hasInterchangeableBack || false } : c);
     const updated = { ...data, cameras: newCams };
     setData(updated);
     setEditCam(null);
@@ -838,7 +854,7 @@ function CamerasScreen({ data, setData, setScreen }) {
                   <button onClick={() => setEditCam({ ...cam })} style={{ background: T.surfaceAlt, border: `1px solid ${T.border}`, borderRadius: 8, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
                     <Edit3 size={14} color={T.textSec} />
                   </button>
-                  {cam.format === "120" && (
+                  {cam.hasInterchangeableBack && (
                     <button onClick={() => setShowBackModal(cam.id)} style={{ background: T.surfaceAlt, border: `1px solid ${T.border}`, borderRadius: 8, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
                       <Plus size={14} color={T.textSec} />
                     </button>
@@ -892,6 +908,7 @@ function CamerasScreen({ data, setData, setScreen }) {
           <Input label="Nom du boîtier" value={newCam.name} onChange={v => setNewCam({ ...newCam, name: v })} placeholder="Ex: Canon A-1" />
           <Select label="Format" value={newCam.format} onChange={v => setNewCam({ ...newCam, format: v })}
             options={[{ value: "35mm", label: "35mm" }, { value: "120", label: "Moyen format (120)" }, { value: "Instant", label: "Instant" }]} />
+          <Toggle label="Dos interchangeable" checked={newCam.hasInterchangeableBack} onChange={v => setNewCam({ ...newCam, hasInterchangeableBack: v })} />
           <Btn onClick={addCamera} disabled={!newCam.name} style={{ width: "100%", justifyContent: "center" }}>
             <Plus size={16} /> Ajouter
           </Btn>
@@ -905,6 +922,7 @@ function CamerasScreen({ data, setData, setScreen }) {
             <Input label="Nom du boîtier" value={editCam.name} onChange={v => setEditCam({ ...editCam, name: v })} />
             <Select label="Format" value={editCam.format} onChange={v => setEditCam({ ...editCam, format: v })}
               options={[{ value: "35mm", label: "35mm" }, { value: "120", label: "Moyen format (120)" }, { value: "Instant", label: "Instant" }]} />
+            <Toggle label="Dos interchangeable" checked={editCam.hasInterchangeableBack || false} onChange={v => setEditCam({ ...editCam, hasInterchangeableBack: v })} />
             <Btn onClick={saveEditCamera} disabled={!editCam.name} style={{ width: "100%", justifyContent: "center" }}>
               <Check size={16} /> Enregistrer
             </Btn>
