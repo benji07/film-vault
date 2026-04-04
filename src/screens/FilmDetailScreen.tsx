@@ -22,6 +22,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { InfoLine } from "@/components/InfoLine";
 import { Timeline } from "@/components/Timeline";
 import { useToast } from "@/components/Toast";
+import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -34,6 +35,7 @@ import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { fmtDate, today } from "@/utils/helpers";
+import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 
 type ActionType = "load" | "finish" | "partial" | "reload" | "sendDev" | "develop" | "edit" | null;
 
@@ -82,6 +84,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 		comment: "",
 	});
 	const { toast } = useToast();
+	const { brands, modelsForBrand, filmDataFor } = useFilmSuggestions(data.films);
 
 	if (!film)
 		return (
@@ -517,16 +520,30 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 
 			<Sheet open={showAction === "edit"} onClose={() => setShowAction(null)} title="Modifier la pellicule">
 				<div className="flex flex-col gap-4">
-					<Input
+					<AutocompleteInput
 						label="Marque"
 						value={editData.brand}
 						onChange={(v) => setEditData({ ...editData, brand: v })}
+						suggestions={brands}
 						placeholder="Ex : Kodak, Ilford, Fujifilm…"
 					/>
-					<Input
+					<AutocompleteInput
 						label="Modèle"
 						value={editData.model}
 						onChange={(v) => setEditData({ ...editData, model: v })}
+						onSelect={(selectedModel) => {
+							const data = filmDataFor(editData.brand, selectedModel);
+							if (data) {
+								setEditData((prev) => ({
+									...prev,
+									model: selectedModel,
+									iso: String(data.iso),
+									type: data.type,
+									format: data.format,
+								}));
+							}
+						}}
+						suggestions={modelsForBrand(editData.brand)}
 						placeholder="Ex : Portra 400, HP5 Plus…"
 					/>
 					<div className="grid grid-cols-2 gap-3">

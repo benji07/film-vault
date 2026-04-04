@@ -1,11 +1,13 @@
 import { ArrowLeft, Plus } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/Toast";
+import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import type { AppData, Film, ScreenName } from "@/types";
 import { today, uid } from "@/utils/helpers";
+import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 
 interface AddFilmScreenProps {
 	data: AppData;
@@ -15,6 +17,7 @@ interface AddFilmScreenProps {
 
 export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) {
 	const { toast } = useToast();
+	const { brands, modelsForBrand, filmDataFor } = useFilmSuggestions(data.films);
 	const [brand, setBrand] = useState("");
 	const [model, setModel] = useState("");
 	const [iso, setIso] = useState("");
@@ -24,6 +27,15 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 	const [quantity, setQuantity] = useState("1");
 	const [comment, setComment] = useState("");
 	const [price, setPrice] = useState("");
+
+	const handleModelSelect = (selectedModel: string) => {
+		const data = filmDataFor(brand, selectedModel);
+		if (data) {
+			setIso(String(data.iso));
+			setType(data.type);
+			setFormat(data.format);
+		}
+	};
 
 	const handleSave = () => {
 		const qty = Number.parseInt(quantity, 10) || 1;
@@ -72,8 +84,21 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 				<h2 className="font-display text-[22px] text-text-primary m-0 italic">Ajouter une pellicule</h2>
 			</div>
 
-			<Input label="Marque" value={brand} onChange={setBrand} placeholder="Ex : Kodak, Ilford, Fujifilm…" />
-			<Input label="Modèle" value={model} onChange={setModel} placeholder="Ex : Portra 400, HP5 Plus…" />
+			<AutocompleteInput
+				label="Marque"
+				value={brand}
+				onChange={setBrand}
+				suggestions={brands}
+				placeholder="Ex : Kodak, Ilford, Fujifilm…"
+			/>
+			<AutocompleteInput
+				label="Modèle"
+				value={model}
+				onChange={setModel}
+				onSelect={handleModelSelect}
+				suggestions={modelsForBrand(brand)}
+				placeholder="Ex : Portra 400, HP5 Plus…"
+			/>
 
 			<div className="grid grid-cols-2 gap-3">
 				<Input label="ISO" type="number" value={iso} onChange={setIso} placeholder="400" mono />
