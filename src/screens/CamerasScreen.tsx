@@ -5,9 +5,10 @@ import { PhotoPicker } from "@/components/PhotoPicker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Sheet } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { T } from "@/constants/theme";
 import type { AppData, Back, Camera as CameraType } from "@/types";
@@ -130,7 +131,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 		<div className="flex flex-col gap-4">
 			<div className="flex justify-between items-center">
 				<h2 className="font-display text-2xl text-text-primary m-0 italic">Appareils</h2>
-				<Button small onClick={() => setShowAdd(true)}>
+				<Button size="sm" onClick={() => setShowAdd(true)}>
 					<Plus size={14} /> Ajouter
 				</Button>
 			</div>
@@ -256,179 +257,226 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			</div>
 
 			{/* Add camera modal */}
-			<Sheet open={showAdd} onClose={() => setShowAdd(false)} title="Nouvel appareil">
-				<div className="flex flex-col gap-4">
-					<PhotoPicker
-						photos={newCam.photo ? [newCam.photo] : []}
-						onChange={(p) => setNewCam({ ...newCam, photo: p[0] || undefined })}
-						max={1}
-						size={48}
-						placeholderIcon
-						label="Photo"
-					/>
-					<Input
-						label="Marque"
-						value={newCam.brand}
-						onChange={(v) => setNewCam({ ...newCam, brand: v })}
-						placeholder="Ex: Canon"
-					/>
-					<Input
-						label="Modèle"
-						value={newCam.model}
-						onChange={(v) => setNewCam({ ...newCam, model: v })}
-						placeholder="Ex: A-1"
-					/>
-					<Input
-						label="Surnom (optionnel)"
-						value={newCam.nickname}
-						onChange={(v) => setNewCam({ ...newCam, nickname: v })}
-						placeholder="Ex: Mon Canon préféré"
-					/>
-					<Input
-						label="N° de série (optionnel)"
-						value={newCam.serial}
-						onChange={(v) => setNewCam({ ...newCam, serial: v })}
-						placeholder="Ex: 123456"
-					/>
-					<Select
-						label="Format"
-						value={newCam.format}
-						onChange={(v) => setNewCam({ ...newCam, format: v })}
-						options={[
-							{ value: "35mm", label: "35mm" },
-							{ value: "120", label: "Moyen format (120)" },
-							{ value: "Instant", label: "Instant" },
-						]}
-					/>
-					<Switch
-						label="Dos interchangeable"
-						checked={newCam.hasInterchangeableBack}
-						onChange={(v) => setNewCam({ ...newCam, hasInterchangeableBack: v })}
-					/>
-					<Button onClick={addCamera} disabled={!newCam.brand && !newCam.model} className="w-full justify-center">
-						<Plus size={16} /> Ajouter
-					</Button>
-				</div>
-			</Sheet>
-
-			{/* Edit camera modal */}
-			<Sheet open={!!editCam} onClose={() => setEditCam(null)} title="Modifier l'appareil">
-				{editCam && (
+			<Dialog open={showAdd} onOpenChange={(open) => !open && setShowAdd(false)}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Nouvel appareil</DialogTitle>
+						<DialogCloseButton />
+					</DialogHeader>
 					<div className="flex flex-col gap-4">
 						<PhotoPicker
-							photos={editCam.photo ? [editCam.photo] : []}
-							onChange={(p) => setEditCam({ ...editCam, photo: p[0] || undefined })}
+							photos={newCam.photo ? [newCam.photo] : []}
+							onChange={(p) => setNewCam({ ...newCam, photo: p[0] || undefined })}
 							max={1}
 							size={48}
 							placeholderIcon
 							label="Photo"
 						/>
-						<Input label="Marque" value={editCam.brand} onChange={(v) => setEditCam({ ...editCam, brand: v })} />
-						<Input label="Modèle" value={editCam.model} onChange={(v) => setEditCam({ ...editCam, model: v })} />
-						<Input
-							label="Surnom (optionnel)"
-							value={editCam.nickname}
-							onChange={(v) => setEditCam({ ...editCam, nickname: v })}
-						/>
-						<Input
-							label="N° de série (optionnel)"
-							value={editCam.serial}
-							onChange={(v) => setEditCam({ ...editCam, serial: v })}
-						/>
-						<Select
-							label="Format"
-							value={editCam.format}
-							onChange={(v) => setEditCam({ ...editCam, format: v })}
-							options={[
-								{ value: "35mm", label: "35mm" },
-								{ value: "120", label: "Moyen format (120)" },
-								{ value: "Instant", label: "Instant" },
-							]}
-						/>
-						<Switch
-							label="Dos interchangeable"
-							checked={editCam.hasInterchangeableBack || false}
-							onChange={(v) => setEditCam({ ...editCam, hasInterchangeableBack: v })}
-						/>
-						<Button
-							onClick={saveEditCamera}
-							disabled={!editCam.brand && !editCam.model}
-							className="w-full justify-center"
-						>
-							<Check size={16} /> Enregistrer
+						<FormField label="Marque">
+							<Input
+								value={newCam.brand}
+								onChange={(e) => setNewCam({ ...newCam, brand: e.target.value })}
+								placeholder="Ex: Canon"
+							/>
+						</FormField>
+						<FormField label="Modèle">
+							<Input
+								value={newCam.model}
+								onChange={(e) => setNewCam({ ...newCam, model: e.target.value })}
+								placeholder="Ex: A-1"
+							/>
+						</FormField>
+						<FormField label="Surnom (optionnel)">
+							<Input
+								value={newCam.nickname}
+								onChange={(e) => setNewCam({ ...newCam, nickname: e.target.value })}
+								placeholder="Ex: Mon Canon préféré"
+							/>
+						</FormField>
+						<FormField label="N° de série (optionnel)">
+							<Input
+								value={newCam.serial}
+								onChange={(e) => setNewCam({ ...newCam, serial: e.target.value })}
+								placeholder="Ex: 123456"
+							/>
+						</FormField>
+						<FormField label="Format">
+							<Select value={newCam.format} onValueChange={(v) => setNewCam({ ...newCam, format: v })}>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="35mm">35mm</SelectItem>
+									<SelectItem value="120">Moyen format (120)</SelectItem>
+									<SelectItem value="Instant">Instant</SelectItem>
+								</SelectContent>
+							</Select>
+						</FormField>
+						<div className="flex items-center justify-between gap-3">
+							<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
+								Dos interchangeable
+							</label>
+							<Switch
+								checked={newCam.hasInterchangeableBack}
+								onCheckedChange={(v) => setNewCam({ ...newCam, hasInterchangeableBack: v })}
+							/>
+						</div>
+						<Button onClick={addCamera} disabled={!newCam.brand && !newCam.model} className="w-full justify-center">
+							<Plus size={16} /> Ajouter
 						</Button>
 					</div>
-				)}
-			</Sheet>
+				</DialogContent>
+			</Dialog>
+
+			{/* Edit camera modal */}
+			<Dialog open={!!editCam} onOpenChange={(open) => !open && setEditCam(null)}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Modifier l'appareil</DialogTitle>
+						<DialogCloseButton />
+					</DialogHeader>
+					{editCam && (
+						<div className="flex flex-col gap-4">
+							<PhotoPicker
+								photos={editCam.photo ? [editCam.photo] : []}
+								onChange={(p) => setEditCam({ ...editCam, photo: p[0] || undefined })}
+								max={1}
+								size={48}
+								placeholderIcon
+								label="Photo"
+							/>
+							<FormField label="Marque">
+								<Input value={editCam.brand} onChange={(e) => setEditCam({ ...editCam, brand: e.target.value })} />
+							</FormField>
+							<FormField label="Modèle">
+								<Input value={editCam.model} onChange={(e) => setEditCam({ ...editCam, model: e.target.value })} />
+							</FormField>
+							<FormField label="Surnom (optionnel)">
+								<Input
+									value={editCam.nickname}
+									onChange={(e) => setEditCam({ ...editCam, nickname: e.target.value })}
+								/>
+							</FormField>
+							<FormField label="N° de série (optionnel)">
+								<Input value={editCam.serial} onChange={(e) => setEditCam({ ...editCam, serial: e.target.value })} />
+							</FormField>
+							<FormField label="Format">
+								<Select value={editCam.format} onValueChange={(v) => setEditCam({ ...editCam, format: v })}>
+									<SelectTrigger>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="35mm">35mm</SelectItem>
+										<SelectItem value="120">Moyen format (120)</SelectItem>
+										<SelectItem value="Instant">Instant</SelectItem>
+									</SelectContent>
+								</Select>
+							</FormField>
+							<div className="flex items-center justify-between gap-3">
+								<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
+									Dos interchangeable
+								</label>
+								<Switch
+									checked={editCam.hasInterchangeableBack || false}
+									onCheckedChange={(v) => setEditCam({ ...editCam, hasInterchangeableBack: v })}
+								/>
+							</div>
+							<Button
+								onClick={saveEditCamera}
+								disabled={!editCam.brand && !editCam.model}
+								className="w-full justify-center"
+							>
+								<Check size={16} /> Enregistrer
+							</Button>
+						</div>
+					)}
+				</DialogContent>
+			</Dialog>
 
 			{/* Add back modal */}
-			<Sheet open={!!showBackModal} onClose={() => setShowBackModal(null)} title="Ajouter un dos">
-				<div className="flex flex-col gap-4">
-					<PhotoPicker
-						photos={newBack.photo ? [newBack.photo] : []}
-						onChange={(p) => setNewBack({ ...newBack, photo: p[0] || undefined })}
-						max={1}
-						size={32}
-						placeholderIcon
-						label="Photo"
-					/>
-					<Input
-						label="Nom du dos"
-						value={newBack.name}
-						onChange={(v) => setNewBack({ ...newBack, name: v })}
-						placeholder="Ex: A12 — Couleur"
-					/>
-					<Input
-						label="Référence"
-						value={newBack.ref}
-						onChange={(v) => setNewBack({ ...newBack, ref: v })}
-						placeholder="Ex: A12"
-					/>
-					<Button
-						onClick={() => showBackModal && addBack(showBackModal)}
-						disabled={!newBack.name}
-						className="w-full justify-center"
-					>
-						<Plus size={16} /> Ajouter le dos
-					</Button>
-				</div>
-			</Sheet>
-
-			{/* Edit back modal */}
-			<Sheet open={!!editBack} onClose={() => setEditBack(null)} title="Modifier le dos">
-				{editBack && (
+			<Dialog open={!!showBackModal} onOpenChange={(open) => !open && setShowBackModal(null)}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Ajouter un dos</DialogTitle>
+						<DialogCloseButton />
+					</DialogHeader>
 					<div className="flex flex-col gap-4">
 						<PhotoPicker
-							photos={editBack.back.photo ? [editBack.back.photo] : []}
-							onChange={(p) => setEditBack({ ...editBack, back: { ...editBack.back, photo: p[0] || undefined } })}
+							photos={newBack.photo ? [newBack.photo] : []}
+							onChange={(p) => setNewBack({ ...newBack, photo: p[0] || undefined })}
 							max={1}
 							size={32}
 							placeholderIcon
 							label="Photo"
 						/>
-						<Input
-							label="Nom du dos"
-							value={editBack.back.name}
-							onChange={(v) => setEditBack({ ...editBack, back: { ...editBack.back, name: v } })}
-						/>
-						<Input
-							label="Référence"
-							value={editBack.back.ref || ""}
-							onChange={(v) => setEditBack({ ...editBack, back: { ...editBack.back, ref: v } })}
-						/>
-						<Button onClick={saveEditBack} disabled={!editBack.back.name} className="w-full justify-center">
-							<Check size={16} /> Enregistrer
-						</Button>
+						<FormField label="Nom du dos">
+							<Input
+								value={newBack.name}
+								onChange={(e) => setNewBack({ ...newBack, name: e.target.value })}
+								placeholder="Ex: A12 — Couleur"
+							/>
+						</FormField>
+						<FormField label="Référence">
+							<Input
+								value={newBack.ref}
+								onChange={(e) => setNewBack({ ...newBack, ref: e.target.value })}
+								placeholder="Ex: A12"
+							/>
+						</FormField>
 						<Button
-							variant="danger"
-							onClick={() => deleteBack(editBack.camId, editBack.back.id)}
+							onClick={() => showBackModal && addBack(showBackModal)}
+							disabled={!newBack.name}
 							className="w-full justify-center"
 						>
-							<Trash2 size={14} /> Supprimer ce dos
+							<Plus size={16} /> Ajouter le dos
 						</Button>
 					</div>
-				)}
-			</Sheet>
+				</DialogContent>
+			</Dialog>
+
+			{/* Edit back modal */}
+			<Dialog open={!!editBack} onOpenChange={(open) => !open && setEditBack(null)}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Modifier le dos</DialogTitle>
+						<DialogCloseButton />
+					</DialogHeader>
+					{editBack && (
+						<div className="flex flex-col gap-4">
+							<PhotoPicker
+								photos={editBack.back.photo ? [editBack.back.photo] : []}
+								onChange={(p) => setEditBack({ ...editBack, back: { ...editBack.back, photo: p[0] || undefined } })}
+								max={1}
+								size={32}
+								placeholderIcon
+								label="Photo"
+							/>
+							<FormField label="Nom du dos">
+								<Input
+									value={editBack.back.name}
+									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, name: e.target.value } })}
+								/>
+							</FormField>
+							<FormField label="Référence">
+								<Input
+									value={editBack.back.ref || ""}
+									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, ref: e.target.value } })}
+								/>
+							</FormField>
+							<Button onClick={saveEditBack} disabled={!editBack.back.name} className="w-full justify-center">
+								<Check size={16} /> Enregistrer
+							</Button>
+							<Button
+								variant="destructive"
+								onClick={() => deleteBack(editBack.camId, editBack.back.id)}
+								className="w-full justify-center"
+							>
+								<Trash2 size={14} /> Supprimer ce dos
+							</Button>
+						</div>
+					)}
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

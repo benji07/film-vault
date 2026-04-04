@@ -28,6 +28,28 @@
 }
 
 @layer base {
+	:root {
+		--background: var(--color-bg);
+		--foreground: var(--color-text-primary);
+		--card: var(--color-card);
+		--card-foreground: var(--color-text-primary);
+		--popover: var(--color-surface);
+		--popover-foreground: var(--color-text-primary);
+		--primary: var(--color-accent);
+		--primary-foreground: #ffffff;
+		--secondary: var(--color-surface-alt);
+		--secondary-foreground: var(--color-text-primary);
+		--muted: var(--color-surface-alt);
+		--muted-foreground: var(--color-text-muted);
+		--accent: var(--color-surface-alt);
+		--accent-foreground: var(--color-text-primary);
+		--destructive: var(--color-accent);
+		--destructive-foreground: #ffffff;
+		--border: var(--color-border);
+		--input: var(--color-border);
+		--ring: var(--color-accent);
+		--radius: 14px;
+	}
 	html,
 	body,
 	#root {

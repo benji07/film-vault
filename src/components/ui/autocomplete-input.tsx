@@ -1,5 +1,7 @@
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Input } from "./input";
 
 interface AutocompleteInputProps {
 	label?: string;
@@ -11,7 +13,7 @@ interface AutocompleteInputProps {
 	className?: string;
 }
 
-export function AutocompleteInput({
+function AutocompleteInput({
 	label,
 	value,
 	onChange,
@@ -36,45 +38,49 @@ export function AutocompleteInput({
 			{label && (
 				<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">{label}</label>
 			)}
-			<input
-				ref={inputRef}
-				type="text"
-				value={value}
-				onChange={(e) => {
-					onChange(e.target.value);
-					setIsOpen(true);
-				}}
-				onFocus={() => setIsOpen(true)}
-				onBlur={() => {
-					// Delay to allow click on dropdown item
-					setTimeout(() => setIsOpen(false), 150);
-				}}
-				placeholder={placeholder}
-				className={cn(
-					"bg-surface-alt border border-border rounded-[10px] py-2.5 px-3.5",
-					"text-text-primary text-sm outline-none transition-colors font-body",
-					"focus:border-accent",
-				)}
-				autoComplete="off"
-			/>
-			{isOpen && filtered.length > 0 && (
-				<ul className="bg-surface-alt border border-border rounded-[10px] overflow-hidden shadow-lg max-h-[220px] overflow-y-auto -mt-1">
-					{filtered.map((item) => (
-						<li key={item}>
-							<button
-								type="button"
-								className="w-full text-left px-3.5 py-2.5 text-sm text-text-primary font-body hover:bg-surface cursor-pointer border-none bg-transparent"
-								onMouseDown={(e) => {
-									e.preventDefault();
-									handleSelect(item);
-								}}
-							>
-								{item}
-							</button>
-						</li>
-					))}
-				</ul>
-			)}
+			<PopoverPrimitive.Root open={isOpen && filtered.length > 0} onOpenChange={setIsOpen}>
+				<PopoverPrimitive.Anchor asChild>
+					<Input
+						ref={inputRef}
+						type="text"
+						value={value}
+						onChange={(e) => {
+							onChange(e.target.value);
+							setIsOpen(true);
+						}}
+						onFocus={() => setIsOpen(true)}
+						placeholder={placeholder}
+						autoComplete="off"
+					/>
+				</PopoverPrimitive.Anchor>
+				<PopoverPrimitive.Portal>
+					<PopoverPrimitive.Content
+						className="z-50 w-[var(--radix-popover-trigger-width)] bg-surface-alt border border-border rounded-[10px] overflow-hidden shadow-lg max-h-[220px] overflow-y-auto"
+						sideOffset={4}
+						onOpenAutoFocus={(e) => e.preventDefault()}
+						onInteractOutside={() => setIsOpen(false)}
+					>
+						<ul>
+							{filtered.map((item) => (
+								<li key={item}>
+									<button
+										type="button"
+										className="w-full text-left px-3.5 py-2.5 text-sm text-text-primary font-body hover:bg-surface cursor-pointer border-none bg-transparent"
+										onMouseDown={(e) => {
+											e.preventDefault();
+											handleSelect(item);
+										}}
+									>
+										{item}
+									</button>
+								</li>
+							))}
+						</ul>
+					</PopoverPrimitive.Content>
+				</PopoverPrimitive.Portal>
+			</PopoverPrimitive.Root>
 		</div>
 	);
 }
+
+export { AutocompleteInput };
