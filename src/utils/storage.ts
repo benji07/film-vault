@@ -1,4 +1,3 @@
-import { DEFAULT_CAMERAS } from "@/constants/cameras";
 import type { AppData } from "@/types";
 import { applyMigrations, CURRENT_VERSION, validateAppData } from "./migrations";
 
@@ -56,7 +55,7 @@ export async function saveData(data: AppData): Promise<boolean> {
 export function getInitialData(): AppData {
 	return {
 		films: [],
-		cameras: DEFAULT_CAMERAS,
+		cameras: [],
 		version: CURRENT_VERSION,
 	};
 }
