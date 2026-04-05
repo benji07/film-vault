@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { STATES } from "@/constants/films";
 import { FILM_TYPE_COLORS, T } from "@/constants/theme";
 import type { Camera, Film } from "@/types";
-import { cameraDisplayName } from "@/utils/camera-helpers";
+import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 
@@ -49,7 +49,7 @@ export function FilmRow({ film, onClick, cameras }: FilmRowProps) {
 					{cam && (
 						<Badge style={{ color: T.green, background: `${T.green}18` }}>
 							{cameraDisplayName(cam)}
-							{back ? ` · ${back.name}` : ""}
+							{back ? ` · ${backDisplayName(back)}` : ""}
 						</Badge>
 					)}
 					{film.expDate && (

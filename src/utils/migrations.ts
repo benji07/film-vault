@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 5;
+export const CURRENT_VERSION = 6;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -54,11 +54,28 @@ function migrateV4toV5(data: Record<string, unknown>): Record<string, unknown> {
 	return { ...data, films: migratedFilms, version: 5 };
 }
 
+function migrateV5toV6(data: Record<string, unknown>): Record<string, unknown> {
+	const cameras = (data.cameras as Record<string, unknown>[]) || [];
+	const migratedCameras = cameras.map((cam) => {
+		const backs = (cam.backs as Record<string, unknown>[]) || [];
+		return {
+			...cam,
+			backs: backs.map((b) => ({
+				...b,
+				nickname: (b.nickname as string) ?? "",
+				serial: (b.serial as string) ?? "",
+			})),
+		};
+	});
+	return { ...data, cameras: migratedCameras, version: 6 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
 	3: migrateV3toV4,
 	4: migrateV4toV5,
+	5: migrateV5toV6,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

@@ -39,6 +39,33 @@ export function StatsScreen({ data }: StatsScreenProps) {
 		}
 	}
 
+	const MONTH_LABELS_FR = [
+		"janv.",
+		"févr.",
+		"mars",
+		"avr.",
+		"mai",
+		"juin",
+		"juil.",
+		"août",
+		"sept.",
+		"oct.",
+		"nov.",
+		"déc.",
+	];
+	const consumedStates = new Set(["exposed", "developed", "scanned"]);
+	const now = new Date();
+	const byMonth: Record<string, number> = {};
+	let annualTotal = 0;
+	for (let i = 11; i >= 0; i--) {
+		const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+		const key = `${MONTH_LABELS_FR[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
+		const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+		const count = films.filter((f) => f.endDate?.startsWith(ym) && consumedStates.has(f.state)).length;
+		byMonth[key] = count;
+		annualTotal += count;
+	}
+
 	const topFilms: Record<string, number> = {};
 	for (const f of allShot) {
 		const name = filmName(f);
@@ -67,6 +94,14 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				<StatCard icon={Eye} label="Shootées" value={allShot.length} color={T.green} />
 				<StatCard icon={Archive} label="Développées" value={developed.length} color={T.textSec} />
 			</div>
+
+			<Card>
+				<span className="text-sm font-bold text-text-primary font-body mb-3 block">Consommation mensuelle</span>
+				<BarChart data={byMonth} color={T.accent} sort={false} />
+				<div className="text-xs text-text-muted font-body mt-2 text-center">
+					Total annuel : {annualTotal} pellicule{annualTotal > 1 ? "s" : ""}
+				</div>
+			</Card>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 				<Card>

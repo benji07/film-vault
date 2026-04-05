@@ -40,7 +40,9 @@ export interface Film {
 export interface Back {
 	id: string;
 	name: string;
+	nickname?: string;
 	ref?: string;
+	serial?: string;
 	photo?: string;
 }
 

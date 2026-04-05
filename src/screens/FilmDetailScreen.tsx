@@ -37,7 +37,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { STATES } from "@/constants/films";
 import { T } from "@/constants/theme";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
-import { cameraDisplayName } from "@/utils/camera-helpers";
+import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { fmtDate, today, uid } from "@/utils/helpers";
@@ -218,7 +218,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 						<InfoLine
 							icon={Camera}
 							label="Appareil"
-							value={`${cameraDisplayName(cam)}${back ? ` · ${back.name}` : ""}`}
+							value={`${cameraDisplayName(cam)}${back ? ` · ${backDisplayName(back)}` : ""}`}
 						/>
 					)}
 					{film.startDate && <InfoLine icon={Calendar} label="Début" value={fmtDate(film.startDate)} />}
@@ -330,7 +330,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 												.find((c) => c.id === actionData.cameraId)
 												?.backs.map((b) => (
 													<SelectItem key={b.id} value={b.id}>
-														{b.name}
+														{backDisplayName(b)}
 													</SelectItem>
 												))}
 										</SelectContent>

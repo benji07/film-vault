@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { T } from "@/constants/theme";
 import type { AppData, Back, Camera as CameraType } from "@/types";
-import { cameraDisplayName } from "@/utils/camera-helpers";
+import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
 import { uid } from "@/utils/helpers";
 
@@ -38,7 +38,13 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 		photo: undefined as string | undefined,
 	});
 	const [showBackModal, setShowBackModal] = useState<string | null>(null);
-	const [newBack, setNewBack] = useState({ name: "", ref: "", photo: undefined as string | undefined });
+	const [newBack, setNewBack] = useState({
+		name: "",
+		nickname: "",
+		ref: "",
+		serial: "",
+		photo: undefined as string | undefined,
+	});
 	const [editCam, setEditCam] = useState<CameraType | null>(null);
 	const [editBack, setEditBack] = useState<EditBackState | null>(null);
 
@@ -90,11 +96,18 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 
 	const addBack = (camId: string) => {
 		if (!newBack.name) return;
-		const back: Back = { id: uid(), name: newBack.name, ref: newBack.ref, photo: newBack.photo };
+		const back: Back = {
+			id: uid(),
+			name: newBack.name,
+			nickname: newBack.nickname,
+			ref: newBack.ref,
+			serial: newBack.serial,
+			photo: newBack.photo,
+		};
 		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, backs: [...c.backs, back] } : c));
 		setData({ ...data, cameras: newCams });
 		setShowBackModal(null);
-		setNewBack({ name: "", ref: "", photo: undefined });
+		setNewBack({ name: "", nickname: "", ref: "", serial: "", photo: undefined });
 	};
 
 	const saveEditBack = () => {
@@ -105,7 +118,14 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 				...c,
 				backs: c.backs.map((b) =>
 					b.id === editBack.back.id
-						? { ...b, name: editBack.back.name, ref: editBack.back.ref, photo: editBack.back.photo }
+						? {
+								...b,
+								name: editBack.back.name,
+								nickname: editBack.back.nickname,
+								ref: editBack.back.ref,
+								serial: editBack.back.serial,
+								photo: editBack.back.photo,
+							}
 						: b,
 				),
 			};
@@ -218,7 +238,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 														</div>
 													)}
 													<div>
-														<span className="text-[13px] text-text-sec font-body">{b.name}</span>
+														<span className="text-[13px] text-text-sec font-body">{backDisplayName(b)}</span>
 														{b.ref && <span className="text-[11px] text-text-muted font-mono ml-2">{b.ref}</span>}
 													</div>
 												</div>
@@ -423,6 +443,20 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 								placeholder="Ex: A12"
 							/>
 						</FormField>
+						<FormField label="Surnom (optionnel)">
+							<Input
+								value={newBack.nickname}
+								onChange={(e) => setNewBack({ ...newBack, nickname: e.target.value })}
+								placeholder="Ex: Mon dos préféré"
+							/>
+						</FormField>
+						<FormField label="N° de série (optionnel)">
+							<Input
+								value={newBack.serial}
+								onChange={(e) => setNewBack({ ...newBack, serial: e.target.value })}
+								placeholder="Ex: 123456"
+							/>
+						</FormField>
 						<Button
 							onClick={() => showBackModal && addBack(showBackModal)}
 							disabled={!newBack.name}
@@ -461,6 +495,18 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 								<Input
 									value={editBack.back.ref || ""}
 									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, ref: e.target.value } })}
+								/>
+							</FormField>
+							<FormField label="Surnom (optionnel)">
+								<Input
+									value={editBack.back.nickname || ""}
+									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, nickname: e.target.value } })}
+								/>
+							</FormField>
+							<FormField label="N° de série (optionnel)">
+								<Input
+									value={editBack.back.serial || ""}
+									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, serial: e.target.value } })}
 								/>
 							</FormField>
 							<Button onClick={saveEditBack} disabled={!editBack.back.name} className="w-full justify-center">
