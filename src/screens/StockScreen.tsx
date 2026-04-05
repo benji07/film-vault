@@ -1,5 +1,6 @@
 import { Film, Plus, Search } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmRow } from "@/components/FilmRow";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ interface StockScreenProps {
 }
 
 export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: StockScreenProps) {
+	const { t } = useTranslation();
 	const [filter, setFilter] = useState("all");
 	const [search, setSearch] = useState("");
 	const { films, cameras } = data;
@@ -28,21 +30,21 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 	});
 
 	const tabs = [
-		{ key: "all", label: "Toutes", count: films.length },
-		{ key: "stock", label: "Stock", count: films.filter((f) => f.state === "stock").length },
-		{ key: "loaded", label: "Chargées", count: films.filter((f) => f.state === "loaded").length },
-		{ key: "partial", label: "Partielles", count: films.filter((f) => f.state === "partial").length },
-		{ key: "exposed", label: "Exposées", count: films.filter((f) => f.state === "exposed").length },
-		{ key: "developed", label: "Dév.", count: films.filter((f) => f.state === "developed").length },
-		{ key: "scanned", label: "Scannées", count: films.filter((f) => f.state === "scanned").length },
+		{ key: "all", label: t("stock.all"), count: films.length },
+		{ key: "stock", label: t("stock.stockTab"), count: films.filter((f) => f.state === "stock").length },
+		{ key: "loaded", label: t("stock.loadedTab"), count: films.filter((f) => f.state === "loaded").length },
+		{ key: "partial", label: t("stock.partialTab"), count: films.filter((f) => f.state === "partial").length },
+		{ key: "exposed", label: t("stock.exposedTab"), count: films.filter((f) => f.state === "exposed").length },
+		{ key: "developed", label: t("stock.developedTab"), count: films.filter((f) => f.state === "developed").length },
+		{ key: "scanned", label: t("stock.scannedTab"), count: films.filter((f) => f.state === "scanned").length },
 	];
 
 	return (
 		<div className="flex flex-col gap-4">
 			<div className="flex justify-between items-center">
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">Pellicules</h2>
+				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("stock.title")}</h2>
 				<Button size="sm" onClick={onAddFilm}>
-					<Plus size={14} /> Ajouter
+					<Plus size={14} /> {t("stock.add")}
 				</Button>
 			</div>
 
@@ -51,22 +53,22 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 				<input
 					value={search}
 					onChange={(e) => setSearch(e.target.value)}
-					placeholder="Rechercher…"
+					placeholder={t("stock.search")}
 					className="w-full bg-surface-alt border border-border rounded-xl py-2.5 pr-3.5 pl-9 text-text-primary text-sm font-body outline-none"
 				/>
 			</div>
 
 			<div className="flex gap-1.5 overflow-x-auto pb-1">
-				{tabs.map((t) => (
+				{tabs.map((tab) => (
 					<button
 						type="button"
-						key={t.key}
-						onClick={() => setFilter(t.key)}
+						key={tab.key}
+						onClick={() => setFilter(tab.key)}
 						className={`py-2.5 px-4 rounded-full border-none cursor-pointer text-xs font-semibold font-body whitespace-nowrap transition-all min-h-[44px] ${
-							filter === t.key ? "bg-accent text-white" : "bg-surface-alt text-text-sec"
+							filter === tab.key ? "bg-accent text-white" : "bg-surface-alt text-text-sec"
 						}`}
 					>
-						{t.label} <span className="opacity-70">({t.count})</span>
+						{tab.label} <span className="opacity-70">({tab.count})</span>
 					</button>
 				))}
 			</div>
@@ -85,7 +87,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 					</div>
 				))}
 				{filtered.length === 0 && (
-					<EmptyState icon={Film} title="Rien trouvé" subtitle="Aucune pellicule ne correspond à ta recherche" />
+					<EmptyState icon={Film} title={t("stock.nothingFound")} subtitle={t("stock.noMatch")} />
 				)}
 			</div>
 		</div>

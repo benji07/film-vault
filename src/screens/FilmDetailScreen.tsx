@@ -18,6 +18,7 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { InfoLine } from "@/components/InfoLine";
 import { PhotoPicker } from "@/components/PhotoPicker";
@@ -33,7 +34,7 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { STATES } from "@/constants/films";
+import { getStates } from "@/constants/films";
 import { T } from "@/constants/theme";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
@@ -77,6 +78,7 @@ interface FilmDetailScreenProps {
 }
 
 export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, filmId }: FilmDetailScreenProps) {
+	const { t } = useTranslation();
 	const film = data.films.find((f) => f.id === filmId);
 	const [showAction, setShowAction] = useState<ActionType>(null);
 	const [actionData, setActionData] = useState<ActionData>({});
@@ -98,8 +100,8 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 		return (
 			<EmptyState
 				icon={Film}
-				title="Pellicule introuvable"
-				action={<Button onClick={() => setScreen("stock")}>Retour</Button>}
+				title={t("filmDetail.notFound")}
+				action={<Button onClick={() => setScreen("stock")}>{t("filmDetail.back")}</Button>}
 			/>
 		);
 
@@ -116,6 +118,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 		setShowAction("edit");
 	};
 
+	const STATES = getStates(t);
 	const st = STATES[film.state];
 	const cam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
 	const back = film.backId && cam ? cam.backs.find((b) => b.id === film.backId) : null;
@@ -131,7 +134,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 
 	const deleteFilm = () => {
 		setData({ ...data, films: data.films.filter((f) => f.id !== filmId) });
-		toast("Pellicule supprimée", "info");
+		toast(t("filmDetail.filmDeleted"), "info");
 		setScreen("stock");
 	};
 
@@ -159,11 +162,11 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			lab: null,
 			devDate: null,
 			scanRef: null,
-			history: [{ date: today(), action: `Dupliquée depuis ${filmName(film)}` }],
+			history: [{ date: today(), action: t("filmDetail.historyDuplicated", { name: filmName(film) }) }],
 		};
 		setData({ ...data, films: [...data.films, newFilm] });
 		setSelectedFilm(newId);
-		toast("Pellicule dupliquée");
+		toast(t("filmDetail.filmDuplicated"));
 	};
 
 	const getAvailableCameras = () => {
@@ -200,27 +203,27 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 					{film.expDate && (
 						<InfoLine
 							icon={Calendar}
-							label="Expiration"
-							value={fmtExpDate(film.expDate)}
+							label={t("filmDetail.expiration")}
+							value={fmtExpDate(film.expDate, t("dateLocale"))}
 							warn={getExpirationStatus(film.expDate)?.status === "expired"}
 						/>
 					)}
-					{film.shootIso && <InfoLine icon={Aperture} label="ISO de prise de vue" value={film.shootIso} />}
+					{film.shootIso && <InfoLine icon={Aperture} label={t("filmDetail.shootIso")} value={film.shootIso} />}
 					{cam && (
 						<InfoLine
 							icon={Camera}
-							label="Appareil"
+							label={t("filmDetail.camera")}
 							value={`${cameraDisplayName(cam)}${back ? ` · ${backDisplayName(back)}` : ""}`}
 						/>
 					)}
-					{film.startDate && <InfoLine icon={Calendar} label="Début" value={fmtDate(film.startDate)} />}
-					{film.endDate && <InfoLine icon={Calendar} label="Fin" value={fmtDate(film.endDate)} />}
+					{film.startDate && <InfoLine icon={Calendar} label={t("filmDetail.start")} value={fmtDate(film.startDate)} />}
+					{film.endDate && <InfoLine icon={Calendar} label={t("filmDetail.end")} value={fmtDate(film.endDate)} />}
 					{film.posesShot != null && (
-						<InfoLine icon={CircleDot} label="Poses" value={`${film.posesShot} / ${film.posesTotal}`} />
+						<InfoLine icon={CircleDot} label={t("filmDetail.poses")} value={`${film.posesShot} / ${film.posesTotal}`} />
 					)}
-					{film.lab && <InfoLine icon={Package} label="Labo" value={film.lab} />}
-					{film.scanRef && <InfoLine icon={ScanLine} label="Réf. scan" value={film.scanRef} />}
-					{film.comment && <InfoLine icon={MessageSquare} label="Notes" value={film.comment} />}
+					{film.lab && <InfoLine icon={Package} label={t("filmDetail.lab")} value={film.lab} />}
+					{film.scanRef && <InfoLine icon={ScanLine} label={t("filmDetail.scanRef")} value={film.scanRef} />}
+					{film.comment && <InfoLine icon={MessageSquare} label={t("filmDetail.notes")} value={film.comment} />}
 				</div>
 			</Card>
 
@@ -228,17 +231,17 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			<div className="flex flex-col gap-2">
 				{film.state === "stock" && (
 					<Button onClick={() => setShowAction("load")} className="w-full justify-center">
-						<Camera size={16} /> Charger dans un appareil
+						<Camera size={16} /> {t("filmDetail.loadInCamera")}
 					</Button>
 				)}
 				{film.state === "loaded" && (
 					<>
 						<Button onClick={() => setShowAction("finish")} className="w-full justify-center">
-							<Check size={16} /> Marquer comme terminée
+							<Check size={16} /> {t("filmDetail.markFinished")}
 						</Button>
 						{film.format === "35mm" && (
 							<Button variant="outline" onClick={() => setShowAction("partial")} className="w-full justify-center">
-								<Clock size={16} /> Retirer (non terminée)
+								<Clock size={16} /> {t("filmDetail.removeNotFinished")}
 							</Button>
 						)}
 					</>
@@ -246,28 +249,28 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 				{film.state === "partial" && (
 					<>
 						<Button onClick={() => setShowAction("reload")} className="w-full justify-center">
-							<RotateCcw size={16} /> Recharger dans un appareil
+							<RotateCcw size={16} /> {t("filmDetail.reloadInCamera")}
 						</Button>
 						<Button variant="outline" onClick={() => setShowAction("sendDev")} className="w-full justify-center">
-							<Send size={16} /> Envoyer au développement
+							<Send size={16} /> {t("filmDetail.sendToDev")}
 						</Button>
 					</>
 				)}
 				{film.state === "exposed" && (
 					<Button onClick={() => setShowAction("develop")} className="w-full justify-center">
-						<Archive size={16} /> Marquer comme développée
+						<Archive size={16} /> {t("filmDetail.markDeveloped")}
 					</Button>
 				)}
 				{film.state === "developed" && (
 					<Button onClick={() => setShowAction("scan")} className="w-full justify-center">
-						<ScanLine size={16} /> Marquer comme scannée
+						<ScanLine size={16} /> {t("filmDetail.markScanned")}
 					</Button>
 				)}
 				<Button variant="outline" onClick={handleDuplicate} className="w-full justify-center">
-					<CopyPlus size={16} /> Dupliquer
+					<CopyPlus size={16} /> {t("filmDetail.duplicate")}
 				</Button>
 				<Button variant="destructive" onClick={deleteFilm} className="w-full justify-center">
-					<Trash2 size={14} /> Supprimer
+					<Trash2 size={14} /> {t("filmDetail.delete")}
 				</Button>
 			</div>
 
@@ -286,17 +289,17 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			<Dialog open={showAction === "load"} onOpenChange={(open) => !open && closeAction()}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Charger dans un appareil</DialogTitle>
+						<DialogTitle>{t("filmDetail.loadModalTitle")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
-						<FormField label="Appareil">
+						<FormField label={t("filmDetail.cameraField")}>
 							<Select
 								value={actionData.cameraId || ""}
 								onValueChange={(v) => setActionData({ ...actionData, cameraId: v, backId: "" })}
 							>
 								<SelectTrigger>
-									<SelectValue placeholder="Choisir…" />
+									<SelectValue placeholder={t("filmDetail.choosePlaceholder")} />
 								</SelectTrigger>
 								<SelectContent>
 									{getAvailableCameras().map((c) => (
@@ -309,13 +312,13 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 						</FormField>
 						{actionData.cameraId &&
 							(data.cameras.find((c) => c.id === actionData.cameraId)?.backs?.length ?? 0) > 0 && (
-								<FormField label="Dos">
+								<FormField label={t("filmDetail.backField")}>
 									<Select
 										value={actionData.backId || ""}
 										onValueChange={(v) => setActionData({ ...actionData, backId: v })}
 									>
 										<SelectTrigger>
-											<SelectValue placeholder="Choisir un dos…" />
+											<SelectValue placeholder={t("filmDetail.chooseBackPlaceholder")} />
 										</SelectTrigger>
 										<SelectContent>
 											{data.cameras
@@ -329,7 +332,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 									</Select>
 								</FormField>
 							)}
-						<FormField label="ISO de prise de vue">
+						<FormField label={t("filmDetail.shootIsoField")}>
 							<Input
 								type="number"
 								value={actionData.shootIso || String(fIso)}
@@ -337,7 +340,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								className="font-mono"
 							/>
 						</FormField>
-						<FormField label="Date de début">
+						<FormField label={t("filmDetail.startDateField")}>
 							<Input
 								type="date"
 								value={actionData.startDate || today()}
@@ -345,7 +348,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								className="font-mono"
 							/>
 						</FormField>
-						<FormField label="Commentaire">
+						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={actionData.comment || ""}
 								onChange={(e) => setActionData({ ...actionData, comment: e.target.value })}
@@ -355,7 +358,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							photos={actionData.photos || []}
 							onChange={(p) => setActionData({ ...actionData, photos: p })}
 							max={3}
-							label={`Photos (${(actionData.photos || []).length}/3)`}
+							label={t("filmDetail.photos", { count: (actionData.photos || []).length, max: 3 })}
 						/>
 						<Button
 							disabled={!actionData.cameraId}
@@ -374,17 +377,17 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 											...(film.history || []),
 											{
 												date: today(),
-												action: `Chargée dans ${loadCam ? cameraDisplayName(loadCam) : "?"}`,
+												action: t("filmDetail.historyLoaded", { camera: loadCam ? cameraDisplayName(loadCam) : "?" }),
 												photos,
 											},
 										],
 									},
-									"Pellicule chargée",
+									t("filmDetail.filmLoaded"),
 								);
 							}}
 							className="w-full justify-center"
 						>
-							<Camera size={16} /> Charger
+							<Camera size={16} /> {t("filmDetail.loadButton")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -393,11 +396,11 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			<Dialog open={showAction === "finish"} onOpenChange={(open) => !open && closeAction()}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Pellicule terminée</DialogTitle>
+						<DialogTitle>{t("filmDetail.finishedModalTitle")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
-						<FormField label="Date de fin">
+						<FormField label={t("filmDetail.endDateField")}>
 							<Input
 								type="date"
 								value={actionData.endDate || today()}
@@ -405,7 +408,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								className="font-mono"
 							/>
 						</FormField>
-						<FormField label="Commentaire">
+						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={actionData.comment || ""}
 								onChange={(e) => setActionData({ ...actionData, comment: e.target.value })}
@@ -415,7 +418,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							photos={actionData.photos || []}
 							onChange={(p) => setActionData({ ...actionData, photos: p })}
 							max={3}
-							label={`Photos (${(actionData.photos || []).length}/3)`}
+							label={t("filmDetail.photos", { count: (actionData.photos || []).length, max: 3 })}
 						/>
 						<Button
 							onClick={() => {
@@ -429,15 +432,15 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										backId: null,
 										history: [
 											...(film.history || []),
-											{ date: today(), action: "Exposée — en attente de développement", photos },
+											{ date: today(), action: t("filmDetail.historyExposed"), photos },
 										],
 									},
-									"Pellicule exposée",
+									t("filmDetail.filmExposed"),
 								);
 							}}
 							className="w-full justify-center"
 						>
-							<Check size={16} /> Confirmer
+							<Check size={16} /> {t("filmDetail.confirmButton")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -446,25 +449,25 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			<Dialog open={showAction === "partial"} onOpenChange={(open) => !open && closeAction()}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Retirer de l'appareil</DialogTitle>
+						<DialogTitle>{t("filmDetail.removeModalTitle")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
 						<div className="bg-amber-soft border border-amber/20 rounded-xl p-3.5">
 							<span className="text-xs font-body" style={{ color: T.amber }}>
-								La pellicule sera placée dans la section "partiellement exposées" de ton frigo.
+								{t("filmDetail.partialInfo")}
 							</span>
 						</div>
-						<FormField label="Poses prises">
+						<FormField label={t("filmDetail.posesField")}>
 							<Input
 								type="number"
 								value={actionData.posesShot || ""}
 								onChange={(e) => setActionData({ ...actionData, posesShot: e.target.value })}
-								placeholder={`Sur ${film.posesTotal}`}
+								placeholder={t("filmDetail.posesPlaceholder", { total: film.posesTotal })}
 								className="font-mono"
 							/>
 						</FormField>
-						<FormField label="Commentaire">
+						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={actionData.comment || ""}
 								onChange={(e) => setActionData({ ...actionData, comment: e.target.value })}
@@ -474,7 +477,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							photos={actionData.photos || []}
 							onChange={(p) => setActionData({ ...actionData, photos: p })}
 							max={3}
-							label={`Photos (${(actionData.photos || []).length}/3)`}
+							label={t("filmDetail.photos", { count: (actionData.photos || []).length, max: 3 })}
 						/>
 						<Button
 							onClick={() => {
@@ -490,17 +493,20 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 											...(film.history || []),
 											{
 												date: today(),
-												action: `Retirée partiellement (${actionData.posesShot || 0}/${film.posesTotal} poses)`,
+												action: t("filmDetail.historyPartial", {
+													posesShot: actionData.posesShot || 0,
+													posesTotal: film.posesTotal,
+												}),
 												photos,
 											},
 										],
 									},
-									"Pellicule retirée",
+									t("filmDetail.filmRemoved"),
 								);
 							}}
 							className="w-full justify-center"
 						>
-							<Clock size={16} /> Retirer
+							<Clock size={16} /> {t("filmDetail.removeButton")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -509,22 +515,22 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			<Dialog open={showAction === "reload"} onOpenChange={(open) => !open && closeAction()}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Recharger la pellicule</DialogTitle>
+						<DialogTitle>{t("filmDetail.reloadModalTitle")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
 						<div className="bg-amber-soft border border-amber/20 rounded-xl p-3.5">
 							<span className="text-xs font-body font-semibold" style={{ color: T.amber }}>
-								Avancer le film jusqu'à la pose {(film.posesShot || 0) + 1}
+								{t("filmDetail.advanceFilm", { pose: (film.posesShot || 0) + 1 })}
 							</span>
 						</div>
-						<FormField label="Appareil">
+						<FormField label={t("filmDetail.cameraField")}>
 							<Select
 								value={actionData.cameraId || ""}
 								onValueChange={(v) => setActionData({ ...actionData, cameraId: v, backId: "" })}
 							>
 								<SelectTrigger>
-									<SelectValue placeholder="Choisir…" />
+									<SelectValue placeholder={t("filmDetail.choosePlaceholder")} />
 								</SelectTrigger>
 								<SelectContent>
 									{getAvailableCameras().map((c) => (
@@ -535,7 +541,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								</SelectContent>
 							</Select>
 						</FormField>
-						<FormField label="Date de reprise">
+						<FormField label={t("filmDetail.resumeDateField")}>
 							<Input
 								type="date"
 								value={actionData.startDate || today()}
@@ -547,7 +553,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							photos={actionData.photos || []}
 							onChange={(p) => setActionData({ ...actionData, photos: p })}
 							max={3}
-							label={`Photos (${(actionData.photos || []).length}/3)`}
+							label={t("filmDetail.photos", { count: (actionData.photos || []).length, max: 3 })}
 						/>
 						<Button
 							disabled={!actionData.cameraId}
@@ -564,17 +570,19 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 											...(film.history || []),
 											{
 												date: today(),
-												action: `Rechargée dans ${reloadCam ? cameraDisplayName(reloadCam) : "?"}`,
+												action: t("filmDetail.historyReloaded", {
+													camera: reloadCam ? cameraDisplayName(reloadCam) : "?",
+												}),
 												photos,
 											},
 										],
 									},
-									"Pellicule rechargée",
+									t("filmDetail.filmReloaded"),
 								);
 							}}
 							className="w-full justify-center"
 						>
-							<RotateCcw size={16} /> Recharger
+							<RotateCcw size={16} /> {t("filmDetail.reloadButton")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -583,11 +591,11 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			<Dialog open={showAction === "sendDev"} onOpenChange={(open) => !open && closeAction()}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Envoyer au développement</DialogTitle>
+						<DialogTitle>{t("filmDetail.sendDevModalTitle")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
-						<FormField label="Date de fin">
+						<FormField label={t("filmDetail.endDateField")}>
 							<Input
 								type="date"
 								value={actionData.endDate || today()}
@@ -595,7 +603,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								className="font-mono"
 							/>
 						</FormField>
-						<FormField label="Commentaire">
+						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={actionData.comment || ""}
 								onChange={(e) => setActionData({ ...actionData, comment: e.target.value })}
@@ -605,7 +613,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							photos={actionData.photos || []}
 							onChange={(p) => setActionData({ ...actionData, photos: p })}
 							max={3}
-							label={`Photos (${(actionData.photos || []).length}/3)`}
+							label={t("filmDetail.photos", { count: (actionData.photos || []).length, max: 3 })}
 						/>
 						<Button
 							onClick={() => {
@@ -617,15 +625,15 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										comment: actionData.comment?.trim() || film.comment,
 										history: [
 											...(film.history || []),
-											{ date: today(), action: "Envoyée au développement (partielle)", photos },
+											{ date: today(), action: t("filmDetail.historySentDev"), photos },
 										],
 									},
-									"Envoyée au développement",
+									t("filmDetail.sendToDev"),
 								);
 							}}
 							className="w-full justify-center"
 						>
-							<Send size={16} /> Envoyer
+							<Send size={16} /> {t("filmDetail.sendButton")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -634,18 +642,18 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			<Dialog open={showAction === "develop"} onOpenChange={(open) => !open && closeAction()}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Marquer comme développée</DialogTitle>
+						<DialogTitle>{t("filmDetail.developModalTitle")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
-						<FormField label="Labo">
+						<FormField label={t("filmDetail.labField")}>
 							<Input
 								value={actionData.lab || ""}
 								onChange={(e) => setActionData({ ...actionData, lab: e.target.value })}
-								placeholder="Nom du labo…"
+								placeholder={t("filmDetail.labPlaceholder")}
 							/>
 						</FormField>
-						<FormField label="Date de développement">
+						<FormField label={t("filmDetail.devDateField")}>
 							<Input
 								type="date"
 								value={actionData.devDate || today()}
@@ -653,7 +661,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								className="font-mono"
 							/>
 						</FormField>
-						<FormField label="Commentaire">
+						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={actionData.comment || ""}
 								onChange={(e) => setActionData({ ...actionData, comment: e.target.value })}
@@ -663,7 +671,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							photos={actionData.photos || []}
 							onChange={(p) => setActionData({ ...actionData, photos: p })}
 							max={3}
-							label={`Photos (${(actionData.photos || []).length}/3)`}
+							label={t("filmDetail.photos", { count: (actionData.photos || []).length, max: 3 })}
 						/>
 						<Button
 							onClick={() => {
@@ -678,17 +686,20 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 											...(film.history || []),
 											{
 												date: today(),
-												action: `Développée${actionData.lab?.trim() ? ` chez ${actionData.lab.trim()}` : ""}`,
+												action: t(
+													actionData.lab?.trim() ? "filmDetail.historyDevelopedAt" : "filmDetail.historyDeveloped",
+													{ lab: actionData.lab?.trim() },
+												),
 												photos,
 											},
 										],
 									},
-									"Pellicule développée",
+									t("filmDetail.filmDeveloped"),
 								);
 							}}
 							className="w-full justify-center"
 						>
-							<Archive size={16} /> Confirmer
+							<Archive size={16} /> {t("filmDetail.confirmButton")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -697,18 +708,18 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			<Dialog open={showAction === "scan"} onOpenChange={(open) => !open && closeAction()}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Marquer comme scannée</DialogTitle>
+						<DialogTitle>{t("filmDetail.scanModalTitle")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
-						<FormField label="Référence labo">
+						<FormField label={t("filmDetail.labRefField")}>
 							<Input
 								value={actionData.scanRef || ""}
 								onChange={(e) => setActionData({ ...actionData, scanRef: e.target.value })}
-								placeholder="Réf. du scan…"
+								placeholder={t("filmDetail.scanRefPlaceholder")}
 							/>
 						</FormField>
-						<FormField label="Commentaire">
+						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={actionData.comment || ""}
 								onChange={(e) => setActionData({ ...actionData, comment: e.target.value })}
@@ -718,7 +729,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							photos={actionData.photos || []}
 							onChange={(p) => setActionData({ ...actionData, photos: p })}
 							max={3}
-							label={`Photos (${(actionData.photos || []).length}/3)`}
+							label={t("filmDetail.photos", { count: (actionData.photos || []).length, max: 3 })}
 						/>
 						<Button
 							onClick={() => {
@@ -732,17 +743,20 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 											...(film.history || []),
 											{
 												date: today(),
-												action: `Scannée${actionData.scanRef?.trim() ? ` (réf: ${actionData.scanRef.trim()})` : ""}`,
+												action: t(
+													actionData.scanRef?.trim() ? "filmDetail.historyScannedRef" : "filmDetail.historyScanned",
+													{ ref: actionData.scanRef?.trim() },
+												),
 												photos,
 											},
 										],
 									},
-									"Pellicule scannée",
+									t("filmDetail.filmScanned"),
 								);
 							}}
 							className="w-full justify-center"
 						>
-							<ScanLine size={16} /> Confirmer
+							<ScanLine size={16} /> {t("filmDetail.confirmButton")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -751,19 +765,19 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			<Dialog open={showAction === "edit"} onOpenChange={(open) => !open && closeAction()}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Modifier la pellicule</DialogTitle>
+						<DialogTitle>{t("filmDetail.editModalTitle")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
 						<AutocompleteInput
-							label="Marque"
+							label={t("addFilm.brand")}
 							value={editData.brand}
 							onChange={(v) => setEditData({ ...editData, brand: v })}
 							suggestions={brands}
-							placeholder="Ex : Kodak, Ilford, Fujifilm…"
+							placeholder={t("addFilm.brandPlaceholder")}
 						/>
 						<AutocompleteInput
-							label="Modèle"
+							label={t("addFilm.model")}
 							value={editData.model}
 							onChange={(v) => setEditData({ ...editData, model: v })}
 							onSelect={(selectedModel) => {
@@ -779,10 +793,10 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								}
 							}}
 							suggestions={modelsForBrand(editData.brand)}
-							placeholder="Ex : Portra 400, HP5 Plus…"
+							placeholder={t("addFilm.modelPlaceholder")}
 						/>
 						<div className="grid grid-cols-2 gap-3">
-							<FormField label="ISO">
+							<FormField label={t("addFilm.iso")}>
 								<Input
 									type="number"
 									value={editData.iso}
@@ -791,22 +805,22 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 									className="font-mono"
 								/>
 							</FormField>
-							<FormField label="Type">
+							<FormField label={t("addFilm.type")}>
 								<Select value={editData.type} onValueChange={(v) => setEditData({ ...editData, type: v })}>
 									<SelectTrigger>
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="Couleur">Couleur</SelectItem>
-										<SelectItem value="N&B">N&B</SelectItem>
-										<SelectItem value="Diapo">Diapo</SelectItem>
-										<SelectItem value="ECN-2">ECN-2</SelectItem>
-										<SelectItem value="Instant">Instant</SelectItem>
+										<SelectItem value="Couleur">{t("filmTypes.Couleur")}</SelectItem>
+										<SelectItem value="N&B">{t("filmTypes.N&B")}</SelectItem>
+										<SelectItem value="Diapo">{t("filmTypes.Diapo")}</SelectItem>
+										<SelectItem value="ECN-2">{t("filmTypes.ECN-2")}</SelectItem>
+										<SelectItem value="Instant">{t("filmTypes.Instant")}</SelectItem>
 									</SelectContent>
 								</Select>
 							</FormField>
 						</div>
-						<FormField label="Format">
+						<FormField label={t("addFilm.format")}>
 							<Select
 								value={editData.format}
 								onValueChange={(v) => setEditData({ ...editData, format: v })}
@@ -816,20 +830,20 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="35mm">35mm</SelectItem>
-									<SelectItem value="120">Moyen format (120)</SelectItem>
-									<SelectItem value="Instant">Instant</SelectItem>
+									<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
+									<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
+									<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
 								</SelectContent>
 							</Select>
 						</FormField>
-						<FormField label="Date d'expiration">
+						<FormField label={t("addFilm.expirationDate")}>
 							<MonthYearPicker value={editData.expDate} onChange={(v) => setEditData({ ...editData, expDate: v })} />
 						</FormField>
-						<FormField label="Commentaire">
+						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={editData.comment}
 								onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
-								placeholder="Notes…"
+								placeholder={t("addFilm.notesPlaceholder")}
 							/>
 						</FormField>
 						<Button
@@ -844,14 +858,14 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										format: film.state === "loaded" ? film.format : editData.format,
 										expDate: editData.expDate || null,
 										comment: editData.comment.trim() || null,
-										history: [...(film.history || []), { date: today(), action: "Informations modifiées" }],
+										history: [...(film.history || []), { date: today(), action: t("filmDetail.historyModified") }],
 									},
-									"Pellicule modifiée",
+									t("filmDetail.filmModified"),
 								);
 							}}
 							className="w-full justify-center"
 						>
-							<Save size={16} /> Enregistrer
+							<Save size={16} /> {t("filmDetail.saveButton")}
 						</Button>
 					</div>
 				</DialogContent>

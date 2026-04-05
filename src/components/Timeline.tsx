@@ -1,4 +1,5 @@
 import { Archive, Camera, Clock, Eye, Package, Plus, RotateCcw, Send } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { HistoryEntry, LucideIcon } from "@/types";
 import { fmtDate } from "@/utils/helpers";
 
@@ -8,21 +9,25 @@ interface TimelineProps {
 }
 
 function getActionIcon(action: string): LucideIcon {
-	if (action.includes("Chargée") || action.includes("appareil")) return Camera;
-	if (action.includes("Rechargée")) return RotateCcw;
-	if (action.includes("Retirée")) return Clock;
-	if (action.includes("Exposée") || action.includes("attente")) return Eye;
-	if (action.includes("Envoyée")) return Send;
-	if (action.includes("Développée")) return Archive;
-	if (action.includes("Ajoutée")) return Plus;
-	if (action.includes("labo") || action.includes("Labo")) return Package;
+	if (/Chargée|Loaded|appareil|camera/i.test(action)) return Camera;
+	if (/Rechargée|Reloaded/i.test(action)) return RotateCcw;
+	if (/Retirée|removed|Partially/i.test(action)) return Clock;
+	if (/Exposée|Exposed|attente|awaiting/i.test(action)) return Eye;
+	if (/Envoyée|Sent/i.test(action)) return Send;
+	if (/Développée|Developed/i.test(action)) return Archive;
+	if (/Ajoutée|Added|Duplicat/i.test(action)) return Plus;
+	if (/labo|Labo|Lab/i.test(action)) return Package;
 	return Plus;
 }
 
 export function Timeline({ entries, onPhotoClick }: TimelineProps) {
+	const { t } = useTranslation();
+
 	return (
 		<div>
-			<span className="text-[11px] font-bold text-text-muted font-body uppercase tracking-wide">Historique</span>
+			<span className="text-[11px] font-bold text-text-muted font-body uppercase tracking-wide">
+				{t("timeline.history")}
+			</span>
 			<div className="mt-3 flex flex-col">
 				{entries.map((h, i) => {
 					const isFirst = i === 0;

@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useToast } from "@/components/Toast";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ interface AddFilmDialogProps {
 }
 
 export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDialogProps) {
+	const { t } = useTranslation();
 	const { toast } = useToast();
 	const { brands, modelsForBrand, filmDataFor } = useFilmSuggestions(data.films);
 	const [brand, setBrand] = useState("");
@@ -77,42 +79,44 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 				posesTotal: format === "120" ? 12 : format === "Instant" ? 10 : 36,
 				lab: null,
 				devDate: null,
-				history: [{ date: today(), action: "Ajoutée au stock" }],
+				history: [{ date: today(), action: t("addFilm.addedToStock") }],
 			});
 		}
 		const updated = { ...data, films: [...data.films, ...newFilms] };
 		setData(updated);
-		toast(qty > 1 ? `${qty} pellicules ajoutées` : "Pellicule ajoutée");
+		toast(qty > 1 ? t("addFilm.filmsAdded", { count: qty }) : t("addFilm.filmAdded"));
 		onOpenChange(false);
 	};
+
+	const qty = Number.parseInt(quantity, 10) || 1;
 
 	return (
 		<Dialog open={open} onOpenChange={(v) => !v && onOpenChange(false)}>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Ajouter une pellicule</DialogTitle>
+					<DialogTitle>{t("addFilm.title")}</DialogTitle>
 					<DialogCloseButton />
 				</DialogHeader>
 
 				<div className="flex flex-col gap-4">
 					<AutocompleteInput
-						label="Marque"
+						label={t("addFilm.brand")}
 						value={brand}
 						onChange={setBrand}
 						suggestions={brands}
-						placeholder="Ex : Kodak, Ilford, Fujifilm…"
+						placeholder={t("addFilm.brandPlaceholder")}
 					/>
 					<AutocompleteInput
-						label="Modèle"
+						label={t("addFilm.model")}
 						value={model}
 						onChange={setModel}
 						onSelect={handleModelSelect}
 						suggestions={modelsForBrand(brand)}
-						placeholder="Ex : Portra 400, HP5 Plus…"
+						placeholder={t("addFilm.modelPlaceholder")}
 					/>
 
 					<div className="grid grid-cols-2 gap-3">
-						<FormField label="ISO">
+						<FormField label={t("addFilm.iso")}>
 							<Input
 								type="number"
 								value={iso}
@@ -121,36 +125,36 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 								className="font-mono"
 							/>
 						</FormField>
-						<FormField label="Type">
+						<FormField label={t("addFilm.type")}>
 							<Select value={type} onValueChange={setType}>
 								<SelectTrigger>
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="Couleur">Couleur</SelectItem>
-									<SelectItem value="N&B">N&B</SelectItem>
-									<SelectItem value="Diapo">Diapo</SelectItem>
-									<SelectItem value="ECN-2">ECN-2</SelectItem>
-									<SelectItem value="Instant">Instant</SelectItem>
+									<SelectItem value="Couleur">{t("filmTypes.Couleur")}</SelectItem>
+									<SelectItem value="N&B">{t("filmTypes.N&B")}</SelectItem>
+									<SelectItem value="Diapo">{t("filmTypes.Diapo")}</SelectItem>
+									<SelectItem value="ECN-2">{t("filmTypes.ECN-2")}</SelectItem>
+									<SelectItem value="Instant">{t("filmTypes.Instant")}</SelectItem>
 								</SelectContent>
 							</Select>
 						</FormField>
 					</div>
 
-					<FormField label="Format">
+					<FormField label={t("addFilm.format")}>
 						<Select value={format} onValueChange={setFormat}>
 							<SelectTrigger>
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="35mm">35mm</SelectItem>
-								<SelectItem value="120">Moyen format (120)</SelectItem>
-								<SelectItem value="Instant">Instant</SelectItem>
+								<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
+								<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
+								<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
 							</SelectContent>
 						</Select>
 					</FormField>
 
-					<FormField label="Quantité">
+					<FormField label={t("addFilm.quantity")}>
 						<Input
 							type="number"
 							value={quantity}
@@ -161,15 +165,19 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 						/>
 					</FormField>
 
-					<FormField label="Date d'expiration">
+					<FormField label={t("addFilm.expirationDate")}>
 						<MonthYearPicker value={expDate} onChange={setExpDate} />
 					</FormField>
-					<FormField label="Commentaire">
-						<Input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Notes…" />
+					<FormField label={t("addFilm.comment")}>
+						<Input
+							value={comment}
+							onChange={(e) => setComment(e.target.value)}
+							placeholder={t("addFilm.notesPlaceholder")}
+						/>
 					</FormField>
 
 					<Button onClick={handleSave} disabled={!brand || !model} className="w-full justify-center py-3.5 px-5">
-						<Plus size={16} /> Ajouter {Number.parseInt(quantity, 10) > 1 ? `${quantity} pellicules` : "la pellicule"}
+						<Plus size={16} /> {t("addFilm.addButton", { count: qty })}
 					</Button>
 				</div>
 			</DialogContent>

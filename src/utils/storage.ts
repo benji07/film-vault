@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import type { AppData } from "@/types";
 import { setLastModified } from "@/utils/sync";
 import { applyMigrations, CURRENT_VERSION, validateAppData } from "./migrations";
@@ -84,19 +85,25 @@ export interface ImportError {
 	data?: never;
 }
 
-export async function parseImportFile(file: File): Promise<ImportResult | ImportError> {
+export async function parseImportFile(file: File, t?: TFunction): Promise<ImportResult | ImportError> {
 	try {
 		const text = await file.text();
 		const parsed = JSON.parse(text);
 
 		if (!validateAppData(parsed)) {
-			return { success: false, error: "Le fichier ne contient pas de données FilmVault valides." };
+			return {
+				success: false,
+				error: t ? t("storage.invalidData") : "Le fichier ne contient pas de données FilmVault valides.",
+			};
 		}
 
 		const version = parsed.version ?? 1;
 
 		if (version > CURRENT_VERSION) {
-			return { success: false, error: "Ce fichier provient d'une version plus récente de FilmVault." };
+			return {
+				success: false,
+				error: t ? t("storage.newerVersion") : "Ce fichier provient d'une version plus récente de FilmVault.",
+			};
 		}
 
 		if (version < CURRENT_VERSION) {
@@ -106,6 +113,9 @@ export async function parseImportFile(file: File): Promise<ImportResult | Import
 
 		return { success: true, data: parsed };
 	} catch {
-		return { success: false, error: "Le fichier n'est pas un JSON valide." };
+		return {
+			success: false,
+			error: t ? t("storage.invalidJson") : "Le fichier n'est pas un JSON valide.",
+		};
 	}
 }
