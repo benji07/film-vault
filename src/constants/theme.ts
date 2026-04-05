@@ -12,6 +12,8 @@ export const T = {
 	accent: "#C4392D",
 	accentHover: "#D44435",
 	accentSoft: "rgba(196,57,45,0.12)",
+	orange: "#E07940",
+	orangeSoft: "rgba(224,121,64,0.12)",
 	amber: "#D4A858",
 	amberSoft: "rgba(212,168,88,0.10)",
 	green: "#4A8C5C",

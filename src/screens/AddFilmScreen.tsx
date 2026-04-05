@@ -5,6 +5,7 @@ import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { AppData, Film, ScreenName } from "@/types";
 import { today, uid } from "@/utils/helpers";
@@ -163,7 +164,7 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 			</div>
 
 			<FormField label="Date d'expiration">
-				<Input type="date" value={expDate} onChange={(e) => setExpDate(e.target.value)} className="font-mono" />
+				<MonthYearPicker value={expDate} onChange={setExpDate} />
 			</FormField>
 			<FormField label="Commentaire">
 				<Input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Notes…" />

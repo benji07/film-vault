@@ -31,11 +31,13 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { STATES } from "@/constants/films";
 import { T } from "@/constants/theme";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
+import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { fmtDate, today } from "@/utils/helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
@@ -176,8 +178,8 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						<InfoLine
 							icon={Calendar}
 							label="Expiration"
-							value={fmtDate(film.expDate)}
-							warn={new Date(film.expDate) < new Date()}
+							value={fmtExpDate(film.expDate)}
+							warn={getExpirationStatus(film.expDate)?.status === "expired"}
 						/>
 					)}
 					{film.price && <InfoLine icon={Hash} label="Prix" value={`${film.price.toFixed(2)} €`} />}
@@ -737,12 +739,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						</FormField>
 						<div className="grid grid-cols-2 gap-3">
 							<FormField label="Date d'expiration">
-								<Input
-									type="date"
-									value={editData.expDate}
-									onChange={(e) => setEditData({ ...editData, expDate: e.target.value })}
-									className="font-mono"
-								/>
+								<MonthYearPicker value={editData.expDate} onChange={(v) => setEditData({ ...editData, expDate: v })} />
 							</FormField>
 							<FormField label="Prix (€)">
 								<Input

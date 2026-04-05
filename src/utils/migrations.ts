@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 3;
+export const CURRENT_VERSION = 4;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -32,9 +32,23 @@ function migrateV2toV3(data: Record<string, unknown>): Record<string, unknown> {
 	return { ...data, version: 3 };
 }
 
+interface V3Film {
+	expDate?: string | null;
+}
+
+function migrateV3toV4(data: Record<string, unknown>): Record<string, unknown> {
+	const films = (data.films as V3Film[]) || [];
+	const migratedFilms = films.map((film) => ({
+		...film,
+		expDate: film.expDate?.slice(0, 7) || null,
+	}));
+	return { ...data, films: migratedFilms, version: 4 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
+	3: migrateV3toV4,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { T } from "@/constants/theme";
 import type { AppData, ScreenName } from "@/types";
+import { getExpirationStatus } from "@/utils/expiration";
 
 interface DashboardScreenProps {
 	data: AppData;
@@ -21,9 +22,14 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm }: DashboardS
 	const developedCount = films.filter((f) => f.state === "developed").length;
 	const partialCount = films.filter((f) => f.state === "partial").length;
 
-	const expiring = films.filter(
-		(f) => f.state === "stock" && f.expDate && new Date(f.expDate) < new Date(Date.now() + 90 * 86400000),
-	);
+	const expiring = films
+		.filter((f) => {
+			if (f.state !== "stock") return false;
+			const info = getExpirationStatus(f.expDate);
+			return info && info.status !== "ok";
+		})
+		.sort((a, b) => (a.expDate || "").localeCompare(b.expDate || ""));
+	const hasExpired = expiring.some((f) => getExpirationStatus(f.expDate)?.status === "expired");
 	const loaded = films.filter((f) => f.state === "loaded");
 
 	return (
@@ -70,13 +76,13 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm }: DashboardS
 			{expiring.length > 0 && (
 				<div>
 					<div className="flex items-center gap-2 mb-3">
-						<AlertTriangle size={14} color={T.amber} />
-						<span className="text-[13px] font-bold font-body" style={{ color: T.amber }}>
+						<AlertTriangle size={14} color={hasExpired ? T.accent : T.orange} />
+						<span className="text-[13px] font-bold font-body" style={{ color: hasExpired ? T.accent : T.orange }}>
 							Péremption proche
 						</span>
 					</div>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-						{expiring.slice(0, 3).map((f) => (
+						{expiring.slice(0, 5).map((f) => (
 							<FilmRow
 								key={f.id}
 								film={f}
