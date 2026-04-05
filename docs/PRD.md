@@ -41,26 +41,24 @@ Ouverture à d'autres photographes, chacun avec son propre compte, inventaire et
 
 ### 4.1 Gestion du Stock (Frigo)
 
-- **Ajout d'une pellicule** : formulaire en **saisie libre** (pas de catalogue pré-rempli en V1). Champs :
-  - Marque (texte libre, ex : Kodak, Fujifilm, Ilford…)
-  - Modèle du film (texte libre, ex : Portra 400, HP5+, Velvia 50…)
-  - Format : 35mm (135), moyen format (120), grand format (4x5, 8x10), instant (Polaroid, Instax)
+- **Ajout d'une pellicule** : formulaire en **saisie libre avec autocomplétion** depuis un catalogue local intégré (~95 films). Le catalogue suggère marque et modèle, et pré-remplit automatiquement l'ISO, le type et le format. L'utilisateur peut ignorer les suggestions et saisir manuellement. Champs :
+  - Marque (texte libre avec suggestions, ex : Kodak, Fujifilm, Ilford…)
+  - Modèle du film (texte libre avec suggestions, ex : Portra 400, HP5+, Velvia 50…)
+  - Format : 35mm (135), moyen format (120), instant (Polaroid, Instax)
   - Type : négatif couleur (C-41), négatif N&B, diapositive (E-6), ECN-2 (films cinéma : CineStill, Vision3…), instant
-  - Sensibilité ISO native (numérique libre)
-  - **Nombre de poses** : champ numérique libre (pas de liste prédéfinie). Le nombre varie selon le format et le contexte :
+  - Sensibilité ISO native (numérique libre, auto-rempli depuis le catalogue si match)
+  - **Nombre de poses** : champ numérique libre (pas de liste prédéfinie), avec valeurs par défaut selon le format (35mm → 36, 120 → 12, Instant → 10). Le nombre varie selon le format et le contexte :
     - 120 : 4, 6, 8, 10, 12, 15, 16, 24 ou 32 poses selon l'appareil et le dos utilisé
     - 35mm : valeur indicative de la boîte (24, 36…) mais le nombre réel peut être supérieur de 0 à 4 poses si le chargement est bien fait. Les appareils demi-format doublent le nombre de poses (72+).
-    - Grand format : 1 pose par feuille
     - Instant : 8 ou 10 selon le pack
-  - Date de péremption
-  - Quantité
+  - Date de péremption (sélecteur mois/année)
+  - Quantité (pour créer N pellicules identiques en une seule action)
   - Prix d'achat (optionnel)
   - Notes / commentaires
-  - Image du film (optionnel) : photo de la boîte associée au modèle. En V2, un **système d'autocomplétion** basé sur un catalogue communautaire pourra accélérer la saisie (voir section 4.7), mais il n'est pas bloquant en V1.
-- **Ajout par scan de code-barres** : pré-remplissage automatique des champs reconnus, avec possibilité d'éditer / compléter manuellement (fallback indispensable pour les pellicules sans boîte).
-- **Vue du stock** : liste filtrable et triable par marque, format, type, ISO, date de péremption.
-- **Alertes de péremption** : indicateur visuel sur les pellicules proches de la date d'expiration ou déjà périmées.
-- **Édition et suppression** de pellicules du stock.
+  - Image du film (optionnel) : photo de la boîte, compressée côté client (max 200 KB en JPEG) et stockée en base64 dans localStorage.
+- **Vue du stock** : liste filtrable par état (tabs : toutes, stock, chargées, partielles, exposées, développées, scannées) avec recherche textuelle par nom.
+- **Alertes de péremption** : indicateur visuel sur les pellicules déjà périmées (rouge) et celles expirant dans les 3 prochains mois (orange).
+- **Édition et suppression** de pellicules du stock, avec confirmation avant suppression.
 
 ### 4.2 Gestion des Appareils
 
@@ -85,10 +83,10 @@ Ouverture à d'autres photographes, chacun avec son propre compte, inventaire et
 
 ### 4.3 Cycle de Vie d'une Pellicule
 
-Chaque pellicule suit un cycle en 5 états :
+Chaque pellicule suit un cycle en 6 états :
 
 ```
-[En stock] → [Chargée dans un appareil] → [Exposée / En attente de dév] → [Développée / Archivée]
+[En stock] → [Chargée dans un appareil] → [Exposée / En attente de dév] → [Développée] → [Scannée]
                        ↓
               [Partiellement exposée]
               (retirée de l'appareil,
@@ -108,6 +106,7 @@ Chaque pellicule suit un cycle en 5 états :
 | Partiellement exposée → Exposée | « Envoyer au développement »             | Date de fin, commentaire                                                                                 |
 | Chargée → Exposée               | « Marquer comme terminée »               | Date de fin, commentaire                                                                                 |
 | Exposée → Développée            | « Marquer comme développée »             | Labo utilisé (optionnel), date de développement, commentaire                                             |
+| Développée → Scannée            | « Marquer comme scannée »                | Référence de scan (optionnel), commentaire                                                               |
 
 **État "Partiellement exposée" — détails :**
 
@@ -126,48 +125,62 @@ Chaque pellicule suit un cycle en 5 états :
 
 ### 4.4 Tableau de Bord & Statistiques
 
-- **Stock actuel** : nombre de pellicules par marque, par format, par type (N&B / couleur / diapo / instant).
-- **Péremption** : liste des pellicules périmées et celles expirant dans les 3, 6, 12 prochains mois.
-- **Consommation** : nombre de rolls shootés par mois et par an, avec graphique d'évolution.
-- **Répartition** : camembert ou barres de la répartition N&B vs couleur vs diapo vs instant (sur les pellicules shootées).
+**Dashboard (écran d'accueil) :**
+
+- **Stat cards** : nombre de pellicules en stock, chargées, exposées, développées.
+- **Alertes péremption** : liste des pellicules périmées et de celles expirant dans les 3 prochains mois (filtré sur le stock uniquement), triées par date d'expiration.
+- **Pellicules partielles** : indicateur si des pellicules sont dans l'état "partiellement exposée".
+- **Films chargés** : liste des pellicules actuellement dans un appareil.
+
+**Statistiques (écran dédié) :**
+
+- **Consommation** : graphique en barres horizontales des rolls shootés par mois (12 derniers mois glissants), avec total annuel.
+- **Répartition par type** : barres de la répartition couleur / N&B / diapo / ECN-2 / instant.
+- **Répartition par marque** : barres des marques les plus utilisées.
+- **Répartition par format** : barres 35mm / 120 / instant.
 - **Par appareil** : nombre de rolls passés dans chaque boîtier.
-- **Pellicules favorites** : classement des films les plus utilisés.
+- **Pellicules favorites** : classement des 5 films les plus utilisés.
 
 ### 4.5 Mode Hors-Ligne
 
-- L'application doit fonctionner **sans connexion internet** pour les opérations courantes (consultation du stock, ajout, changement d'état).
-- Synchronisation automatique lorsque la connexion est rétablie.
+- L'application fonctionne **sans connexion internet** pour toutes les opérations (consultation du stock, ajout, changement d'état).
+- En V1, la persistance est 100% locale (localStorage), donc le mode hors-ligne est natif.
 
 ### 4.6 Photos & Notes par Pellicule
 
-- Possibilité d'attacher une ou plusieurs photos à chaque pellicule (photo du contexte de shoot, des résultats…).
+- Possibilité d'attacher une ou plusieurs photos à chaque pellicule (photo du contexte de shoot, des résultats…), avec compression côté client (max 200 KB par image en JPEG).
+- Visionneuse plein écran avec navigation par swipe et clavier.
 - Champ de notes libre à chaque étape du cycle de vie.
+- Indicateur d'utilisation du stockage localStorage avec alerte au-delà de 80%.
 
-### 4.7 Catalogue de Films (V2 — Autocomplétion)
+### 4.7 Catalogue de Films (Autocomplétion)
 
-> **Repoussé en V2.** En V1, l'ajout de pellicules se fait entièrement en saisie libre (voir 4.1).
+Un **catalogue local de ~95 films courants** est intégré dans l'application, couvrant les marques principales : Kodak, Fujifilm, Ilford, Foma, Lomography, CineStill, Rollei, ORWO, Polaroid, Instax.
 
-Le catalogue est prévu comme un **système d'autocomplétion** pour accélérer la saisie en V2 :
-
-- **Base de données de modèles de films** : marque, nom, format, type, ISO native, image de la boîte. Quand l'utilisateur tape "Port…", le catalogue suggère "Kodak Portra 400 — 135 — C-41".
-- **Contribution utilisateur** : lors de l'ajout d'un film inconnu du catalogue, l'utilisateur est invité à compléter la fiche. Ces fiches alimentent le catalogue pour les ajouts futurs.
-- **Catalogue communautaire** : quand l'app sera ouverte à d'autres utilisateurs, le catalogue sera partagé.
+- **Autocomplétion** : lors de l'ajout d'une pellicule, le champ marque propose des suggestions depuis le catalogue + le stock existant de l'utilisateur. Le champ modèle filtre ensuite les modèles correspondant à la marque sélectionnée.
+- **Pré-remplissage** : la sélection d'un film du catalogue remplit automatiquement l'ISO, le type et le format.
 - **Non bloquant** : l'autocomplétion est une aide, pas une obligation. L'utilisateur peut toujours saisir un film en texte libre sans passer par le catalogue.
+- **Extensible** : le catalogue peut être enrichi facilement via le fichier `constants/film-catalog.ts`.
+
+> **V2** : un catalogue communautaire partagé entre utilisateurs est envisagé, avec contribution utilisateur lors de l'ajout d'un film inconnu du catalogue.
 
 -----
 
 ## 5. Exigences Techniques
 
-| Élément          | V1 (usage perso)                                      | V2 (multi-utilisateurs)                                     |
-|------------------|-------------------------------------------------------|-------------------------------------------------------------|
-| Type d'app       | PWA (Progressive Web App)                             | idem                                                        |
-| Plateformes      | iOS Safari + Android Chrome (responsive mobile-first) | idem                                                        |
-| Persistance      | **localStorage** (aucune dépendance serveur)          | Migration vers **Supabase** (PostgreSQL + auth + storage)   |
-| Hors-ligne       | Natif (localStorage = local par défaut)               | Service Worker + IndexedDB + sync Supabase                  |
-| Authentification | Aucune (usage mono-utilisateur)                       | Email + mot de passe via Supabase Auth (OAuth Google/Apple) |
-| Stockage photos  | localStorage (base64, limité)                         | Supabase Storage (1 Go tier gratuit)                        |
-| Scan code-barres | API caméra du navigateur (QuaggaJS ou ZXing)          | idem                                                        |
-| Hébergement      | À définir (Vercel, Netlify, Cloudflare Pages…)        | idem                                                        |
+| Élément          | V1 (usage perso)                                                        | V2 (multi-utilisateurs)                                     |
+|------------------|-------------------------------------------------------------------------|-------------------------------------------------------------|
+| Type d'app       | PWA (Progressive Web App)                                               | idem                                                        |
+| Plateformes      | iOS Safari + Android Chrome (responsive mobile-first)                   | idem                                                        |
+| Framework        | React 19 + TypeScript 6 (strict) + Vite 8                              | idem                                                        |
+| Styling          | Tailwind CSS 4 avec thème custom darkroom                               | idem                                                        |
+| Persistance      | **localStorage** avec migrations versionnées (v1→v6)                    | Migration vers **Supabase** (PostgreSQL + auth + storage)   |
+| Hors-ligne       | Natif (localStorage = local par défaut)                                 | Service Worker + IndexedDB + sync Supabase                  |
+| Authentification | Aucune (usage mono-utilisateur)                                         | Email + mot de passe via Supabase Auth (OAuth Google/Apple) |
+| Stockage photos  | localStorage (base64, compression client max 200 KB JPEG)               | Supabase Storage (1 Go tier gratuit)                        |
+| Scan code-barres | Non implémenté en V1                                                    | API caméra du navigateur (QuaggaJS ou ZXing)                |
+| Hébergement      | **GitHub Pages** (CI/CD via GitHub Actions)                             | idem ou migration Vercel/Cloudflare                         |
+| Navigation       | Bottom tab bar (mobile) + sidebar (desktop, > 768px)                    | idem                                                        |
 
 -----
 
@@ -175,21 +188,25 @@ Le catalogue est prévu comme un **système d'autocomplétion** pour accélérer
 
 Voici des fonctionnalités additionnelles à envisager pour les versions futures :
 
-1. **Base de données de films partagée** : un catalogue communautaire des pellicules existantes (marque, ISO, format, process) pour accélérer la saisie — l'utilisateur cherche "Portra" et sélectionne au lieu de tout taper.
+1. **Catalogue communautaire** : un catalogue partagé entre utilisateurs, enrichi par contributions. En V1, un catalogue local de ~95 films est déjà intégré.
 1. **Notifications de péremption** : push notifications X jours avant l'expiration d'une pellicule.
 1. **Suivi des dépenses** : coût total du stock, dépense mensuelle/annuelle, prix moyen par roll, coût par format.
-1. **Export des données** : CSV ou PDF pour backup ou partage.
+1. **Export CSV/PDF** : export des données en CSV ou PDF pour backup ou partage. L'export JSON est disponible en V1.
 1. **Lien vers les scans** : associer un lien ou des fichiers de scan à une pellicule développée, pour boucler le workflow.
 1. **Suivi par pose (frame log)** : noter les infos par image (sujet, ouverture, vitesse, filtre…) — utile pour le grand format à terme.
 1. **Wishlist** : liste de pellicules à acheter, avec alerte de prix ou de disponibilité.
 1. **Historique d'un appareil** : timeline de toutes les pellicules passées dans un boîtier donné.
 1. **Étiquettes / tags personnalisés** : taguer les pellicules par projet, voyage, thème…
-1. **Mode sombre** : indispensable pour une app photo.
+1. ~~**Mode sombre**~~ : **fait en V1** — le thème "chambre noire" (darkroom) est le thème par défaut de l'application.
 1. **Widget mobile** : aperçu rapide du stock ou de la pellicule en cours sans ouvrir l'app.
 1. **Partage social** : partager ses stats ou une pellicule développée sur les réseaux.
-1. **Import initial en masse** : import CSV pour saisir un stock de 100+ pellicules sans les entrer une par une.
+1. **Import en masse CSV** : import CSV pour saisir un stock de 100+ pellicules sans les entrer une par une. L'import JSON est disponible en V1.
 1. **Rappel de chargement** : notification si une pellicule est dans l'état "chargée" depuis très longtemps (pellicule oubliée dans un appareil).
 1. **Multi-langue** : français et anglais pour l'ouverture à la communauté.
+1. **Scan code-barres** : pré-remplissage automatique des champs par scan du code-barres de la boîte (QuaggaJS ou ZXing). Fallback saisie manuelle indispensable.
+1. **Filtres et tri avancés** : bottom-sheet de filtres (marque, format, type, plage ISO) + tri configurable (nom, date, expiration, prix, ISO) sur la vue stock.
+1. **Alertes péremption granulaires** : 4 niveaux d'alerte (expiré, < 3 mois, < 6 mois, < 12 mois) avec couleurs différenciées + graphique péremption dans les stats.
+1. **Support grand format** : formats 4x5, 8x10 (feuilles individuelles au lieu de rouleaux).
 
 -----
 
@@ -230,45 +247,54 @@ Voici des fonctionnalités additionnelles à envisager pour les versions futures
 
 ### 7.8 Pellicules au format inhabituel
 
-- Le grand format est mentionné comme potentiel futur besoin. Les pellicules 4x5 ou 8x10 sont des **feuilles individuelles**, pas des rouleaux. → Le concept de "roll" ne s'applique pas. Prévoir une unité adaptée (feuille / sheet).
+- Le grand format (4x5, 8x10) n'est pas supporté en V1. Les pellicules grand format sont des **feuilles individuelles**, pas des rouleaux. → Le concept de "roll" ne s'applique pas. Prévoir une unité adaptée (feuille / sheet) en V2.
 
 ### 7.9 Stockage des photos
 
-- Si chaque pellicule peut avoir plusieurs photos attachées, le stockage peut croître rapidement (100+ pellicules × N photos). → Compression côté client, limites de taille, et stratégie de stockage cloud à définir.
+- Les photos sont compressées côté client à max 200 KB en JPEG avant stockage en base64 dans localStorage. Un indicateur d'utilisation du stockage est affiché, avec alerte au-delà de 80% de la limite localStorage (~5 Mo).
 
 ### 7.10 Scan code-barres sur navigateur
 
-- La qualité du scan code-barres via le navigateur (WebRTC + caméra) est variable selon les appareils et navigateurs, surtout sur iOS Safari. → Tester la compatibilité et toujours proposer la saisie manuelle comme alternative fiable.
+- Non implémenté en V1. La qualité du scan code-barres via le navigateur (WebRTC + caméra) est variable selon les appareils et navigateurs, surtout sur iOS Safari. → Tester la compatibilité et toujours proposer la saisie manuelle comme alternative fiable.
 
 -----
 
 ## 8. Priorisation (MoSCoW)
 
-### Must Have (V1)
+### Must Have (V1) — tous implémentés
 
-- Ajout / édition / suppression de pellicules (manuel)
-- Cycle de vie en 4 états avec transitions
-- Gestion des appareils (dont dos interchangeables)
-- Réglages par pellicule chargée (dates, ISO, commentaire)
-- Tableau de bord statistiques de base
+- Ajout / édition / suppression de pellicules (manuel + autocomplétion catalogue local)
+- Cycle de vie en **6 états** avec transitions (stock → loaded → partial → exposed → developed → scanned)
+- Gestion des appareils (dont dos interchangeables avec surnom, série, photo)
+- Réglages par pellicule chargée (dates, ISO push/pull, commentaire)
+- Tableau de bord avec stat cards + alertes péremption
+- Statistiques : consommation mensuelle, répartition type/marque/format, top films, stats par appareil
+- Photos/notes par pellicule (compression 200 KB, visionneuse plein écran)
+- Import/Export JSON
 - PWA installable + mode hors-ligne
-- Responsive mobile-first
+- Responsive mobile-first (tab bar mobile + sidebar desktop)
+- Thème darkroom (mode sombre)
+- Confirmation avant suppression (pellicule et appareil)
 
 ### Should Have (V1 si possible)
 
-- Scan code-barres
-- Photos/notes par pellicule
-- Alertes visuelles de péremption
-- Filtres et tri avancés sur le stock
+- ~~Scan code-barres~~ → déplacé en Could Have (V2)
+- ~~Photos/notes par pellicule~~ → **implémenté** (voir Must Have)
+- Alertes visuelles de péremption : **partiellement implémenté** (expiré + < 3 mois). Niveaux 6 mois et 12 mois restent à faire.
+- Filtres et tri avancés sur le stock : **partiellement implémenté** (tabs par état + recherche texte). Filtres avancés (marque, format, type, ISO) + tri configurable restent à faire.
 
 ### Could Have (V2)
 
 - Multi-utilisateurs avec comptes
 - Notifications push de péremption
-- Export CSV/PDF
-- Import en masse
-- Base de données de films partagée
+- Export CSV/PDF (export JSON disponible en V1)
+- Import en masse CSV (import JSON disponible en V1)
+- Catalogue communautaire partagé (catalogue local disponible en V1)
 - Tags / projets
+- Scan code-barres
+- Alertes péremption granulaires (4 niveaux)
+- Filtres et tri avancés (bottom-sheet)
+- Support grand format (4x5, 8x10)
 
 ### Won't Have (pour l'instant)
 
@@ -295,7 +321,10 @@ Voici des fonctionnalités additionnelles à envisager pour les versions futures
 1. **Dos interchangeables** : modélisés comme des **sous-éléments fixes** d'un appareil (pas transférables entre boîtiers). Toggle oui/non par boîtier, indépendant du format.
 1. **Conflits de sync hors-ligne** : non applicable en V1 (localStorage, mono-utilisateur). À définir en V2 avec Supabase.
 1. **Backend V1** : **localStorage** retenu pour la V1 (zéro dépendance serveur). Migration vers **Supabase** prévue en V2 pour le multi-utilisateurs.
-1. **Budget stockage photos** : très limité en V1 (localStorage, photos en base64). Supabase Storage en V2.
+1. **Budget stockage photos** : compression côté client à 200 KB max en JPEG, stockées en base64 dans localStorage. Indicateur d'utilisation du stockage intégré. Supabase Storage en V2.
+1. **Hébergement V1** : **GitHub Pages** retenu, déploiement automatisé via GitHub Actions (`.github/workflows/deploy.yml`).
+1. **Autocomplétion V1** : un catalogue local de ~95 films courants est intégré dès la V1. Le catalogue communautaire/partagé reste prévu pour V2.
+1. **Cycle de vie** : 6 états retenus (stock, loaded, partial, exposed, developed, scanned) au lieu des 5 initialement prévus — l'état "scanned" a été ajouté pour marquer les pellicules numérisées.
 
 ### Encore ouvertes
 
@@ -303,4 +332,4 @@ Voici des fonctionnalités additionnelles à envisager pour les versions futures
 
 -----
 
-*Document rédigé le 28 mars 2026 — Mis à jour le 4 avril 2026 (retours prototypage) — Version 1.1*
+*Document rédigé le 28 mars 2026 — Mis à jour le 5 avril 2026 (mise à jour post-implémentation V1) — Version 1.2*
