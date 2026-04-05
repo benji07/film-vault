@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
 import { TabBar } from "@/components/TabBar";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { AddFilmScreen } from "@/screens/AddFilmScreen";
@@ -107,6 +108,8 @@ function FilmVaultInner() {
 				{/* Bottom TabBar — mobile only */}
 				{showTabBar && <TabBar screen={screen} setScreen={setScreen} className="md:hidden" />}
 			</main>
+
+			<PwaUpdateBanner />
 
 			{/* Mode indicator */}
 			<div
