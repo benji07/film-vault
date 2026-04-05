@@ -1,18 +1,19 @@
 import { BarChart3, Camera, Film, Home, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { LucideIcon, ScreenName } from "@/types";
 
 interface Tab {
 	key: ScreenName;
 	icon: LucideIcon;
-	label: string;
+	labelKey: string;
 }
 
-const tabs: Tab[] = [
-	{ key: "home", icon: Home, label: "Accueil" },
-	{ key: "stock", icon: Film, label: "Pellicules" },
-	{ key: "cameras", icon: Camera, label: "Appareils" },
-	{ key: "stats", icon: BarChart3, label: "Stats" },
+const tabDefs: Tab[] = [
+	{ key: "home", icon: Home, labelKey: "nav.home" },
+	{ key: "stock", icon: Film, labelKey: "nav.films" },
+	{ key: "cameras", icon: Camera, labelKey: "nav.cameras" },
+	{ key: "stats", icon: BarChart3, labelKey: "nav.stats" },
 ];
 
 interface TabBarProps {
@@ -23,28 +24,32 @@ interface TabBarProps {
 }
 
 export function TabBar({ screen, setScreen, variant = "bar", className }: TabBarProps) {
+	const { t } = useTranslation();
+
+	const tabs = tabDefs.map((td) => ({ ...td, label: t(td.labelKey) }));
+
 	if (variant === "sidebar") {
 		return (
 			<nav className={cn("w-[220px] shrink-0 bg-surface border-r border-border flex flex-col pt-8 pb-6", className)}>
 				<div className="px-6 mb-8">
 					<h1 className="font-display text-xl text-text-primary m-0 italic">My Film Vault</h1>
-					<p className="text-[11px] text-text-muted font-body mt-1">Ton inventaire argentique</p>
+					<p className="text-[11px] text-text-muted font-body mt-1">{t("nav.subtitle")}</p>
 				</div>
 				<div className="flex flex-col gap-1 px-3 flex-1">
-					{tabs.map((t) => {
-						const active = screen === t.key;
+					{tabs.map((tab) => {
+						const active = screen === tab.key;
 						return (
 							<button
 								type="button"
-								key={t.key}
-								onClick={() => setScreen(t.key)}
+								key={tab.key}
+								onClick={() => setScreen(tab.key)}
 								className={cn(
 									"flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body font-medium cursor-pointer border-none transition-all min-h-[44px]",
 									active ? "bg-accent-soft text-accent" : "bg-transparent text-text-sec hover:bg-surface-alt",
 								)}
 							>
-								<t.icon size={18} strokeWidth={active ? 2.5 : 1.5} />
-								{t.label}
+								<tab.icon size={18} strokeWidth={active ? 2.5 : 1.5} />
+								{tab.label}
 							</button>
 						);
 					})}
@@ -61,7 +66,7 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 						)}
 					>
 						<Settings size={18} strokeWidth={screen === "settings" ? 2.5 : 1.5} />
-						Réglages
+						{t("nav.settings")}
 					</button>
 				</div>
 			</nav>
@@ -75,20 +80,24 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 				className,
 			)}
 		>
-			{tabs.map((t) => {
-				const active = screen === t.key;
+			{tabs.map((tab) => {
+				const active = screen === tab.key;
 				return (
 					<button
 						type="button"
-						key={t.key}
-						onClick={() => setScreen(t.key)}
+						key={tab.key}
+						onClick={() => setScreen(tab.key)}
 						className="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer min-w-[44px] min-h-[44px] justify-center px-3"
 					>
-						<t.icon size={20} className={active ? "text-accent" : "text-text-muted"} strokeWidth={active ? 2.5 : 1.5} />
+						<tab.icon
+							size={20}
+							className={active ? "text-accent" : "text-text-muted"}
+							strokeWidth={active ? 2.5 : 1.5}
+						/>
 						<span
 							className={`text-[10px] font-body ${active ? "font-bold text-accent" : "font-medium text-text-muted"}`}
 						>
-							{t.label}
+							{tab.label}
 						</span>
 					</button>
 				);

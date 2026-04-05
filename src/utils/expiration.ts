@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import { T } from "@/constants/theme";
 
 export type ExpirationStatus = "expired" | "expiring" | "ok";
@@ -15,7 +16,7 @@ export interface ExpirationInfo {
  * expires at the end of April 2026.
  * Returns null when no date is provided.
  */
-export function getExpirationStatus(expDate: string | null | undefined): ExpirationInfo | null {
+export function getExpirationStatus(expDate: string | null | undefined, t?: TFunction): ExpirationInfo | null {
 	if (!expDate) return null;
 
 	const [y, m] = expDate.split("-").map(Number);
@@ -25,25 +26,28 @@ export function getExpirationStatus(expDate: string | null | undefined): Expirat
 	const expEnd = new Date(y, m, 0, 23, 59, 59);
 	const now = new Date();
 
+	const expiredLabel = t ? t("expiration.expired") : "Périmée";
+	const expiringLabel = t ? t("expiration.expiringSoon") : "Expire bientôt";
+
 	if (expEnd < now) {
-		return { status: "expired", label: "Périmée", color: T.accent, bgColor: `${T.accent}18` };
+		return { status: "expired", label: expiredLabel, color: T.accent, bgColor: `${T.accent}18` };
 	}
 
 	// Months remaining (approximate)
 	const diffMonths = (expEnd.getFullYear() - now.getFullYear()) * 12 + (expEnd.getMonth() - now.getMonth());
 
 	if (diffMonths < 3) {
-		return { status: "expiring", label: "Expire bientôt", color: T.orange, bgColor: `${T.orange}18` };
+		return { status: "expiring", label: expiringLabel, color: T.orange, bgColor: `${T.orange}18` };
 	}
 
 	return { status: "ok", label: "", color: "", bgColor: "" };
 }
 
-/** Format "YYYY-MM" as "avr. 2026" (French short month + year) */
-export function fmtExpDate(d: string | null | undefined): string {
+/** Format "YYYY-MM" as localized short month + year */
+export function fmtExpDate(d: string | null | undefined, locale?: string): string {
 	if (!d) return "";
 	const [y, m] = d.split("-").map(Number);
 	if (!y || !m) return "";
 	const date = new Date(y, m - 1);
-	return date.toLocaleDateString("fr-FR", { month: "short", year: "numeric" });
+	return date.toLocaleDateString(locale || "fr-FR", { month: "short", year: "numeric" });
 }

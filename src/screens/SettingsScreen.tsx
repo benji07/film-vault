@@ -8,11 +8,13 @@ import {
 	Database,
 	Download,
 	Film,
+	Globe,
 	Loader2,
 	RefreshCw,
 	Upload,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -47,6 +49,7 @@ export function SettingsScreen({
 	onRecoveryCodeChange,
 	onSyncNow,
 }: SettingsScreenProps) {
+	const { t, i18n } = useTranslation();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [importPreview, setImportPreview] = useState<AppData | null>(null);
 	const [importError, setImportError] = useState<string | null>(null);
@@ -62,7 +65,7 @@ export function SettingsScreen({
 		const file = e.target.files?.[0];
 		if (!file) return;
 
-		const result = await parseImportFile(file);
+		const result = await parseImportFile(file, t);
 		if (result.success) {
 			setImportPreview(result.data);
 			setImportError(null);
@@ -100,10 +103,10 @@ export function SettingsScreen({
 				setData(cloudData);
 				setRestoreCode("");
 			} else {
-				setImportError("Aucune donnée trouvée pour ce code. Vérifiez qu'il est correct.");
+				setImportError(t("settings.noDataFound"));
 			}
 		} catch {
-			setImportError("Erreur lors de la récupération des données.");
+			setImportError(t("settings.restoreError"));
 		} finally {
 			setRestoring(false);
 		}
@@ -126,22 +129,55 @@ export function SettingsScreen({
 	};
 
 	const lastSync = getLastSync();
+	const currentLang = i18n.language;
 
 	return (
 		<div className="flex flex-col gap-5">
+			{/* Language section */}
+			<Card>
+				<div className="flex items-center gap-3 mb-4">
+					<Globe size={18} className="text-accent" />
+					<span className="text-sm font-bold text-text-primary font-body">{t("settings.language")}</span>
+				</div>
+				<div className="flex gap-2">
+					<button
+						type="button"
+						onClick={() => i18n.changeLanguage("fr")}
+						className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-body font-medium cursor-pointer transition-all border ${
+							currentLang === "fr"
+								? "bg-accent text-white border-accent"
+								: "bg-surface-alt text-text-sec border-border hover:bg-surface"
+						}`}
+					>
+						{t("settings.languageFr")}
+					</button>
+					<button
+						type="button"
+						onClick={() => i18n.changeLanguage("en")}
+						className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-body font-medium cursor-pointer transition-all border ${
+							currentLang === "en"
+								? "bg-accent text-white border-accent"
+								: "bg-surface-alt text-text-sec border-border hover:bg-surface"
+						}`}
+					>
+						{t("settings.languageEn")}
+					</button>
+				</div>
+			</Card>
+
 			{/* Cloud backup section */}
 			{isSupabaseConfigured && (
 				<Card>
 					<div className="flex items-center gap-3 mb-4">
 						<Cloud size={18} className="text-accent" />
-						<span className="text-sm font-bold text-text-primary font-body">Sauvegarde cloud</span>
+						<span className="text-sm font-bold text-text-primary font-body">{t("settings.cloudBackup")}</span>
 					</div>
 
 					{recoveryCode ? (
 						<div className="flex flex-col gap-3">
 							<div className="flex flex-col gap-1.5">
 								<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide">
-									Code de récupération
+									{t("settings.recoveryCode")}
 								</span>
 								<div className="flex items-center gap-2">
 									<span className="text-sm font-mono text-accent tracking-wider">{recoveryCode}</span>
@@ -157,16 +193,14 @@ export function SettingsScreen({
 										)}
 									</button>
 								</div>
-								<span className="text-[11px] text-text-muted font-body">
-									Notez ce code pour récupérer vos données sur un autre appareil.
-								</span>
+								<span className="text-[11px] text-text-muted font-body">{t("settings.recoveryCodeHelp")}</span>
 							</div>
 
 							{lastSync && (
 								<div className="flex items-center justify-between">
-									<span className="text-xs text-text-sec font-body">Dernière sync</span>
+									<span className="text-xs text-text-sec font-body">{t("settings.lastSync")}</span>
 									<span className="text-xs font-mono text-text-primary">
-										{new Date(lastSync).toLocaleString("fr-FR", {
+										{new Date(lastSync).toLocaleString(t("dateLocale"), {
 											day: "2-digit",
 											month: "2-digit",
 											year: "numeric",
@@ -180,32 +214,30 @@ export function SettingsScreen({
 							<div className="flex flex-col gap-2">
 								<Button variant="outline" onClick={onSyncNow} disabled={syncing} className="w-full justify-center">
 									{syncing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
-									{syncing ? "Synchronisation…" : "Synchroniser"}
+									{syncing ? t("settings.syncing") : t("settings.sync")}
 								</Button>
 								<Button variant="outline" onClick={handleDisconnect} className="w-full justify-center">
-									<CloudOff size={16} /> Dissocier
+									<CloudOff size={16} /> {t("settings.disconnect")}
 								</Button>
 							</div>
 						</div>
 					) : (
 						<div className="flex flex-col gap-3">
-							<span className="text-xs text-text-sec font-body">
-								Activez la sauvegarde cloud pour protéger vos données et les récupérer sur un autre appareil.
-							</span>
+							<span className="text-xs text-text-sec font-body">{t("settings.cloudInfo")}</span>
 
 							<Button variant="outline" onClick={handleActivateCloud} className="w-full justify-center">
-								<Cloud size={16} /> Activer la sauvegarde cloud
+								<Cloud size={16} /> {t("settings.enableCloud")}
 							</Button>
 
 							<div className="border-t border-border pt-3">
 								<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide block mb-2">
-									J'ai déjà un code
+									{t("settings.haveCode")}
 								</span>
 								<div className="flex gap-2">
 									<Input
 										value={restoreCode}
 										onChange={(e) => setRestoreCode(e.target.value)}
-										placeholder="FILM-XXXX-XXXX"
+										placeholder={t("settings.recoveryPlaceholder")}
 										className="flex-1 font-mono uppercase text-xs"
 									/>
 									<Button
@@ -214,7 +246,7 @@ export function SettingsScreen({
 										disabled={restoring || !restoreCode.trim()}
 										className="shrink-0"
 									>
-										{restoring ? <Loader2 size={16} className="animate-spin" /> : "Récupérer"}
+										{restoring ? <Loader2 size={16} className="animate-spin" /> : t("settings.restore")}
 									</Button>
 								</div>
 							</div>
@@ -226,24 +258,24 @@ export function SettingsScreen({
 			<Card>
 				<div className="flex items-center gap-3 mb-4">
 					<Database size={18} className="text-accent" />
-					<span className="text-sm font-bold text-text-primary font-body">Mes données</span>
+					<span className="text-sm font-bold text-text-primary font-body">{t("settings.myData")}</span>
 				</div>
 				<div className="flex flex-col gap-2.5">
 					<div className="flex items-center justify-between">
-						<span className="text-xs text-text-sec font-body">Version du schéma</span>
+						<span className="text-xs text-text-sec font-body">{t("settings.schemaVersion")}</span>
 						<span className="text-xs font-mono text-text-primary">v{data.version}</span>
 					</div>
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-1.5">
 							<Film size={14} className="text-text-muted" />
-							<span className="text-xs text-text-sec font-body">Pellicules</span>
+							<span className="text-xs text-text-sec font-body">{t("settings.films")}</span>
 						</div>
 						<span className="text-xs font-mono text-text-primary">{data.films.length}</span>
 					</div>
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-1.5">
 							<CameraIcon size={14} className="text-text-muted" />
-							<span className="text-xs text-text-sec font-body">Appareils</span>
+							<span className="text-xs text-text-sec font-body">{t("settings.cameras")}</span>
 						</div>
 						<span className="text-xs font-mono text-text-primary">{data.cameras.length}</span>
 					</div>
@@ -252,10 +284,10 @@ export function SettingsScreen({
 
 			<div className="flex flex-col gap-2.5">
 				<Button variant="outline" onClick={() => exportData(data)} className="w-full justify-center">
-					<Download size={16} /> Exporter mes données
+					<Download size={16} /> {t("settings.exportData")}
 				</Button>
 				<Button variant="outline" onClick={handleImportClick} className="w-full justify-center">
-					<Upload size={16} /> Importer des données
+					<Upload size={16} /> {t("settings.importData")}
 				</Button>
 				<input ref={fileInputRef} type="file" accept=".json" onChange={handleFileChange} className="hidden" />
 			</div>
@@ -264,7 +296,7 @@ export function SettingsScreen({
 			<Dialog open={!!importError} onOpenChange={(open) => !open && setImportError(null)}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Erreur</DialogTitle>
+						<DialogTitle>{t("settings.error")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
@@ -274,7 +306,7 @@ export function SettingsScreen({
 							</span>
 						</div>
 						<Button variant="outline" onClick={() => setImportError(null)} className="w-full justify-center">
-							Fermer
+							{t("settings.close")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -284,7 +316,7 @@ export function SettingsScreen({
 			<Dialog open={!!importPreview} onOpenChange={(open) => !open && setImportPreview(null)}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Confirmer l'import</DialogTitle>
+						<DialogTitle>{t("settings.confirmImport")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					{importPreview && (
@@ -292,35 +324,35 @@ export function SettingsScreen({
 							<div className="bg-amber-soft border border-amber/20 rounded-xl p-3.5 flex items-start gap-2.5">
 								<AlertTriangle size={16} className="shrink-0 mt-0.5" style={{ color: T.amber }} />
 								<span className="text-xs font-body" style={{ color: T.amber }}>
-									L'import remplacera toutes vos données actuelles. Cette action est irréversible.
+									{t("settings.importWarning")}
 								</span>
 							</div>
 
 							<div className="grid grid-cols-2 gap-3">
 								<div className="bg-surface-alt rounded-xl p-3">
 									<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide block mb-2">
-										Données actuelles
+										{t("settings.currentData")}
 									</span>
 									<div className="flex flex-col gap-1">
 										<span className="text-xs text-text-sec font-body">
-											{data.films.length} pellicule{data.films.length > 1 ? "s" : ""}
+											{t("settings.film", { count: data.films.length })}
 										</span>
 										<span className="text-xs text-text-sec font-body">
-											{data.cameras.length} appareil{data.cameras.length > 1 ? "s" : ""}
+											{t("settings.camera", { count: data.cameras.length })}
 										</span>
 										<span className="text-[10px] font-mono text-text-muted">v{data.version}</span>
 									</div>
 								</div>
 								<div className="bg-surface-alt rounded-xl p-3">
 									<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide block mb-2">
-										Données importées
+										{t("settings.importedData")}
 									</span>
 									<div className="flex flex-col gap-1">
 										<span className="text-xs text-text-sec font-body">
-											{importPreview.films.length} pellicule{importPreview.films.length > 1 ? "s" : ""}
+											{t("settings.film", { count: importPreview.films.length })}
 										</span>
 										<span className="text-xs text-text-sec font-body">
-											{importPreview.cameras.length} appareil{importPreview.cameras.length > 1 ? "s" : ""}
+											{t("settings.camera", { count: importPreview.cameras.length })}
 										</span>
 										<span className="text-[10px] font-mono text-text-muted">v{importPreview.version}</span>
 									</div>
@@ -329,10 +361,10 @@ export function SettingsScreen({
 
 							<div className="flex flex-col gap-2">
 								<Button variant="destructive" onClick={confirmImport} className="w-full justify-center">
-									Confirmer l'import
+									{t("settings.confirmImportButton")}
 								</Button>
 								<Button variant="outline" onClick={() => setImportPreview(null)} className="w-full justify-center">
-									Annuler
+									{t("settings.cancel")}
 								</Button>
 							</div>
 						</div>

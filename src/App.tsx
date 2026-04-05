@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AddFilmDialog } from "@/components/AddFilmDialog";
 import { AppHeader } from "@/components/AppHeader";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
@@ -27,6 +28,7 @@ function FilmVaultInner() {
 	const [syncing, setSyncing] = useState(false);
 	const [recoveryCode, setRecoveryCodeState] = useState<string | null>(null);
 	const { toast } = useToast();
+	const { t } = useTranslation();
 	const dataRef = useRef<AppData | null>(null);
 
 	const updateData = useCallback(
@@ -35,7 +37,7 @@ function FilmVaultInner() {
 			dataRef.current = newData;
 			if (isStorageAvailable()) {
 				const ok = await saveData(newData);
-				if (!ok) toast("Erreur de sauvegarde", "error");
+				if (!ok) toast(t("app.saveError"), "error");
 			}
 			// Background push to cloud
 			const code = getRecoveryCode();
@@ -43,7 +45,7 @@ function FilmVaultInner() {
 				pushToCloud(code, newData).catch(() => {});
 			}
 		},
-		[toast],
+		[toast, t],
 	);
 
 	const triggerSync = useCallback(async () => {
@@ -57,14 +59,14 @@ function FilmVaultInner() {
 				setData(result.data);
 				dataRef.current = result.data;
 				await saveData(result.data);
-				toast("Données synchronisées depuis le cloud", "success");
+				toast(t("app.syncedFromCloud"), "success");
 			}
 		} catch {
-			toast("Erreur de synchronisation", "error");
+			toast(t("app.syncError"), "error");
 		} finally {
 			setSyncing(false);
 		}
-	}, [toast]);
+	}, [toast, t]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -120,7 +122,7 @@ function FilmVaultInner() {
 		return (
 			<div className="min-h-screen bg-bg flex flex-col items-center justify-center gap-3">
 				<Loader2 size={24} className="text-accent animate-spin" />
-				<span className="text-xs text-text-muted font-body">Chargement des données…</span>
+				<span className="text-xs text-text-muted font-body">{t("app.loading")}</span>
 			</div>
 		);
 	}

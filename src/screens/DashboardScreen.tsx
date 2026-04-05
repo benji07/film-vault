@@ -1,4 +1,5 @@
 import { AlertTriangle, Archive, Camera, Clock, Eye, Film, Plus, Snowflake } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmRow } from "@/components/FilmRow";
 import { StatCard } from "@/components/StatCard";
@@ -16,6 +17,7 @@ interface DashboardScreenProps {
 }
 
 export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }: DashboardScreenProps) {
+	const { t } = useTranslation();
 	const { films, cameras } = data;
 	const stockCount = films.filter((f) => f.state === "stock").length;
 	const loadedCount = films.filter((f) => f.state === "loaded").length;
@@ -37,10 +39,10 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }:
 		<div className="flex flex-col gap-5">
 			<div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
 				{[
-					{ icon: Snowflake, label: "En stock", value: stockCount, color: T.blue },
-					{ icon: Camera, label: "Chargées", value: loadedCount, color: T.green },
-					{ icon: Eye, label: "Exposées", value: exposedCount, color: T.accent },
-					{ icon: Archive, label: "Développées", value: developedCount, color: T.textSec },
+					{ icon: Snowflake, label: t("dashboard.inStock"), value: stockCount, color: T.blue },
+					{ icon: Camera, label: t("dashboard.loaded"), value: loadedCount, color: T.green },
+					{ icon: Eye, label: t("dashboard.exposed"), value: exposedCount, color: T.accent },
+					{ icon: Archive, label: t("dashboard.developed"), value: developedCount, color: T.textSec },
 				].map((stat, i) => (
 					<div key={stat.label} className="animate-stagger-item" style={{ animationDelay: `${i * 60}ms` }}>
 						<StatCard icon={stat.icon} label={stat.label} value={stat.value} color={stat.color} />
@@ -53,8 +55,7 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }:
 					<div className="flex items-center gap-2.5">
 						<Clock size={16} color={T.amber} />
 						<span className="text-[13px] font-body font-semibold" style={{ color: T.amber }}>
-							{partialCount} pellicule{partialCount > 1 ? "s" : ""} partiellement exposée
-							{partialCount > 1 ? "s" : ""}
+							{t("dashboard.partiallyExposed", { count: partialCount })}
 						</span>
 					</div>
 				</Card>
@@ -65,7 +66,7 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }:
 					<div className="flex items-center gap-2 mb-3">
 						<AlertTriangle size={14} color={hasExpired ? T.accent : T.orange} />
 						<span className="text-[13px] font-bold font-body" style={{ color: hasExpired ? T.accent : T.orange }}>
-							Péremption proche
+							{t("dashboard.expirationSoon")}
 						</span>
 					</div>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -87,7 +88,7 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }:
 			{loaded.length > 0 && (
 				<div>
 					<div className="flex items-center justify-between mb-3">
-						<span className="text-[13px] font-bold text-text-sec font-body">Dans les appareils</span>
+						<span className="text-[13px] font-bold text-text-sec font-body">{t("dashboard.inCameras")}</span>
 					</div>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 						{loaded.map((f) => (
@@ -108,11 +109,11 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }:
 			{films.length === 0 && (
 				<EmptyState
 					icon={Film}
-					title="Aucune pellicule"
-					subtitle="Ajoute ta première pellicule pour commencer à tracker ton stock"
+					title={t("dashboard.noFilms")}
+					subtitle={t("dashboard.noFilmsSubtitle")}
 					action={
 						<Button onClick={onAddFilm}>
-							<Plus size={14} /> Ajouter une pellicule
+							<Plus size={14} /> {t("dashboard.addFilm")}
 						</Button>
 					}
 				/>

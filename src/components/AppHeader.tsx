@@ -1,4 +1,5 @@
 import { ArrowLeft, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { ScreenName } from "@/types";
 
@@ -15,12 +16,13 @@ const backTargets: Partial<Record<ScreenName, ScreenName>> = {
 };
 
 export function AppHeader({ screen, setScreen, filmTitle, className }: AppHeaderProps) {
+	const { t } = useTranslation();
 	const backTarget = backTargets[screen];
 	const isSubScreen = !!backTarget;
 
 	const subScreenTitles: Partial<Record<ScreenName, string>> = {
-		filmDetail: filmTitle || "Détail",
-		settings: "Réglages",
+		filmDetail: filmTitle || t("filmDetail.back"),
+		settings: t("nav.settings"),
 	};
 
 	return (

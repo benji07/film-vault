@@ -1,5 +1,6 @@
 import { Camera, Check, Edit3, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,7 @@ interface EditBackState {
 }
 
 export function CamerasScreen({ data, setData }: CamerasScreenProps) {
+	const { t } = useTranslation();
 	const [showAdd, setShowAdd] = useState(false);
 	const [newCam, setNewCam] = useState({
 		brand: "",
@@ -150,9 +152,9 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 	return (
 		<div className="flex flex-col gap-4">
 			<div className="flex justify-between items-center">
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">Appareils</h2>
+				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.title")}</h2>
 				<Button size="sm" onClick={() => setShowAdd(true)}>
-					<Plus size={14} /> Ajouter
+					<Plus size={14} /> {t("cameras.add")}
 				</Button>
 			</div>
 
@@ -181,11 +183,13 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 										<div className="flex gap-1.5 mt-1.5">
 											<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>{cam.format}</Badge>
 											{cam.backs.length > 0 && (
-												<Badge style={{ color: T.blue, background: `${T.blue}18` }}>{cam.backs.length} dos</Badge>
+												<Badge style={{ color: T.blue, background: `${T.blue}18` }}>
+													{cam.backs.length} {t("cameras.backs")}
+												</Badge>
 											)}
 											{loadedFilms.length > 0 && (
 												<Badge style={{ color: T.green, background: `${T.green}18` }}>
-													{loadedFilms.length} chargée{loadedFilms.length > 1 ? "s" : ""}
+													{t("cameras.loaded", { count: loadedFilms.length })}
 												</Badge>
 											)}
 										</div>
@@ -272,7 +276,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 					);
 				})}
 				{data.cameras.length === 0 && (
-					<EmptyState icon={Camera} title="Aucun appareil" subtitle="Ajoute tes boîtiers pour commencer" />
+					<EmptyState icon={Camera} title={t("cameras.noCameras")} subtitle={t("cameras.noCamerasSubtitle")} />
 				)}
 			</div>
 
@@ -280,7 +284,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			<Dialog open={showAdd} onOpenChange={(open) => !open && setShowAdd(false)}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Nouvel appareil</DialogTitle>
+						<DialogTitle>{t("cameras.newCamera")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
@@ -290,51 +294,51 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 							max={1}
 							size={48}
 							placeholderIcon
-							label="Photo"
+							label={t("cameras.photo")}
 						/>
-						<FormField label="Marque">
+						<FormField label={t("cameras.brand")}>
 							<Input
 								value={newCam.brand}
 								onChange={(e) => setNewCam({ ...newCam, brand: e.target.value })}
-								placeholder="Ex: Canon"
+								placeholder={t("cameras.brandPlaceholder")}
 							/>
 						</FormField>
-						<FormField label="Modèle">
+						<FormField label={t("cameras.model")}>
 							<Input
 								value={newCam.model}
 								onChange={(e) => setNewCam({ ...newCam, model: e.target.value })}
-								placeholder="Ex: A-1"
+								placeholder={t("cameras.modelPlaceholder")}
 							/>
 						</FormField>
-						<FormField label="Surnom (optionnel)">
+						<FormField label={t("cameras.nickname")}>
 							<Input
 								value={newCam.nickname}
 								onChange={(e) => setNewCam({ ...newCam, nickname: e.target.value })}
-								placeholder="Ex: Mon Canon préféré"
+								placeholder={t("cameras.nicknamePlaceholder")}
 							/>
 						</FormField>
-						<FormField label="N° de série (optionnel)">
+						<FormField label={t("cameras.serial")}>
 							<Input
 								value={newCam.serial}
 								onChange={(e) => setNewCam({ ...newCam, serial: e.target.value })}
-								placeholder="Ex: 123456"
+								placeholder={t("cameras.serialPlaceholder")}
 							/>
 						</FormField>
-						<FormField label="Format">
+						<FormField label={t("cameras.format")}>
 							<Select value={newCam.format} onValueChange={(v) => setNewCam({ ...newCam, format: v })}>
 								<SelectTrigger>
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="35mm">35mm</SelectItem>
-									<SelectItem value="120">Moyen format (120)</SelectItem>
-									<SelectItem value="Instant">Instant</SelectItem>
+									<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
+									<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
+									<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
 								</SelectContent>
 							</Select>
 						</FormField>
 						<div className="flex items-center justify-between gap-3">
 							<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
-								Dos interchangeable
+								{t("cameras.interchangeableBack")}
 							</label>
 							<Switch
 								checked={newCam.hasInterchangeableBack}
@@ -342,7 +346,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 							/>
 						</div>
 						<Button onClick={addCamera} disabled={!newCam.brand && !newCam.model} className="w-full justify-center">
-							<Plus size={16} /> Ajouter
+							<Plus size={16} /> {t("cameras.add")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -352,7 +356,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			<Dialog open={!!editCam} onOpenChange={(open) => !open && setEditCam(null)}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Modifier l'appareil</DialogTitle>
+						<DialogTitle>{t("cameras.editCamera")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					{editCam && (
@@ -363,38 +367,38 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 								max={1}
 								size={48}
 								placeholderIcon
-								label="Photo"
+								label={t("cameras.photo")}
 							/>
-							<FormField label="Marque">
+							<FormField label={t("cameras.brand")}>
 								<Input value={editCam.brand} onChange={(e) => setEditCam({ ...editCam, brand: e.target.value })} />
 							</FormField>
-							<FormField label="Modèle">
+							<FormField label={t("cameras.model")}>
 								<Input value={editCam.model} onChange={(e) => setEditCam({ ...editCam, model: e.target.value })} />
 							</FormField>
-							<FormField label="Surnom (optionnel)">
+							<FormField label={t("cameras.nickname")}>
 								<Input
 									value={editCam.nickname}
 									onChange={(e) => setEditCam({ ...editCam, nickname: e.target.value })}
 								/>
 							</FormField>
-							<FormField label="N° de série (optionnel)">
+							<FormField label={t("cameras.serial")}>
 								<Input value={editCam.serial} onChange={(e) => setEditCam({ ...editCam, serial: e.target.value })} />
 							</FormField>
-							<FormField label="Format">
+							<FormField label={t("cameras.format")}>
 								<Select value={editCam.format} onValueChange={(v) => setEditCam({ ...editCam, format: v })}>
 									<SelectTrigger>
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="35mm">35mm</SelectItem>
-										<SelectItem value="120">Moyen format (120)</SelectItem>
-										<SelectItem value="Instant">Instant</SelectItem>
+										<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
+										<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
+										<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
 									</SelectContent>
 								</Select>
 							</FormField>
 							<div className="flex items-center justify-between gap-3">
 								<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
-									Dos interchangeable
+									{t("cameras.interchangeableBack")}
 								</label>
 								<Switch
 									checked={editCam.hasInterchangeableBack || false}
@@ -406,7 +410,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 								disabled={!editCam.brand && !editCam.model}
 								className="w-full justify-center"
 							>
-								<Check size={16} /> Enregistrer
+								<Check size={16} /> {t("cameras.save")}
 							</Button>
 						</div>
 					)}
@@ -417,7 +421,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			<Dialog open={!!showBackModal} onOpenChange={(open) => !open && setShowBackModal(null)}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Ajouter un dos</DialogTitle>
+						<DialogTitle>{t("cameras.addBack")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
@@ -427,34 +431,34 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 							max={1}
 							size={32}
 							placeholderIcon
-							label="Photo"
+							label={t("cameras.photo")}
 						/>
-						<FormField label="Nom du dos">
+						<FormField label={t("cameras.backName")}>
 							<Input
 								value={newBack.name}
 								onChange={(e) => setNewBack({ ...newBack, name: e.target.value })}
-								placeholder="Ex: A12 — Couleur"
+								placeholder={t("cameras.backNamePlaceholder")}
 							/>
 						</FormField>
-						<FormField label="Référence">
+						<FormField label={t("cameras.reference")}>
 							<Input
 								value={newBack.ref}
 								onChange={(e) => setNewBack({ ...newBack, ref: e.target.value })}
-								placeholder="Ex: A12"
+								placeholder={t("cameras.refPlaceholder")}
 							/>
 						</FormField>
-						<FormField label="Surnom (optionnel)">
+						<FormField label={t("cameras.backNickname")}>
 							<Input
 								value={newBack.nickname}
 								onChange={(e) => setNewBack({ ...newBack, nickname: e.target.value })}
-								placeholder="Ex: Mon dos préféré"
+								placeholder={t("cameras.backNicknamePlaceholder")}
 							/>
 						</FormField>
-						<FormField label="N° de série (optionnel)">
+						<FormField label={t("cameras.backSerial")}>
 							<Input
 								value={newBack.serial}
 								onChange={(e) => setNewBack({ ...newBack, serial: e.target.value })}
-								placeholder="Ex: 123456"
+								placeholder={t("cameras.serialPlaceholder")}
 							/>
 						</FormField>
 						<Button
@@ -462,7 +466,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 							disabled={!newBack.name}
 							className="w-full justify-center"
 						>
-							<Plus size={16} /> Ajouter le dos
+							<Plus size={16} /> {t("cameras.addBackButton")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -472,7 +476,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			<Dialog open={!!editBack} onOpenChange={(open) => !open && setEditBack(null)}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Modifier le dos</DialogTitle>
+						<DialogTitle>{t("cameras.editBack")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					{editBack && (
@@ -483,41 +487,41 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 								max={1}
 								size={32}
 								placeholderIcon
-								label="Photo"
+								label={t("cameras.photo")}
 							/>
-							<FormField label="Nom du dos">
+							<FormField label={t("cameras.backName")}>
 								<Input
 									value={editBack.back.name}
 									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, name: e.target.value } })}
 								/>
 							</FormField>
-							<FormField label="Référence">
+							<FormField label={t("cameras.reference")}>
 								<Input
 									value={editBack.back.ref || ""}
 									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, ref: e.target.value } })}
 								/>
 							</FormField>
-							<FormField label="Surnom (optionnel)">
+							<FormField label={t("cameras.backNickname")}>
 								<Input
 									value={editBack.back.nickname || ""}
 									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, nickname: e.target.value } })}
 								/>
 							</FormField>
-							<FormField label="N° de série (optionnel)">
+							<FormField label={t("cameras.backSerial")}>
 								<Input
 									value={editBack.back.serial || ""}
 									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, serial: e.target.value } })}
 								/>
 							</FormField>
 							<Button onClick={saveEditBack} disabled={!editBack.back.name} className="w-full justify-center">
-								<Check size={16} /> Enregistrer
+								<Check size={16} /> {t("cameras.save")}
 							</Button>
 							<Button
 								variant="destructive"
 								onClick={() => deleteBack(editBack.camId, editBack.back.id)}
 								className="w-full justify-center"
 							>
-								<Trash2 size={14} /> Supprimer ce dos
+								<Trash2 size={14} /> {t("cameras.deleteBack")}
 							</Button>
 						</div>
 					)}

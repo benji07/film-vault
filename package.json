@@ -22,9 +22,11 @@
     "@supabase/supabase-js": "^2.101.1",
     "@vitejs/plugin-react": "^6.0.1",
     "class-variance-authority": "^0.7.1",
+    "i18next": "^26.0.3",
     "lucide-react": "^1.7.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-i18next": "^17.0.2",
     "vite": "^8.0.3"
   },
   "devDependencies": {

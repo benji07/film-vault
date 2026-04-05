@@ -4,9 +4,25 @@ export type FilmFormat = "35mm" | "120" | "Instant";
 export type FilmType = "Couleur" | "N&B" | "Diapo" | "ECN-2" | "Instant";
 export type FilmState = "stock" | "loaded" | "partial" | "exposed" | "developed" | "scanned";
 
+export type HistoryAction =
+	| "added"
+	| "loaded"
+	| "reloaded"
+	| "removed_partial"
+	| "exposed"
+	| "sent_dev"
+	| "developed"
+	| "scanned"
+	| "modified"
+	| "duplicated";
+
 export interface HistoryEntry {
 	date: string;
 	action: string;
+	/** Structured action code (preferred over free-text action) */
+	actionCode?: HistoryAction;
+	/** Parameters for actionCode interpolation (camera name, lab, etc.) */
+	params?: Record<string, string | number | null | undefined>;
 	photos?: string[];
 }
 

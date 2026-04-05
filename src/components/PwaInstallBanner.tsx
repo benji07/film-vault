@@ -1,5 +1,6 @@
 import { Download, Share, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 const DISMISS_KEY = "pwa-install-dismissed";
@@ -21,6 +22,7 @@ function isStandalone(): boolean {
 }
 
 export function PwaInstallBanner() {
+	const { t } = useTranslation();
 	const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 	const [showIosBanner, setShowIosBanner] = useState(false);
 	const [dismissed, setDismissed] = useState(false);
@@ -72,27 +74,27 @@ export function PwaInstallBanner() {
 			>
 				<X size={16} />
 			</button>
-			<p className="text-sm font-body text-text-primary pr-5">Ajouter My Film Vault sur l'écran d'accueil</p>
+			<p className="text-sm font-body text-text-primary pr-5">{t("pwa.addToHome")}</p>
 			{showIosBanner ? (
 				<>
 					<p className="text-xs text-text-sec mt-1 mb-3">
-						Appuyez sur <Share size={12} className="inline-block align-text-bottom text-accent" /> puis{" "}
-						<span className="text-text-primary">« Sur l'écran d'accueil »</span>.
+						{t("pwa.iosTapShare")} <Share size={12} className="inline-block align-text-bottom text-accent" />{" "}
+						{t("pwa.iosThen")} <span className="text-text-primary">{t("pwa.iosInstructions")}</span>.
 					</p>
 					<Button size="sm" variant="ghost" onClick={handleDismiss}>
-						Compris
+						{t("pwa.gotIt")}
 					</Button>
 				</>
 			) : (
 				<>
-					<p className="text-xs text-text-sec mt-1 mb-3">Accès rapide, même hors-ligne.</p>
+					<p className="text-xs text-text-sec mt-1 mb-3">{t("pwa.quickAccess")}</p>
 					<div className="flex gap-2">
 						<Button size="sm" onClick={handleInstall} className="gap-1.5">
 							<Download size={13} />
-							Installer
+							{t("pwa.install")}
 						</Button>
 						<Button size="sm" variant="ghost" onClick={handleDismiss}>
-							Plus tard
+							{t("pwa.later")}
 						</Button>
 					</div>
 				</>

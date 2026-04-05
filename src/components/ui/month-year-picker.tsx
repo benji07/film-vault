@@ -1,20 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-
-const MONTHS = [
-	"Janvier",
-	"Février",
-	"Mars",
-	"Avril",
-	"Mai",
-	"Juin",
-	"Juillet",
-	"Août",
-	"Septembre",
-	"Octobre",
-	"Novembre",
-	"Décembre",
-];
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 46 }, (_, i) => currentYear - 40 + i);
@@ -26,6 +12,8 @@ interface MonthYearPickerProps {
 }
 
 export function MonthYearPicker({ value, onChange, className }: MonthYearPickerProps) {
+	const { t } = useTranslation();
+	const months = t("months", { returnObjects: true }) as string[];
 	const [yearStr, monthStr] = value ? value.split("-") : ["", ""];
 
 	const handleMonthChange = (m: string) => {
@@ -48,10 +36,10 @@ export function MonthYearPicker({ value, onChange, className }: MonthYearPickerP
 		<div className={cn("grid grid-cols-2 gap-2", className)}>
 			<Select value={monthStr || undefined} onValueChange={handleMonthChange}>
 				<SelectTrigger className="font-mono">
-					<SelectValue placeholder="Mois" />
+					<SelectValue placeholder={t("monthPlaceholder")} />
 				</SelectTrigger>
 				<SelectContent>
-					{MONTHS.map((label, i) => {
+					{months.map((label, i) => {
 						const val = String(i + 1).padStart(2, "0");
 						return (
 							<SelectItem key={val} value={val}>
@@ -63,7 +51,7 @@ export function MonthYearPicker({ value, onChange, className }: MonthYearPickerP
 			</Select>
 			<Select value={yearStr || undefined} onValueChange={handleYearChange}>
 				<SelectTrigger className="font-mono">
-					<SelectValue placeholder="Année" />
+					<SelectValue placeholder={t("yearPlaceholder")} />
 				</SelectTrigger>
 				<SelectContent>
 					{YEARS.map((y) => (
