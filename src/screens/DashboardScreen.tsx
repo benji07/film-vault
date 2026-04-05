@@ -1,4 +1,4 @@
-import { AlertTriangle, Archive, Camera, Clock, Eye, Film, Plus, Settings, Snowflake } from "lucide-react";
+import { AlertTriangle, Archive, Camera, Clock, Eye, Film, Plus, Snowflake } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmRow } from "@/components/FilmRow";
 import { StatCard } from "@/components/StatCard";
@@ -12,9 +12,10 @@ interface DashboardScreenProps {
 	data: AppData;
 	setScreen: (screen: ScreenName) => void;
 	setSelectedFilm: (id: string) => void;
+	onAddFilm: () => void;
 }
 
-export function DashboardScreen({ data, setScreen, setSelectedFilm }: DashboardScreenProps) {
+export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }: DashboardScreenProps) {
 	const { films, cameras } = data;
 	const stockCount = films.filter((f) => f.state === "stock").length;
 	const loadedCount = films.filter((f) => f.state === "loaded").length;
@@ -34,20 +35,6 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm }: DashboardS
 
 	return (
 		<div className="flex flex-col gap-5">
-			<div className="flex justify-between items-start">
-				<div>
-					<h1 className="font-display text-[28px] text-text-primary m-0 italic">FilmVault</h1>
-					<p className="font-body text-[13px] text-text-muted mt-1">Ton inventaire argentique</p>
-				</div>
-				<button
-					type="button"
-					onClick={() => setScreen("settings")}
-					className="bg-surface-alt border border-border rounded-xl w-11 h-11 flex items-center justify-center cursor-pointer mt-1"
-				>
-					<Settings size={16} className="text-text-muted" />
-				</button>
-			</div>
-
 			<div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
 				{[
 					{ icon: Snowflake, label: "En stock", value: stockCount, color: T.blue },
@@ -124,7 +111,7 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm }: DashboardS
 					title="Aucune pellicule"
 					subtitle="Ajoute ta première pellicule pour commencer à tracker ton stock"
 					action={
-						<Button onClick={() => setScreen("addFilm")}>
+						<Button onClick={onAddFilm}>
 							<Plus size={14} /> Ajouter une pellicule
 						</Button>
 					}

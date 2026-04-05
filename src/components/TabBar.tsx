@@ -1,4 +1,4 @@
-import { BarChart3, Camera, Film, Home } from "lucide-react";
+import { BarChart3, Camera, Film, Home, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LucideIcon, ScreenName } from "@/types";
 
@@ -27,10 +27,10 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 		return (
 			<nav className={cn("w-[220px] shrink-0 bg-surface border-r border-border flex flex-col pt-8 pb-6", className)}>
 				<div className="px-6 mb-8">
-					<h1 className="font-display text-xl text-text-primary m-0 italic">FilmVault</h1>
+					<h1 className="font-display text-xl text-text-primary m-0 italic">My Film Vault</h1>
 					<p className="text-[11px] text-text-muted font-body mt-1">Ton inventaire argentique</p>
 				</div>
-				<div className="flex flex-col gap-1 px-3">
+				<div className="flex flex-col gap-1 px-3 flex-1">
 					{tabs.map((t) => {
 						const active = screen === t.key;
 						return (
@@ -48,6 +48,21 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 							</button>
 						);
 					})}
+				</div>
+				<div className="px-3">
+					<button
+						type="button"
+						onClick={() => setScreen("settings")}
+						className={cn(
+							"flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body font-medium cursor-pointer border-none transition-all min-h-[44px] w-full",
+							screen === "settings"
+								? "bg-accent-soft text-accent"
+								: "bg-transparent text-text-sec hover:bg-surface-alt",
+						)}
+					>
+						<Settings size={18} strokeWidth={screen === "settings" ? 2.5 : 1.5} />
+						Réglages
+					</button>
 				</div>
 			</nav>
 		);

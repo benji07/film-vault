@@ -1,6 +1,5 @@
 import {
 	AlertTriangle,
-	ArrowLeft,
 	Camera as CameraIcon,
 	Check,
 	Cloud,
@@ -19,7 +18,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { T } from "@/constants/theme";
-import type { AppData, ScreenName } from "@/types";
+import type { AppData } from "@/types";
 import { exportData, parseImportFile } from "@/utils/storage";
 import { isSupabaseConfigured } from "@/utils/supabase";
 import {
@@ -34,7 +33,6 @@ import {
 interface SettingsScreenProps {
 	data: AppData;
 	setData: (data: AppData) => void;
-	setScreen: (screen: ScreenName) => void;
 	syncing: boolean;
 	recoveryCode: string | null;
 	onRecoveryCodeChange: (code: string | null) => void;
@@ -44,7 +42,6 @@ interface SettingsScreenProps {
 export function SettingsScreen({
 	data,
 	setData,
-	setScreen,
 	syncing,
 	recoveryCode,
 	onRecoveryCodeChange,
@@ -132,17 +129,6 @@ export function SettingsScreen({
 
 	return (
 		<div className="flex flex-col gap-5">
-			<div className="flex items-center gap-3">
-				<button
-					type="button"
-					onClick={() => setScreen("home")}
-					className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
-				>
-					<ArrowLeft size={20} className="text-text-sec" />
-				</button>
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">Réglages</h2>
-			</div>
-
 			{/* Cloud backup section */}
 			{isSupabaseConfigured && (
 				<Card>

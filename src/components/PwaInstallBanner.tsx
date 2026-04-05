@@ -72,7 +72,7 @@ export function PwaInstallBanner() {
 			>
 				<X size={16} />
 			</button>
-			<p className="text-sm font-body text-text-primary pr-5">Ajouter FilmVault sur l'écran d'accueil</p>
+			<p className="text-sm font-body text-text-primary pr-5">Ajouter My Film Vault sur l'écran d'accueil</p>
 			{showIosBanner ? (
 				<>
 					<p className="text-xs text-text-sec mt-1 mb-3">
