@@ -162,7 +162,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			lab: null,
 			devDate: null,
 			scanRef: null,
-			history: [{ date: today(), action: t("filmDetail.historyDuplicated", { name: filmName(film) }) }],
+			history: [{ date: today(), action: "", actionCode: "duplicated", params: { name: filmName(film) } }],
 		};
 		setData({ ...data, films: [...data.films, newFilm] });
 		setSelectedFilm(newId);
@@ -377,7 +377,9 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 											...(film.history || []),
 											{
 												date: today(),
-												action: t("filmDetail.historyLoaded", { camera: loadCam ? cameraDisplayName(loadCam) : "?" }),
+												action: "",
+												actionCode: "loaded",
+												params: { camera: loadCam ? cameraDisplayName(loadCam) : "?" },
 												photos,
 											},
 										],
@@ -430,10 +432,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										comment: actionData.comment?.trim() || film.comment,
 										cameraId: null,
 										backId: null,
-										history: [
-											...(film.history || []),
-											{ date: today(), action: t("filmDetail.historyExposed"), photos },
-										],
+										history: [...(film.history || []), { date: today(), action: "", actionCode: "exposed", photos }],
 									},
 									t("filmDetail.filmExposed"),
 								);
@@ -493,10 +492,12 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 											...(film.history || []),
 											{
 												date: today(),
-												action: t("filmDetail.historyPartial", {
+												action: "",
+												actionCode: "removed_partial",
+												params: {
 													posesShot: actionData.posesShot || 0,
 													posesTotal: film.posesTotal,
-												}),
+												},
 												photos,
 											},
 										],
@@ -570,9 +571,9 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 											...(film.history || []),
 											{
 												date: today(),
-												action: t("filmDetail.historyReloaded", {
-													camera: reloadCam ? cameraDisplayName(reloadCam) : "?",
-												}),
+												action: "",
+												actionCode: "reloaded",
+												params: { camera: reloadCam ? cameraDisplayName(reloadCam) : "?" },
 												photos,
 											},
 										],
@@ -623,10 +624,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										state: "exposed",
 										endDate: actionData.endDate || today(),
 										comment: actionData.comment?.trim() || film.comment,
-										history: [
-											...(film.history || []),
-											{ date: today(), action: t("filmDetail.historySentDev"), photos },
-										],
+										history: [...(film.history || []), { date: today(), action: "", actionCode: "sent_dev", photos }],
 									},
 									t("filmDetail.sendToDev"),
 								);
@@ -686,10 +684,9 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 											...(film.history || []),
 											{
 												date: today(),
-												action: t(
-													actionData.lab?.trim() ? "filmDetail.historyDevelopedAt" : "filmDetail.historyDeveloped",
-													{ lab: actionData.lab?.trim() },
-												),
+												action: "",
+												actionCode: "developed",
+												params: { lab: actionData.lab?.trim() || null },
 												photos,
 											},
 										],
@@ -743,10 +740,9 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 											...(film.history || []),
 											{
 												date: today(),
-												action: t(
-													actionData.scanRef?.trim() ? "filmDetail.historyScannedRef" : "filmDetail.historyScanned",
-													{ ref: actionData.scanRef?.trim() },
-												),
+												action: "",
+												actionCode: "scanned",
+												params: { ref: actionData.scanRef?.trim() || null },
 												photos,
 											},
 										],
@@ -858,7 +854,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										format: film.state === "loaded" ? film.format : editData.format,
 										expDate: editData.expDate || null,
 										comment: editData.comment.trim() || null,
-										history: [...(film.history || []), { date: today(), action: t("filmDetail.historyModified") }],
+										history: [...(film.history || []), { date: today(), action: "", actionCode: "modified" }],
 									},
 									t("filmDetail.filmModified"),
 								);

@@ -180,6 +180,7 @@ export const fr = {
 		filmDuplicated: "Pellicule dupliquée",
 		filmModified: "Pellicule modifiée",
 		// History actions
+		historyAdded: "Ajoutée au stock",
 		historyLoaded: "Chargée dans {{camera}}",
 		historyExposed: "Exposée — en attente de développement",
 		historyPartial: "Retirée partiellement ({{posesShot}}/{{posesTotal}} poses)",

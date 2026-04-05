@@ -62,7 +62,7 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 				posesTotal: format === "120" ? 12 : format === "Instant" ? 10 : 36,
 				lab: null,
 				devDate: null,
-				history: [{ date: today(), action: "Ajoutée au stock" }],
+				history: [{ date: today(), action: "", actionCode: "added" }],
 			});
 		}
 		const updated = { ...data, films: [...data.films, ...newFilms] };

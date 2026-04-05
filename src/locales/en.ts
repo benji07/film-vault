@@ -180,6 +180,7 @@ export const en = {
 		filmDuplicated: "Film duplicated",
 		filmModified: "Film modified",
 		// History actions
+		historyAdded: "Added to stock",
 		historyLoaded: "Loaded in {{camera}}",
 		historyExposed: "Exposed — awaiting development",
 		historyPartial: "Partially removed ({{posesShot}}/{{posesTotal}} frames)",

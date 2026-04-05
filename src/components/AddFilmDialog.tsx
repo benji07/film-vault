@@ -79,7 +79,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 				posesTotal: format === "120" ? 12 : format === "Instant" ? 10 : 36,
 				lab: null,
 				devDate: null,
-				history: [{ date: today(), action: t("addFilm.addedToStock") }],
+				history: [{ date: today(), action: "", actionCode: "added" }],
 			});
 		}
 		const updated = { ...data, films: [...data.films, ...newFilms] };
