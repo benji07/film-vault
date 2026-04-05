@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { AppData, Film, ScreenName } from "@/types";
-import { today, uid } from "@/utils/helpers";
+import { currentMonthYear, today, uid } from "@/utils/helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 
 interface AddFilmScreenProps {
@@ -25,10 +25,9 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 	const [iso, setIso] = useState("");
 	const [type, setType] = useState("Couleur");
 	const [format, setFormat] = useState("35mm");
-	const [expDate, setExpDate] = useState("");
+	const [expDate, setExpDate] = useState(currentMonthYear());
 	const [quantity, setQuantity] = useState("1");
 	const [comment, setComment] = useState("");
-	const [price, setPrice] = useState("");
 
 	const handleModelSelect = (selectedModel: string) => {
 		const data = filmDataFor(brand, selectedModel);
@@ -45,15 +44,14 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 		for (let i = 0; i < qty; i++) {
 			newFilms.push({
 				id: uid(),
-				brand,
-				model,
+				brand: brand.trim(),
+				model: model.trim(),
 				iso: Number.parseInt(iso, 10) || 0,
 				type,
 				format,
 				state: "stock",
 				expDate: expDate || null,
-				comment: comment || null,
-				price: price ? Number.parseFloat(price) : null,
+				comment: comment.trim() || null,
 				addedDate: today(),
 				shootIso: null,
 				cameraId: null,
@@ -141,27 +139,16 @@ export function AddFilmScreen({ data, setData, setScreen }: AddFilmScreenProps) 
 				</Select>
 			</FormField>
 
-			<div className="grid grid-cols-2 gap-3">
-				<FormField label="Quantité">
-					<Input
-						type="number"
-						value={quantity}
-						onChange={(e) => setQuantity(e.target.value)}
-						min="1"
-						max="50"
-						className="font-mono"
-					/>
-				</FormField>
-				<FormField label="Prix unitaire (€)">
-					<Input
-						type="number"
-						value={price}
-						onChange={(e) => setPrice(e.target.value)}
-						placeholder="0.00"
-						className="font-mono"
-					/>
-				</FormField>
-			</div>
+			<FormField label="Quantité">
+				<Input
+					type="number"
+					value={quantity}
+					onChange={(e) => setQuantity(e.target.value)}
+					min="1"
+					max="50"
+					className="font-mono"
+				/>
+			</FormField>
 
 			<FormField label="Date d'expiration">
 				<MonthYearPicker value={expDate} onChange={setExpDate} />

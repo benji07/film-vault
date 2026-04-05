@@ -68,7 +68,15 @@ function FilmVaultInner() {
 			case "addFilm":
 				return <AddFilmScreen data={data} setData={updateData} setScreen={setScreen} />;
 			case "filmDetail":
-				return <FilmDetailScreen data={data} setData={updateData} setScreen={setScreen} filmId={selectedFilm} />;
+				return (
+					<FilmDetailScreen
+						data={data}
+						setData={updateData}
+						setScreen={setScreen}
+						setSelectedFilm={setSelectedFilm}
+						filmId={selectedFilm}
+					/>
+				);
 			case "cameras":
 				return <CamerasScreen data={data} setData={updateData} />;
 			case "stats":

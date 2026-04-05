@@ -12,7 +12,7 @@ export function useFilmSuggestions(films: Film[]) {
 	const brands = useMemo(() => {
 		const set = new Set<string>();
 		for (const f of films) {
-			if (f.brand) set.add(f.brand);
+			if (f.brand) set.add(f.brand.trim());
 		}
 		for (const c of FILM_CATALOG) {
 			set.add(c.brand);
@@ -22,11 +22,11 @@ export function useFilmSuggestions(films: Film[]) {
 
 	const modelsForBrand = useMemo(() => {
 		return (brand: string): string[] => {
-			const lowerBrand = brand.toLowerCase();
+			const lowerBrand = brand.trim().toLowerCase();
 			const set = new Set<string>();
 			for (const f of films) {
-				if (f.brand?.toLowerCase() === lowerBrand && f.model) {
-					set.add(f.model);
+				if (f.brand?.trim().toLowerCase() === lowerBrand && f.model) {
+					set.add(f.model.trim());
 				}
 			}
 			for (const c of FILM_CATALOG) {
@@ -40,8 +40,8 @@ export function useFilmSuggestions(films: Film[]) {
 
 	const filmDataFor = useMemo(() => {
 		return (brand: string, model: string): FilmData | undefined => {
-			const lowerBrand = brand.toLowerCase();
-			const lowerModel = model.toLowerCase();
+			const lowerBrand = brand.trim().toLowerCase();
+			const lowerModel = model.trim().toLowerCase();
 
 			// Search user stock first (priority)
 			const fromStock = films.find(
