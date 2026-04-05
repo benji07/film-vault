@@ -1,4 +1,5 @@
 import type { AppData } from "@/types";
+import { setLastModified } from "@/utils/sync";
 import { applyMigrations, CURRENT_VERSION, validateAppData } from "./migrations";
 
 const STORAGE_KEY = "filmvault-data";
@@ -46,6 +47,7 @@ export async function saveData(data: AppData): Promise<boolean> {
 	if (!storageAvailable) return false;
 	try {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+		setLastModified();
 		return true;
 	} catch {
 		return false;
