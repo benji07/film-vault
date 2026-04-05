@@ -1,4 +1,4 @@
-import { Archive, BarChart3, Eye, Film, Hash } from "lucide-react";
+import { Archive, BarChart3, Eye, Film } from "lucide-react";
 import { BarChart } from "@/components/BarChart";
 import { EmptyState } from "@/components/EmptyState";
 import { StatCard } from "@/components/StatCard";
@@ -14,14 +14,13 @@ interface StatsScreenProps {
 
 export function StatsScreen({ data }: StatsScreenProps) {
 	const { films } = data;
-	const allShot = films.filter((f) => ["exposed", "developed", "loaded", "partial"].includes(f.state));
+	const allShot = films.filter((f) => ["exposed", "developed", "scanned", "loaded", "partial"].includes(f.state));
 	const developed = films.filter((f) => f.state === "developed");
 
 	const byType: Record<string, number> = {};
 	const byBrand: Record<string, number> = {};
 	const byFormat: Record<string, number> = {};
 	const byCamera: Record<string, number> = {};
-	const totalSpent = films.reduce((s, f) => s + (f.price || 0), 0);
 
 	for (const f of films) {
 		const ft = filmType(f);
@@ -63,11 +62,10 @@ export function StatsScreen({ data }: StatsScreenProps) {
 		<div className="flex flex-col gap-5">
 			<h2 className="font-display text-2xl text-text-primary m-0 italic">Statistiques</h2>
 
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+			<div className="grid grid-cols-3 gap-2.5">
 				<StatCard icon={Film} label="Total pellicules" value={films.length} color={T.blue} />
 				<StatCard icon={Eye} label="Shootées" value={allShot.length} color={T.green} />
 				<StatCard icon={Archive} label="Développées" value={developed.length} color={T.textSec} />
-				<StatCard icon={Hash} label="Dépensé" value={`${totalSpent.toFixed(0)}€`} color={T.amber} />
 			</div>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-5">

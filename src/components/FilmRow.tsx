@@ -4,7 +4,7 @@ import { STATES } from "@/constants/films";
 import { FILM_TYPE_COLORS, T } from "@/constants/theme";
 import type { Camera, Film } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
-import { getExpirationStatus } from "@/utils/expiration";
+import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 
 interface FilmRowProps {
@@ -19,7 +19,7 @@ export function FilmRow({ film, onClick, cameras }: FilmRowProps) {
 	const typeColor = FILM_TYPE_COLORS[filmType(film)] || T.textMuted;
 	const cam = film.cameraId ? cameras.find((c) => c.id === film.cameraId) : null;
 	const back = film.backId && cam ? cam.backs.find((b) => b.id === film.backId) : null;
-	const expInfo = film.state === "stock" ? getExpirationStatus(film.expDate) : null;
+	const expInfo = getExpirationStatus(film.expDate);
 
 	return (
 		<div
@@ -51,6 +51,9 @@ export function FilmRow({ film, onClick, cameras }: FilmRowProps) {
 							{cameraDisplayName(cam)}
 							{back ? ` · ${back.name}` : ""}
 						</Badge>
+					)}
+					{film.expDate && (
+						<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>{fmtExpDate(film.expDate)}</Badge>
 					)}
 					{expInfo && expInfo.status !== "ok" && (
 						<Badge style={{ color: expInfo.color, background: expInfo.bgColor }}>{expInfo.label}</Badge>

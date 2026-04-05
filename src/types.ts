@@ -2,7 +2,7 @@ import type { ComponentType } from "react";
 
 export type FilmFormat = "35mm" | "120" | "Instant";
 export type FilmType = "Couleur" | "N&B" | "Diapo" | "ECN-2" | "Instant";
-export type FilmState = "stock" | "loaded" | "partial" | "exposed" | "developed";
+export type FilmState = "stock" | "loaded" | "partial" | "exposed" | "developed" | "scanned";
 
 export interface HistoryEntry {
 	date: string;
@@ -33,6 +33,7 @@ export interface Film {
 	posesTotal?: number | null;
 	lab?: string | null;
 	devDate?: string | null;
+	scanRef?: string | null;
 	history: HistoryEntry[];
 }
 

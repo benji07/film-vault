@@ -33,6 +33,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm }: StockScreenPro
 		{ key: "partial", label: "Partielles", count: films.filter((f) => f.state === "partial").length },
 		{ key: "exposed", label: "Exposées", count: films.filter((f) => f.state === "exposed").length },
 		{ key: "developed", label: "Dév.", count: films.filter((f) => f.state === "developed").length },
+		{ key: "scanned", label: "Scannées", count: films.filter((f) => f.state === "scanned").length },
 	];
 
 	return (

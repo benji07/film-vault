@@ -7,13 +7,14 @@ import {
 	Check,
 	CircleDot,
 	Clock,
+	CopyPlus,
 	Film,
-	Hash,
 	MessageSquare,
 	Package,
 	Pencil,
 	RotateCcw,
 	Save,
+	ScanLine,
 	Send,
 	Trash2,
 } from "lucide-react";
@@ -39,10 +40,10 @@ import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
-import { fmtDate, today } from "@/utils/helpers";
+import { fmtDate, today, uid } from "@/utils/helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 
-type ActionType = "load" | "finish" | "partial" | "reload" | "sendDev" | "develop" | "edit" | null;
+type ActionType = "load" | "finish" | "partial" | "reload" | "sendDev" | "develop" | "edit" | "scan" | null;
 
 interface ActionData {
 	cameraId?: string;
@@ -54,6 +55,7 @@ interface ActionData {
 	posesShot?: string;
 	lab?: string;
 	devDate?: string;
+	scanRef?: string;
 	photos?: string[];
 }
 
@@ -64,7 +66,6 @@ interface EditData {
 	type: string;
 	format: string;
 	expDate: string;
-	price: string;
 	comment: string;
 }
 
@@ -72,10 +73,11 @@ interface FilmDetailScreenProps {
 	data: AppData;
 	setData: (data: AppData) => void;
 	setScreen: (screen: ScreenName) => void;
+	setSelectedFilm: (id: string) => void;
 	filmId: string | null;
 }
 
-export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetailScreenProps) {
+export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, filmId }: FilmDetailScreenProps) {
 	const film = data.films.find((f) => f.id === filmId);
 	const [showAction, setShowAction] = useState<ActionType>(null);
 	const [actionData, setActionData] = useState<ActionData>({});
@@ -86,7 +88,6 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 		type: "",
 		format: "",
 		expDate: "",
-		price: "",
 		comment: "",
 	});
 	const { toast } = useToast();
@@ -111,7 +112,6 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 			type: film.type || "Couleur",
 			format: film.format || "35mm",
 			expDate: film.expDate || "",
-			price: film.price != null ? String(film.price) : "",
 			comment: film.comment || "",
 		});
 		setShowAction("edit");
@@ -134,6 +134,37 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 		setData({ ...data, films: data.films.filter((f) => f.id !== filmId) });
 		toast("Pellicule supprimée", "info");
 		setScreen("stock");
+	};
+
+	const handleDuplicate = () => {
+		const newId = uid();
+		const newFilm: FilmType = {
+			id: newId,
+			brand: film.brand,
+			model: film.model,
+			customName: film.customName,
+			iso: film.iso,
+			type: film.type,
+			format: film.format,
+			state: "stock",
+			expDate: film.expDate,
+			comment: film.comment,
+			addedDate: today(),
+			shootIso: null,
+			cameraId: null,
+			backId: null,
+			startDate: null,
+			endDate: null,
+			posesShot: null,
+			posesTotal: film.posesTotal,
+			lab: null,
+			devDate: null,
+			scanRef: null,
+			history: [{ date: today(), action: `Dupliquée depuis ${filmName(film)}` }],
+		};
+		setData({ ...data, films: [...data.films, newFilm] });
+		setSelectedFilm(newId);
+		toast("Pellicule dupliquée");
 	};
 
 	const getAvailableCameras = () => {
@@ -182,7 +213,6 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 							warn={getExpirationStatus(film.expDate)?.status === "expired"}
 						/>
 					)}
-					{film.price && <InfoLine icon={Hash} label="Prix" value={`${film.price.toFixed(2)} €`} />}
 					{film.shootIso && <InfoLine icon={Aperture} label="ISO de prise de vue" value={film.shootIso} />}
 					{cam && (
 						<InfoLine
@@ -197,6 +227,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						<InfoLine icon={CircleDot} label="Poses" value={`${film.posesShot} / ${film.posesTotal}`} />
 					)}
 					{film.lab && <InfoLine icon={Package} label="Labo" value={film.lab} />}
+					{film.scanRef && <InfoLine icon={ScanLine} label="Réf. scan" value={film.scanRef} />}
 					{film.comment && <InfoLine icon={MessageSquare} label="Notes" value={film.comment} />}
 				</div>
 			</Card>
@@ -235,6 +266,14 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 						<Archive size={16} /> Marquer comme développée
 					</Button>
 				)}
+				{film.state === "developed" && (
+					<Button onClick={() => setShowAction("scan")} className="w-full justify-center">
+						<ScanLine size={16} /> Marquer comme scannée
+					</Button>
+				)}
+				<Button variant="outline" onClick={handleDuplicate} className="w-full justify-center">
+					<CopyPlus size={16} /> Dupliquer
+				</Button>
 				<Button variant="destructive" onClick={deleteFilm} className="w-full justify-center">
 					<Trash2 size={14} /> Supprimer
 				</Button>
@@ -338,7 +377,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 										backId: actionData.backId || null,
 										shootIso: Number.parseInt(actionData.shootIso || "", 10) || (typeof fIso === "number" ? fIso : 0),
 										startDate: actionData.startDate || today(),
-										comment: actionData.comment || film.comment,
+										comment: actionData.comment?.trim() || film.comment,
 										history: [
 											...(film.history || []),
 											{
@@ -393,7 +432,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 									{
 										state: "exposed",
 										endDate: actionData.endDate || today(),
-										comment: actionData.comment || film.comment,
+										comment: actionData.comment?.trim() || film.comment,
 										cameraId: null,
 										backId: null,
 										history: [
@@ -452,7 +491,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 									{
 										state: "partial",
 										posesShot: Number.parseInt(actionData.posesShot || "", 10) || 0,
-										comment: actionData.comment || film.comment,
+										comment: actionData.comment?.trim() || film.comment,
 										cameraId: null,
 										backId: null,
 										history: [
@@ -583,7 +622,7 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 									{
 										state: "exposed",
 										endDate: actionData.endDate || today(),
-										comment: actionData.comment || film.comment,
+										comment: actionData.comment?.trim() || film.comment,
 										history: [
 											...(film.history || []),
 											{ date: today(), action: "Envoyée au développement (partielle)", photos },
@@ -640,14 +679,14 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 								updateFilm(
 									{
 										state: "developed",
-										lab: actionData.lab || null,
+										lab: actionData.lab?.trim() || null,
 										devDate: actionData.devDate || today(),
-										comment: actionData.comment || film.comment,
+										comment: actionData.comment?.trim() || film.comment,
 										history: [
 											...(film.history || []),
 											{
 												date: today(),
-												action: `Développée${actionData.lab ? ` chez ${actionData.lab}` : ""}`,
+												action: `Développée${actionData.lab?.trim() ? ` chez ${actionData.lab.trim()}` : ""}`,
 												photos,
 											},
 										],
@@ -658,6 +697,60 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 							className="w-full justify-center"
 						>
 							<Archive size={16} /> Confirmer
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
+
+			<Dialog open={showAction === "scan"} onOpenChange={(open) => !open && closeAction()}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Marquer comme scannée</DialogTitle>
+						<DialogCloseButton />
+					</DialogHeader>
+					<div className="flex flex-col gap-4">
+						<FormField label="Référence labo">
+							<Input
+								value={actionData.scanRef || ""}
+								onChange={(e) => setActionData({ ...actionData, scanRef: e.target.value })}
+								placeholder="Réf. du scan…"
+							/>
+						</FormField>
+						<FormField label="Commentaire">
+							<Input
+								value={actionData.comment || ""}
+								onChange={(e) => setActionData({ ...actionData, comment: e.target.value })}
+							/>
+						</FormField>
+						<PhotoPicker
+							photos={actionData.photos || []}
+							onChange={(p) => setActionData({ ...actionData, photos: p })}
+							max={3}
+							label={`Photos (${(actionData.photos || []).length}/3)`}
+						/>
+						<Button
+							onClick={() => {
+								const photos = actionData.photos?.length ? actionData.photos : undefined;
+								updateFilm(
+									{
+										state: "scanned",
+										scanRef: actionData.scanRef?.trim() || null,
+										comment: actionData.comment?.trim() || film.comment,
+										history: [
+											...(film.history || []),
+											{
+												date: today(),
+												action: `Scannée${actionData.scanRef?.trim() ? ` (réf: ${actionData.scanRef.trim()})` : ""}`,
+												photos,
+											},
+										],
+									},
+									"Pellicule scannée",
+								);
+							}}
+							className="w-full justify-center"
+						>
+							<ScanLine size={16} /> Confirmer
 						</Button>
 					</div>
 				</DialogContent>
@@ -737,20 +830,9 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 								</SelectContent>
 							</Select>
 						</FormField>
-						<div className="grid grid-cols-2 gap-3">
-							<FormField label="Date d'expiration">
-								<MonthYearPicker value={editData.expDate} onChange={(v) => setEditData({ ...editData, expDate: v })} />
-							</FormField>
-							<FormField label="Prix (€)">
-								<Input
-									type="number"
-									value={editData.price}
-									onChange={(e) => setEditData({ ...editData, price: e.target.value })}
-									placeholder="0.00"
-									className="font-mono"
-								/>
-							</FormField>
-						</div>
+						<FormField label="Date d'expiration">
+							<MonthYearPicker value={editData.expDate} onChange={(v) => setEditData({ ...editData, expDate: v })} />
+						</FormField>
 						<FormField label="Commentaire">
 							<Input
 								value={editData.comment}
@@ -763,14 +845,13 @@ export function FilmDetailScreen({ data, setData, setScreen, filmId }: FilmDetai
 							onClick={() => {
 								updateFilm(
 									{
-										brand: editData.brand,
-										model: editData.model,
+										brand: editData.brand.trim(),
+										model: editData.model.trim(),
 										iso: Number.parseInt(editData.iso, 10) || 0,
 										type: editData.type,
 										format: film.state === "loaded" ? film.format : editData.format,
 										expDate: editData.expDate || null,
-										price: editData.price ? Number.parseFloat(editData.price) : null,
-										comment: editData.comment || null,
+										comment: editData.comment.trim() || null,
 										history: [...(film.history || []), { date: today(), action: "Informations modifiées" }],
 									},
 									"Pellicule modifiée",
