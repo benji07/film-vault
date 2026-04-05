@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
 import { TabBar } from "@/components/TabBar";
@@ -13,6 +13,8 @@ import { StatsScreen } from "@/screens/StatsScreen";
 import { StockScreen } from "@/screens/StockScreen";
 import type { AppData, ScreenName } from "@/types";
 import { checkStorage, getInitialData, isStorageAvailable, loadData, saveData } from "@/utils/storage";
+import { isSupabaseConfigured } from "@/utils/supabase";
+import { getRecoveryCode, pushToCloud, syncData } from "@/utils/sync";
 
 function FilmVaultInner() {
 	const [data, setData] = useState<AppData | null>(null);
@@ -20,18 +22,47 @@ function FilmVaultInner() {
 	const [screen, setScreen] = useState<ScreenName>("home");
 	const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
 	const [persistent, setPersistent] = useState(false);
+	const [syncing, setSyncing] = useState(false);
+	const [recoveryCode, setRecoveryCodeState] = useState<string | null>(null);
 	const { toast } = useToast();
+	const dataRef = useRef<AppData | null>(null);
 
 	const updateData = useCallback(
 		async (newData: AppData) => {
 			setData(newData);
+			dataRef.current = newData;
 			if (isStorageAvailable()) {
 				const ok = await saveData(newData);
 				if (!ok) toast("Erreur de sauvegarde", "error");
 			}
+			// Background push to cloud
+			const code = getRecoveryCode();
+			if (code && isSupabaseConfigured) {
+				pushToCloud(code, newData).catch(() => {});
+			}
 		},
 		[toast],
 	);
+
+	const triggerSync = useCallback(async () => {
+		const code = getRecoveryCode();
+		const currentData = dataRef.current;
+		if (!code || !currentData || !isSupabaseConfigured) return;
+		setSyncing(true);
+		try {
+			const result = await syncData(code, currentData);
+			if (result.source === "cloud") {
+				setData(result.data);
+				dataRef.current = result.data;
+				await saveData(result.data);
+				toast("Données synchronisées depuis le cloud", "success");
+			}
+		} catch {
+			toast("Erreur de synchronisation", "error");
+		} finally {
+			setSyncing(false);
+		}
+	}, [toast]);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -39,18 +70,49 @@ function FilmVaultInner() {
 			const hasStorage = await checkStorage();
 			if (cancelled) return;
 			setPersistent(hasStorage);
+
+			let appData: AppData;
 			if (hasStorage) {
 				const saved = await loadData();
-				if (!cancelled) setData(saved && Array.isArray(saved.films) ? saved : getInitialData());
+				appData = saved && Array.isArray(saved.films) ? saved : getInitialData();
 			} else {
-				setData(getInitialData());
+				appData = getInitialData();
 			}
-			if (!cancelled) setLoading(false);
+
+			// Sync with cloud on startup
+			const code = getRecoveryCode();
+			setRecoveryCodeState(code);
+			if (code && isSupabaseConfigured && navigator.onLine) {
+				try {
+					const result = await syncData(code, appData);
+					appData = result.data;
+					if (result.source === "cloud" && hasStorage) {
+						await saveData(appData);
+					}
+				} catch {
+					// Sync failed silently, use local data
+				}
+			}
+
+			if (!cancelled) {
+				setData(appData);
+				dataRef.current = appData;
+				setLoading(false);
+			}
 		})();
 		return () => {
 			cancelled = true;
 		};
 	}, []);
+
+	// Sync when coming back online
+	useEffect(() => {
+		const handleOnline = () => {
+			triggerSync();
+		};
+		window.addEventListener("online", handleOnline);
+		return () => window.removeEventListener("online", handleOnline);
+	}, [triggerSync]);
 
 	if (loading || !data) {
 		return (
@@ -84,7 +146,17 @@ function FilmVaultInner() {
 			case "stats":
 				return <StatsScreen data={data} />;
 			case "settings":
-				return <SettingsScreen data={data} setData={updateData} setScreen={setScreen} />;
+				return (
+					<SettingsScreen
+						data={data}
+						setData={updateData}
+						setScreen={setScreen}
+						syncing={syncing}
+						recoveryCode={recoveryCode}
+						onRecoveryCodeChange={setRecoveryCodeState}
+						onSyncNow={triggerSync}
+					/>
+				);
 			default:
 				return <DashboardScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} />;
 		}
