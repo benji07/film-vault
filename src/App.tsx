@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
 import { TabBar } from "@/components/TabBar";
 import { ToastProvider, useToast } from "@/components/Toast";
@@ -110,6 +111,7 @@ function FilmVaultInner() {
 			</main>
 
 			<PwaUpdateBanner />
+			<PwaInstallBanner />
 
 			{/* Mode indicator */}
 			<div
