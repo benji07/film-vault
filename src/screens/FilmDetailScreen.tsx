@@ -1,7 +1,6 @@
 import {
 	Aperture,
 	Archive,
-	ArrowLeft,
 	Calendar,
 	Camera,
 	Check,
@@ -179,15 +178,8 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 
 	return (
 		<div className="flex flex-col gap-4">
-			<div className="flex items-center gap-3">
-				<button
-					type="button"
-					onClick={() => setScreen("stock")}
-					className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
-				>
-					<ArrowLeft size={20} className="text-text-sec" />
-				</button>
-				<h2 className="font-display text-[22px] text-text-primary m-0 italic flex-1">{filmName(film)}</h2>
+			<div className="flex items-center justify-between">
+				<h2 className="font-display text-[22px] text-text-primary m-0 italic">{filmName(film)}</h2>
 				<button
 					type="button"
 					onClick={openEdit}

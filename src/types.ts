@@ -64,7 +64,7 @@ export interface AppData {
 	version: number;
 }
 
-export type ScreenName = "home" | "stock" | "addFilm" | "filmDetail" | "cameras" | "stats" | "settings";
+export type ScreenName = "home" | "stock" | "filmDetail" | "cameras" | "stats" | "settings";
 
 export interface StateConfig {
 	label: string;

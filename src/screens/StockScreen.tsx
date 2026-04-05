@@ -10,9 +10,10 @@ interface StockScreenProps {
 	data: AppData;
 	setScreen: (screen: ScreenName) => void;
 	setSelectedFilm: (id: string) => void;
+	onAddFilm: () => void;
 }
 
-export function StockScreen({ data, setScreen, setSelectedFilm }: StockScreenProps) {
+export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: StockScreenProps) {
 	const [filter, setFilter] = useState("all");
 	const [search, setSearch] = useState("");
 	const { films, cameras } = data;
@@ -40,7 +41,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm }: StockScreenPro
 		<div className="flex flex-col gap-4">
 			<div className="flex justify-between items-center">
 				<h2 className="font-display text-2xl text-text-primary m-0 italic">Pellicules</h2>
-				<Button size="sm" onClick={() => setScreen("addFilm")}>
+				<Button size="sm" onClick={onAddFilm}>
 					<Plus size={14} /> Ajouter
 				</Button>
 			</div>

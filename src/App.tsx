@@ -1,10 +1,11 @@
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AddFilmDialog } from "@/components/AddFilmDialog";
+import { AppHeader } from "@/components/AppHeader";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
 import { TabBar } from "@/components/TabBar";
 import { ToastProvider, useToast } from "@/components/Toast";
-import { AddFilmScreen } from "@/screens/AddFilmScreen";
 import { CamerasScreen } from "@/screens/CamerasScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { FilmDetailScreen } from "@/screens/FilmDetailScreen";
@@ -21,6 +22,7 @@ function FilmVaultInner() {
 	const [loading, setLoading] = useState(true);
 	const [screen, setScreen] = useState<ScreenName>("home");
 	const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
+	const [showAddFilm, setShowAddFilm] = useState(false);
 	const [persistent, setPersistent] = useState(false);
 	const [syncing, setSyncing] = useState(false);
 	const [recoveryCode, setRecoveryCodeState] = useState<string | null>(null);
@@ -123,14 +125,18 @@ function FilmVaultInner() {
 		);
 	}
 
+	const onAddFilm = () => setShowAddFilm(true);
+
 	const renderScreen = () => {
 		switch (screen) {
 			case "home":
-				return <DashboardScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} />;
+				return (
+					<DashboardScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} onAddFilm={onAddFilm} />
+				);
 			case "stock":
-				return <StockScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} />;
-			case "addFilm":
-				return <AddFilmScreen data={data} setData={updateData} setScreen={setScreen} />;
+				return (
+					<StockScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} onAddFilm={onAddFilm} />
+				);
 			case "filmDetail":
 				return (
 					<FilmDetailScreen
@@ -150,7 +156,6 @@ function FilmVaultInner() {
 					<SettingsScreen
 						data={data}
 						setData={updateData}
-						setScreen={setScreen}
 						syncing={syncing}
 						recoveryCode={recoveryCode}
 						onRecoveryCodeChange={setRecoveryCodeState}
@@ -158,11 +163,14 @@ function FilmVaultInner() {
 					/>
 				);
 			default:
-				return <DashboardScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} />;
+				return (
+					<DashboardScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} onAddFilm={onAddFilm} />
+				);
 		}
 	};
 
-	const showTabBar = !["addFilm", "filmDetail", "settings"].includes(screen);
+	const filmTitle = selectedFilm ? data.films.find((f) => f.id === selectedFilm)?.model : undefined;
+	const showTabBar = !["filmDetail", "settings"].includes(screen);
 
 	return (
 		<div className="h-[100dvh] bg-bg text-text-primary font-body flex flex-col md:flex-row relative">
@@ -170,7 +178,8 @@ function FilmVaultInner() {
 			<TabBar screen={screen} setScreen={setScreen} variant="sidebar" className="hidden md:flex" />
 
 			<main className="flex-1 flex flex-col min-h-0 min-w-0">
-				<div className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-5 pt-[max(1.25rem,env(safe-area-inset-top))]">
+				<AppHeader screen={screen} setScreen={setScreen} filmTitle={filmTitle} className="md:hidden" />
+				<div className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-5 md:pt-[max(1.25rem,env(safe-area-inset-top))]">
 					<div className="max-w-3xl mx-auto">
 						<div key={`${screen}-${selectedFilm || ""}`} className="animate-screen-enter">
 							{renderScreen()}
@@ -182,6 +191,7 @@ function FilmVaultInner() {
 				{showTabBar && <TabBar screen={screen} setScreen={setScreen} className="md:hidden" />}
 			</main>
 
+			<AddFilmDialog open={showAddFilm} onOpenChange={setShowAddFilm} data={data} setData={updateData} />
 			<PwaUpdateBanner />
 			<PwaInstallBanner />
 

@@ -12,8 +12,8 @@ export default defineConfig({
 			registerType: "prompt",
 			includeAssets: ["icon-192.png", "icon-512.png"],
 			manifest: {
-				name: "FilmVault",
-				short_name: "FilmVault",
+				name: "My Film Vault",
+				short_name: "My Film Vault",
 				description: "Gestionnaire de pellicules argentiques",
 				start_url: "./",
 				display: "standalone",
