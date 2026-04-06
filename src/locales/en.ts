@@ -298,6 +298,10 @@ export const en = {
 		cloudNetworkError: "Server connection error. Please try again.",
 		cloudInvalidData: "The data found is invalid or corrupted.",
 		cloudNotConfigured: "Cloud service is not configured.",
+		// Theme
+		theme: "Theme",
+		themeDark: "Chambre noire",
+		themeLight: "Chambre claire",
 		// Language
 		language: "Language",
 		languageFr: "Français",

@@ -9,9 +9,11 @@
   <title>My Film Vault</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎞️</text></svg>" />
   <link rel="apple-touch-icon" href="./icon-192.png" />
+  <script>if(localStorage.getItem("filmvault-theme")==="light")document.documentElement.classList.add("light")</script>
   <style>
     html, body, #root { height: 100%; }
     body { background: #0D0D0D; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    html.light body { background: #F5F0E8; }
     ::-webkit-scrollbar { display: none; }
   </style>
 </head>

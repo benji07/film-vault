@@ -52,6 +52,31 @@
 		--ring: var(--color-accent);
 		--radius: 14px;
 	}
+
+	/* Chambre claire — light theme */
+	html.light {
+		--color-bg: #f5f0e8;
+		--color-surface: #fffdf8;
+		--color-surface-alt: #ede8e0;
+		--color-card: #fffdf8;
+		--color-card-hover: #f8f3eb;
+		--color-border: #ddd5c8;
+		--color-border-light: #e8e0d5;
+		--color-text-primary: #2c2520;
+		--color-text-sec: #6b6158;
+		--color-text-muted: #928980;
+		--color-accent: #c4392d;
+		--color-accent-hover: #b0322a;
+		--color-accent-soft: rgba(196, 57, 45, 0.1);
+		--color-orange: #d06a30;
+		--color-orange-soft: rgba(208, 106, 48, 0.1);
+		--color-amber: #b8912e;
+		--color-amber-soft: rgba(184, 145, 46, 0.08);
+		--color-green: #3d7a4e;
+		--color-green-soft: rgba(61, 122, 78, 0.1);
+		--color-blue: #4a6f94;
+		--color-blue-soft: rgba(74, 111, 148, 0.08);
+	}
 	html,
 	body,
 	#root {

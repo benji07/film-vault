@@ -1,5 +1,5 @@
 import type { TFunction } from "i18next";
-import { T } from "@/constants/theme";
+import { alpha, T } from "@/constants/theme";
 
 export type ExpirationStatus = "expired" | "expiring" | "ok";
 
@@ -30,14 +30,14 @@ export function getExpirationStatus(expDate: string | null | undefined, t?: TFun
 	const expiringLabel = t ? t("expiration.expiringSoon") : "Expire bientôt";
 
 	if (expEnd < now) {
-		return { status: "expired", label: expiredLabel, color: T.accent, bgColor: `${T.accent}18` };
+		return { status: "expired", label: expiredLabel, color: T.accent, bgColor: alpha(T.accent, 0.09) };
 	}
 
 	// Months remaining (approximate)
 	const diffMonths = (expEnd.getFullYear() - now.getFullYear()) * 12 + (expEnd.getMonth() - now.getMonth());
 
 	if (diffMonths < 3) {
-		return { status: "expiring", label: expiringLabel, color: T.orange, bgColor: `${T.orange}18` };
+		return { status: "expiring", label: expiringLabel, color: T.orange, bgColor: alpha(T.orange, 0.09) };
 	}
 
 	return { status: "ok", label: "", color: "", bgColor: "" };

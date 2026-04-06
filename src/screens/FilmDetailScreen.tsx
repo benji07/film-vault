@@ -37,7 +37,7 @@ import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getStates } from "@/constants/films";
-import { T } from "@/constants/theme";
+import { alpha, T } from "@/constants/theme";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
@@ -196,10 +196,10 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 
 			<Card>
 				<div className="flex gap-2 mb-3 flex-wrap">
-					<Badge style={{ color: st.color, background: `${st.color}18` }}>{st.label}</Badge>
-					<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>{film.format}</Badge>
-					<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>{filmType(film)}</Badge>
-					<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>ISO {fIso}</Badge>
+					<Badge style={{ color: st.color, background: alpha(st.color, 0.09) }}>{st.label}</Badge>
+					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{film.format}</Badge>
+					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{filmType(film)}</Badge>
+					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>ISO {fIso}</Badge>
 				</div>
 				<div className="flex flex-col gap-2">
 					{film.expDate && (

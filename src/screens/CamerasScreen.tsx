@@ -11,7 +11,7 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { T } from "@/constants/theme";
+import { alpha, T } from "@/constants/theme";
 import type { AppData, Back, Camera as CameraType } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
@@ -181,14 +181,14 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 											{cameraDisplayName(cam)}
 										</div>
 										<div className="flex gap-1.5 mt-1.5">
-											<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>{cam.format}</Badge>
+											<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{cam.format}</Badge>
 											{cam.backs.length > 0 && (
-												<Badge style={{ color: T.blue, background: `${T.blue}18` }}>
+												<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
 													{cam.backs.length} {t("cameras.backs")}
 												</Badge>
 											)}
 											{loadedFilms.length > 0 && (
-												<Badge style={{ color: T.green, background: `${T.green}18` }}>
+												<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
 													{t("cameras.loaded", { count: loadedFilms.length })}
 												</Badge>
 											)}
@@ -248,7 +248,9 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 												</div>
 												<div className="flex items-center gap-1.5">
 													{backFilm && (
-														<Badge style={{ color: T.green, background: `${T.green}18` }}>{filmName(backFilm)}</Badge>
+														<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
+															{filmName(backFilm)}
+														</Badge>
 													)}
 													<button
 														type="button"
