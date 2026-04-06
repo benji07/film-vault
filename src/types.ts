@@ -26,6 +26,17 @@ export interface HistoryEntry {
 	photos?: string[];
 }
 
+export interface ShotNote {
+	id: string;
+	frameNumber?: number | null;
+	aperture?: string | null;
+	shutterSpeed?: string | null;
+	lens?: string | null;
+	location?: string | null;
+	notes?: string | null;
+	date?: string | null;
+}
+
 export interface Film {
 	id: string;
 	brand?: string;
@@ -51,6 +62,7 @@ export interface Film {
 	devDate?: string | null;
 	scanRef?: string | null;
 	history: HistoryEntry[];
+	shotNotes?: ShotNote[];
 }
 
 export interface Back {
