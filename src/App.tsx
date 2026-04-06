@@ -6,6 +6,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
 import { TabBar } from "@/components/TabBar";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { CamerasScreen } from "@/screens/CamerasScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
@@ -210,8 +211,10 @@ function FilmVaultInner() {
 
 export default function FilmVaultApp() {
 	return (
-		<ToastProvider>
-			<FilmVaultInner />
-		</ToastProvider>
+		<ThemeProvider>
+			<ToastProvider>
+				<FilmVaultInner />
+			</ToastProvider>
+		</ThemeProvider>
 	);
 }

@@ -5,7 +5,7 @@ import { FilmRow } from "@/components/FilmRow";
 import { StatCard } from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { T } from "@/constants/theme";
+import { alpha, T } from "@/constants/theme";
 import type { AppData, ScreenName } from "@/types";
 import { getExpirationStatus } from "@/utils/expiration";
 
@@ -51,7 +51,7 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }:
 			</div>
 
 			{partialCount > 0 && (
-				<Card style={{ borderColor: `${T.amber}44` }}>
+				<Card style={{ borderColor: alpha(T.amber, 0.27) }}>
 					<div className="flex items-center gap-2.5">
 						<Clock size={16} color={T.amber} />
 						<span className="text-[13px] font-body font-semibold" style={{ color: T.amber }}>

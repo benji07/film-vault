@@ -1,4 +1,4 @@
-import { T } from "@/constants/theme";
+import { alpha, T } from "@/constants/theme";
 
 interface BarChartProps {
 	data: Record<string, number>;
@@ -20,7 +20,7 @@ export function BarChart({ data: chartData, color = T.accent, sort = true }: Bar
 							className="h-full rounded-md transition-[width] duration-500 ease-out"
 							style={{
 								width: `${(v / max) * 100}%`,
-								background: `linear-gradient(90deg, ${color}, ${color}88)`,
+								background: `linear-gradient(90deg, ${color}, ${alpha(color, 0.53)})`,
 							}}
 						/>
 					</div>

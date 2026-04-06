@@ -1,26 +1,31 @@
 export const T = {
-	bg: "#0D0D0D",
-	surface: "#1A1A1A",
-	surfaceAlt: "#242424",
-	card: "#1E1E1E",
-	cardHover: "#252525",
-	border: "#2A2A2A",
-	borderLight: "#333",
-	text: "#E8E4DF",
-	textSec: "#A09A92",
-	textMuted: "#827D75",
-	accent: "#C4392D",
-	accentHover: "#D44435",
-	accentSoft: "rgba(196,57,45,0.12)",
-	orange: "#E07940",
-	orangeSoft: "rgba(224,121,64,0.12)",
-	amber: "#D4A858",
-	amberSoft: "rgba(212,168,88,0.10)",
-	green: "#4A8C5C",
-	greenSoft: "rgba(74,140,92,0.12)",
-	blue: "#5B7FA5",
-	blueSoft: "rgba(91,127,165,0.10)",
+	bg: "var(--color-bg)",
+	surface: "var(--color-surface)",
+	surfaceAlt: "var(--color-surface-alt)",
+	card: "var(--color-card)",
+	cardHover: "var(--color-card-hover)",
+	border: "var(--color-border)",
+	borderLight: "var(--color-border-light)",
+	text: "var(--color-text-primary)",
+	textSec: "var(--color-text-sec)",
+	textMuted: "var(--color-text-muted)",
+	accent: "var(--color-accent)",
+	accentHover: "var(--color-accent-hover)",
+	accentSoft: "var(--color-accent-soft)",
+	orange: "var(--color-orange)",
+	orangeSoft: "var(--color-orange-soft)",
+	amber: "var(--color-amber)",
+	amberSoft: "var(--color-amber-soft)",
+	green: "var(--color-green)",
+	greenSoft: "var(--color-green-soft)",
+	blue: "var(--color-blue)",
+	blueSoft: "var(--color-blue-soft)",
 } as const;
+
+/** Returns a CSS color-mix() expression for a CSS variable with the given opacity (0–1). */
+export function alpha(cssVar: string, opacity: number): string {
+	return `color-mix(in srgb, ${cssVar} ${Math.round(opacity * 100)}%, transparent)`;
+}
 
 export const FILM_TYPE_COLORS: Record<string, string> = {
 	Couleur: T.amber,

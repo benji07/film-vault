@@ -298,6 +298,10 @@ export const fr = {
 		cloudNetworkError: "Erreur de connexion au serveur. Veuillez réessayer.",
 		cloudInvalidData: "Les données trouvées sont invalides ou corrompues.",
 		cloudNotConfigured: "Le service cloud n'est pas configuré.",
+		// Theme
+		theme: "Thème",
+		themeDark: "Chambre noire",
+		themeLight: "Chambre claire",
 		// Language
 		language: "Langue",
 		languageFr: "Français",

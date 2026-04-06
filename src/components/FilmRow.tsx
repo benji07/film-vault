@@ -2,7 +2,7 @@ import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { getStates } from "@/constants/films";
-import { FILM_TYPE_COLORS, T } from "@/constants/theme";
+import { alpha, FILM_TYPE_COLORS, T } from "@/constants/theme";
 import type { Camera, Film } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
@@ -35,7 +35,7 @@ export function FilmRow({ film, onClick, cameras }: FilmRowProps) {
 			<div className="w-[3px] self-stretch shrink-0 rounded-r-full" style={{ backgroundColor: typeColor }} />
 			<div
 				className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
-				style={{ background: `linear-gradient(135deg, ${st.color}22, ${st.color}08)` }}
+				style={{ background: `linear-gradient(135deg, ${alpha(st.color, 0.13)}, ${alpha(st.color, 0.03)})` }}
 			>
 				<StIcon size={18} color={st.color} />
 			</div>
@@ -44,19 +44,19 @@ export function FilmRow({ film, onClick, cameras }: FilmRowProps) {
 					{filmName(film)}
 				</div>
 				<div className="flex gap-1.5 mt-1 flex-wrap">
-					<Badge style={{ color: st.color, background: `${st.color}18` }}>{st.label}</Badge>
-					<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>{film.format}</Badge>
+					<Badge style={{ color: st.color, background: alpha(st.color, 0.09) }}>{st.label}</Badge>
+					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{film.format}</Badge>
 					{film.shootIso && film.shootIso !== filmIso(film) && (
-						<Badge style={{ color: T.amber, background: `${T.amber}18` }}>Push {film.shootIso}</Badge>
+						<Badge style={{ color: T.amber, background: alpha(T.amber, 0.09) }}>Push {film.shootIso}</Badge>
 					)}
 					{cam && (
-						<Badge style={{ color: T.green, background: `${T.green}18` }}>
+						<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
 							{cameraDisplayName(cam)}
 							{back ? ` · ${backDisplayName(back)}` : ""}
 						</Badge>
 					)}
 					{film.expDate && (
-						<Badge style={{ color: T.textMuted, background: `${T.textMuted}18` }}>
+						<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
 							{fmtExpDate(film.expDate, t("dateLocale"))}
 						</Badge>
 					)}
