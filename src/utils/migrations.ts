@@ -174,6 +174,6 @@ export function validateAppData(data: unknown): data is AppData {
 	const d = data as Record<string, unknown>;
 	if (!Array.isArray(d.films)) return false;
 	if (!Array.isArray(d.cameras)) return false;
-	if (typeof d.version !== "number" && d.version !== undefined) return false;
+	if (d.version !== undefined && d.version !== null && typeof d.version !== "number") return false;
 	return true;
 }

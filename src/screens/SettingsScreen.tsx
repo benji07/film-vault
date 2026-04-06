@@ -86,9 +86,20 @@ export function SettingsScreen({
 
 	const handleActivateCloud = async () => {
 		const code = generateRecoveryCode();
-		setRecoveryCode(code);
-		onRecoveryCodeChange(code);
-		await pushToCloud(code, data);
+		const success = await pushToCloud(code, data);
+		if (success) {
+			setRecoveryCode(code);
+			onRecoveryCodeChange(code);
+		} else {
+			setImportError(t("settings.pushFailed"));
+		}
+	};
+
+	const pullErrorKey: Record<string, string> = {
+		not_found: "settings.noDataFound",
+		network_error: "settings.cloudNetworkError",
+		invalid_data: "settings.cloudInvalidData",
+		supabase_not_configured: "settings.cloudNotConfigured",
 	};
 
 	const handleRestore = async () => {
@@ -96,14 +107,14 @@ export function SettingsScreen({
 		if (!code) return;
 		setRestoring(true);
 		try {
-			const cloudData = await pullFromCloud(code);
-			if (cloudData) {
+			const result = await pullFromCloud(code);
+			if ("data" in result) {
 				setRecoveryCode(code);
 				onRecoveryCodeChange(code);
-				setData(cloudData);
+				setData(result.data);
 				setRestoreCode("");
 			} else {
-				setImportError(t("settings.noDataFound"));
+				setImportError(t(pullErrorKey[result.error] ?? "settings.restoreError"));
 			}
 		} catch {
 			setImportError(t("settings.restoreError"));

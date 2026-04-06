@@ -269,6 +269,10 @@ export const fr = {
 		cancel: "Annuler",
 		noDataFound: "Aucune donnée trouvée pour ce code. Vérifiez qu'il est correct.",
 		restoreError: "Erreur lors de la récupération des données.",
+		pushFailed: "La sauvegarde cloud a échoué. Vérifiez votre connexion internet.",
+		cloudNetworkError: "Erreur de connexion au serveur. Veuillez réessayer.",
+		cloudInvalidData: "Les données trouvées sont invalides ou corrompues.",
+		cloudNotConfigured: "Le service cloud n'est pas configuré.",
 		// Language
 		language: "Langue",
 		languageFr: "Français",

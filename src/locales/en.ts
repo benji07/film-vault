@@ -269,6 +269,10 @@ export const en = {
 		cancel: "Cancel",
 		noDataFound: "No data found for this code. Please check it's correct.",
 		restoreError: "Error retrieving data.",
+		pushFailed: "Cloud save failed. Please check your internet connection.",
+		cloudNetworkError: "Server connection error. Please try again.",
+		cloudInvalidData: "The data found is invalid or corrupted.",
+		cloudNotConfigured: "Cloud service is not configured.",
 		// Language
 		language: "Language",
 		languageFr: "Français",

@@ -84,8 +84,11 @@ export async function pushToCloud(code: string, data: AppData): Promise<boolean>
 	}
 }
 
-export async function pullFromCloud(code: string): Promise<AppData | null> {
-	if (!supabase) return null;
+export type PullError = "supabase_not_configured" | "not_found" | "network_error" | "invalid_data";
+export type PullResult = { data: AppData } | { error: PullError };
+
+export async function pullFromCloud(code: string): Promise<PullResult> {
+	if (!supabase) return { error: "supabase_not_configured" };
 	try {
 		const { data: row, error } = await supabase
 			.from("user_data")
@@ -93,20 +96,27 @@ export async function pullFromCloud(code: string): Promise<AppData | null> {
 			.eq("recovery_code", code)
 			.single();
 
-		if (error || !row) return null;
+		if (error) {
+			console.error("Pull from cloud failed:", error.message);
+			return { error: error.code === "PGRST116" ? "not_found" : "network_error" };
+		}
+		if (!row) return { error: "not_found" };
 
 		const cloudData = row.data as unknown;
-		if (!validateAppData(cloudData)) return null;
+		if (!validateAppData(cloudData)) {
+			console.error("Cloud data validation failed:", JSON.stringify(row.data).slice(0, 200));
+			return { error: "invalid_data" };
+		}
 
 		// Apply migrations if the cloud data is from an older version
 		if ((cloudData.version ?? 1) < CURRENT_VERSION) {
-			return applyMigrations(cloudData as unknown as Record<string, unknown>);
+			return { data: applyMigrations(cloudData as unknown as Record<string, unknown>) };
 		}
 
-		return cloudData;
+		return { data: cloudData };
 	} catch (e) {
 		console.error("Pull from cloud failed:", e);
-		return null;
+		return { error: "network_error" };
 	}
 }
 
