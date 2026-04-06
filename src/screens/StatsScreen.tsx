@@ -16,33 +16,45 @@ interface StatsScreenProps {
 export function StatsScreen({ data }: StatsScreenProps) {
 	const { t } = useTranslation();
 	const { films } = data;
-	const allShot = films.filter((f) => ["exposed", "developed", "scanned", "loaded", "partial"].includes(f.state));
-	const developed = films.filter((f) => f.state === "developed");
+	const shotStates = new Set(["exposed", "developed", "scanned", "loaded", "partial"]);
+	const consumedStates = new Set(["exposed", "developed", "scanned"]);
 
 	const byType: Record<string, number> = {};
 	const byBrand: Record<string, number> = {};
 	const byFormat: Record<string, number> = {};
 	const byCamera: Record<string, number> = {};
+	const topFilms: Record<string, number> = {};
+	const byYearMonth: Record<string, number> = {};
+	let shotCount = 0;
+	let developedCount = 0;
 
 	for (const f of films) {
-		const ft = filmType(f);
-		const fb = filmBrand(f);
+		byType[filmType(f)] = (byType[filmType(f)] || 0) + 1;
+		byBrand[filmBrand(f)] = (byBrand[filmBrand(f)] || 0) + 1;
 		const ff = f.format || "?";
-		byType[ft] = (byType[ft] || 0) + 1;
-		byBrand[fb] = (byBrand[fb] || 0) + 1;
 		byFormat[ff] = (byFormat[ff] || 0) + 1;
-	}
 
-	for (const f of allShot) {
-		if (f.cameraId) {
-			const cam = data.cameras.find((c) => c.id === f.cameraId);
-			const name = cam ? cameraDisplayName(cam) : t("stats.unknown");
-			byCamera[name] = (byCamera[name] || 0) + 1;
+		if (f.state === "developed") developedCount++;
+
+		const isShot = shotStates.has(f.state);
+		if (isShot) {
+			shotCount++;
+			const name = filmName(f);
+			topFilms[name] = (topFilms[name] || 0) + 1;
+			if (f.cameraId) {
+				const cam = data.cameras.find((c) => c.id === f.cameraId);
+				const camName = cam ? cameraDisplayName(cam) : t("stats.unknown");
+				byCamera[camName] = (byCamera[camName] || 0) + 1;
+			}
+		}
+
+		if (f.endDate && consumedStates.has(f.state)) {
+			const ym = f.endDate.slice(0, 7);
+			byYearMonth[ym] = (byYearMonth[ym] || 0) + 1;
 		}
 	}
 
 	const monthLabels = t("stats.monthLabels", { returnObjects: true }) as string[];
-	const consumedStates = new Set(["exposed", "developed", "scanned"]);
 	const now = new Date();
 	const byMonth: Record<string, number> = {};
 	let annualTotal = 0;
@@ -50,16 +62,11 @@ export function StatsScreen({ data }: StatsScreenProps) {
 		const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
 		const key = `${monthLabels[d.getMonth()]} ${String(d.getFullYear()).slice(2)}`;
 		const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-		const count = films.filter((f) => f.endDate?.startsWith(ym) && consumedStates.has(f.state)).length;
+		const count = byYearMonth[ym] || 0;
 		byMonth[key] = count;
 		annualTotal += count;
 	}
 
-	const topFilms: Record<string, number> = {};
-	for (const f of allShot) {
-		const name = filmName(f);
-		topFilms[name] = (topFilms[name] || 0) + 1;
-	}
 	const topFilmsSorted = Object.entries(topFilms)
 		.sort((a, b) => b[1] - a[1])
 		.slice(0, 5);
@@ -74,8 +81,8 @@ export function StatsScreen({ data }: StatsScreenProps) {
 
 			<div className="grid grid-cols-3 gap-2.5">
 				<StatCard icon={Film} label={t("stats.totalFilms")} value={films.length} color={T.blue} />
-				<StatCard icon={Eye} label={t("stats.shot")} value={allShot.length} color={T.green} />
-				<StatCard icon={Archive} label={t("stats.developed")} value={developed.length} color={T.textSec} />
+				<StatCard icon={Eye} label={t("stats.shot")} value={shotCount} color={T.green} />
+				<StatCard icon={Archive} label={t("stats.developed")} value={developedCount} color={T.textSec} />
 			</div>
 
 			<Card>

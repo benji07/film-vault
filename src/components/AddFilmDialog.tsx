@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FilmFormatSelect, FilmTypeSelect } from "@/components/FilmTypeFormatFields";
 import { useToast } from "@/components/Toast";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";
@@ -8,9 +9,9 @@ import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } f
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { AppData, Film } from "@/types";
-import { currentMonthYear, today, uid } from "@/utils/helpers";
+import type { AppData } from "@/types";
+import { createNewFilm } from "@/utils/film-factory";
+import { currentMonthYear } from "@/utils/helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 
 interface AddFilmDialogProps {
@@ -57,31 +58,16 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 
 	const handleSave = () => {
 		const qty = Number.parseInt(quantity, 10) || 1;
-		const newFilms: Film[] = [];
-		for (let i = 0; i < qty; i++) {
-			newFilms.push({
-				id: uid(),
-				brand: brand.trim(),
-				model: model.trim(),
-				iso: Number.parseInt(iso, 10) || 0,
-				type,
-				format,
-				state: "stock",
-				expDate: expDate || null,
-				comment: comment.trim() || null,
-				addedDate: today(),
-				shootIso: null,
-				cameraId: null,
-				backId: null,
-				startDate: null,
-				endDate: null,
-				posesShot: null,
-				posesTotal: format === "120" ? 12 : format === "Instant" ? 10 : 36,
-				lab: null,
-				devDate: null,
-				history: [{ date: today(), action: "", actionCode: "added" }],
-			});
-		}
+		const params = {
+			brand: brand.trim(),
+			model: model.trim(),
+			iso: Number.parseInt(iso, 10) || 0,
+			type,
+			format,
+			expDate: expDate || null,
+			comment: comment.trim() || null,
+		};
+		const newFilms = Array.from({ length: qty }, () => createNewFilm(params));
 		const updated = { ...data, films: [...data.films, ...newFilms] };
 		setData(updated);
 		toast(qty > 1 ? t("addFilm.filmsAdded", { count: qty }) : t("addFilm.filmAdded"));
@@ -115,6 +101,14 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 						placeholder={t("addFilm.modelPlaceholder")}
 					/>
 
+					<FilmFormatSelect
+						value={format}
+						onValueChange={(v) => {
+							setFormat(v);
+							if (v === "Instant" && type !== "Couleur" && type !== "N&B") setType("Couleur");
+						}}
+					/>
+
 					<div className="grid grid-cols-2 gap-3">
 						<FormField label={t("addFilm.iso")}>
 							<Input
@@ -125,34 +119,8 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 								className="font-mono"
 							/>
 						</FormField>
-						<FormField label={t("addFilm.type")}>
-							<Select value={type} onValueChange={setType}>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="Couleur">{t("filmTypes.Couleur")}</SelectItem>
-									<SelectItem value="N&B">{t("filmTypes.N&B")}</SelectItem>
-									<SelectItem value="Diapo">{t("filmTypes.Diapo")}</SelectItem>
-									<SelectItem value="ECN-2">{t("filmTypes.ECN-2")}</SelectItem>
-									<SelectItem value="Instant">{t("filmTypes.Instant")}</SelectItem>
-								</SelectContent>
-							</Select>
-						</FormField>
+						<FilmTypeSelect value={type} onValueChange={setType} format={format} />
 					</div>
-
-					<FormField label={t("addFilm.format")}>
-						<Select value={format} onValueChange={setFormat}>
-							<SelectTrigger>
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
-								<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-								<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
-							</SelectContent>
-						</Select>
-					</FormField>
 
 					<FormField label={t("addFilm.quantity")}>
 						<Input

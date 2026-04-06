@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
+import { FilmFormatSelect, FilmTypeSelect } from "@/components/FilmTypeFormatFields";
 import { InfoLine } from "@/components/InfoLine";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { PhotoViewer } from "@/components/PhotoViewer";
@@ -41,8 +42,9 @@ import { alpha, T } from "@/constants/theme";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
+import { createNewFilm } from "@/utils/film-factory";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
-import { fmtDate, today, uid } from "@/utils/helpers";
+import { fmtDate, today } from "@/utils/helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 
 type ActionType = "load" | "finish" | "partial" | "reload" | "sendDev" | "develop" | "edit" | "scan" | null;
@@ -141,43 +143,23 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 	};
 
 	const handleDuplicate = () => {
-		const newId = uid();
-		const newFilm: FilmType = {
-			id: newId,
-			brand: film.brand,
-			model: film.model,
-			customName: film.customName,
-			iso: film.iso,
-			type: film.type,
-			format: film.format,
-			state: "stock",
-			expDate: film.expDate,
-			comment: film.comment,
-			addedDate: today(),
-			shootIso: null,
-			cameraId: null,
-			backId: null,
-			startDate: null,
-			endDate: null,
-			posesShot: null,
-			posesTotal: film.posesTotal,
-			lab: null,
-			devDate: null,
-			scanRef: null,
-			history: [{ date: today(), action: "", actionCode: "duplicated", params: { name: filmName(film) } }],
-		};
+		const newFilm = createNewFilm({
+			brand: film.brand || "",
+			model: film.model || "",
+			iso: film.iso || 0,
+			type: film.type || "Couleur",
+			format: film.format || "35mm",
+			expDate: film.expDate ?? null,
+			comment: film.comment ?? null,
+			posesTotal: film.posesTotal ?? undefined,
+		});
+		newFilm.history = [{ date: today(), action: "", actionCode: "duplicated", params: { name: filmName(film) } }];
 		setData({ ...data, films: [...data.films, newFilm] });
-		setSelectedFilm(newId);
+		setSelectedFilm(newFilm.id);
 		toast(t("filmDetail.filmDuplicated"));
 	};
 
-	const getAvailableCameras = () => {
-		return data.cameras.filter((c) => {
-			if (film.format === "120" && c.format !== "120") return false;
-			if (film.format === "35mm" && c.format !== "35mm") return false;
-			return true;
-		});
-	};
+	const availableCameras = data.cameras.filter((c) => c.format === film.format);
 
 	const closeAction = () => setShowAction(null);
 
@@ -339,7 +321,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 									<SelectValue placeholder={t("filmDetail.choosePlaceholder")} />
 								</SelectTrigger>
 								<SelectContent>
-									{getAvailableCameras().map((c) => (
+									{availableCameras.map((c) => (
 										<SelectItem key={c.id} value={c.id}>
 											{cameraDisplayName(c)}
 										</SelectItem>
@@ -571,7 +553,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 									<SelectValue placeholder={t("filmDetail.choosePlaceholder")} />
 								</SelectTrigger>
 								<SelectContent>
-									{getAvailableCameras().map((c) => (
+									{availableCameras.map((c) => (
 										<SelectItem key={c.id} value={c.id}>
 											{cameraDisplayName(c)}
 										</SelectItem>
@@ -828,6 +810,15 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							suggestions={modelsForBrand(editData.brand)}
 							placeholder={t("addFilm.modelPlaceholder")}
 						/>
+						<FilmFormatSelect
+							value={editData.format}
+							onValueChange={(v) => {
+								const typeReset =
+									v === "Instant" && editData.type !== "Couleur" && editData.type !== "N&B" ? { type: "Couleur" } : {};
+								setEditData({ ...editData, format: v, ...typeReset });
+							}}
+							disabled={film.state === "loaded"}
+						/>
 						<div className="grid grid-cols-2 gap-3">
 							<FormField label={t("addFilm.iso")}>
 								<Input
@@ -838,37 +829,12 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 									className="font-mono"
 								/>
 							</FormField>
-							<FormField label={t("addFilm.type")}>
-								<Select value={editData.type} onValueChange={(v) => setEditData({ ...editData, type: v })}>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="Couleur">{t("filmTypes.Couleur")}</SelectItem>
-										<SelectItem value="N&B">{t("filmTypes.N&B")}</SelectItem>
-										<SelectItem value="Diapo">{t("filmTypes.Diapo")}</SelectItem>
-										<SelectItem value="ECN-2">{t("filmTypes.ECN-2")}</SelectItem>
-										<SelectItem value="Instant">{t("filmTypes.Instant")}</SelectItem>
-									</SelectContent>
-								</Select>
-							</FormField>
+							<FilmTypeSelect
+								value={editData.type}
+								onValueChange={(v) => setEditData({ ...editData, type: v })}
+								format={editData.format}
+							/>
 						</div>
-						<FormField label={t("addFilm.format")}>
-							<Select
-								value={editData.format}
-								onValueChange={(v) => setEditData({ ...editData, format: v })}
-								disabled={film.state === "loaded"}
-							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
-									<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-									<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
-								</SelectContent>
-							</Select>
-						</FormField>
 						<FormField label={t("addFilm.expirationDate")}>
 							<MonthYearPicker value={editData.expDate} onChange={(v) => setEditData({ ...editData, expDate: v })} />
 						</FormField>

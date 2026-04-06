@@ -6,7 +6,7 @@ import { StatCard } from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { alpha, T } from "@/constants/theme";
-import type { AppData, ScreenName } from "@/types";
+import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { getExpirationStatus } from "@/utils/expiration";
 
 interface DashboardScreenProps {
@@ -19,21 +19,30 @@ interface DashboardScreenProps {
 export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }: DashboardScreenProps) {
 	const { t } = useTranslation();
 	const { films, cameras } = data;
-	const stockCount = films.filter((f) => f.state === "stock").length;
-	const loadedCount = films.filter((f) => f.state === "loaded").length;
-	const exposedCount = films.filter((f) => f.state === "exposed").length;
-	const developedCount = films.filter((f) => f.state === "developed").length;
-	const partialCount = films.filter((f) => f.state === "partial").length;
 
-	const expiring = films
-		.filter((f) => {
-			if (f.state !== "stock") return false;
+	const counts: Record<string, number> = {};
+	const expiring: FilmType[] = [];
+	const loaded: FilmType[] = [];
+	let hasExpired = false;
+
+	for (const f of films) {
+		counts[f.state] = (counts[f.state] || 0) + 1;
+		if (f.state === "loaded") loaded.push(f);
+		if (f.state === "stock") {
 			const info = getExpirationStatus(f.expDate);
-			return info && info.status !== "ok";
-		})
-		.sort((a, b) => (a.expDate || "").localeCompare(b.expDate || ""));
-	const hasExpired = expiring.some((f) => getExpirationStatus(f.expDate)?.status === "expired");
-	const loaded = films.filter((f) => f.state === "loaded");
+			if (info && info.status !== "ok") {
+				expiring.push(f);
+				if (info.status === "expired") hasExpired = true;
+			}
+		}
+	}
+	expiring.sort((a, b) => (a.expDate || "").localeCompare(b.expDate || ""));
+
+	const stockCount = counts.stock || 0;
+	const loadedCount = counts.loaded || 0;
+	const exposedCount = counts.exposed || 0;
+	const developedCount = counts.developed || 0;
+	const partialCount = counts.partial || 0;
 
 	return (
 		<div className="flex flex-col gap-5">
