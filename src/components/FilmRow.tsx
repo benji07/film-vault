@@ -12,9 +12,10 @@ interface FilmRowProps {
 	film: Film;
 	onClick: () => void;
 	cameras: Camera[];
+	groupCount?: number;
 }
 
-export function FilmRow({ film, onClick, cameras }: FilmRowProps) {
+export function FilmRow({ film, onClick, cameras, groupCount }: FilmRowProps) {
 	const { t } = useTranslation();
 	const STATES = getStates(t);
 	const st = STATES[film.state];
@@ -42,6 +43,11 @@ export function FilmRow({ film, onClick, cameras }: FilmRowProps) {
 			<div className="flex-1 min-w-0">
 				<div className="text-sm font-semibold text-text-primary font-body overflow-hidden text-ellipsis whitespace-nowrap">
 					{filmName(film)}
+					{groupCount && groupCount > 1 && (
+						<span className="ml-1.5 text-[11px] font-semibold font-body" style={{ color: T.accent }}>
+							&times;&nbsp;{groupCount}
+						</span>
+					)}
 				</div>
 				<div className="flex gap-1.5 mt-1 flex-wrap">
 					<Badge style={{ color: st.color, background: alpha(st.color, 0.09) }}>{st.label}</Badge>

@@ -236,6 +236,30 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 				</div>
 			</Card>
 
+			{film.state === "stock" &&
+				(() => {
+					const siblings = data.films.filter(
+						(f) =>
+							f.id !== film.id &&
+							f.state === "stock" &&
+							filmName(f) === filmName(film) &&
+							(f.expDate || "") === (film.expDate || ""),
+					);
+					return siblings.length > 0 ? (
+						<div
+							className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-body"
+							style={{ color: T.accent, background: alpha(T.accent, 0.07) }}
+						>
+							<CopyPlus size={14} />
+							<span>
+								{siblings.length === 1
+									? t("filmDetail.oneOtherInStock")
+									: t("filmDetail.othersInStock", { count: siblings.length })}
+							</span>
+						</div>
+					) : null;
+				})()}
+
 			{film.state !== "stock" && (
 				<ShotNotesSection film={film} onUpdateNotes={(notes) => updateFilm({ shotNotes: notes })} />
 			)}

@@ -222,6 +222,9 @@ export const en = {
 		shotNotesDelete: "Delete this note",
 		shotNotesSaved: "Note saved",
 		shotNotesDeleted: "Note deleted",
+		// Group info
+		oneOtherInStock: "1 other identical film in stock",
+		othersInStock: "{{count}} other identical films in stock",
 	},
 
 	// Cameras screen
