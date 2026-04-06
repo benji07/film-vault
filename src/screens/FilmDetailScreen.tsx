@@ -266,14 +266,9 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 					</>
 				)}
 				{film.state === "partial" && (
-					<>
-						<Button onClick={() => setShowAction("reload")} className="w-full justify-center">
-							<RotateCcw size={16} /> {t("filmDetail.reloadInCamera")}
-						</Button>
-						<Button variant="outline" onClick={() => setShowAction("sendDev")} className="w-full justify-center">
-							<Send size={16} /> {t("filmDetail.sendToDev")}
-						</Button>
-					</>
+					<Button onClick={() => setShowAction("reload")} className="w-full justify-center">
+						<RotateCcw size={16} /> {t("filmDetail.reloadInCamera")}
+					</Button>
 				)}
 				{film.state === "exposed" && (
 					<Button onClick={() => setShowAction("develop")} className="w-full justify-center">
