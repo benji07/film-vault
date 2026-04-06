@@ -9,6 +9,7 @@ import {
 	CopyPlus,
 	Film,
 	MessageSquare,
+	NotebookPen,
 	Package,
 	Pencil,
 	RotateCcw,
@@ -23,6 +24,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { InfoLine } from "@/components/InfoLine";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { PhotoViewer } from "@/components/PhotoViewer";
+import { ShotNotesSection } from "@/components/ShotNotesSection";
 import { Timeline } from "@/components/Timeline";
 import { useToast } from "@/components/Toast";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
@@ -224,8 +226,19 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 					{film.lab && <InfoLine icon={Package} label={t("filmDetail.lab")} value={film.lab} />}
 					{film.scanRef && <InfoLine icon={ScanLine} label={t("filmDetail.scanRef")} value={film.scanRef} />}
 					{film.comment && <InfoLine icon={MessageSquare} label={t("filmDetail.notes")} value={film.comment} />}
+					{film.shotNotes && film.shotNotes.length > 0 && (
+						<InfoLine
+							icon={NotebookPen}
+							label={t("filmDetail.shotNotes")}
+							value={t("filmDetail.shotNotesSummary", { count: film.shotNotes.length })}
+						/>
+					)}
 				</div>
 			</Card>
+
+			{film.state !== "stock" && (
+				<ShotNotesSection film={film} onUpdateNotes={(notes) => updateFilm({ shotNotes: notes })} />
+			)}
 
 			{/* Actions by state */}
 			<div className="flex flex-col gap-2">

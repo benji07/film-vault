@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 7;
+export const CURRENT_VERSION = 8;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -143,6 +143,10 @@ function migrateV6toV7(data: Record<string, unknown>): Record<string, unknown> {
 	return { ...data, films: migratedFilms, version: 7 };
 }
 
+function migrateV7toV8(data: Record<string, unknown>): Record<string, unknown> {
+	return { ...data, version: 8 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -150,6 +154,7 @@ const migrations: Record<number, MigrationFn> = {
 	4: migrateV4toV5,
 	5: migrateV5toV6,
 	6: migrateV6toV7,
+	7: migrateV7toV8,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {
