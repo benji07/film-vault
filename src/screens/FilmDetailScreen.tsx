@@ -8,6 +8,8 @@ import {
 	Clock,
 	CopyPlus,
 	Film,
+	Focus,
+	MapPin,
 	MessageSquare,
 	NotebookPen,
 	Package,
@@ -16,6 +18,7 @@ import {
 	Save,
 	ScanLine,
 	Send,
+	Tag,
 	Trash2,
 } from "lucide-react";
 import { useState } from "react";
@@ -52,12 +55,14 @@ type ActionType = "load" | "finish" | "partial" | "reload" | "sendDev" | "develo
 interface ActionData {
 	cameraId?: string;
 	backId?: string;
+	lens?: string;
 	shootIso?: string;
 	startDate?: string;
 	endDate?: string;
 	comment?: string;
 	posesShot?: string;
 	lab?: string;
+	labRef?: string;
 	devDate?: string;
 	scanRef?: string;
 	photos?: string[];
@@ -70,6 +75,7 @@ interface EditData {
 	type: string;
 	format: string;
 	expDate: string;
+	storageLocation: string;
 	comment: string;
 }
 
@@ -93,6 +99,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 		type: "",
 		format: "",
 		expDate: "",
+		storageLocation: "",
 		comment: "",
 	});
 	const { toast } = useToast();
@@ -117,6 +124,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			type: film.type || "Couleur",
 			format: film.format || "35mm",
 			expDate: film.expDate || "",
+			storageLocation: film.storageLocation || "",
 			comment: film.comment || "",
 		});
 		setShowAction("edit");
@@ -152,6 +160,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			expDate: film.expDate ?? null,
 			comment: film.comment ?? null,
 			posesTotal: film.posesTotal ?? undefined,
+			storageLocation: film.storageLocation ?? null,
 		});
 		newFilm.history = [{ date: today(), action: "", actionCode: "duplicated", params: { name: filmName(film) } }];
 		setData({ ...data, films: [...data.films, newFilm] });
@@ -200,13 +209,18 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							value={`${cameraDisplayName(cam)}${back ? ` · ${backDisplayName(back)}` : ""}`}
 						/>
 					)}
+					{film.lens && <InfoLine icon={Focus} label={t("filmDetail.lens")} value={film.lens} />}
 					{film.startDate && <InfoLine icon={Calendar} label={t("filmDetail.start")} value={fmtDate(film.startDate)} />}
 					{film.endDate && <InfoLine icon={Calendar} label={t("filmDetail.end")} value={fmtDate(film.endDate)} />}
 					{film.posesShot != null && (
 						<InfoLine icon={CircleDot} label={t("filmDetail.poses")} value={`${film.posesShot} / ${film.posesTotal}`} />
 					)}
 					{film.lab && <InfoLine icon={Package} label={t("filmDetail.lab")} value={film.lab} />}
+					{film.labRef && <InfoLine icon={Tag} label={t("filmDetail.labRef")} value={film.labRef} />}
 					{film.scanRef && <InfoLine icon={ScanLine} label={t("filmDetail.scanRef")} value={film.scanRef} />}
+					{film.storageLocation && (
+						<InfoLine icon={MapPin} label={t("filmDetail.storageLocation")} value={film.storageLocation} />
+					)}
 					{film.comment && <InfoLine icon={MessageSquare} label={t("filmDetail.notes")} value={film.comment} />}
 					{film.shotNotes && film.shotNotes.length > 0 && (
 						<InfoLine
@@ -346,6 +360,13 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 									</Select>
 								</FormField>
 							)}
+						<FormField label={t("filmDetail.lensField")}>
+							<Input
+								value={actionData.lens || ""}
+								onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
+								placeholder={t("filmDetail.lensPlaceholder")}
+							/>
+						</FormField>
 						<FormField label={t("filmDetail.shootIsoField")}>
 							<Input
 								type="number"
@@ -384,6 +405,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										state: "loaded",
 										cameraId: actionData.cameraId,
 										backId: actionData.backId || null,
+										lens: actionData.lens?.trim() || null,
 										shootIso: Number.parseInt(actionData.shootIso || "", 10) || (typeof fIso === "number" ? fIso : 0),
 										startDate: actionData.startDate || today(),
 										comment: actionData.comment?.trim() || film.comment,
@@ -556,6 +578,13 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								</SelectContent>
 							</Select>
 						</FormField>
+						<FormField label={t("filmDetail.lensField")}>
+							<Input
+								value={actionData.lens || ""}
+								onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
+								placeholder={t("filmDetail.lensPlaceholder")}
+							/>
+						</FormField>
 						<FormField label={t("filmDetail.resumeDateField")}>
 							<Input
 								type="date"
@@ -580,6 +609,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										state: "loaded",
 										cameraId: actionData.cameraId,
 										backId: actionData.backId || null,
+										lens: actionData.lens?.trim() || film.lens || null,
 										startDate: actionData.startDate || today(),
 										history: [
 											...(film.history || []),
@@ -665,6 +695,13 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								placeholder={t("filmDetail.labPlaceholder")}
 							/>
 						</FormField>
+						<FormField label={t("filmDetail.labRefField")}>
+							<Input
+								value={actionData.labRef || ""}
+								onChange={(e) => setActionData({ ...actionData, labRef: e.target.value })}
+								placeholder={t("filmDetail.labRefPlaceholder")}
+							/>
+						</FormField>
 						<FormField label={t("filmDetail.devDateField")}>
 							<Input
 								type="date"
@@ -692,6 +729,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 									{
 										state: "developed",
 										lab: actionData.lab?.trim() || null,
+										labRef: actionData.labRef?.trim() || null,
 										devDate: actionData.devDate || today(),
 										comment: actionData.comment?.trim() || film.comment,
 										history: [
@@ -833,6 +871,13 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 						<FormField label={t("addFilm.expirationDate")}>
 							<MonthYearPicker value={editData.expDate} onChange={(v) => setEditData({ ...editData, expDate: v })} />
 						</FormField>
+						<FormField label={t("addFilm.storageLocation")}>
+							<Input
+								value={editData.storageLocation}
+								onChange={(e) => setEditData({ ...editData, storageLocation: e.target.value })}
+								placeholder={t("addFilm.storageLocationPlaceholder")}
+							/>
+						</FormField>
 						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={editData.comment}
@@ -851,6 +896,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										type: editData.type,
 										format: film.state === "loaded" ? film.format : editData.format,
 										expDate: editData.expDate || null,
+										storageLocation: editData.storageLocation.trim() || null,
 										comment: editData.comment.trim() || null,
 										history: [...(film.history || []), { date: today(), action: "", actionCode: "modified" }],
 									},

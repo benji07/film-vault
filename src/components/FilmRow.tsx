@@ -61,6 +61,7 @@ export function FilmRow({ film, onClick, cameras, groupCount }: FilmRowProps) {
 							{back ? ` · ${backDisplayName(back)}` : ""}
 						</Badge>
 					)}
+					{film.labRef && <Badge style={{ color: T.accent, background: alpha(T.accent, 0.09) }}>{film.labRef}</Badge>}
 					{film.expDate && (
 						<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
 							{fmtExpDate(film.expDate, t("dateLocale"))}

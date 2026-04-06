@@ -55,13 +55,16 @@ export interface Film {
 	shootIso?: number | null;
 	cameraId?: string | null;
 	backId?: string | null;
+	lens?: string | null;
 	startDate?: string | null;
 	endDate?: string | null;
 	posesShot?: number | null;
 	posesTotal?: number | null;
 	lab?: string | null;
+	labRef?: string | null;
 	devDate?: string | null;
 	scanRef?: string | null;
+	storageLocation?: string | null;
 	history: HistoryEntry[];
 	shotNotes?: ShotNote[];
 }
