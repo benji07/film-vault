@@ -111,14 +111,19 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 	const sortByDate = filter !== "all" && filter !== "stock";
 	const groups = groupFilms(filtered, t("dateLocale"), sortByDate);
 
+	const stateCounts: Record<string, number> = {};
+	for (const f of films) {
+		stateCounts[f.state] = (stateCounts[f.state] || 0) + 1;
+	}
+
 	const tabs = [
 		{ key: "all", label: t("stock.all"), count: films.length },
-		{ key: "stock", label: t("stock.stockTab"), count: films.filter((f) => f.state === "stock").length },
-		{ key: "loaded", label: t("stock.loadedTab"), count: films.filter((f) => f.state === "loaded").length },
-		{ key: "partial", label: t("stock.partialTab"), count: films.filter((f) => f.state === "partial").length },
-		{ key: "exposed", label: t("stock.exposedTab"), count: films.filter((f) => f.state === "exposed").length },
-		{ key: "developed", label: t("stock.developedTab"), count: films.filter((f) => f.state === "developed").length },
-		{ key: "scanned", label: t("stock.scannedTab"), count: films.filter((f) => f.state === "scanned").length },
+		{ key: "stock", label: t("stock.stockTab"), count: stateCounts.stock || 0 },
+		{ key: "loaded", label: t("stock.loadedTab"), count: stateCounts.loaded || 0 },
+		{ key: "partial", label: t("stock.partialTab"), count: stateCounts.partial || 0 },
+		{ key: "exposed", label: t("stock.exposedTab"), count: stateCounts.exposed || 0 },
+		{ key: "developed", label: t("stock.developedTab"), count: stateCounts.developed || 0 },
+		{ key: "scanned", label: t("stock.scannedTab"), count: stateCounts.scanned || 0 },
 	];
 
 	return (
