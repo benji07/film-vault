@@ -101,6 +101,14 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 						placeholder={t("addFilm.modelPlaceholder")}
 					/>
 
+					<FilmFormatSelect
+						value={format}
+						onValueChange={(v) => {
+							setFormat(v);
+							if (v === "Instant" && type !== "Couleur" && type !== "N&B") setType("Couleur");
+						}}
+					/>
+
 					<div className="grid grid-cols-2 gap-3">
 						<FormField label={t("addFilm.iso")}>
 							<Input
@@ -113,14 +121,6 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 						</FormField>
 						<FilmTypeSelect value={type} onValueChange={setType} format={format} />
 					</div>
-
-					<FilmFormatSelect
-						value={format}
-						onValueChange={(v) => {
-							setFormat(v);
-							if (v === "Instant" && type !== "Couleur" && type !== "N&B") setType("Couleur");
-						}}
-					/>
 
 					<FormField label={t("addFilm.quantity")}>
 						<Input

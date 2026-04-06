@@ -810,6 +810,15 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							suggestions={modelsForBrand(editData.brand)}
 							placeholder={t("addFilm.modelPlaceholder")}
 						/>
+						<FilmFormatSelect
+							value={editData.format}
+							onValueChange={(v) => {
+								const typeReset =
+									v === "Instant" && editData.type !== "Couleur" && editData.type !== "N&B" ? { type: "Couleur" } : {};
+								setEditData({ ...editData, format: v, ...typeReset });
+							}}
+							disabled={film.state === "loaded"}
+						/>
 						<div className="grid grid-cols-2 gap-3">
 							<FormField label={t("addFilm.iso")}>
 								<Input
@@ -826,15 +835,6 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								format={editData.format}
 							/>
 						</div>
-						<FilmFormatSelect
-							value={editData.format}
-							onValueChange={(v) => {
-								const typeReset =
-									v === "Instant" && editData.type !== "Couleur" && editData.type !== "N&B" ? { type: "Couleur" } : {};
-								setEditData({ ...editData, format: v, ...typeReset });
-							}}
-							disabled={film.state === "loaded"}
-						/>
 						<FormField label={t("addFilm.expirationDate")}>
 							<MonthYearPicker value={editData.expDate} onChange={(v) => setEditData({ ...editData, expDate: v })} />
 						</FormField>

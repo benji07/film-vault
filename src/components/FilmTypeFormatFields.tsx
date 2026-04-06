@@ -22,7 +22,6 @@ export function FilmTypeSelect({ value, onValueChange, format }: FilmTypeSelectP
 					<SelectItem value="N&B">{t("filmTypes.N&B")}</SelectItem>
 					{!isInstant && <SelectItem value="Diapo">{t("filmTypes.Diapo")}</SelectItem>}
 					{!isInstant && <SelectItem value="ECN-2">{t("filmTypes.ECN-2")}</SelectItem>}
-					{!isInstant && <SelectItem value="Instant">{t("filmTypes.Instant")}</SelectItem>}
 				</SelectContent>
 			</Select>
 		</FormField>
