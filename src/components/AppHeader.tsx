@@ -1,5 +1,6 @@
-import { ArrowLeft, Settings } from "lucide-react";
+import { ArrowLeft, Moon, Settings, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
 import type { ScreenName } from "@/types";
 
@@ -17,6 +18,7 @@ const backTargets: Partial<Record<ScreenName, ScreenName>> = {
 
 export function AppHeader({ screen, setScreen, filmTitle, className }: AppHeaderProps) {
 	const { t } = useTranslation();
+	const { theme, setTheme } = useTheme();
 	const backTarget = backTargets[screen];
 	const isSubScreen = !!backTarget;
 
@@ -50,13 +52,27 @@ export function AppHeader({ screen, setScreen, filmTitle, className }: AppHeader
 			</div>
 
 			{screen !== "settings" && (
-				<button
-					type="button"
-					onClick={() => setScreen("settings")}
-					className="bg-surface-alt border border-border rounded-xl w-10 h-10 flex items-center justify-center cursor-pointer shrink-0"
-				>
-					<Settings size={15} className="text-text-muted" />
-				</button>
+				<div className="flex items-center gap-2 shrink-0">
+					<button
+						type="button"
+						onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+						className="bg-surface-alt border border-border rounded-xl w-10 h-10 flex items-center justify-center cursor-pointer shrink-0"
+						aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
+					>
+						{theme === "dark" ? (
+							<Sun size={15} className="text-text-muted" />
+						) : (
+							<Moon size={15} className="text-text-muted" />
+						)}
+					</button>
+					<button
+						type="button"
+						onClick={() => setScreen("settings")}
+						className="bg-surface-alt border border-border rounded-xl w-10 h-10 flex items-center justify-center cursor-pointer shrink-0"
+					>
+						<Settings size={15} className="text-text-muted" />
+					</button>
+				</div>
 			)}
 		</div>
 	);

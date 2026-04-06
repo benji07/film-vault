@@ -10,14 +10,11 @@ import {
 	Film,
 	Globe,
 	Loader2,
-	Moon,
 	RefreshCw,
-	Sun,
 	Upload,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -144,7 +141,6 @@ export function SettingsScreen({
 
 	const lastSync = getLastSync();
 	const currentLang = i18n.language;
-	const { theme, setTheme } = useTheme();
 
 	return (
 		<div className="flex flex-col gap-5">
@@ -176,40 +172,6 @@ export function SettingsScreen({
 						}`}
 					>
 						{t("settings.languageEn")}
-					</button>
-				</div>
-			</Card>
-
-			{/* Theme section */}
-			<Card>
-				<div className="flex items-center gap-3 mb-4">
-					<Sun size={18} className="text-accent" />
-					<span className="text-sm font-bold text-text-primary font-body">{t("settings.theme")}</span>
-				</div>
-				<div className="flex gap-2">
-					<button
-						type="button"
-						onClick={() => setTheme("dark")}
-						className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-body font-medium cursor-pointer transition-all border flex items-center justify-center gap-2 ${
-							theme === "dark"
-								? "bg-accent text-white border-accent"
-								: "bg-surface-alt text-text-sec border-border hover:bg-surface"
-						}`}
-					>
-						<Moon size={14} />
-						{t("settings.themeDark")}
-					</button>
-					<button
-						type="button"
-						onClick={() => setTheme("light")}
-						className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-body font-medium cursor-pointer transition-all border flex items-center justify-center gap-2 ${
-							theme === "light"
-								? "bg-accent text-white border-accent"
-								: "bg-surface-alt text-text-sec border-border hover:bg-surface"
-						}`}
-					>
-						<Sun size={14} />
-						{t("settings.themeLight")}
 					</button>
 				</div>
 			</Card>
