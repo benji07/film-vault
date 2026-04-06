@@ -50,7 +50,7 @@ Suivez chaque pellicule de l'achat à la numérisation :
 |---|---|
 | **En stock** | Dans le frigo, prête à être utilisée |
 | **Chargée** | Dans un appareil, en cours de prise de vue |
-| **Partielle** | Retirée en cours de route (35mm), stockée au frigo |
+| **Partielle** | Retirée en cours de route (35mm), en attente de rechargement |
 | **Exposée** | Terminée, en attente de développement |
 | **Développée** | Sortie du labo |
 | **Scannée** | Numérisée, cycle complet |

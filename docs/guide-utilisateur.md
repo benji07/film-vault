@@ -149,8 +149,7 @@ En stock ──→ Chargée ──→ Exposée ──→ Développée ──→ 
            Partielle
            (retirée du boîtier)
                 │
-                ├──→ Rechargée dans un appareil ──→ Chargée ──→ …
-                └──→ Envoyée au développement ──→ Exposée ──→ …
+                └──→ Rechargée dans un appareil ──→ Chargée ──→ …
 ```
 
 ### Transitions détaillées
@@ -191,12 +190,6 @@ Action : **"Recharger dans un appareil"**
 L'app affiche un rappel du numéro de pose à atteindre avant de recommencer à photographier. Informations :
 - Appareil (et dos)
 - Date de reprise
-
-#### Partielle → Exposée
-
-Action : **"Envoyer au développement"**
-
-Si vous décidez de ne pas recharger la pellicule et de la faire développer en l'état.
 
 #### Exposée → Développée
 
@@ -253,7 +246,7 @@ Les boutons d'action changent selon l'état actuel :
 |---|---|
 | En stock | Charger dans un appareil, Modifier, Dupliquer, Supprimer |
 | Chargée | Marquer terminée, Retirer (partielle), Modifier, Dupliquer, Supprimer |
-| Partielle | Recharger, Envoyer au développement, Modifier, Dupliquer, Supprimer |
+| Partielle | Recharger dans un appareil, Modifier, Dupliquer, Supprimer |
 | Exposée | Marquer développée, Modifier, Dupliquer, Supprimer |
 | Développée | Marquer scannée, Modifier, Dupliquer, Supprimer |
 | Scannée | Modifier, Dupliquer, Supprimer |

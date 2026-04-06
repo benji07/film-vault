@@ -92,8 +92,7 @@ Chaque pellicule suit un cycle en 6 états :
               (retirée de l'appareil,
                stockée au frigo)
                        ↓
-              Peut être re-chargée → [Chargée] → …
-              Ou envoyée au dév  → [Exposée] → …
+              Re-chargée → [Chargée] → …
 ```
 
 **Transitions et données associées :**
@@ -103,7 +102,6 @@ Chaque pellicule suit un cycle en 6 états :
 | Stock → Chargée                 | « Charger dans un appareil »             | Appareil (+ dos le cas échéant), date de début, ISO de prise de vue (si push/pull), commentaire          |
 | Chargée → Partiellement exposée | « Retirer de l'appareil (non terminée) » | Nombre de poses prises (saisie libre), commentaire. La pellicule retourne dans une zone dédiée du frigo. |
 | Partiellement exposée → Chargée | « Re-charger dans un appareil »          | Appareil, date de reprise                                                                                |
-| Partiellement exposée → Exposée | « Envoyer au développement »             | Date de fin, commentaire                                                                                 |
 | Chargée → Exposée               | « Marquer comme terminée »               | Date de fin, commentaire                                                                                 |
 | Exposée → Développée            | « Marquer comme développée »             | Labo utilisé (optionnel), date de développement, commentaire                                             |
 | Développée → Scannée            | « Marquer comme scannée »                | Référence de scan (optionnel), commentaire                                                               |
