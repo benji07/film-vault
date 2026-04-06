@@ -15,11 +15,44 @@ interface FilmGroup {
 	films: FilmType[];
 }
 
-function groupFilms(films: FilmType[], locale: string): FilmGroup[] {
+function lastModifiedDate(film: FilmType): string {
+	if (film.history.length > 0) {
+		return film.history[film.history.length - 1]!.date;
+	}
+	return film.addedDate;
+}
+
+function compareAlphabetic(a: FilmType, b: FilmType): number {
+	const brandA = (a.brand || "").toLowerCase();
+	const brandB = (b.brand || "").toLowerCase();
+	if (brandA !== brandB) return brandA.localeCompare(brandB);
+
+	const modelA = (a.model || a.customName || "").toLowerCase();
+	const modelB = (b.model || b.customName || "").toLowerCase();
+	if (modelA !== modelB) return modelA.localeCompare(modelB);
+
+	const expA = a.expDate || "";
+	const expB = b.expDate || "";
+	return expA.localeCompare(expB);
+}
+
+function groupFilms(films: FilmType[], locale: string, sortByDate: boolean): FilmGroup[] {
+	if (sortByDate) {
+		const sorted = [...films].sort((a, b) => lastModifiedDate(b).localeCompare(lastModifiedDate(a)));
+		return sorted.map((f) => ({
+			key: f.id,
+			label: filmName(f),
+			expLabel: f.expDate ? fmtExpDate(f.expDate, locale) : "",
+			films: [f],
+		}));
+	}
+
 	const map = new Map<string, FilmType[]>();
 	const ungrouped: FilmGroup[] = [];
 
-	for (const f of films) {
+	const sorted = [...films].sort(compareAlphabetic);
+
+	for (const f of sorted) {
 		if (f.state !== "stock") {
 			ungrouped.push({
 				key: f.id,
@@ -75,7 +108,8 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 		return true;
 	});
 
-	const groups = groupFilms(filtered, t("dateLocale"));
+	const sortByDate = filter !== "all" && filter !== "stock";
+	const groups = groupFilms(filtered, t("dateLocale"), sortByDate);
 
 	const tabs = [
 		{ key: "all", label: t("stock.all"), count: films.length },
