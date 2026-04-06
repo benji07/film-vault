@@ -39,7 +39,7 @@ function SelectContent({
 		<SelectPrimitive.Portal>
 			<SelectPrimitive.Content
 				className={cn(
-					"relative z-50 max-h-[300px] min-w-[8rem] overflow-hidden",
+					"relative z-[1001] max-h-[300px] min-w-[8rem] overflow-hidden",
 					"bg-surface-alt border border-border rounded-[10px] shadow-lg",
 					"data-[state=open]:animate-in data-[state=closed]:animate-out",
 					"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
