@@ -218,6 +218,7 @@ export const en = {
 		shotNotesNotes: "Notes",
 		shotNotesNotesPlaceholder: "Free-form notes…",
 		shotNotesDate: "Date",
+		shotNotesPhoto: "Photo",
 		shotNotesDelete: "Delete this note",
 		shotNotesSaved: "Note saved",
 		shotNotesDeleted: "Note deleted",

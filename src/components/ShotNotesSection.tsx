@@ -1,6 +1,7 @@
-import { NotebookPen, Plus, Trash2 } from "lucide-react";
+import { ImageIcon, NotebookPen, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PhotoPicker } from "@/components/PhotoPicker";
 import { useToast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ interface NoteFormData {
 	location: string;
 	notes: string;
 	date: string;
+	photo: string[];
 }
 
 const emptyForm: NoteFormData = {
@@ -56,6 +58,7 @@ const emptyForm: NoteFormData = {
 	location: "",
 	notes: "",
 	date: "",
+	photo: [],
 };
 
 function noteToForm(note: ShotNote): NoteFormData {
@@ -67,6 +70,7 @@ function noteToForm(note: ShotNote): NoteFormData {
 		location: note.location ?? "",
 		notes: note.notes ?? "",
 		date: note.date ?? "",
+		photo: note.photo ? [note.photo] : [],
 	};
 }
 
@@ -81,6 +85,7 @@ function formToNote(form: NoteFormData, id?: string): ShotNote {
 		location: form.location || null,
 		notes: form.notes || null,
 		date: form.date || null,
+		photo: form.photo[0] || null,
 	};
 }
 
@@ -115,7 +120,8 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 			note.lens ||
 			note.location ||
 			note.notes ||
-			note.date;
+			note.date ||
+			note.photo;
 		if (!hasContent) return;
 
 		let updated: ShotNote[];
@@ -184,7 +190,8 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 									>
 										{note.frameNumber != null ? `#${note.frameNumber}` : "—"}
 									</Badge>
-									<span className="text-sm text-text-sec truncate">{summary || "—"}</span>
+									<span className="text-sm text-text-sec truncate flex-1">{summary || "—"}</span>
+									{note.photo && <ImageIcon size={14} className="text-text-muted shrink-0" />}
 								</button>
 							);
 						})}
@@ -255,6 +262,13 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 						<FormField label={t("filmDetail.shotNotesDate")}>
 							<Input type="date" value={form.date} onChange={(e) => updateField("date", e.target.value)} />
 						</FormField>
+
+						<PhotoPicker
+							photos={form.photo}
+							onChange={(photos) => setForm((prev) => ({ ...prev, photo: photos }))}
+							max={1}
+							label={t("filmDetail.shotNotesPhoto")}
+						/>
 
 						<Button onClick={handleSave} className="w-full justify-center">
 							{t("filmDetail.saveButton")}

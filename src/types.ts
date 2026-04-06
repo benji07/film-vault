@@ -35,6 +35,7 @@ export interface ShotNote {
 	location?: string | null;
 	notes?: string | null;
 	date?: string | null;
+	photo?: string | null;
 }
 
 export interface Film {
