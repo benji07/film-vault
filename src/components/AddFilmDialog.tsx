@@ -101,7 +101,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 						placeholder={t("addFilm.modelPlaceholder")}
 					/>
 
-					<div className={`grid gap-3 ${format === "Instant" ? "grid-cols-1" : "grid-cols-2"}`}>
+					<div className="grid grid-cols-2 gap-3">
 						<FormField label={t("addFilm.iso")}>
 							<Input
 								type="number"
@@ -111,14 +111,14 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 								className="font-mono"
 							/>
 						</FormField>
-						{format !== "Instant" && <FilmTypeSelect value={type} onValueChange={setType} />}
+						<FilmTypeSelect value={type} onValueChange={setType} format={format} />
 					</div>
 
 					<FilmFormatSelect
 						value={format}
 						onValueChange={(v) => {
 							setFormat(v);
-							if (v === "Instant") setType("Instant");
+							if (v === "Instant" && type !== "Couleur" && type !== "N&B") setType("Couleur");
 						}}
 					/>
 

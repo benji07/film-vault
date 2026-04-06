@@ -5,10 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface FilmTypeSelectProps {
 	value: string;
 	onValueChange: (v: string) => void;
+	format?: string;
 }
 
-export function FilmTypeSelect({ value, onValueChange }: FilmTypeSelectProps) {
+export function FilmTypeSelect({ value, onValueChange, format }: FilmTypeSelectProps) {
 	const { t } = useTranslation();
+	const isInstant = format === "Instant";
 	return (
 		<FormField label={t("addFilm.type")}>
 			<Select value={value} onValueChange={onValueChange}>
@@ -18,9 +20,9 @@ export function FilmTypeSelect({ value, onValueChange }: FilmTypeSelectProps) {
 				<SelectContent>
 					<SelectItem value="Couleur">{t("filmTypes.Couleur")}</SelectItem>
 					<SelectItem value="N&B">{t("filmTypes.N&B")}</SelectItem>
-					<SelectItem value="Diapo">{t("filmTypes.Diapo")}</SelectItem>
-					<SelectItem value="ECN-2">{t("filmTypes.ECN-2")}</SelectItem>
-					<SelectItem value="Instant">{t("filmTypes.Instant")}</SelectItem>
+					{!isInstant && <SelectItem value="Diapo">{t("filmTypes.Diapo")}</SelectItem>}
+					{!isInstant && <SelectItem value="ECN-2">{t("filmTypes.ECN-2")}</SelectItem>}
+					{!isInstant && <SelectItem value="Instant">{t("filmTypes.Instant")}</SelectItem>}
 				</SelectContent>
 			</Select>
 		</FormField>

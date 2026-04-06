@@ -810,7 +810,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							suggestions={modelsForBrand(editData.brand)}
 							placeholder={t("addFilm.modelPlaceholder")}
 						/>
-						<div className={`grid gap-3 ${editData.format === "Instant" ? "grid-cols-1" : "grid-cols-2"}`}>
+						<div className="grid grid-cols-2 gap-3">
 							<FormField label={t("addFilm.iso")}>
 								<Input
 									type="number"
@@ -820,14 +820,18 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 									className="font-mono"
 								/>
 							</FormField>
-							{editData.format !== "Instant" && (
-								<FilmTypeSelect value={editData.type} onValueChange={(v) => setEditData({ ...editData, type: v })} />
-							)}
+							<FilmTypeSelect
+								value={editData.type}
+								onValueChange={(v) => setEditData({ ...editData, type: v })}
+								format={editData.format}
+							/>
 						</div>
 						<FilmFormatSelect
 							value={editData.format}
 							onValueChange={(v) => {
-								setEditData({ ...editData, format: v, ...(v === "Instant" ? { type: "Instant" } : {}) });
+								const typeReset =
+									v === "Instant" && editData.type !== "Couleur" && editData.type !== "N&B" ? { type: "Couleur" } : {};
+								setEditData({ ...editData, format: v, ...typeReset });
 							}}
 							disabled={film.state === "loaded"}
 						/>
