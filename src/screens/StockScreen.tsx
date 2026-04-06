@@ -1,10 +1,9 @@
-import { ChevronDown, Film, Plus, Search } from "lucide-react";
+import { Film, Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmRow } from "@/components/FilmRow";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { fmtExpDate } from "@/utils/expiration";
 import { filmName } from "@/utils/film-helpers";
@@ -18,8 +17,18 @@ interface FilmGroup {
 
 function groupFilms(films: FilmType[], locale: string): FilmGroup[] {
 	const map = new Map<string, FilmType[]>();
+	const ungrouped: FilmGroup[] = [];
 
 	for (const f of films) {
+		if (f.state !== "stock") {
+			ungrouped.push({
+				key: f.id,
+				label: filmName(f),
+				expLabel: f.expDate ? fmtExpDate(f.expDate, locale) : "",
+				films: [f],
+			});
+			continue;
+		}
 		const name = filmName(f);
 		const exp = f.expDate || "";
 		const key = `${name}||${exp}`;
@@ -31,17 +40,17 @@ function groupFilms(films: FilmType[], locale: string): FilmGroup[] {
 		}
 	}
 
-	return Array.from(map.entries()).map(([key, groupFilms]) => {
-		const sep = key.indexOf("||");
-		const name = key.slice(0, sep);
-		const exp = key.slice(sep + 2);
+	const grouped = Array.from(map.entries()).map(([key, groupFilms]) => {
+		const first = groupFilms[0]!;
 		return {
 			key,
-			label: name,
-			expLabel: exp ? fmtExpDate(exp, locale) : "",
+			label: filmName(first),
+			expLabel: first.expDate ? fmtExpDate(first.expDate, locale) : "",
 			films: groupFilms,
 		};
 	});
+
+	return [...grouped, ...ungrouped];
 }
 
 interface StockScreenProps {
@@ -56,17 +65,6 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 	const [filter, setFilter] = useState("all");
 	const [search, setSearch] = useState("");
 	const { films, cameras } = data;
-
-	const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
-
-	const toggleGroup = (key: string) => {
-		setCollapsedGroups((prev) => {
-			const next = new Set(prev);
-			if (next.has(key)) next.delete(key);
-			else next.add(key);
-			return next;
-		});
-	};
 
 	const filtered = films.filter((f) => {
 		if (filter !== "all" && f.state !== filter) return false;
@@ -125,63 +123,18 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 
 			<div className="flex flex-col gap-2">
 				{groups.map((group) => {
-					const isSingle = group.films.length === 1;
-					const isCollapsed = collapsedGroups.has(group.key);
-
-					if (isSingle) {
-						const f = group.films[0]!;
-						return (
-							<FilmRow
-								key={f.id}
-								film={f}
-								cameras={cameras}
-								onClick={() => {
-									setSelectedFilm(f.id);
-									setScreen("filmDetail");
-								}}
-							/>
-						);
-					}
-
+					const representative = group.films[0]!;
 					return (
-						<div key={group.key} className="flex flex-col gap-1.5">
-							<button
-								type="button"
-								onClick={() => toggleGroup(group.key)}
-								className="flex items-center gap-2 px-3 py-2 bg-surface-alt border border-border rounded-xl cursor-pointer w-full text-left min-h-[44px]"
-							>
-								<ChevronDown
-									size={14}
-									className={cn("text-text-muted transition-transform", isCollapsed && "-rotate-90")}
-								/>
-								<span className="text-sm font-semibold text-text-primary font-body">{group.label}</span>
-								<span className="text-xs text-text-sec font-body">&times; {group.films.length}</span>
-								{group.expLabel && (
-									<span className="text-xs text-text-muted font-body ml-auto">Exp&nbsp;: {group.expLabel}</span>
-								)}
-							</button>
-
-							{!isCollapsed && (
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-3">
-									{group.films.map((f, i) => (
-										<div
-											key={f.id}
-											className="animate-stagger-item"
-											style={{ animationDelay: `${Math.min(i * 40, 400)}ms` }}
-										>
-											<FilmRow
-												film={f}
-												cameras={cameras}
-												onClick={() => {
-													setSelectedFilm(f.id);
-													setScreen("filmDetail");
-												}}
-											/>
-										</div>
-									))}
-								</div>
-							)}
-						</div>
+						<FilmRow
+							key={group.key}
+							film={representative}
+							cameras={cameras}
+							groupCount={group.films.length}
+							onClick={() => {
+								setSelectedFilm(representative.id);
+								setScreen("filmDetail");
+							}}
+						/>
 					);
 				})}
 				{filtered.length === 0 && (
