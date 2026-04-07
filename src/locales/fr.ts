@@ -59,6 +59,8 @@ export const fr = {
 		scannedTab: "Scannées",
 		nothingFound: "Rien trouvé",
 		noMatch: "Aucune pellicule ne correspond à ta recherche",
+		allFormats: "Tous les formats",
+		allTypes: "Tous les types",
 	},
 
 	// Stats screen

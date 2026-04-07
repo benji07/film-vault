@@ -59,6 +59,8 @@ export const en = {
 		scannedTab: "Scanned",
 		nothingFound: "Nothing found",
 		noMatch: "No film matches your search",
+		allFormats: "All formats",
+		allTypes: "All types",
 	},
 
 	// Stats screen
