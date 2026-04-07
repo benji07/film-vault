@@ -1,25 +1,17 @@
-import { Film, Plus, Search } from "lucide-react";
+import { Film, Plus, Search, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmRow } from "@/components/FilmRow";
+import { StockFilterDialog } from "@/components/StockFilterDialog";
 import { Button } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-	type AppData,
-	type FilmFormat,
-	type Film as FilmType,
-	type FilmType as FilmTypeEnum,
-	INSTANT_FORMATS,
-	type ScreenName,
-} from "@/types";
+import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { fmtExpDate } from "@/utils/expiration";
 import { filmName } from "@/utils/film-helpers";
-
-const FORMATS: FilmFormat[] = ["35mm", "120", ...INSTANT_FORMATS];
-const TYPES: FilmTypeEnum[] = ["Couleur", "N&B", "Diapo", "ECN-2"];
+import { type SortOption, useStockFilters } from "@/utils/use-stock-filters";
 
 interface FilmGroup {
 	key: string;
@@ -28,44 +20,11 @@ interface FilmGroup {
 	films: FilmType[];
 }
 
-function lastModifiedDate(film: FilmType): string {
-	if (film.history.length > 0) {
-		return film.history[film.history.length - 1]!.date;
-	}
-	return film.addedDate;
-}
-
-function compareAlphabetic(a: FilmType, b: FilmType): number {
-	const brandA = (a.brand || "").toLowerCase();
-	const brandB = (b.brand || "").toLowerCase();
-	if (brandA !== brandB) return brandA.localeCompare(brandB);
-
-	const modelA = (a.model || a.customName || "").toLowerCase();
-	const modelB = (b.model || b.customName || "").toLowerCase();
-	if (modelA !== modelB) return modelA.localeCompare(modelB);
-
-	const expA = a.expDate || "";
-	const expB = b.expDate || "";
-	return expA.localeCompare(expB);
-}
-
-function groupFilms(films: FilmType[], locale: string, sortByDate: boolean): FilmGroup[] {
-	if (sortByDate) {
-		const sorted = [...films].sort((a, b) => lastModifiedDate(b).localeCompare(lastModifiedDate(a)));
-		return sorted.map((f) => ({
-			key: f.id,
-			label: filmName(f),
-			expLabel: f.expDate ? fmtExpDate(f.expDate, locale) : "",
-			films: [f],
-		}));
-	}
-
+function groupFilms(films: FilmType[], locale: string): FilmGroup[] {
 	const map = new Map<string, FilmType[]>();
 	const ungrouped: FilmGroup[] = [];
 
-	const sorted = [...films].sort(compareAlphabetic);
-
-	for (const f of sorted) {
+	for (const f of films) {
 		if (f.state !== "stock") {
 			ungrouped.push({
 				key: f.id,
@@ -99,6 +58,19 @@ function groupFilms(films: FilmType[], locale: string, sortByDate: boolean): Fil
 	return [...grouped, ...ungrouped];
 }
 
+const SORT_OPTIONS: { value: SortOption; labelKey: string }[] = [
+	{ value: "name-asc", labelKey: "stock.nameAsc" },
+	{ value: "name-desc", labelKey: "stock.nameDesc" },
+	{ value: "added-desc", labelKey: "stock.addedDate" },
+	{ value: "added-asc", labelKey: "stock.addedDateAsc" },
+	{ value: "exp-asc", labelKey: "stock.expirationDate" },
+	{ value: "exp-desc", labelKey: "stock.expirationDateDesc" },
+	{ value: "price-asc", labelKey: "stock.price" },
+	{ value: "price-desc", labelKey: "stock.priceDesc" },
+	{ value: "iso-asc", labelKey: "stock.isoAsc" },
+	{ value: "iso-desc", labelKey: "stock.isoDesc" },
+];
+
 interface StockScreenProps {
 	data: AppData;
 	setScreen: (screen: ScreenName) => void;
@@ -108,32 +80,18 @@ interface StockScreenProps {
 
 export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: StockScreenProps) {
 	const { t } = useTranslation();
-	const [filter, setFilter] = useState("all");
-	const [search, setSearch] = useState("");
-	const [filterFormat, setFilterFormat] = useState("all");
-	const [filterType, setFilterType] = useState("all");
+	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 	const { films, cameras, backs } = data;
 
-	const filtered = films.filter((f) => {
-		if (filter !== "all" && f.state !== filter) return false;
-		if (filterFormat !== "all" && f.format !== filterFormat) return false;
-		if (filterType !== "all" && f.type !== filterType) return false;
-		if (search) {
-			const name = filmName(f);
-			return name.toLowerCase().includes(search.toLowerCase());
-		}
-		return true;
-	});
-
-	const sortByDate = filter !== "all" && filter !== "stock";
-	const groups = groupFilms(filtered, t("dateLocale"), sortByDate);
+	const stockFilters = useStockFilters(films);
+	const groups = groupFilms(stockFilters.filteredFilms, t("dateLocale"));
 
 	const stateCounts: Record<string, number> = {};
 	for (const f of films) {
 		stateCounts[f.state] = (stateCounts[f.state] || 0) + 1;
 	}
 
-	const tabs = [
+	const stateTabs = [
 		{ key: "all", label: t("stock.all"), count: films.length },
 		{ key: "stock", label: t("stock.stockTab"), count: stateCounts.stock || 0 },
 		{ key: "loaded", label: t("stock.loadedTab"), count: stateCounts.loaded || 0 },
@@ -152,51 +110,46 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 				</Button>
 			</div>
 
-			<div className="relative">
-				<Search size={16} className="text-text-muted absolute left-3 top-3" />
-				<Input
-					value={search}
-					onChange={(e) => setSearch(e.target.value)}
-					placeholder={t("stock.search")}
-					className="w-full rounded-xl pl-9"
-				/>
-			</div>
-
 			<div className="flex gap-2">
-				<Select value={filterFormat} onValueChange={setFilterFormat}>
-					<SelectTrigger className="flex-1">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="all">{t("stock.allFormats")}</SelectItem>
-						{FORMATS.map((f) => (
-							<SelectItem key={f} value={f}>
-								{t(`filmFormats.${f}`)}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				<Select value={filterType} onValueChange={setFilterType}>
-					<SelectTrigger className="flex-1">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="all">{t("stock.allTypes")}</SelectItem>
-						{TYPES.map((tp) => (
-							<SelectItem key={tp} value={tp}>
-								{t(`filmTypes.${tp}`)}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				<div className="relative flex-1">
+					<Search size={16} className="text-text-muted absolute left-3 top-3" />
+					<Input
+						value={stockFilters.search}
+						onChange={(e) => stockFilters.setSearch(e.target.value)}
+						placeholder={t("stock.search")}
+						className="w-full rounded-xl pl-9"
+					/>
+				</div>
+				<Button
+					variant={stockFilters.hasActiveFilters ? "default" : "outline"}
+					size="icon"
+					aria-label={t("stock.filters")}
+					onClick={() => setFilterDialogOpen(true)}
+				>
+					<SlidersHorizontal size={16} />
+				</Button>
 			</div>
 
-			<div className="flex gap-1.5 overflow-x-auto pb-1">
-				{tabs.map((tab) => (
-					<Chip key={tab.key} active={filter === tab.key} onClick={() => setFilter(tab.key)}>
-						{tab.label} <span className="opacity-70">({tab.count})</span>
-					</Chip>
-				))}
+			<ActiveFilterChips
+				filters={stockFilters.activeFilterDescriptions}
+				onRemove={stockFilters.removeFilter}
+				onReset={stockFilters.resetFilters}
+			/>
+
+			<div className="flex justify-between items-center">
+				<span className="text-sm text-text-muted">{t("stock.resultCount", { count: stockFilters.resultCount })}</span>
+				<Select value={stockFilters.sortOption} onValueChange={(v) => stockFilters.setSortOption(v as SortOption)}>
+					<SelectTrigger className="w-auto min-w-[140px]">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						{SORT_OPTIONS.map((opt) => (
+							<SelectItem key={opt.value} value={opt.value}>
+								{t(opt.labelKey)}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			</div>
 
 			<div className="flex flex-col gap-2">
@@ -216,10 +169,26 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 						/>
 					);
 				})}
-				{filtered.length === 0 && (
+				{stockFilters.filteredFilms.length === 0 && (
 					<EmptyState icon={Film} title={t("stock.nothingFound")} subtitle={t("stock.noMatch")} />
 				)}
 			</div>
+
+			<StockFilterDialog
+				open={filterDialogOpen}
+				onOpenChange={setFilterDialogOpen}
+				filters={stockFilters.filters}
+				stateFilter={stockFilters.stateFilter}
+				stateTabs={stateTabs}
+				availableBrands={stockFilters.availableBrands}
+				availableIsoValues={stockFilters.availableIsoValues}
+				onSetStateFilter={stockFilters.setStateFilter}
+				onSetFormat={stockFilters.setFormat}
+				onSetType={stockFilters.setType}
+				onToggleBrand={stockFilters.toggleBrand}
+				onToggleIso={stockFilters.toggleIso}
+				onReset={stockFilters.resetFilters}
+			/>
 		</div>
 	);
 }
