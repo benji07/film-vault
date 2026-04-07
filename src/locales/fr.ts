@@ -287,6 +287,7 @@ export const fr = {
 		restore: "Récupérer",
 		myData: "Mes données",
 		schemaVersion: "Version du schéma",
+		storageMode: "Mode de stockage",
 		films: "Pellicules",
 		cameras: "Appareils",
 		exportData: "Exporter mes données",

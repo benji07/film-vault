@@ -287,6 +287,7 @@ export const en = {
 		restore: "Restore",
 		myData: "My data",
 		schemaVersion: "Schema version",
+		storageMode: "Storage mode",
 		films: "Films",
 		cameras: "Cameras",
 		exportData: "Export my data",
