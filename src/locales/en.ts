@@ -59,6 +59,8 @@ export const en = {
 		scannedTab: "Scanned",
 		nothingFound: "Nothing found",
 		noMatch: "No film matches your search",
+		allFormats: "All formats",
+		allTypes: "All types",
 	},
 
 	// Stats screen
@@ -110,14 +112,19 @@ export const en = {
 		"N&B": "B&W",
 		Diapo: "Slide",
 		"ECN-2": "ECN-2",
-		Instant: "Instant",
 	},
 
 	// Film formats
 	filmFormats: {
 		"35mm": "35mm",
 		"120": "Medium format (120)",
-		Instant: "Instant",
+		"Instax Mini": "Instax Mini",
+		"Instax Square": "Instax Square",
+		"Instax Wide": "Instax Wide",
+		"Polaroid SX-70": "Polaroid SX-70",
+		"Polaroid 600": "Polaroid 600",
+		"Polaroid I-Type": "Polaroid I-Type",
+		"Polaroid Go": "Polaroid Go",
 	},
 
 	// Film detail screen

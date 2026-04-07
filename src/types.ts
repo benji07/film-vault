@@ -1,7 +1,30 @@
 import type { ComponentType } from "react";
 
-export type FilmFormat = "35mm" | "120" | "Instant";
-export type FilmType = "Couleur" | "N&B" | "Diapo" | "ECN-2" | "Instant";
+export type FilmFormat =
+	| "35mm"
+	| "120"
+	| "Instax Mini"
+	| "Instax Square"
+	| "Instax Wide"
+	| "Polaroid SX-70"
+	| "Polaroid 600"
+	| "Polaroid I-Type"
+	| "Polaroid Go";
+export type FilmType = "Couleur" | "N&B" | "Diapo" | "ECN-2";
+
+export const INSTANT_FORMATS: FilmFormat[] = [
+	"Instax Mini",
+	"Instax Square",
+	"Instax Wide",
+	"Polaroid SX-70",
+	"Polaroid 600",
+	"Polaroid I-Type",
+	"Polaroid Go",
+];
+
+export function isInstantFormat(format: string | undefined): boolean {
+	return INSTANT_FORMATS.includes(format as FilmFormat);
+}
 export type FilmState = "stock" | "loaded" | "partial" | "exposed" | "developed" | "scanned";
 
 export type HistoryAction =

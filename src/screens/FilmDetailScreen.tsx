@@ -42,7 +42,7 @@ import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getStates } from "@/constants/films";
 import { alpha, T } from "@/constants/theme";
-import type { AppData, Film as FilmType, ScreenName } from "@/types";
+import { type AppData, type Film as FilmType, isInstantFormat, type ScreenName } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { createNewFilm } from "@/utils/film-factory";
@@ -875,7 +875,9 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							value={editData.format}
 							onValueChange={(v) => {
 								const typeReset =
-									v === "Instant" && editData.type !== "Couleur" && editData.type !== "N&B" ? { type: "Couleur" } : {};
+									isInstantFormat(v) && editData.type !== "Couleur" && editData.type !== "N&B"
+										? { type: "Couleur" }
+										: {};
 								setEditData({ ...editData, format: v, ...typeReset });
 							}}
 							disabled={film.state === "loaded"}

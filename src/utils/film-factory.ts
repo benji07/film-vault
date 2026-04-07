@@ -4,7 +4,13 @@ import { today, uid } from "@/utils/helpers";
 const DEFAULT_POSES: Record<string, number> = {
 	"35mm": 36,
 	"120": 12,
-	Instant: 10,
+	"Instax Mini": 10,
+	"Instax Square": 10,
+	"Instax Wide": 10,
+	"Polaroid SX-70": 8,
+	"Polaroid 600": 8,
+	"Polaroid I-Type": 8,
+	"Polaroid Go": 8,
 };
 
 interface NewFilmParams {
