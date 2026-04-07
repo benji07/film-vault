@@ -55,7 +55,9 @@ function buildEquipmentItems(cameras: CameraType[], backs: Back[], activeFilms: 
 	for (const cam of cameras) {
 		if (cam.hasInterchangeableBack) {
 			const compatibleBacks = backs.filter((b) => b.compatibleCameraIds.includes(cam.id));
-			const hasLoadedBack = compatibleBacks.some((b) => activeFilms.some((f) => f.backId === b.id));
+			const hasLoadedBack = activeFilms.some(
+				(f) => f.cameraId === cam.id && compatibleBacks.some((b) => b.id === f.backId),
+			);
 			if (!hasLoadedBack) {
 				items.push({
 					key: `cam-${cam.id}`,

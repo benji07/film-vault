@@ -22,10 +22,15 @@ export function EquipmentCard({ label, sublabel, loadedFilm, icon, onClick, clas
 
 	return (
 		<Card
+			role="button"
+			tabIndex={0}
 			className={`w-[140px] shrink-0 p-3 cursor-pointer transition-all ${className ?? ""}`}
 			onClick={onClick}
 			onKeyDown={(e) => {
-				if (e.key === "Enter") onClick();
+				if (e.key === "Enter" || e.key === " ") {
+					e.preventDefault();
+					onClick();
+				}
 			}}
 		>
 			<div className="flex items-center gap-2 mb-2">

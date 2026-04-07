@@ -32,7 +32,7 @@ export function ActiveRollCard({ film, camera, back, onShotClick, onClick, class
 	const loadedDate = getLoadedDate(film);
 
 	const formattedDate = loadedDate
-		? new Date(loadedDate).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", {
+		? new Date(`${loadedDate}T00:00:00`).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", {
 				day: "numeric",
 				month: "long",
 				year: "numeric",
@@ -43,10 +43,15 @@ export function ActiveRollCard({ film, camera, back, onShotClick, onClick, class
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			className={`flex items-stretch bg-card border border-border rounded-[14px] cursor-pointer transition-all overflow-hidden ${className ?? ""}`}
 			onClick={onClick}
 			onKeyDown={(e) => {
-				if (e.key === "Enter") onClick();
+				if (e.key === "Enter" || e.key === " ") {
+					e.preventDefault();
+					onClick();
+				}
 			}}
 		>
 			<div className="w-[3px] shrink-0 rounded-r-full" style={{ backgroundColor: typeColor }} />
