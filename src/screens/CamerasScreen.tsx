@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { alpha, T } from "@/constants/theme";
-import type { AppData, Back, Camera as CameraType } from "@/types";
+import { type AppData, type Back, type Camera as CameraType, INSTANT_FORMATS } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
 import { uid } from "@/utils/helpers";
@@ -358,7 +358,11 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 								<SelectContent>
 									<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
 									<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-									<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
+									{INSTANT_FORMATS.map((f) => (
+										<SelectItem key={f} value={f}>
+											{t(`filmFormats.${f}`)}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 						</FormField>
@@ -418,7 +422,11 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 									<SelectContent>
 										<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
 										<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-										<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
+										{INSTANT_FORMATS.map((f) => (
+											<SelectItem key={f} value={f}>
+												{t(`filmFormats.${f}`)}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 							</FormField>
@@ -474,7 +482,11 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 								<SelectContent>
 									<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
 									<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-									<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
+									{INSTANT_FORMATS.map((f) => (
+										<SelectItem key={f} value={f}>
+											{t(`filmFormats.${f}`)}
+										</SelectItem>
+									))}
 								</SelectContent>
 							</Select>
 						</FormField>
@@ -553,7 +565,11 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 									<SelectContent>
 										<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
 										<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-										<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
+										{INSTANT_FORMATS.map((f) => (
+											<SelectItem key={f} value={f}>
+												{t(`filmFormats.${f}`)}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
 							</FormField>

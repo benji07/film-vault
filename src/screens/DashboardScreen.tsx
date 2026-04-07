@@ -69,6 +69,17 @@ function buildEquipmentItems(cameras: CameraType[], backs: Back[], activeFilms: 
 		}
 	}
 
+	items.sort((a, b) => {
+		if (a.loadedFilm && !b.loadedFilm) return -1;
+		if (!a.loadedFilm && b.loadedFilm) return 1;
+		if (a.loadedFilm && b.loadedFilm) {
+			const dateA = a.loadedFilm.startDate || "";
+			const dateB = b.loadedFilm.startDate || "";
+			return dateB.localeCompare(dateA);
+		}
+		return 0;
+	});
+
 	return items;
 }
 

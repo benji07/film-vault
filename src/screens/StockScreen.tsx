@@ -6,9 +6,20 @@ import { FilmRow } from "@/components/FilmRow";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
-import type { AppData, Film as FilmType, ScreenName } from "@/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+	type AppData,
+	type FilmFormat,
+	type Film as FilmType,
+	type FilmType as FilmTypeEnum,
+	INSTANT_FORMATS,
+	type ScreenName,
+} from "@/types";
 import { fmtExpDate } from "@/utils/expiration";
 import { filmName } from "@/utils/film-helpers";
+
+const FORMATS: FilmFormat[] = ["35mm", "120", ...INSTANT_FORMATS];
+const TYPES: FilmTypeEnum[] = ["Couleur", "N&B", "Diapo", "ECN-2"];
 
 interface FilmGroup {
 	key: string;
@@ -99,10 +110,14 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 	const { t } = useTranslation();
 	const [filter, setFilter] = useState("all");
 	const [search, setSearch] = useState("");
+	const [filterFormat, setFilterFormat] = useState("all");
+	const [filterType, setFilterType] = useState("all");
 	const { films, cameras, backs } = data;
 
 	const filtered = films.filter((f) => {
 		if (filter !== "all" && f.state !== filter) return false;
+		if (filterFormat !== "all" && f.format !== filterFormat) return false;
+		if (filterType !== "all" && f.type !== filterType) return false;
 		if (search) {
 			const name = filmName(f);
 			return name.toLowerCase().includes(search.toLowerCase());
@@ -145,6 +160,35 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 					placeholder={t("stock.search")}
 					className="w-full rounded-xl pl-9"
 				/>
+			</div>
+
+			<div className="flex gap-2">
+				<Select value={filterFormat} onValueChange={setFilterFormat}>
+					<SelectTrigger className="flex-1">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">{t("stock.allFormats")}</SelectItem>
+						{FORMATS.map((f) => (
+							<SelectItem key={f} value={f}>
+								{t(`filmFormats.${f}`)}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+				<Select value={filterType} onValueChange={setFilterType}>
+					<SelectTrigger className="flex-1">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">{t("stock.allTypes")}</SelectItem>
+						{TYPES.map((tp) => (
+							<SelectItem key={tp} value={tp}>
+								{t(`filmTypes.${tp}`)}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			</div>
 
 			<div className="flex gap-1.5 overflow-x-auto pb-1">

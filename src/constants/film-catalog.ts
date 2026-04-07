@@ -63,8 +63,21 @@ export const FILM_CATALOG: FilmCatalogEntry[] = [
 	{ brand: "Fujifilm", model: "Acros II 100", iso: 100, type: "N&B", format: "35mm" },
 	{ brand: "Fujifilm", model: "Acros II 100", iso: 100, type: "N&B", format: "120" },
 	// Fujifilm — Instant
-	{ brand: "Fujifilm", model: "Instax Mini", iso: 800, type: "Instant", format: "Instant" },
-	{ brand: "Fujifilm", model: "Instax Wide", iso: 800, type: "Instant", format: "Instant" },
+	{ brand: "Fujifilm", model: "Instax Mini", iso: 800, type: "Couleur", format: "Instax Mini" },
+	{ brand: "Fujifilm", model: "Instax Mini Monochrome", iso: 800, type: "N&B", format: "Instax Mini" },
+	{ brand: "Fujifilm", model: "Instax Square", iso: 800, type: "Couleur", format: "Instax Square" },
+	{ brand: "Fujifilm", model: "Instax Square Monochrome", iso: 800, type: "N&B", format: "Instax Square" },
+	{ brand: "Fujifilm", model: "Instax Wide", iso: 800, type: "Couleur", format: "Instax Wide" },
+
+	// Polaroid
+	{ brand: "Polaroid", model: "Color SX-70", iso: 160, type: "Couleur", format: "Polaroid SX-70" },
+	{ brand: "Polaroid", model: "B&W SX-70", iso: 160, type: "N&B", format: "Polaroid SX-70" },
+	{ brand: "Polaroid", model: "Color 600", iso: 640, type: "Couleur", format: "Polaroid 600" },
+	{ brand: "Polaroid", model: "B&W 600", iso: 640, type: "N&B", format: "Polaroid 600" },
+	{ brand: "Polaroid", model: "Color I-Type", iso: 640, type: "Couleur", format: "Polaroid I-Type" },
+	{ brand: "Polaroid", model: "B&W I-Type", iso: 640, type: "N&B", format: "Polaroid I-Type" },
+	{ brand: "Polaroid", model: "Color Go", iso: 640, type: "Couleur", format: "Polaroid Go" },
+	{ brand: "Polaroid", model: "B&W Go", iso: 640, type: "N&B", format: "Polaroid Go" },
 
 	// CineStill
 	{ brand: "CineStill", model: "800T", iso: 800, type: "Couleur", format: "35mm" },

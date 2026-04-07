@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 10;
+export const CURRENT_VERSION = 11;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -169,6 +169,37 @@ function migrateV9toV10(data: Record<string, unknown>): Record<string, unknown> 
 	return { ...data, cameras: migratedCameras, backs: extractedBacks, version: 10 };
 }
 
+function migrateV10toV11(data: Record<string, unknown>): Record<string, unknown> {
+	const films = (data.films as Record<string, unknown>[]) || [];
+	const migratedFilms = films.map((film) => {
+		// Migrate format: "Instant" → "Instax Mini" (safe default)
+		if (film.format === "Instant") {
+			film = { ...film, format: "Instax Mini" };
+		}
+		// Migrate type: "Instant" → "Couleur" (safe default)
+		if (film.type === "Instant") {
+			film = { ...film, type: "Couleur" };
+		}
+		return film;
+	});
+	// Migrate cameras and backs format: "Instant" → "Instax Mini"
+	const cameras = (data.cameras as Record<string, unknown>[]) || [];
+	const migratedCameras = cameras.map((cam) => {
+		if (cam.format === "Instant") {
+			return { ...cam, format: "Instax Mini" };
+		}
+		return cam;
+	});
+	const backs = (data.backs as Record<string, unknown>[]) || [];
+	const migratedBacks = backs.map((back) => {
+		if (back.format === "Instant") {
+			return { ...back, format: "Instax Mini" };
+		}
+		return back;
+	});
+	return { ...data, films: migratedFilms, cameras: migratedCameras, backs: migratedBacks, version: 11 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -179,6 +210,7 @@ const migrations: Record<number, MigrationFn> = {
 	7: migrateV7toV8,
 	8: migrateV8toV9,
 	9: migrateV9toV10,
+	10: migrateV10toV11,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

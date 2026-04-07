@@ -25,7 +25,7 @@ test.describe("Select inside Dialog", () => {
 		// Verify that select options are visible (rendered above the dialog)
 		await expect(page.getByRole("option", { name: "35mm" })).toBeVisible();
 		await expect(page.getByRole("option", { name: /moyen format/i })).toBeVisible();
-		await expect(page.getByRole("option", { name: "Instant" })).toBeVisible();
+		await expect(page.getByRole("option", { name: "Instax Mini" })).toBeVisible();
 
 		// Select an option
 		await page.getByRole("option", { name: /moyen format/i }).click();
@@ -49,7 +49,7 @@ test.describe("Select inside Dialog", () => {
 		// Verify format options are visible
 		await expect(page.getByRole("option", { name: "35mm" })).toBeVisible();
 		await expect(page.getByRole("option", { name: /moyen format/i })).toBeVisible();
-		await expect(page.getByRole("option", { name: "Instant" })).toBeVisible();
+		await expect(page.getByRole("option", { name: "Instax Mini" })).toBeVisible();
 
 		// Select 35mm
 		await page.getByRole("option", { name: "35mm" }).click();
