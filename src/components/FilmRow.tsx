@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { getStates } from "@/constants/films";
 import { alpha, FILM_TYPE_COLORS, T } from "@/constants/theme";
-import type { Camera, Film } from "@/types";
+import type { Back, Camera, Film } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
@@ -12,17 +12,18 @@ interface FilmRowProps {
 	film: Film;
 	onClick: () => void;
 	cameras: Camera[];
+	backs: Back[];
 	groupCount?: number;
 }
 
-export function FilmRow({ film, onClick, cameras, groupCount }: FilmRowProps) {
+export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowProps) {
 	const { t } = useTranslation();
 	const STATES = getStates(t);
 	const st = STATES[film.state];
 	const StIcon = st.icon;
 	const typeColor = FILM_TYPE_COLORS[filmType(film)] || T.textMuted;
 	const cam = film.cameraId ? cameras.find((c) => c.id === film.cameraId) : null;
-	const back = film.backId && cam ? cam.backs.find((b) => b.id === film.backId) : null;
+	const back = film.backId ? backs.find((b) => b.id === film.backId) : null;
 	const expInfo = getExpirationStatus(film.expDate, t);
 
 	return (

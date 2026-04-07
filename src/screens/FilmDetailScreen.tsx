@@ -133,7 +133,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 	const STATES = getStates(t);
 	const st = STATES[film.state];
 	const cam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
-	const back = film.backId && cam ? cam.backs.find((b) => b.id === film.backId) : null;
+	const back = film.backId ? data.backs.find((b) => b.id === film.backId) : null;
 	const fIso = filmIso(film);
 
 	const updateFilm = (updates: Partial<FilmType>, toastMessage?: string) => {
@@ -168,7 +168,19 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 		toast(t("filmDetail.filmDuplicated"));
 	};
 
-	const availableCameras = data.cameras.filter((c) => c.format === film.format);
+	const availableCameras = data.cameras.filter((c) => {
+		if (c.format === film.format) return true;
+		if (c.hasInterchangeableBack) {
+			return data.backs.some((b) => b.compatibleCameraIds.includes(c.id) && b.format === film.format);
+		}
+		return false;
+	});
+
+	const selectedCamera = actionData.cameraId ? availableCameras.find((c) => c.id === actionData.cameraId) : null;
+	const compatibleBacks =
+		selectedCamera?.hasInterchangeableBack === true
+			? data.backs.filter((b) => b.compatibleCameraIds.includes(selectedCamera.id) && b.format === film.format)
+			: [];
 
 	const closeAction = () => setShowAction(null);
 
@@ -338,28 +350,25 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								</SelectContent>
 							</Select>
 						</FormField>
-						{actionData.cameraId &&
-							(data.cameras.find((c) => c.id === actionData.cameraId)?.backs?.length ?? 0) > 0 && (
-								<FormField label={t("filmDetail.backField")}>
-									<Select
-										value={actionData.backId || ""}
-										onValueChange={(v) => setActionData({ ...actionData, backId: v })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder={t("filmDetail.chooseBackPlaceholder")} />
-										</SelectTrigger>
-										<SelectContent>
-											{data.cameras
-												.find((c) => c.id === actionData.cameraId)
-												?.backs.map((b) => (
-													<SelectItem key={b.id} value={b.id}>
-														{backDisplayName(b)}
-													</SelectItem>
-												))}
-										</SelectContent>
-									</Select>
-								</FormField>
-							)}
+						{compatibleBacks.length > 0 && (
+							<FormField label={t("filmDetail.backField")}>
+								<Select
+									value={actionData.backId || ""}
+									onValueChange={(v) => setActionData({ ...actionData, backId: v })}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder={t("filmDetail.chooseBackPlaceholder")} />
+									</SelectTrigger>
+									<SelectContent>
+										{compatibleBacks.map((b) => (
+											<SelectItem key={b.id} value={b.id}>
+												{backDisplayName(b)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</FormField>
+						)}
 						<FormField label={t("filmDetail.lensField")}>
 							<Input
 								value={actionData.lens || ""}
@@ -578,6 +587,25 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								</SelectContent>
 							</Select>
 						</FormField>
+						{compatibleBacks.length > 0 && (
+							<FormField label={t("filmDetail.backField")}>
+								<Select
+									value={actionData.backId || ""}
+									onValueChange={(v) => setActionData({ ...actionData, backId: v })}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder={t("filmDetail.chooseBackPlaceholder")} />
+									</SelectTrigger>
+									<SelectContent>
+										{compatibleBacks.map((b) => (
+											<SelectItem key={b.id} value={b.id}>
+												{backDisplayName(b)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</FormField>
+						)}
 						<FormField label={t("filmDetail.lensField")}>
 							<Input
 								value={actionData.lens || ""}

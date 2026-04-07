@@ -269,6 +269,13 @@ export const en = {
 		addBackButton: "Add back",
 		deleteBack: "Delete this back",
 		save: "Save",
+		backsSection: "Backs",
+		noBacks: "No backs",
+		noBacksSubtitle: "Add backs for your interchangeable-back cameras",
+		addBackTitle: "New back",
+		backFormat: "Format",
+		compatibleCameras: "Compatible cameras",
+		noCompatibleCameras: "No cameras with interchangeable backs",
 	},
 
 	// Settings screen
