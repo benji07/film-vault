@@ -72,6 +72,7 @@ export function PwaInstallBanner() {
 				size="icon-sm"
 				onClick={handleDismiss}
 				className="absolute top-2.5 right-2.5 text-text-muted hover:text-text-primary !min-h-0 !w-auto !h-auto p-1"
+				aria-label={t("aria.dismissBanner")}
 			>
 				<X size={16} />
 			</Button>

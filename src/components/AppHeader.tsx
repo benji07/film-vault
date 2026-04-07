@@ -38,7 +38,13 @@ export function AppHeader({ screen, setScreen, filmTitle, className }: AppHeader
 			<div className="flex items-center gap-2 min-w-0">
 				{isSubScreen ? (
 					<>
-						<Button variant="ghost" size="icon" onClick={() => setScreen(backTarget)} className="-ml-2">
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={() => setScreen(backTarget)}
+							className="-ml-2"
+							aria-label={t("aria.back")}
+						>
 							<ArrowLeft size={20} className="text-text-sec" />
 						</Button>
 						<h1 className="font-display text-lg text-text-primary m-0 italic truncate">{subScreenTitles[screen]}</h1>
@@ -63,7 +69,13 @@ export function AppHeader({ screen, setScreen, filmTitle, className }: AppHeader
 							<Moon size={15} className="text-text-muted" />
 						)}
 					</Button>
-					<Button variant="outline" size="icon" onClick={() => setScreen("settings")} className="shrink-0">
+					<Button
+						variant="outline"
+						size="icon"
+						onClick={() => setScreen("settings")}
+						className="shrink-0"
+						aria-label={t("nav.settings")}
+					>
 						<Settings size={15} className="text-text-muted" />
 					</Button>
 				</div>

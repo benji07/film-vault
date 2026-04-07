@@ -1,5 +1,6 @@
 import { Camera, Plus, X } from "lucide-react";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useToast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { compressImage, estimateStorageUsage } from "@/utils/image";
@@ -14,6 +15,7 @@ interface PhotoPickerProps {
 }
 
 export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderIcon, label }: PhotoPickerProps) {
+	const { t } = useTranslation();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const { toast } = useToast();
 
@@ -60,6 +62,7 @@ export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderI
 							onClick={() => remove(i)}
 							className="absolute -top-1.5 -right-1.5 bg-accent text-white rounded-full !p-0 !min-h-0"
 							style={{ width: delSize, height: delSize }}
+							aria-label={t("aria.removePhoto", { index: i + 1 })}
 						>
 							<X size={delSize - 4} />
 						</Button>
@@ -69,6 +72,7 @@ export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderI
 					<Button
 						variant="ghost"
 						onClick={() => inputRef.current?.click()}
+						aria-label={t("aria.addPhoto")}
 						className="rounded-lg border-2 border-dashed border-border-light bg-surface-alt !p-0 !min-h-0 hover:border-text-muted"
 						style={{ width: size, height: size }}
 					>
@@ -79,6 +83,7 @@ export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderI
 					<Button
 						variant="ghost"
 						onClick={() => inputRef.current?.click()}
+						aria-label={t("aria.addPhoto")}
 						className="rounded-lg bg-surface-alt border border-border !p-0 !min-h-0 hover:border-text-muted"
 						style={{ width: size, height: size }}
 					>
@@ -89,6 +94,7 @@ export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderI
 					<Button
 						variant="ghost"
 						onClick={() => inputRef.current?.click()}
+						aria-label={t("aria.addPhoto")}
 						className="rounded-lg border-2 border-dashed border-border-light bg-surface-alt !p-0 !min-h-0 hover:border-text-muted"
 						style={{ width: size, height: size }}
 					>

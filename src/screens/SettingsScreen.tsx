@@ -186,7 +186,12 @@ export function SettingsScreen({
 								</span>
 								<div className="flex items-center gap-2">
 									<span className="text-sm font-mono text-accent tracking-wider">{recoveryCode}</span>
-									<Button variant="ghost" onClick={handleCopyCode} className="!p-1 !min-h-0">
+									<Button
+										variant="ghost"
+										onClick={handleCopyCode}
+										className="!p-1 !min-h-0"
+										aria-label={t("aria.copyRecoveryCode")}
+									>
 										{copied ? (
 											<Check size={14} className="text-green" />
 										) : (

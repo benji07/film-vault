@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 interface PhotoViewerProps {
@@ -9,6 +10,7 @@ interface PhotoViewerProps {
 }
 
 export function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps) {
+	const { t } = useTranslation();
 	const [index, setIndex] = useState(initialIndex);
 	const touchRef = useRef<number | null>(null);
 
@@ -56,6 +58,7 @@ export function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps)
 					onClose();
 				}}
 				className="absolute top-4 right-4 z-10 bg-surface-alt/80 rounded-full"
+				aria-label={t("aria.close")}
 			>
 				<X size={18} className="text-text-primary" />
 			</Button>
@@ -69,6 +72,7 @@ export function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps)
 						prev();
 					}}
 					className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-surface-alt/60 rounded-full"
+					aria-label={t("aria.previousPhoto")}
 				>
 					<ChevronLeft size={18} className="text-text-primary" />
 				</Button>
@@ -83,6 +87,7 @@ export function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps)
 						next();
 					}}
 					className="absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-surface-alt/60 rounded-full"
+					aria-label={t("aria.nextPhoto")}
 				>
 					<ChevronRight size={18} className="text-text-primary" />
 				</Button>

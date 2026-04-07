@@ -189,7 +189,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 		<div className="flex flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<h2 className="font-display text-[22px] text-text-primary m-0 italic">{filmName(film)}</h2>
-				<Button variant="ghost" size="icon" onClick={openEdit}>
+				<Button variant="ghost" size="icon" onClick={openEdit} aria-label={t("aria.editFilm")}>
 					<Pencil size={18} className="text-text-sec" />
 				</Button>
 			</div>

@@ -210,6 +210,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 											size="icon"
 											onClick={() => setEditCam({ ...cam })}
 											className="w-11 h-11 rounded-lg"
+											aria-label={t("aria.editCamera")}
 										>
 											<Edit3 size={14} className="text-text-sec" />
 										</Button>
@@ -218,6 +219,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 											size="icon"
 											onClick={() => deleteCamera(cam.id)}
 											className="w-11 h-11 rounded-lg"
+											aria-label={t("aria.deleteCamera")}
 										>
 											<Trash2 size={14} className="text-accent" />
 										</Button>
@@ -292,6 +294,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 											size="icon"
 											onClick={() => setEditBack({ ...b })}
 											className="w-11 h-11 rounded-lg"
+											aria-label={t("aria.editBack")}
 										>
 											<Edit3 size={14} className="text-text-sec" />
 										</Button>

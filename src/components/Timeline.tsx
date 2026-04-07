@@ -104,6 +104,7 @@ export function Timeline({ entries, onPhotoClick }: TimelineProps) {
 												size="icon"
 												onClick={() => onPhotoClick?.(h.photos!, pi)}
 												className="rounded-md overflow-hidden border border-border bg-surface-alt !p-0"
+												aria-label={t("aria.openPhoto", { index: pi + 1 })}
 											>
 												<img src={photo} className="w-full h-full object-cover" alt="" />
 											</Button>
