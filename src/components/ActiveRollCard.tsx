@@ -42,17 +42,10 @@ export function ActiveRollCard({ film, camera, back, onShotClick, onClick, class
 	const hasFrameInfo = film.posesShot != null;
 
 	return (
-		<div
-			role="button"
-			tabIndex={0}
-			className={`flex items-stretch bg-card border border-border rounded-[14px] cursor-pointer transition-all overflow-hidden ${className ?? ""}`}
+		<button
+			type="button"
+			className={`flex items-stretch bg-card border border-border rounded-[14px] cursor-pointer transition-all overflow-hidden text-left w-full ${className ?? ""}`}
 			onClick={onClick}
-			onKeyDown={(e) => {
-				if (e.key === "Enter" || e.key === " ") {
-					e.preventDefault();
-					onClick();
-				}
-			}}
 		>
 			<div className="w-[3px] shrink-0 rounded-r-full" style={{ backgroundColor: typeColor }} />
 			<div className="flex-1 p-3.5 min-w-0">
@@ -105,6 +98,6 @@ export function ActiveRollCard({ film, camera, back, onShotClick, onClick, class
 				</Button>
 				<ChevronRight size={16} className="text-text-muted shrink-0" />
 			</div>
-		</div>
+		</button>
 	);
 }
