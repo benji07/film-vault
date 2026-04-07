@@ -39,6 +39,7 @@ interface SettingsScreenProps {
 	recoveryCode: string | null;
 	onRecoveryCodeChange: (code: string | null) => void;
 	onSyncNow: () => void;
+	persistent: boolean;
 }
 
 export function SettingsScreen({
@@ -48,6 +49,7 @@ export function SettingsScreen({
 	recoveryCode,
 	onRecoveryCodeChange,
 	onSyncNow,
+	persistent,
 }: SettingsScreenProps) {
 	const { t, i18n } = useTranslation();
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -275,6 +277,13 @@ export function SettingsScreen({
 					<div className="flex items-center justify-between">
 						<span className="text-xs text-text-sec font-body">{t("settings.schemaVersion")}</span>
 						<span className="text-xs font-mono text-text-primary">v{data.version}</span>
+					</div>
+					<div className="flex items-center justify-between">
+						<span className="text-xs text-text-sec font-body">{t("settings.storageMode")}</span>
+						<span className={`text-xs font-mono flex items-center gap-1.5 ${persistent ? "text-green" : "text-amber"}`}>
+							<span className={`w-[6px] h-[6px] rounded-full ${persistent ? "bg-green" : "bg-amber"}`} />
+							{persistent ? "sync" : "session"}
+						</span>
 					</div>
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-1.5">
