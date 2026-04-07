@@ -22,11 +22,6 @@ interface CamerasScreenProps {
 	setData: (data: AppData) => void;
 }
 
-interface EditBackState {
-	camId: string;
-	back: Back;
-}
-
 export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 	const { t } = useTranslation();
 	const [showAdd, setShowAdd] = useState(false);
@@ -39,16 +34,20 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 		hasInterchangeableBack: false,
 		photo: undefined as string | undefined,
 	});
-	const [showBackModal, setShowBackModal] = useState<string | null>(null);
+	const [showBackModal, setShowBackModal] = useState(false);
 	const [newBack, setNewBack] = useState({
 		name: "",
 		nickname: "",
 		ref: "",
 		serial: "",
+		format: "120",
+		compatibleCameraIds: [] as string[],
 		photo: undefined as string | undefined,
 	});
 	const [editCam, setEditCam] = useState<CameraType | null>(null);
-	const [editBack, setEditBack] = useState<EditBackState | null>(null);
+	const [editBack, setEditBack] = useState<Back | null>(null);
+
+	const interchangeableCameras = data.cameras.filter((c) => c.hasInterchangeableBack);
 
 	const addCamera = () => {
 		if (!newCam.brand && !newCam.model) return;
@@ -60,7 +59,6 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			serial: newCam.serial,
 			format: newCam.format,
 			hasInterchangeableBack: newCam.hasInterchangeableBack || false,
-			backs: [],
 			photo: newCam.photo,
 		};
 		setData({ ...data, cameras: [...data.cameras, camera] });
@@ -96,7 +94,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 		setEditCam(null);
 	};
 
-	const addBack = (camId: string) => {
+	const addBack = () => {
 		if (!newBack.name) return;
 		const back: Back = {
 			id: uid(),
@@ -104,182 +102,205 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			nickname: newBack.nickname,
 			ref: newBack.ref,
 			serial: newBack.serial,
+			format: newBack.format,
+			compatibleCameraIds: newBack.compatibleCameraIds,
 			photo: newBack.photo,
 		};
-		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, backs: [...c.backs, back] } : c));
-		setData({ ...data, cameras: newCams });
-		setShowBackModal(null);
-		setNewBack({ name: "", nickname: "", ref: "", serial: "", photo: undefined });
+		setData({ ...data, backs: [...data.backs, back] });
+		setShowBackModal(false);
+		setNewBack({
+			name: "",
+			nickname: "",
+			ref: "",
+			serial: "",
+			format: "120",
+			compatibleCameraIds: [],
+			photo: undefined,
+		});
 	};
 
 	const saveEditBack = () => {
-		if (!editBack?.back?.name) return;
-		const newCams = data.cameras.map((c) => {
-			if (c.id !== editBack.camId) return c;
-			return {
-				...c,
-				backs: c.backs.map((b) =>
-					b.id === editBack.back.id
-						? {
-								...b,
-								name: editBack.back.name,
-								nickname: editBack.back.nickname,
-								ref: editBack.back.ref,
-								serial: editBack.back.serial,
-								photo: editBack.back.photo,
-							}
-						: b,
-				),
-			};
-		});
-		setData({ ...data, cameras: newCams });
+		if (!editBack?.name) return;
+		const newBacks = data.backs.map((b) => (b.id === editBack.id ? { ...editBack } : b));
+		setData({ ...data, backs: newBacks });
 		setEditBack(null);
 	};
 
-	const deleteBack = (camId: string, backId: string) => {
-		const newCams = data.cameras.map((c) => {
-			if (c.id !== camId) return c;
-			return { ...c, backs: c.backs.filter((b) => b.id !== backId) };
-		});
-		setData({ ...data, cameras: newCams });
+	const deleteBack = (backId: string) => {
+		const newBacks = data.backs.filter((b) => b.id !== backId);
+		const newFilms = data.films.map((f) => (f.backId === backId ? { ...f, backId: null } : f));
+		setData({ ...data, backs: newBacks, films: newFilms });
 		setEditBack(null);
 	};
 
 	const deleteCamera = (camId: string) => {
-		setData({ ...data, cameras: data.cameras.filter((c) => c.id !== camId) });
+		const newBacks = data.backs.map((b) => ({
+			...b,
+			compatibleCameraIds: b.compatibleCameraIds.filter((id) => id !== camId),
+		}));
+		const newFilms = data.films.map((f) => (f.cameraId === camId ? { ...f, cameraId: null, backId: null } : f));
+		setData({ ...data, cameras: data.cameras.filter((c) => c.id !== camId), backs: newBacks, films: newFilms });
+	};
+
+	const toggleBackCamera = (
+		cameraId: string,
+		backState: { compatibleCameraIds: string[] },
+		setter: (ids: string[]) => void,
+	) => {
+		const ids = backState.compatibleCameraIds;
+		if (ids.includes(cameraId)) {
+			setter(ids.filter((id) => id !== cameraId));
+		} else {
+			setter([...ids, cameraId]);
+		}
 	};
 
 	return (
-		<div className="flex flex-col gap-4">
-			<div className="flex justify-between items-center">
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.title")}</h2>
-				<Button size="sm" onClick={() => setShowAdd(true)}>
-					<Plus size={14} /> {t("cameras.add")}
-				</Button>
-			</div>
+		<div className="flex flex-col gap-6">
+			{/* === Cameras section === */}
+			<div className="flex flex-col gap-4">
+				<div className="flex justify-between items-center">
+					<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.title")}</h2>
+					<Button size="sm" onClick={() => setShowAdd(true)}>
+						<Plus size={14} /> {t("cameras.add")}
+					</Button>
+				</div>
 
-			<div className="flex flex-col gap-2.5">
-				{data.cameras.map((cam) => {
-					const loadedFilms = data.films.filter((f) => f.state === "loaded" && f.cameraId === cam.id);
-					return (
-						<Card key={cam.id}>
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-3">
-									{cam.photo ? (
-										<img
-											src={cam.photo}
-											alt=""
-											className="w-12 h-12 rounded-lg object-cover shrink-0 border border-border"
-										/>
-									) : (
-										<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
-											<Camera size={20} className="text-text-muted opacity-40" />
-										</div>
-									)}
-									<div>
-										<div className="text-[15px] font-semibold text-text-primary font-body">
-											{cameraDisplayName(cam)}
-										</div>
-										<div className="flex gap-1.5 mt-1.5">
-											<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{cam.format}</Badge>
-											{cam.backs.length > 0 && (
-												<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
-													{cam.backs.length} {t("cameras.backs")}
-												</Badge>
-											)}
-											{loadedFilms.length > 0 && (
-												<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
-													{t("cameras.loaded", { count: loadedFilms.length })}
-												</Badge>
-											)}
+				<div className="flex flex-col gap-2.5">
+					{data.cameras.map((cam) => {
+						const loadedFilms = data.films.filter((f) => f.state === "loaded" && f.cameraId === cam.id);
+						const camBacks = data.backs.filter((b) => b.compatibleCameraIds.includes(cam.id));
+						return (
+							<Card key={cam.id}>
+								<div className="flex items-center justify-between">
+									<div className="flex items-center gap-3">
+										{cam.photo ? (
+											<img
+												src={cam.photo}
+												alt=""
+												className="w-12 h-12 rounded-lg object-cover shrink-0 border border-border"
+											/>
+										) : (
+											<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
+												<Camera size={20} className="text-text-muted opacity-40" />
+											</div>
+										)}
+										<div>
+											<div className="text-[15px] font-semibold text-text-primary font-body">
+												{cameraDisplayName(cam)}
+											</div>
+											<div className="flex gap-1.5 mt-1.5">
+												<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{cam.format}</Badge>
+												{camBacks.length > 0 && (
+													<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
+														{camBacks.length} {t("cameras.backs")}
+													</Badge>
+												)}
+												{loadedFilms.length > 0 && (
+													<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
+														{t("cameras.loaded", { count: loadedFilms.length })}
+													</Badge>
+												)}
+											</div>
 										</div>
 									</div>
-								</div>
-								<div className="flex gap-1.5">
-									<button
-										type="button"
-										onClick={() => setEditCam({ ...cam })}
-										className="bg-surface-alt border border-border rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
-									>
-										<Edit3 size={14} className="text-text-sec" />
-									</button>
-									{cam.hasInterchangeableBack && (
+									<div className="flex gap-1.5">
 										<button
 											type="button"
-											onClick={() => setShowBackModal(cam.id)}
+											onClick={() => setEditCam({ ...cam })}
 											className="bg-surface-alt border border-border rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
 										>
-											<Plus size={14} className="text-text-sec" />
+											<Edit3 size={14} className="text-text-sec" />
 										</button>
-									)}
-									<button
-										type="button"
-										onClick={() => deleteCamera(cam.id)}
-										className="bg-accent-soft border-none rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
-									>
-										<Trash2 size={14} className="text-accent" />
-									</button>
+										<button
+											type="button"
+											onClick={() => deleteCamera(cam.id)}
+											className="bg-accent-soft border-none rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
+										>
+											<Trash2 size={14} className="text-accent" />
+										</button>
+									</div>
 								</div>
-							</div>
-							{cam.backs.length > 0 && (
-								<div className="mt-3 pt-3 border-t border-border">
-									{cam.backs.map((b) => {
-										const backFilm = data.films.find(
-											(f) => f.state === "loaded" && f.cameraId === cam.id && f.backId === b.id,
-										);
-										return (
-											<div key={b.id} className="flex items-center justify-between py-1.5">
-												<div className="flex items-center gap-2 flex-1">
-													{b.photo ? (
-														<img
-															src={b.photo}
-															alt=""
-															className="w-8 h-8 rounded-md object-cover shrink-0 border border-border"
-														/>
-													) : (
-														<div className="w-8 h-8 rounded-md bg-surface-alt flex items-center justify-center shrink-0">
-															<Camera size={14} className="text-text-muted opacity-40" />
-														</div>
-													)}
-													<div>
-														<span className="text-[13px] text-text-sec font-body">{backDisplayName(b)}</span>
-														{b.ref && <span className="text-[11px] text-text-muted font-mono ml-2">{b.ref}</span>}
-													</div>
-												</div>
-												<div className="flex items-center gap-1.5">
-													{backFilm && (
-														<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
-															{filmName(backFilm)}
-														</Badge>
-													)}
-													<button
-														type="button"
-														onClick={() => setEditBack({ camId: cam.id, back: { ...b } })}
-														className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
-													>
-														<Edit3 size={12} className="text-text-muted" />
-													</button>
-												</div>
+								{loadedFilms.length > 0 && (
+									<div className="mt-3 pt-3 border-t border-border">
+										{loadedFilms.map((f) => (
+											<div key={f.id} className="text-[13px] font-body" style={{ color: T.green }}>
+												{filmName(f)} — ISO {f.shootIso}
 											</div>
-										);
-									})}
-								</div>
-							)}
-							{loadedFilms.length > 0 && cam.backs.length === 0 && (
-								<div className="mt-3 pt-3 border-t border-border">
-									{loadedFilms.map((f) => (
-										<div key={f.id} className="text-[13px] font-body" style={{ color: T.green }}>
-											{filmName(f)} — ISO {f.shootIso}
+										))}
+									</div>
+								)}
+							</Card>
+						);
+					})}
+					{data.cameras.length === 0 && (
+						<EmptyState icon={Camera} title={t("cameras.noCameras")} subtitle={t("cameras.noCamerasSubtitle")} />
+					)}
+				</div>
+			</div>
+
+			{/* === Backs section === */}
+			<div className="flex flex-col gap-4">
+				<div className="flex justify-between items-center">
+					<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.backsSection")}</h2>
+					<Button size="sm" onClick={() => setShowBackModal(true)}>
+						<Plus size={14} /> {t("cameras.add")}
+					</Button>
+				</div>
+
+				<div className="flex flex-col gap-2.5">
+					{data.backs.map((b) => {
+						const backFilm = data.films.find((f) => f.state === "loaded" && f.backId === b.id);
+						const compatCams = data.cameras.filter((c) => b.compatibleCameraIds.includes(c.id));
+						return (
+							<Card key={b.id}>
+								<div className="flex items-center justify-between">
+									<div className="flex items-center gap-3 flex-1 min-w-0">
+										{b.photo ? (
+											<img
+												src={b.photo}
+												alt=""
+												className="w-10 h-10 rounded-lg object-cover shrink-0 border border-border"
+											/>
+										) : (
+											<div className="w-10 h-10 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
+												<Camera size={16} className="text-text-muted opacity-40" />
+											</div>
+										)}
+										<div className="min-w-0">
+											<div className="text-[14px] font-semibold text-text-primary font-body">{backDisplayName(b)}</div>
+											<div className="flex gap-1.5 mt-1 flex-wrap">
+												<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{b.format}</Badge>
+												{compatCams.map((c) => (
+													<Badge key={c.id} style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
+														{cameraDisplayName(c)}
+													</Badge>
+												))}
+												{backFilm && (
+													<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
+														{filmName(backFilm)}
+													</Badge>
+												)}
+											</div>
 										</div>
-									))}
+									</div>
+									<div className="flex gap-1.5">
+										<button
+											type="button"
+											onClick={() => setEditBack({ ...b })}
+											className="bg-surface-alt border border-border rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
+										>
+											<Edit3 size={14} className="text-text-sec" />
+										</button>
+									</div>
 								</div>
-							)}
-						</Card>
-					);
-				})}
-				{data.cameras.length === 0 && (
-					<EmptyState icon={Camera} title={t("cameras.noCameras")} subtitle={t("cameras.noCamerasSubtitle")} />
-				)}
+							</Card>
+						);
+					})}
+					{data.backs.length === 0 && (
+						<EmptyState icon={Camera} title={t("cameras.noBacks")} subtitle={t("cameras.noBacksSubtitle")} />
+					)}
+				</div>
 			</div>
 
 			{/* Add camera modal */}
@@ -420,10 +441,10 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			</Dialog>
 
 			{/* Add back modal */}
-			<Dialog open={!!showBackModal} onOpenChange={(open) => !open && setShowBackModal(null)}>
+			<Dialog open={showBackModal} onOpenChange={(open) => !open && setShowBackModal(false)}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>{t("cameras.addBack")}</DialogTitle>
+						<DialogTitle>{t("cameras.addBackTitle")}</DialogTitle>
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
@@ -441,6 +462,18 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 								onChange={(e) => setNewBack({ ...newBack, name: e.target.value })}
 								placeholder={t("cameras.backNamePlaceholder")}
 							/>
+						</FormField>
+						<FormField label={t("cameras.backFormat")}>
+							<Select value={newBack.format} onValueChange={(v) => setNewBack({ ...newBack, format: v })}>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
+									<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
+									<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
+								</SelectContent>
+							</Select>
 						</FormField>
 						<FormField label={t("cameras.reference")}>
 							<Input
@@ -463,11 +496,26 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 								placeholder={t("cameras.serialPlaceholder")}
 							/>
 						</FormField>
-						<Button
-							onClick={() => showBackModal && addBack(showBackModal)}
-							disabled={!newBack.name}
-							className="w-full justify-center"
-						>
+						<FormField label={t("cameras.compatibleCameras")}>
+							{interchangeableCameras.length > 0 ? (
+								<div className="flex flex-col gap-2">
+									{interchangeableCameras.map((c) => (
+										<div key={c.id} className="flex items-center justify-between gap-3">
+											<span className="text-[13px] text-text-sec font-body">{cameraDisplayName(c)}</span>
+											<Switch
+												checked={newBack.compatibleCameraIds.includes(c.id)}
+												onCheckedChange={() =>
+													toggleBackCamera(c.id, newBack, (ids) => setNewBack({ ...newBack, compatibleCameraIds: ids }))
+												}
+											/>
+										</div>
+									))}
+								</div>
+							) : (
+								<span className="text-[12px] text-text-muted font-body">{t("cameras.noCompatibleCameras")}</span>
+							)}
+						</FormField>
+						<Button onClick={addBack} disabled={!newBack.name} className="w-full justify-center">
 							<Plus size={16} /> {t("cameras.addBackButton")}
 						</Button>
 					</div>
@@ -484,45 +532,68 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 					{editBack && (
 						<div className="flex flex-col gap-4">
 							<PhotoPicker
-								photos={editBack.back.photo ? [editBack.back.photo] : []}
-								onChange={(p) => setEditBack({ ...editBack, back: { ...editBack.back, photo: p[0] || undefined } })}
+								photos={editBack.photo ? [editBack.photo] : []}
+								onChange={(p) => setEditBack({ ...editBack, photo: p[0] || undefined })}
 								max={1}
 								size={32}
 								placeholderIcon
 								label={t("cameras.photo")}
 							/>
 							<FormField label={t("cameras.backName")}>
-								<Input
-									value={editBack.back.name}
-									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, name: e.target.value } })}
-								/>
+								<Input value={editBack.name} onChange={(e) => setEditBack({ ...editBack, name: e.target.value })} />
+							</FormField>
+							<FormField label={t("cameras.backFormat")}>
+								<Select value={editBack.format} onValueChange={(v) => setEditBack({ ...editBack, format: v })}>
+									<SelectTrigger>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
+										<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
+										<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
+									</SelectContent>
+								</Select>
 							</FormField>
 							<FormField label={t("cameras.reference")}>
-								<Input
-									value={editBack.back.ref || ""}
-									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, ref: e.target.value } })}
-								/>
+								<Input value={editBack.ref || ""} onChange={(e) => setEditBack({ ...editBack, ref: e.target.value })} />
 							</FormField>
 							<FormField label={t("cameras.backNickname")}>
 								<Input
-									value={editBack.back.nickname || ""}
-									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, nickname: e.target.value } })}
+									value={editBack.nickname || ""}
+									onChange={(e) => setEditBack({ ...editBack, nickname: e.target.value })}
 								/>
 							</FormField>
 							<FormField label={t("cameras.backSerial")}>
 								<Input
-									value={editBack.back.serial || ""}
-									onChange={(e) => setEditBack({ ...editBack, back: { ...editBack.back, serial: e.target.value } })}
+									value={editBack.serial || ""}
+									onChange={(e) => setEditBack({ ...editBack, serial: e.target.value })}
 								/>
 							</FormField>
-							<Button onClick={saveEditBack} disabled={!editBack.back.name} className="w-full justify-center">
+							<FormField label={t("cameras.compatibleCameras")}>
+								{interchangeableCameras.length > 0 ? (
+									<div className="flex flex-col gap-2">
+										{interchangeableCameras.map((c) => (
+											<div key={c.id} className="flex items-center justify-between gap-3">
+												<span className="text-[13px] text-text-sec font-body">{cameraDisplayName(c)}</span>
+												<Switch
+													checked={editBack.compatibleCameraIds.includes(c.id)}
+													onCheckedChange={() =>
+														toggleBackCamera(c.id, editBack, (ids) =>
+															setEditBack({ ...editBack, compatibleCameraIds: ids }),
+														)
+													}
+												/>
+											</div>
+										))}
+									</div>
+								) : (
+									<span className="text-[12px] text-text-muted font-body">{t("cameras.noCompatibleCameras")}</span>
+								)}
+							</FormField>
+							<Button onClick={saveEditBack} disabled={!editBack.name} className="w-full justify-center">
 								<Check size={16} /> {t("cameras.save")}
 							</Button>
-							<Button
-								variant="destructive"
-								onClick={() => deleteBack(editBack.camId, editBack.back.id)}
-								className="w-full justify-center"
-							>
+							<Button variant="destructive" onClick={() => deleteBack(editBack.id)} className="w-full justify-center">
 								<Trash2 size={14} /> {t("cameras.deleteBack")}
 							</Button>
 						</div>

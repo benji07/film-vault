@@ -18,7 +18,7 @@ interface DashboardScreenProps {
 
 export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }: DashboardScreenProps) {
 	const { t } = useTranslation();
-	const { films, cameras } = data;
+	const { films, cameras, backs } = data;
 
 	const counts: Record<string, number> = {};
 	const expiring: FilmType[] = [];
@@ -84,6 +84,7 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }:
 								key={f.id}
 								film={f}
 								cameras={cameras}
+								backs={backs}
 								onClick={() => {
 									setSelectedFilm(f.id);
 									setScreen("filmDetail");
@@ -105,6 +106,7 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }:
 								key={f.id}
 								film={f}
 								cameras={cameras}
+								backs={backs}
 								onClick={() => {
 									setSelectedFilm(f.id);
 									setScreen("filmDetail");

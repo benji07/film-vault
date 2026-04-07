@@ -269,6 +269,13 @@ export const fr = {
 		addBackButton: "Ajouter le dos",
 		deleteBack: "Supprimer ce dos",
 		save: "Enregistrer",
+		backsSection: "Dos",
+		noBacks: "Aucun dos",
+		noBacksSubtitle: "Ajoute des dos pour tes appareils à dos interchangeable",
+		addBackTitle: "Nouveau dos",
+		backFormat: "Format",
+		compatibleCameras: "Appareils compatibles",
+		noCompatibleCameras: "Aucun appareil avec dos interchangeable",
 	},
 
 	// Settings screen

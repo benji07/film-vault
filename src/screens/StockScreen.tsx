@@ -97,7 +97,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 	const { t } = useTranslation();
 	const [filter, setFilter] = useState("all");
 	const [search, setSearch] = useState("");
-	const { films, cameras } = data;
+	const { films, cameras, backs } = data;
 
 	const filtered = films.filter((f) => {
 		if (filter !== "all" && f.state !== filter) return false;
@@ -168,6 +168,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 							key={group.key}
 							film={representative}
 							cameras={cameras}
+							backs={backs}
 							groupCount={group.films.length}
 							onClick={() => {
 								setSelectedFilm(representative.id);

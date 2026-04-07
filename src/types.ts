@@ -76,6 +76,8 @@ export interface Back {
 	ref?: string;
 	serial?: string;
 	photo?: string;
+	format: string;
+	compatibleCameraIds: string[];
 }
 
 export interface Camera {
@@ -86,13 +88,13 @@ export interface Camera {
 	serial: string;
 	format: string;
 	hasInterchangeableBack: boolean;
-	backs: Back[];
 	photo?: string;
 }
 
 export interface AppData {
 	films: Film[];
 	cameras: Camera[];
+	backs: Back[];
 	version: number;
 }
 

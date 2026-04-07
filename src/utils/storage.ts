@@ -36,6 +36,7 @@ export async function loadData(): Promise<AppData | null> {
 				return migrated;
 			}
 
+			if (!parsed.backs) parsed.backs = [];
 			return parsed;
 		}
 	} catch (e) {
@@ -59,6 +60,7 @@ export function getInitialData(): AppData {
 	return {
 		films: [],
 		cameras: [],
+		backs: [],
 		version: CURRENT_VERSION,
 	};
 }

@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 9;
+export const CURRENT_VERSION = 10;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -151,6 +151,24 @@ function migrateV8toV9(data: Record<string, unknown>): Record<string, unknown> {
 	return { ...data, version: 9 };
 }
 
+function migrateV9toV10(data: Record<string, unknown>): Record<string, unknown> {
+	const cameras = (data.cameras as Record<string, unknown>[]) || [];
+	const extractedBacks: Record<string, unknown>[] = [];
+	const migratedCameras = cameras.map((cam) => {
+		const camBacks = (cam.backs as Record<string, unknown>[]) || [];
+		for (const b of camBacks) {
+			extractedBacks.push({
+				...b,
+				format: cam.format,
+				compatibleCameraIds: [cam.id],
+			});
+		}
+		const { backs: _, ...rest } = cam;
+		return rest;
+	});
+	return { ...data, cameras: migratedCameras, backs: extractedBacks, version: 10 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -160,6 +178,7 @@ const migrations: Record<number, MigrationFn> = {
 	6: migrateV6toV7,
 	7: migrateV7toV8,
 	8: migrateV8toV9,
+	9: migrateV9toV10,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {
@@ -184,6 +203,7 @@ export function validateAppData(data: unknown): data is AppData {
 	const d = data as Record<string, unknown>;
 	if (!Array.isArray(d.films)) return false;
 	if (!Array.isArray(d.cameras)) return false;
+	if (d.backs !== undefined && d.backs !== null && !Array.isArray(d.backs)) return false;
 	if (d.version !== undefined && d.version !== null && typeof d.version !== "number") return false;
 	return true;
 }
