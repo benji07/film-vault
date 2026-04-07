@@ -182,7 +182,22 @@ function migrateV10toV11(data: Record<string, unknown>): Record<string, unknown>
 		}
 		return film;
 	});
-	return { ...data, films: migratedFilms, version: 11 };
+	// Migrate cameras and backs format: "Instant" → "Instax Mini"
+	const cameras = (data.cameras as Record<string, unknown>[]) || [];
+	const migratedCameras = cameras.map((cam) => {
+		if (cam.format === "Instant") {
+			return { ...cam, format: "Instax Mini" };
+		}
+		return cam;
+	});
+	const backs = (data.backs as Record<string, unknown>[]) || [];
+	const migratedBacks = backs.map((back) => {
+		if (back.format === "Instant") {
+			return { ...back, format: "Instax Mini" };
+		}
+		return back;
+	});
+	return { ...data, films: migratedFilms, cameras: migratedCameras, backs: migratedBacks, version: 11 };
 }
 
 const migrations: Record<number, MigrationFn> = {
