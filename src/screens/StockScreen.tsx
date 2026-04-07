@@ -6,7 +6,6 @@ import { EmptyState } from "@/components/EmptyState";
 import { FilmRow } from "@/components/FilmRow";
 import { StockFilterDialog } from "@/components/StockFilterDialog";
 import { Button } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
@@ -81,11 +80,10 @@ interface StockScreenProps {
 
 export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: StockScreenProps) {
 	const { t } = useTranslation();
-	const [filter, setFilter] = useState("all");
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 	const { films, cameras, backs } = data;
 
-	const stockFilters = useStockFilters(films, filter);
+	const stockFilters = useStockFilters(films);
 	const groups = groupFilms(stockFilters.filteredFilms, t("dateLocale"));
 
 	const stateCounts: Record<string, number> = {};
@@ -93,7 +91,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 		stateCounts[f.state] = (stateCounts[f.state] || 0) + 1;
 	}
 
-	const tabs = [
+	const stateTabs = [
 		{ key: "all", label: t("stock.all"), count: films.length },
 		{ key: "stock", label: t("stock.stockTab"), count: stateCounts.stock || 0 },
 		{ key: "loaded", label: t("stock.loadedTab"), count: stateCounts.loaded || 0 },
@@ -137,14 +135,6 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 				onReset={stockFilters.resetFilters}
 			/>
 
-			<div className="flex gap-1.5 overflow-x-auto pb-1">
-				{tabs.map((tab) => (
-					<Chip key={tab.key} active={filter === tab.key} onClick={() => setFilter(tab.key)}>
-						{tab.label} <span className="opacity-70">({tab.count})</span>
-					</Chip>
-				))}
-			</div>
-
 			<div className="flex justify-between items-center">
 				<span className="text-sm text-text-muted">{t("stock.resultCount", { count: stockFilters.resultCount })}</span>
 				<Select value={stockFilters.sortOption} onValueChange={(v) => stockFilters.setSortOption(v as SortOption)}>
@@ -187,8 +177,11 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 				open={filterDialogOpen}
 				onOpenChange={setFilterDialogOpen}
 				filters={stockFilters.filters}
+				stateFilter={stockFilters.stateFilter}
+				stateTabs={stateTabs}
 				availableBrands={stockFilters.availableBrands}
 				availableIsoValues={stockFilters.availableIsoValues}
+				onSetStateFilter={stockFilters.setStateFilter}
 				onSetFormat={stockFilters.setFormat}
 				onSetType={stockFilters.setType}
 				onToggleBrand={stockFilters.toggleBrand}

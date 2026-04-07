@@ -62,6 +62,7 @@ export const fr = {
 		allFormats: "Tous les formats",
 		allTypes: "Tous les types",
 		filters: "Filtres",
+		stateLabel: "Statut",
 		brand: "Marque",
 		iso: "ISO",
 		nameAsc: "Nom A→Z",

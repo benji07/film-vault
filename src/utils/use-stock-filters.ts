@@ -84,8 +84,9 @@ function getSortComparator(option: SortOption): (a: Film, b: Film) => number {
 	}
 }
 
-export function useStockFilters(films: Film[], stateFilter: string) {
+export function useStockFilters(films: Film[]) {
 	const [search, setSearch] = useState("");
+	const [stateFilter, setStateFilter] = useState("all");
 	const [filters, setFilters] = useState<StockFilters>({
 		format: "all",
 		type: "all",
@@ -136,8 +137,12 @@ export function useStockFilters(films: Film[], stateFilter: string) {
 
 	const hasActiveFilters = useMemo(
 		() =>
-			filters.format !== "all" || filters.type !== "all" || filters.brands.length > 0 || filters.isoValues.length > 0,
-		[filters],
+			stateFilter !== "all" ||
+			filters.format !== "all" ||
+			filters.type !== "all" ||
+			filters.brands.length > 0 ||
+			filters.isoValues.length > 0,
+		[stateFilter, filters],
 	);
 
 	const activeFilterDescriptions = useMemo(() => {
@@ -187,12 +192,15 @@ export function useStockFilters(films: Film[], stateFilter: string) {
 	};
 
 	const resetFilters = () => {
+		setStateFilter("all");
 		setFilters({ format: "all", type: "all", brands: [], isoValues: [] });
 	};
 
 	return {
 		search,
 		setSearch,
+		stateFilter,
+		setStateFilter,
 		filters,
 		sortOption,
 		setSortOption,

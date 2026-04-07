@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 
 interface ActiveFilterChipsProps {
 	filters: { key: string; label: string }[];
@@ -16,28 +17,15 @@ export function ActiveFilterChips({ filters, onRemove, onReset }: ActiveFilterCh
 	return (
 		<div className="flex gap-1.5 overflow-x-auto pb-1">
 			{filters.map((filter) => (
-				<button
-					key={filter.key}
-					type="button"
-					onClick={() => onRemove(filter.key)}
-					className={cn(
-						"inline-flex items-center gap-1 py-1.5 px-3 rounded-full border-none cursor-pointer",
-						"text-xs font-semibold font-body whitespace-nowrap",
-						"bg-accent/15 text-accent",
-					)}
-				>
+				<Chip key={filter.key} active className="bg-accent/15 text-accent gap-1" onClick={() => onRemove(filter.key)}>
 					{filter.label}
 					<X size={12} />
-				</button>
+				</Chip>
 			))}
 			{filters.length >= 2 && (
-				<button
-					type="button"
-					onClick={onReset}
-					className="py-1.5 px-3 rounded-full border-none cursor-pointer text-xs font-semibold font-body whitespace-nowrap bg-transparent text-text-muted"
-				>
+				<Button variant="ghost" size="sm" onClick={onReset}>
 					{t("stock.clearAll")}
-				</button>
+				</Button>
 			)}
 		</div>
 	);

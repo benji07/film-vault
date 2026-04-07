@@ -62,6 +62,7 @@ export const en = {
 		allFormats: "All formats",
 		allTypes: "All types",
 		filters: "Filters",
+		stateLabel: "Status",
 		brand: "Brand",
 		iso: "ISO",
 		nameAsc: "Name A→Z",
