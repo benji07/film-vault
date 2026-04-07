@@ -55,7 +55,7 @@ function AutocompleteInput({
 				</PopoverPrimitive.Anchor>
 				<PopoverPrimitive.Portal>
 					<PopoverPrimitive.Content
-						className="z-50 w-[var(--radix-popover-trigger-width)] bg-surface-alt border border-border rounded-[10px] overflow-hidden shadow-lg max-h-[220px] overflow-y-auto"
+						className="z-[1001] w-[var(--radix-popover-trigger-width)] bg-surface-alt border border-border rounded-[10px] overflow-hidden shadow-lg max-h-[220px] overflow-y-auto"
 						sideOffset={4}
 						onOpenAutoFocus={(e) => e.preventDefault()}
 						onInteractOutside={() => setIsOpen(false)}

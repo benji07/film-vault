@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { ListButton } from "@/components/ui/list-button";
 import { Textarea } from "@/components/ui/textarea";
 import type { Film, ShotNote } from "@/types";
 import { uid } from "@/utils/helpers";
@@ -172,11 +173,10 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 						{sorted.map((note, i) => {
 							const summary = formatNoteSummary(note);
 							return (
-								<button
+								<ListButton
 									key={note.id}
-									type="button"
 									onClick={() => openEdit(note)}
-									className="flex items-center gap-3 p-2.5 rounded-[10px] bg-surface-alt border border-border text-left transition-colors hover:border-accent animate-stagger-item"
+									className="animate-stagger-item"
 									style={{ animationDelay: `${i * 30}ms` }}
 								>
 									<Badge
@@ -192,7 +192,7 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 									</Badge>
 									<span className="text-sm text-text-sec truncate flex-1">{summary || "—"}</span>
 									{note.photo && <ImageIcon size={14} className="text-text-muted shrink-0" />}
-								</button>
+								</ListButton>
 							);
 						})}
 					</div>

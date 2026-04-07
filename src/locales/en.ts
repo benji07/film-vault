@@ -391,6 +391,23 @@ export const en = {
 		invalidJson: "The file is not valid JSON.",
 	},
 
+	// Accessibility
+	aria: {
+		back: "Back",
+		close: "Close",
+		previousPhoto: "Previous photo",
+		nextPhoto: "Next photo",
+		editFilm: "Edit film",
+		editCamera: "Edit camera",
+		editBack: "Edit back",
+		deleteCamera: "Delete camera",
+		addPhoto: "Add photo",
+		removePhoto: "Remove photo {{index}}",
+		openPhoto: "Open photo {{index}}",
+		copyRecoveryCode: "Copy recovery code",
+		dismissBanner: "Dismiss banner",
+	},
+
 	// Date locale
 	dateLocale: "en-US",
 } as const;

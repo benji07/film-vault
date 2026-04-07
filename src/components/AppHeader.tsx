@@ -1,6 +1,7 @@
 import { ArrowLeft, Moon, Settings, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/components/ThemeProvider";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ScreenName } from "@/types";
 
@@ -37,13 +38,15 @@ export function AppHeader({ screen, setScreen, filmTitle, className }: AppHeader
 			<div className="flex items-center gap-2 min-w-0">
 				{isSubScreen ? (
 					<>
-						<button
-							type="button"
+						<Button
+							variant="ghost"
+							size="icon"
 							onClick={() => setScreen(backTarget)}
-							className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center -ml-2"
+							className="-ml-2"
+							aria-label={t("aria.back")}
 						>
 							<ArrowLeft size={20} className="text-text-sec" />
-						</button>
+						</Button>
 						<h1 className="font-display text-lg text-text-primary m-0 italic truncate">{subScreenTitles[screen]}</h1>
 					</>
 				) : (
@@ -53,10 +56,11 @@ export function AppHeader({ screen, setScreen, filmTitle, className }: AppHeader
 
 			{screen !== "settings" && (
 				<div className="flex items-center gap-2 shrink-0">
-					<button
-						type="button"
+					<Button
+						variant="outline"
+						size="icon"
 						onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-						className="bg-surface-alt border border-border rounded-xl w-10 h-10 flex items-center justify-center cursor-pointer shrink-0"
+						className="shrink-0"
 						aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
 					>
 						{theme === "dark" ? (
@@ -64,14 +68,16 @@ export function AppHeader({ screen, setScreen, filmTitle, className }: AppHeader
 						) : (
 							<Moon size={15} className="text-text-muted" />
 						)}
-					</button>
-					<button
-						type="button"
+					</Button>
+					<Button
+						variant="outline"
+						size="icon"
 						onClick={() => setScreen("settings")}
-						className="bg-surface-alt border border-border rounded-xl w-10 h-10 flex items-center justify-center cursor-pointer shrink-0"
+						className="shrink-0"
+						aria-label={t("nav.settings")}
 					>
 						<Settings size={15} className="text-text-muted" />
-					</button>
+					</Button>
 				</div>
 			)}
 		</div>

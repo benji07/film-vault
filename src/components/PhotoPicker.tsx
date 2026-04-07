@@ -1,6 +1,8 @@
 import { Camera, Plus, X } from "lucide-react";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useToast } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
 import { compressImage, estimateStorageUsage } from "@/utils/image";
 
 interface PhotoPickerProps {
@@ -13,6 +15,7 @@ interface PhotoPickerProps {
 }
 
 export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderIcon, label }: PhotoPickerProps) {
+	const { t } = useTranslation();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const { toast } = useToast();
 
@@ -54,45 +57,49 @@ export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderI
 				{photos.map((photo, i) => (
 					<div key={photo.slice(-20)} className="relative group" style={{ width: size, height: size }}>
 						<img src={photo} alt="" className="w-full h-full rounded-lg object-cover border border-border" />
-						<button
-							type="button"
+						<Button
+							variant="destructive"
 							onClick={() => remove(i)}
-							className="absolute -top-1.5 -right-1.5 bg-accent text-white rounded-full flex items-center justify-center border-none cursor-pointer p-0"
+							className="absolute -top-1.5 -right-1.5 bg-accent text-white rounded-full !p-0 !min-h-0"
 							style={{ width: delSize, height: delSize }}
+							aria-label={t("aria.removePhoto", { index: i + 1 })}
 						>
 							<X size={delSize - 4} />
-						</button>
+						</Button>
 					</div>
 				))}
 				{showAdd && !placeholderIcon && (
-					<button
-						type="button"
+					<Button
+						variant="ghost"
 						onClick={() => inputRef.current?.click()}
-						className="rounded-lg border-2 border-dashed border-border-light bg-surface-alt flex items-center justify-center cursor-pointer p-0 hover:border-text-muted transition-colors"
+						aria-label={t("aria.addPhoto")}
+						className="rounded-lg border-2 border-dashed border-border-light bg-surface-alt !p-0 !min-h-0 hover:border-text-muted"
 						style={{ width: size, height: size }}
 					>
 						<Plus size={Math.round(size * 0.35)} className="text-text-muted" />
-					</button>
+					</Button>
 				)}
 				{placeholderIcon && photos.length === 0 && (
-					<button
-						type="button"
+					<Button
+						variant="ghost"
 						onClick={() => inputRef.current?.click()}
-						className="rounded-lg bg-surface-alt flex items-center justify-center cursor-pointer p-0 border border-border hover:border-text-muted transition-colors"
+						aria-label={t("aria.addPhoto")}
+						className="rounded-lg bg-surface-alt border border-border !p-0 !min-h-0 hover:border-text-muted"
 						style={{ width: size, height: size }}
 					>
 						<Camera size={Math.round(size * 0.4)} className="text-text-muted opacity-40" />
-					</button>
+					</Button>
 				)}
 				{placeholderIcon && photos.length > 0 && showAdd && (
-					<button
-						type="button"
+					<Button
+						variant="ghost"
 						onClick={() => inputRef.current?.click()}
-						className="rounded-lg border-2 border-dashed border-border-light bg-surface-alt flex items-center justify-center cursor-pointer p-0 hover:border-text-muted transition-colors"
+						aria-label={t("aria.addPhoto")}
+						className="rounded-lg border-2 border-dashed border-border-light bg-surface-alt !p-0 !min-h-0 hover:border-text-muted"
 						style={{ width: size, height: size }}
 					>
 						<Plus size={Math.round(size * 0.35)} className="text-text-muted" />
-					</button>
+					</Button>
 				)}
 			</div>
 			<input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />

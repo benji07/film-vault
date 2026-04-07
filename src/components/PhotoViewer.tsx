@@ -1,5 +1,7 @@
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 
 interface PhotoViewerProps {
 	photos: string[];
@@ -8,6 +10,7 @@ interface PhotoViewerProps {
 }
 
 export function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps) {
+	const { t } = useTranslation();
 	const [index, setIndex] = useState(initialIndex);
 	const touchRef = useRef<number | null>(null);
 
@@ -47,41 +50,47 @@ export function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps)
 			onClick={onClose}
 			onKeyDown={undefined}
 		>
-			<button
-				type="button"
+			<Button
+				variant="ghost"
+				size="icon"
 				onClick={(e) => {
 					e.stopPropagation();
 					onClose();
 				}}
-				className="absolute top-4 right-4 z-10 bg-surface-alt/80 border-none rounded-full w-10 h-10 flex items-center justify-center cursor-pointer"
+				className="absolute top-4 right-4 z-10 bg-surface-alt/80 rounded-full"
+				aria-label={t("aria.close")}
 			>
 				<X size={18} className="text-text-primary" />
-			</button>
+			</Button>
 
 			{photos.length > 1 && index > 0 && (
-				<button
-					type="button"
+				<Button
+					variant="ghost"
+					size="icon-sm"
 					onClick={(e) => {
 						e.stopPropagation();
 						prev();
 					}}
-					className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-surface-alt/60 border-none rounded-full w-9 h-9 flex items-center justify-center cursor-pointer"
+					className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-surface-alt/60 rounded-full"
+					aria-label={t("aria.previousPhoto")}
 				>
 					<ChevronLeft size={18} className="text-text-primary" />
-				</button>
+				</Button>
 			)}
 
 			{photos.length > 1 && index < photos.length - 1 && (
-				<button
-					type="button"
+				<Button
+					variant="ghost"
+					size="icon-sm"
 					onClick={(e) => {
 						e.stopPropagation();
 						next();
 					}}
-					className="absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-surface-alt/60 border-none rounded-full w-9 h-9 flex items-center justify-center cursor-pointer"
+					className="absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-surface-alt/60 rounded-full"
+					aria-label={t("aria.nextPhoto")}
 				>
 					<ChevronRight size={18} className="text-text-primary" />
-				</button>
+				</Button>
 			)}
 
 			<img

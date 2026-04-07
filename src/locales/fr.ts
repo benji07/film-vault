@@ -391,6 +391,23 @@ export const fr = {
 		invalidJson: "Le fichier n'est pas un JSON valide.",
 	},
 
+	// Accessibility
+	aria: {
+		back: "Retour",
+		close: "Fermer",
+		previousPhoto: "Photo précédente",
+		nextPhoto: "Photo suivante",
+		editFilm: "Modifier la pellicule",
+		editCamera: "Modifier l'appareil",
+		editBack: "Modifier le dos",
+		deleteCamera: "Supprimer l'appareil",
+		addPhoto: "Ajouter une photo",
+		removePhoto: "Supprimer la photo {{index}}",
+		openPhoto: "Ouvrir la photo {{index}}",
+		copyRecoveryCode: "Copier le code de récupération",
+		dismissBanner: "Fermer la bannière",
+	},
+
 	// Date locale
 	dateLocale: "fr-FR",
 } as const;

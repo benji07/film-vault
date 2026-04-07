@@ -67,13 +67,15 @@ export function PwaInstallBanner() {
 
 	return (
 		<div className="fixed bottom-20 left-3 right-3 md:bottom-4 md:left-auto md:right-4 md:w-80 z-[400] bg-surface border border-border rounded-[14px] p-4 shadow-lg animate-banner-enter">
-			<button
-				type="button"
+			<Button
+				variant="ghost"
+				size="icon-sm"
 				onClick={handleDismiss}
-				className="absolute top-2.5 right-2.5 text-text-muted hover:text-text-primary transition-colors"
+				className="absolute top-2.5 right-2.5 text-text-muted hover:text-text-primary !min-h-0 !w-auto !h-auto p-1"
+				aria-label={t("aria.dismissBanner")}
 			>
 				<X size={16} />
-			</button>
+			</Button>
 			<p className="text-sm font-body text-text-primary pr-5">{t("pwa.addToHome")}</p>
 			{showIosBanner ? (
 				<>
