@@ -7,7 +7,13 @@ for (const entry of FILM_CATALOG) {
 }
 
 export const normalizeBrand = (brand: string): string => {
-	return canonicalBrands.get(brand.trim().toLowerCase()) || brand.trim();
+	const trimmed = brand.trim();
+	const key = trimmed.toLowerCase();
+	const canonical = canonicalBrands.get(key);
+	if (canonical) return canonical;
+	// For non-catalog brands, remember the first spelling seen as canonical
+	canonicalBrands.set(key, trimmed);
+	return trimmed;
 };
 
 export const filmName = (film: Film): string => {
