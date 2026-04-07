@@ -16,6 +16,7 @@ interface NewFilmParams {
 	expDate: string | null;
 	comment: string | null;
 	posesTotal?: number;
+	storageLocation?: string | null;
 }
 
 export function createNewFilm(params: NewFilmParams): Film {
@@ -33,12 +34,15 @@ export function createNewFilm(params: NewFilmParams): Film {
 		shootIso: null,
 		cameraId: null,
 		backId: null,
+		lens: null,
 		startDate: null,
 		endDate: null,
 		posesShot: null,
 		posesTotal: params.posesTotal ?? DEFAULT_POSES[params.format] ?? 36,
 		lab: null,
+		labRef: null,
 		devDate: null,
+		storageLocation: params.storageLocation ?? null,
 		history: [{ date: today(), action: "", actionCode: "added" }],
 	};
 }

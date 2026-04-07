@@ -101,7 +101,7 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 
 	const openAdd = () => {
 		setEditingId(null);
-		setForm(emptyForm);
+		setForm({ ...emptyForm, lens: film.lens ?? "" });
 		setDialogOpen(true);
 	};
 

@@ -32,6 +32,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 	const [format, setFormat] = useState("35mm");
 	const [expDate, setExpDate] = useState(currentMonthYear());
 	const [quantity, setQuantity] = useState("1");
+	const [storageLocation, setStorageLocation] = useState("");
 	const [comment, setComment] = useState("");
 
 	useEffect(() => {
@@ -43,6 +44,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 			setFormat("35mm");
 			setExpDate(currentMonthYear());
 			setQuantity("1");
+			setStorageLocation("");
 			setComment("");
 		}
 	}, [open]);
@@ -66,6 +68,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 			format,
 			expDate: expDate || null,
 			comment: comment.trim() || null,
+			storageLocation: storageLocation.trim() || null,
 		};
 		const newFilms = Array.from({ length: qty }, () => createNewFilm(params));
 		const updated = { ...data, films: [...data.films, ...newFilms] };
@@ -135,6 +138,13 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 
 					<FormField label={t("addFilm.expirationDate")}>
 						<MonthYearPicker value={expDate} onChange={setExpDate} />
+					</FormField>
+					<FormField label={t("addFilm.storageLocation")}>
+						<Input
+							value={storageLocation}
+							onChange={(e) => setStorageLocation(e.target.value)}
+							placeholder={t("addFilm.storageLocationPlaceholder")}
+						/>
 					</FormField>
 					<FormField label={t("addFilm.comment")}>
 						<Input
