@@ -32,7 +32,6 @@ export const FILM_TYPE_COLORS: Record<string, string> = {
 	"N&B": T.textSec,
 	Diapo: T.blue,
 	"ECN-2": T.accent,
-	Instant: T.green,
 };
 
 export const FONT = {

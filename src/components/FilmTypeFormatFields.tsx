@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { FormField } from "@/components/ui/form-field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { INSTANT_FORMATS, isInstantFormat } from "@/types";
 
 interface FilmTypeSelectProps {
 	value: string;
@@ -10,7 +11,7 @@ interface FilmTypeSelectProps {
 
 export function FilmTypeSelect({ value, onValueChange, format }: FilmTypeSelectProps) {
 	const { t } = useTranslation();
-	const isInstant = format === "Instant";
+	const instant = isInstantFormat(format);
 	return (
 		<FormField label={t("addFilm.type")}>
 			<Select value={value} onValueChange={onValueChange}>
@@ -20,8 +21,8 @@ export function FilmTypeSelect({ value, onValueChange, format }: FilmTypeSelectP
 				<SelectContent>
 					<SelectItem value="Couleur">{t("filmTypes.Couleur")}</SelectItem>
 					<SelectItem value="N&B">{t("filmTypes.N&B")}</SelectItem>
-					{!isInstant && <SelectItem value="Diapo">{t("filmTypes.Diapo")}</SelectItem>}
-					{!isInstant && <SelectItem value="ECN-2">{t("filmTypes.ECN-2")}</SelectItem>}
+					{!instant && <SelectItem value="Diapo">{t("filmTypes.Diapo")}</SelectItem>}
+					{!instant && <SelectItem value="ECN-2">{t("filmTypes.ECN-2")}</SelectItem>}
 				</SelectContent>
 			</Select>
 		</FormField>
@@ -45,7 +46,11 @@ export function FilmFormatSelect({ value, onValueChange, disabled }: FilmFormatS
 				<SelectContent>
 					<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
 					<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-					<SelectItem value="Instant">{t("filmFormats.Instant")}</SelectItem>
+					{INSTANT_FORMATS.map((f) => (
+						<SelectItem key={f} value={f}>
+							{t(`filmFormats.${f}`)}
+						</SelectItem>
+					))}
 				</SelectContent>
 			</Select>
 		</FormField>

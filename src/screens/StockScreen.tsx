@@ -5,12 +5,19 @@ import { EmptyState } from "@/components/EmptyState";
 import { FilmRow } from "@/components/FilmRow";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { AppData, FilmFormat, Film as FilmType, FilmType as FilmTypeEnum, ScreenName } from "@/types";
+import {
+	type AppData,
+	type FilmFormat,
+	type Film as FilmType,
+	type FilmType as FilmTypeEnum,
+	INSTANT_FORMATS,
+	type ScreenName,
+} from "@/types";
 import { fmtExpDate } from "@/utils/expiration";
 import { filmName } from "@/utils/film-helpers";
 
-const FORMATS: FilmFormat[] = ["35mm", "120", "Instant"];
-const TYPES: FilmTypeEnum[] = ["Couleur", "N&B", "Diapo", "ECN-2", "Instant"];
+const FORMATS: FilmFormat[] = ["35mm", "120", ...INSTANT_FORMATS];
+const TYPES: FilmTypeEnum[] = ["Couleur", "N&B", "Diapo", "ECN-2"];
 
 interface FilmGroup {
 	key: string;

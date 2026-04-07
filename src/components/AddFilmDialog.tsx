@@ -9,7 +9,7 @@ import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } f
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
-import type { AppData } from "@/types";
+import { type AppData, isInstantFormat } from "@/types";
 import { createNewFilm } from "@/utils/film-factory";
 import { currentMonthYear } from "@/utils/helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
@@ -108,7 +108,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 						value={format}
 						onValueChange={(v) => {
 							setFormat(v);
-							if (v === "Instant" && type !== "Couleur" && type !== "N&B") setType("Couleur");
+							if (isInstantFormat(v) && type !== "Couleur" && type !== "N&B") setType("Couleur");
 						}}
 					/>
 
