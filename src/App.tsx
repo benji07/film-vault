@@ -200,7 +200,7 @@ function FilmVaultInner() {
 
 			{/* Mode indicator */}
 			<div
-				className={`fixed top-1.5 right-2 z-[200] text-[9px] font-mono opacity-60 flex items-center gap-1 ${persistent ? "text-green" : "text-amber"}`}
+				className={`fixed top-[max(0.375rem,env(safe-area-inset-top))] right-[max(0.5rem,env(safe-area-inset-right))] z-[200] text-[9px] font-mono opacity-60 flex items-center gap-1 ${persistent ? "text-green" : "text-amber"}`}
 			>
 				<div className={`w-[5px] h-[5px] rounded-full ${persistent ? "bg-green" : "bg-amber"}`} />
 				{persistent ? "sync" : "session"}
