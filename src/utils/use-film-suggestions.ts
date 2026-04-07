@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { FILM_CATALOG } from "@/constants/film-catalog";
 import type { Film } from "@/types";
+import { normalizeBrand } from "@/utils/film-helpers";
 
 interface FilmData {
 	iso: number;
@@ -12,7 +13,7 @@ export function useFilmSuggestions(films: Film[]) {
 	const brands = useMemo(() => {
 		const set = new Set<string>();
 		for (const f of films) {
-			if (f.brand) set.add(f.brand.trim());
+			if (f.brand) set.add(normalizeBrand(f.brand));
 		}
 		for (const c of FILM_CATALOG) {
 			set.add(c.brand);
