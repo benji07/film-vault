@@ -218,7 +218,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 					{film.lab && <InfoLine icon={Package} label={t("filmDetail.lab")} value={film.lab} />}
 					{film.labRef && <InfoLine icon={Tag} label={t("filmDetail.labRef")} value={film.labRef} />}
 					{film.scanRef && <InfoLine icon={ScanLine} label={t("filmDetail.scanRef")} value={film.scanRef} />}
-					{film.storageLocation && (
+					{film.state === "stock" && film.storageLocation && (
 						<InfoLine icon={MapPin} label={t("filmDetail.storageLocation")} value={film.storageLocation} />
 					)}
 					{film.comment && <InfoLine icon={MessageSquare} label={t("filmDetail.notes")} value={film.comment} />}
@@ -871,13 +871,15 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 						<FormField label={t("addFilm.expirationDate")}>
 							<MonthYearPicker value={editData.expDate} onChange={(v) => setEditData({ ...editData, expDate: v })} />
 						</FormField>
-						<FormField label={t("addFilm.storageLocation")}>
-							<Input
-								value={editData.storageLocation}
-								onChange={(e) => setEditData({ ...editData, storageLocation: e.target.value })}
-								placeholder={t("addFilm.storageLocationPlaceholder")}
-							/>
-						</FormField>
+						{film.state === "stock" && (
+							<FormField label={t("addFilm.storageLocation")}>
+								<Input
+									value={editData.storageLocation}
+									onChange={(e) => setEditData({ ...editData, storageLocation: e.target.value })}
+									placeholder={t("addFilm.storageLocationPlaceholder")}
+								/>
+							</FormField>
+						)}
 						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={editData.comment}
