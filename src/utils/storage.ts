@@ -1,7 +1,7 @@
 import type { TFunction } from "i18next";
 import type { AppData } from "@/types";
 import { setLastModified } from "@/utils/sync";
-import { applyMigrations, CURRENT_VERSION, validateAppData } from "./migrations";
+import { applyMigrations, CURRENT_VERSION, normalizeAppData, validateAppData } from "./migrations";
 
 const STORAGE_KEY = "filmvault-data";
 let storageAvailable = false;
@@ -36,8 +36,7 @@ export async function loadData(): Promise<AppData | null> {
 				return migrated;
 			}
 
-			if (!parsed.backs) parsed.backs = [];
-			return parsed;
+			return normalizeAppData(parsed);
 		}
 	} catch (e) {
 		console.log("Load error:", e instanceof Error ? e.message : e);
@@ -110,10 +109,10 @@ export async function parseImportFile(file: File, t?: TFunction): Promise<Import
 
 		if (version < CURRENT_VERSION) {
 			const migrated = applyMigrations(parsed as unknown as Record<string, unknown>);
-			return { success: true, data: migrated };
+			return { success: true, data: normalizeAppData(migrated) };
 		}
 
-		return { success: true, data: parsed };
+		return { success: true, data: normalizeAppData(parsed) };
 	} catch {
 		return {
 			success: false,

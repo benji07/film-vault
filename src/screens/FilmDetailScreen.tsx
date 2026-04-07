@@ -176,6 +176,12 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 		return false;
 	});
 
+	const selectedCamera = actionData.cameraId ? availableCameras.find((c) => c.id === actionData.cameraId) : null;
+	const compatibleBacks =
+		selectedCamera?.hasInterchangeableBack === true
+			? data.backs.filter((b) => b.compatibleCameraIds.includes(selectedCamera.id) && b.format === film.format)
+			: [];
+
 	const closeAction = () => setShowAction(null);
 
 	return (
@@ -344,32 +350,25 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								</SelectContent>
 							</Select>
 						</FormField>
-						{(() => {
-							const compatibleBacks = actionData.cameraId
-								? data.backs.filter(
-										(b) => b.compatibleCameraIds.includes(actionData.cameraId!) && b.format === film.format,
-									)
-								: [];
-							return compatibleBacks.length > 0 ? (
-								<FormField label={t("filmDetail.backField")}>
-									<Select
-										value={actionData.backId || ""}
-										onValueChange={(v) => setActionData({ ...actionData, backId: v })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder={t("filmDetail.chooseBackPlaceholder")} />
-										</SelectTrigger>
-										<SelectContent>
-											{compatibleBacks.map((b) => (
-												<SelectItem key={b.id} value={b.id}>
-													{backDisplayName(b)}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</FormField>
-							) : null;
-						})()}
+						{compatibleBacks.length > 0 && (
+							<FormField label={t("filmDetail.backField")}>
+								<Select
+									value={actionData.backId || ""}
+									onValueChange={(v) => setActionData({ ...actionData, backId: v })}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder={t("filmDetail.chooseBackPlaceholder")} />
+									</SelectTrigger>
+									<SelectContent>
+										{compatibleBacks.map((b) => (
+											<SelectItem key={b.id} value={b.id}>
+												{backDisplayName(b)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</FormField>
+						)}
 						<FormField label={t("filmDetail.lensField")}>
 							<Input
 								value={actionData.lens || ""}
@@ -588,32 +587,25 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								</SelectContent>
 							</Select>
 						</FormField>
-						{(() => {
-							const compatibleBacks = actionData.cameraId
-								? data.backs.filter(
-										(b) => b.compatibleCameraIds.includes(actionData.cameraId!) && b.format === film.format,
-									)
-								: [];
-							return compatibleBacks.length > 0 ? (
-								<FormField label={t("filmDetail.backField")}>
-									<Select
-										value={actionData.backId || ""}
-										onValueChange={(v) => setActionData({ ...actionData, backId: v })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder={t("filmDetail.chooseBackPlaceholder")} />
-										</SelectTrigger>
-										<SelectContent>
-											{compatibleBacks.map((b) => (
-												<SelectItem key={b.id} value={b.id}>
-													{backDisplayName(b)}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</FormField>
-							) : null;
-						})()}
+						{compatibleBacks.length > 0 && (
+							<FormField label={t("filmDetail.backField")}>
+								<Select
+									value={actionData.backId || ""}
+									onValueChange={(v) => setActionData({ ...actionData, backId: v })}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder={t("filmDetail.chooseBackPlaceholder")} />
+									</SelectTrigger>
+									<SelectContent>
+										{compatibleBacks.map((b) => (
+											<SelectItem key={b.id} value={b.id}>
+												{backDisplayName(b)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</FormField>
+						)}
 						<FormField label={t("filmDetail.lensField")}>
 							<Input
 								value={actionData.lens || ""}

@@ -207,3 +207,9 @@ export function validateAppData(data: unknown): data is AppData {
 	if (d.version !== undefined && d.version !== null && typeof d.version !== "number") return false;
 	return true;
 }
+
+/** Ensure backs array exists (for pre-v10 data or edge cases). */
+export function normalizeAppData(data: AppData): AppData {
+	if (!data.backs) return { ...data, backs: [] };
+	return data;
+}

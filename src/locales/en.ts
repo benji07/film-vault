@@ -275,7 +275,7 @@ export const en = {
 		addBackTitle: "New back",
 		backFormat: "Format",
 		compatibleCameras: "Compatible cameras",
-		noCompatibleCameras: "No cameras with interchangeable back",
+		noCompatibleCameras: "No cameras with interchangeable backs",
 	},
 
 	// Settings screen
