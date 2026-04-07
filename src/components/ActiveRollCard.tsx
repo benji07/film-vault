@@ -17,13 +17,7 @@ interface ActiveRollCardProps {
 }
 
 function getLoadedDate(film: Film): string | null {
-	for (let i = film.history.length - 1; i >= 0; i--) {
-		const entry = film.history[i]!;
-		if (entry.actionCode === "loaded" || entry.actionCode === "reloaded") {
-			return entry.date;
-		}
-	}
-	return null;
+	return film.startDate ?? null;
 }
 
 export function ActiveRollCard({ film, camera, back, onShotClick, onClick, className }: ActiveRollCardProps) {
