@@ -95,6 +95,22 @@ export function useStockFilters(films: Film[]) {
 	});
 	const [sortOption, setSortOption] = useState<SortOption>("name-asc");
 
+	const availableFormats = useMemo(() => {
+		const formats = new Set<string>();
+		for (const f of films) {
+			if (f.format) formats.add(f.format);
+		}
+		return Array.from(formats).sort((a, b) => a.localeCompare(b));
+	}, [films]);
+
+	const availableTypes = useMemo(() => {
+		const types = new Set<string>();
+		for (const f of films) {
+			if (f.type) types.add(f.type);
+		}
+		return Array.from(types).sort((a, b) => a.localeCompare(b));
+	}, [films]);
+
 	const availableBrands = useMemo(() => {
 		const brands = new Set<string>();
 		for (const f of films) {
@@ -202,6 +218,8 @@ export function useStockFilters(films: Film[]) {
 		setSortOption,
 		filteredFilms,
 		resultCount: filteredFilms.length,
+		availableFormats,
+		availableTypes,
 		availableBrands,
 		availableIsoValues,
 		hasActiveFilters,
