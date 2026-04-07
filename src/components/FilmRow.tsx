@@ -27,12 +27,10 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowPr
 	const expInfo = getExpirationStatus(film.expDate, t);
 
 	return (
-		<div
+		<button
+			type="button"
 			onClick={onClick}
-			onKeyDown={(e) => {
-				if (e.key === "Enter") onClick();
-			}}
-			className="flex items-center gap-3 py-3.5 pr-4 pl-0 bg-card border border-border rounded-[14px] cursor-pointer transition-all overflow-hidden"
+			className="flex items-center gap-3 py-3.5 pr-4 pl-0 bg-card border border-border rounded-[14px] cursor-pointer transition-all overflow-hidden text-left w-full"
 		>
 			<div className="w-[3px] self-stretch shrink-0 rounded-r-full" style={{ backgroundColor: typeColor }} />
 			<div
@@ -74,6 +72,6 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowPr
 				</div>
 			</div>
 			<ChevronRight size={16} className="text-text-muted" />
-		</div>
+		</button>
 	);
 }

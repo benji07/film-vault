@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmRow } from "@/components/FilmRow";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { Input } from "@/components/ui/input";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { fmtExpDate } from "@/utils/expiration";
 import { filmName } from "@/utils/film-helpers";
@@ -137,26 +139,19 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 
 			<div className="relative">
 				<Search size={16} className="text-text-muted absolute left-3 top-3" />
-				<input
+				<Input
 					value={search}
 					onChange={(e) => setSearch(e.target.value)}
 					placeholder={t("stock.search")}
-					className="w-full bg-surface-alt border border-border rounded-xl py-2.5 pr-3.5 pl-9 text-text-primary text-sm font-body outline-none"
+					className="w-full rounded-xl pl-9"
 				/>
 			</div>
 
 			<div className="flex gap-1.5 overflow-x-auto pb-1">
 				{tabs.map((tab) => (
-					<button
-						type="button"
-						key={tab.key}
-						onClick={() => setFilter(tab.key)}
-						className={`py-2.5 px-4 rounded-full border-none cursor-pointer text-xs font-semibold font-body whitespace-nowrap transition-all min-h-[44px] ${
-							filter === tab.key ? "bg-accent text-white" : "bg-surface-alt text-text-sec"
-						}`}
-					>
+					<Chip key={tab.key} active={filter === tab.key} onClick={() => setFilter(tab.key)}>
 						{tab.label} <span className="opacity-70">({tab.count})</span>
-					</button>
+					</Chip>
 				))}
 			</div>
 

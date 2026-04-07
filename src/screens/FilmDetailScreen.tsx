@@ -31,6 +31,7 @@ import { PhotoViewer } from "@/components/PhotoViewer";
 import { ShotNotesSection } from "@/components/ShotNotesSection";
 import { Timeline } from "@/components/Timeline";
 import { useToast } from "@/components/Toast";
+import { Alert } from "@/components/ui/alert";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -188,13 +189,9 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 		<div className="flex flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<h2 className="font-display text-[22px] text-text-primary m-0 italic">{filmName(film)}</h2>
-				<button
-					type="button"
-					onClick={openEdit}
-					className="bg-transparent border-none cursor-pointer p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
-				>
+				<Button variant="ghost" size="icon" onClick={openEdit}>
 					<Pencil size={18} className="text-text-sec" />
-				</button>
+				</Button>
 			</div>
 
 			<Card>
@@ -254,17 +251,13 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							(f.expDate || "") === (film.expDate || ""),
 					);
 					return siblings.length > 0 ? (
-						<div
-							className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-body"
-							style={{ color: T.accent, background: alpha(T.accent, 0.07) }}
-						>
-							<CopyPlus size={14} />
+						<Alert icon={CopyPlus} color={T.accent}>
 							<span>
 								{siblings.length === 1
 									? t("filmDetail.oneOtherInStock")
 									: t("filmDetail.othersInStock", { count: siblings.length })}
 							</span>
-						</div>
+						</Alert>
 					) : null;
 				})()}
 

@@ -1,5 +1,6 @@
 import { BarChart3, Camera, Film, Home, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { LucideIcon, ScreenName } from "@/types";
 
@@ -39,35 +40,33 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 					{tabs.map((tab) => {
 						const active = screen === tab.key;
 						return (
-							<button
-								type="button"
+							<Button
+								variant="ghost"
 								key={tab.key}
 								onClick={() => setScreen(tab.key)}
 								className={cn(
-									"flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body font-medium cursor-pointer border-none transition-all min-h-[44px]",
-									active ? "bg-accent-soft text-accent" : "bg-transparent text-text-sec hover:bg-surface-alt",
+									"w-full justify-start gap-3 text-sm font-medium",
+									active ? "bg-accent-soft text-accent" : "text-text-sec hover:bg-surface-alt",
 								)}
 							>
 								<tab.icon size={18} strokeWidth={active ? 2.5 : 1.5} />
 								{tab.label}
-							</button>
+							</Button>
 						);
 					})}
 				</div>
 				<div className="px-3">
-					<button
-						type="button"
+					<Button
+						variant="ghost"
 						onClick={() => setScreen("settings")}
 						className={cn(
-							"flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body font-medium cursor-pointer border-none transition-all min-h-[44px] w-full",
-							screen === "settings"
-								? "bg-accent-soft text-accent"
-								: "bg-transparent text-text-sec hover:bg-surface-alt",
+							"w-full justify-start gap-3 text-sm font-medium",
+							screen === "settings" ? "bg-accent-soft text-accent" : "text-text-sec hover:bg-surface-alt",
 						)}
 					>
 						<Settings size={18} strokeWidth={screen === "settings" ? 2.5 : 1.5} />
 						{t("nav.settings")}
-					</button>
+					</Button>
 				</div>
 			</nav>
 		);
@@ -83,12 +82,7 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 			{tabs.map((tab) => {
 				const active = screen === tab.key;
 				return (
-					<button
-						type="button"
-						key={tab.key}
-						onClick={() => setScreen(tab.key)}
-						className="flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer min-w-[44px] min-h-[44px] justify-center px-3"
-					>
+					<Button variant="ghost" key={tab.key} onClick={() => setScreen(tab.key)} className="flex-col gap-1 px-3">
 						<tab.icon
 							size={20}
 							className={active ? "text-accent" : "text-text-muted"}
@@ -99,7 +93,7 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 						>
 							{tab.label}
 						</span>
-					</button>
+					</Button>
 				);
 			})}
 		</div>

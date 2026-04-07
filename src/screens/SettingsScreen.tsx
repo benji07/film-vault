@@ -153,28 +153,20 @@ export function SettingsScreen({
 					<span className="text-sm font-bold text-text-primary font-body">{t("settings.language")}</span>
 				</div>
 				<div className="flex gap-2">
-					<button
-						type="button"
+					<Button
+						variant={currentLang === "fr" ? "default" : "outline"}
 						onClick={() => i18n.changeLanguage("fr")}
-						className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-body font-medium cursor-pointer transition-all border ${
-							currentLang === "fr"
-								? "bg-accent text-white border-accent"
-								: "bg-surface-alt text-text-sec border-border hover:bg-surface"
-						}`}
+						className="flex-1"
 					>
 						{t("settings.languageFr")}
-					</button>
-					<button
-						type="button"
+					</Button>
+					<Button
+						variant={currentLang === "en" ? "default" : "outline"}
 						onClick={() => i18n.changeLanguage("en")}
-						className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-body font-medium cursor-pointer transition-all border ${
-							currentLang === "en"
-								? "bg-accent text-white border-accent"
-								: "bg-surface-alt text-text-sec border-border hover:bg-surface"
-						}`}
+						className="flex-1"
 					>
 						{t("settings.languageEn")}
-					</button>
+					</Button>
 				</div>
 			</Card>
 
@@ -194,17 +186,13 @@ export function SettingsScreen({
 								</span>
 								<div className="flex items-center gap-2">
 									<span className="text-sm font-mono text-accent tracking-wider">{recoveryCode}</span>
-									<button
-										type="button"
-										onClick={handleCopyCode}
-										className="bg-transparent border-none cursor-pointer p-1 flex items-center justify-center"
-									>
+									<Button variant="ghost" onClick={handleCopyCode} className="!p-1 !min-h-0">
 										{copied ? (
 											<Check size={14} className="text-green" />
 										) : (
 											<Copy size={14} className="text-text-muted" />
 										)}
-									</button>
+									</Button>
 								</div>
 								<span className="text-[11px] text-text-muted font-body">{t("settings.recoveryCodeHelp")}</span>
 							</div>

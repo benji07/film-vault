@@ -205,20 +205,22 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 										</div>
 									</div>
 									<div className="flex gap-1.5">
-										<button
-											type="button"
+										<Button
+											variant="outline"
+											size="icon"
 											onClick={() => setEditCam({ ...cam })}
-											className="bg-surface-alt border border-border rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
+											className="w-11 h-11 rounded-lg"
 										>
 											<Edit3 size={14} className="text-text-sec" />
-										</button>
-										<button
-											type="button"
+										</Button>
+										<Button
+											variant="destructive"
+											size="icon"
 											onClick={() => deleteCamera(cam.id)}
-											className="bg-accent-soft border-none rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
+											className="w-11 h-11 rounded-lg"
 										>
 											<Trash2 size={14} className="text-accent" />
-										</button>
+										</Button>
 									</div>
 								</div>
 								{loadedFilms.length > 0 && (
@@ -285,13 +287,14 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 										</div>
 									</div>
 									<div className="flex gap-1.5">
-										<button
-											type="button"
+										<Button
+											variant="outline"
+											size="icon"
 											onClick={() => setEditBack({ ...b })}
-											className="bg-surface-alt border border-border rounded-lg w-11 h-11 flex items-center justify-center cursor-pointer"
+											className="w-11 h-11 rounded-lg"
 										>
 											<Edit3 size={14} className="text-text-sec" />
-										</button>
+										</Button>
 									</div>
 								</div>
 							</Card>

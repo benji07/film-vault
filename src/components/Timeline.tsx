@@ -1,5 +1,6 @@
 import { Archive, Camera, Clock, Eye, Package, Plus, RotateCcw, ScanLine, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import type { HistoryAction, HistoryEntry, LucideIcon } from "@/types";
 import { fmtDate } from "@/utils/helpers";
 
@@ -97,14 +98,15 @@ export function Timeline({ entries, onPhotoClick }: TimelineProps) {
 								{h.photos && h.photos.length > 0 && (
 									<div className="flex gap-1.5 mt-1.5">
 										{h.photos.map((photo, pi) => (
-											<button
+											<Button
 												key={photo.slice(-20)}
-												type="button"
+												variant="ghost"
+												size="icon"
 												onClick={() => onPhotoClick?.(h.photos!, pi)}
-												className="w-10 h-10 rounded-md overflow-hidden border border-border bg-surface-alt cursor-pointer p-0"
+												className="rounded-md overflow-hidden border border-border bg-surface-alt !p-0"
 											>
 												<img src={photo} className="w-full h-full object-cover" alt="" />
-											</button>
+											</Button>
 										))}
 									</div>
 								)}
