@@ -47,7 +47,7 @@ function compareAlphabetic(a: Film, b: Film): number {
 	return expA.localeCompare(expB);
 }
 
-function nullsLast<T>(extract: (f: Film) => T | null | undefined, asc: boolean) {
+function nullsLast<T extends string | number>(extract: (f: Film) => T | null | undefined, asc: boolean) {
 	return (a: Film, b: Film): number => {
 		const va = extract(a);
 		const vb = extract(b);
@@ -137,12 +137,8 @@ export function useStockFilters(films: Film[]) {
 
 	const hasActiveFilters = useMemo(
 		() =>
-			stateFilter !== "all" ||
-			filters.format !== "all" ||
-			filters.type !== "all" ||
-			filters.brands.length > 0 ||
-			filters.isoValues.length > 0,
-		[stateFilter, filters],
+			filters.format !== "all" || filters.type !== "all" || filters.brands.length > 0 || filters.isoValues.length > 0,
+		[filters],
 	);
 
 	const activeFilterDescriptions = useMemo(() => {

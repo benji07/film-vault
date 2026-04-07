@@ -123,6 +123,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 				<Button
 					variant={stockFilters.hasActiveFilters ? "default" : "outline"}
 					size="icon"
+					aria-label={t("stock.filters")}
 					onClick={() => setFilterDialogOpen(true)}
 				>
 					<SlidersHorizontal size={16} />
