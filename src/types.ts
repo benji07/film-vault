@@ -56,6 +56,8 @@ export interface ShotNote {
 	shutterSpeed?: string | null;
 	lens?: string | null;
 	location?: string | null;
+	latitude?: number | null;
+	longitude?: number | null;
 	notes?: string | null;
 	date?: string | null;
 	photo?: string | null;
@@ -103,6 +105,8 @@ export interface Back {
 	compatibleCameraIds: string[];
 }
 
+export type StopIncrement = "1" | "1/2" | "1/3";
+
 export interface Camera {
 	id: string;
 	brand: string;
@@ -112,6 +116,10 @@ export interface Camera {
 	format: string;
 	hasInterchangeableBack: boolean;
 	photo?: string;
+	shutterSpeedMin?: string | null;
+	shutterSpeedMax?: string | null;
+	shutterSpeedStops?: StopIncrement | null;
+	apertureStops?: StopIncrement | null;
 }
 
 export interface AppData {

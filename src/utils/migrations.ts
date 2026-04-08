@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 11;
+export const CURRENT_VERSION = 12;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -200,6 +200,12 @@ function migrateV10toV11(data: Record<string, unknown>): Record<string, unknown>
 	return { ...data, films: migratedFilms, cameras: migratedCameras, backs: migratedBacks, version: 11 };
 }
 
+function migrateV11toV12(data: Record<string, unknown>): Record<string, unknown> {
+	// Camera gains optional exposure fields (shutterSpeedMin, shutterSpeedMax, shutterSpeedStops, apertureStops).
+	// No data transformation needed — new fields are all optional.
+	return { ...data, version: 12 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -211,6 +217,7 @@ const migrations: Record<number, MigrationFn> = {
 	8: migrateV8toV9,
 	9: migrateV9toV10,
 	10: migrateV10toV11,
+	11: migrateV11toV12,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

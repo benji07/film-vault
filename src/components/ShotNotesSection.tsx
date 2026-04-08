@@ -1,8 +1,9 @@
-import { ImageIcon, NotebookPen, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, ImageIcon, Loader2, LocateFixed, NotebookPen, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { useToast } from "@/components/Toast";
+import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,11 +12,13 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { ListButton } from "@/components/ui/list-button";
 import { Textarea } from "@/components/ui/textarea";
-import type { Film, ShotNote } from "@/types";
+import { type ExposureConfig, filterApertures, filterSpeeds } from "@/constants/photography";
+import type { Camera, Film, ShotNote } from "@/types";
 import { uid } from "@/utils/helpers";
 
 interface ShotNotesSectionProps {
 	film: Film;
+	cameras?: Camera[];
 	onUpdateNotes: (notes: ShotNote[]) => void;
 }
 
@@ -46,6 +49,8 @@ interface NoteFormData {
 	shutterSpeed: string;
 	lens: string;
 	location: string;
+	latitude: string;
+	longitude: string;
 	notes: string;
 	date: string;
 	photo: string[];
@@ -57,6 +62,8 @@ const emptyForm: NoteFormData = {
 	shutterSpeed: "",
 	lens: "",
 	location: "",
+	latitude: "",
+	longitude: "",
 	notes: "",
 	date: "",
 	photo: [],
@@ -69,6 +76,8 @@ function noteToForm(note: ShotNote): NoteFormData {
 		shutterSpeed: note.shutterSpeed ?? "",
 		lens: note.lens ?? "",
 		location: note.location ?? "",
+		latitude: note.latitude != null ? String(note.latitude) : "",
+		longitude: note.longitude != null ? String(note.longitude) : "",
 		notes: note.notes ?? "",
 		date: note.date ?? "",
 		photo: note.photo ? [note.photo] : [],
@@ -77,6 +86,8 @@ function noteToForm(note: ShotNote): NoteFormData {
 
 function formToNote(form: NoteFormData, id?: string): ShotNote {
 	const frameNum = form.frameNumber ? Number.parseInt(form.frameNumber, 10) : null;
+	const lat = form.latitude ? Number.parseFloat(form.latitude) : null;
+	const lng = form.longitude ? Number.parseFloat(form.longitude) : null;
 	return {
 		id: id ?? uid(),
 		frameNumber: Number.isNaN(frameNum) ? null : frameNum,
@@ -84,25 +95,55 @@ function formToNote(form: NoteFormData, id?: string): ShotNote {
 		shutterSpeed: form.shutterSpeed || null,
 		lens: form.lens || null,
 		location: form.location || null,
+		latitude: lat != null && !Number.isNaN(lat) ? lat : null,
+		longitude: lng != null && !Number.isNaN(lng) ? lng : null,
 		notes: form.notes || null,
 		date: form.date || null,
 		photo: form.photo[0] || null,
 	};
 }
 
-function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
+function nowDateTimeLocal(): string {
+	const now = new Date();
+	const pad = (n: number) => String(n).padStart(2, "0");
+	return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+function nextFrameNumber(notes: ShotNote[], posesTotal?: number | null): string {
+	const frames = notes.map((n) => n.frameNumber).filter((n): n is number => n != null);
+	const next = frames.length > 0 ? Math.max(...frames) + 1 : 1;
+	if (posesTotal != null && next > posesTotal) return "";
+	return String(next);
+}
+
+function ShotNotesSection({ film, cameras, onUpdateNotes }: ShotNotesSectionProps) {
 	const { t } = useTranslation();
 	const { toast } = useToast();
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [form, setForm] = useState<NoteFormData>(emptyForm);
 
+	const camera = cameras?.find((c) => c.id === film.cameraId);
+	const speedConfig: ExposureConfig | null = camera
+		? { min: camera.shutterSpeedMin, max: camera.shutterSpeedMax, stops: camera.shutterSpeedStops }
+		: null;
+	const apertureConfig: ExposureConfig | null = camera?.apertureStops ? { stops: camera.apertureStops } : null;
+	const filteredSpeeds = filterSpeeds(speedConfig);
+	const filteredApertures = filterApertures(apertureConfig);
+
 	const notes = film.shotNotes ?? [];
 	const sorted = sortNotes(notes);
 
+	const [gpsLoading, setGpsLoading] = useState(false);
+
 	const openAdd = () => {
 		setEditingId(null);
-		setForm({ ...emptyForm, lens: film.lens ?? "" });
+		setForm({
+			...emptyForm,
+			lens: film.lens ?? "",
+			frameNumber: nextFrameNumber(notes, film.posesTotal),
+			date: nowDateTimeLocal(),
+		});
 		setDialogOpen(true);
 	};
 
@@ -120,6 +161,8 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 			note.shutterSpeed ||
 			note.lens ||
 			note.location ||
+			note.latitude != null ||
+			note.longitude != null ||
 			note.notes ||
 			note.date ||
 			note.photo;
@@ -146,6 +189,42 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 
 	const updateField = (field: keyof NoteFormData, value: string) => {
 		setForm((prev) => ({ ...prev, [field]: value }));
+	};
+
+	const handleGpsLocate = () => {
+		if (!navigator.geolocation) {
+			toast(t("filmDetail.shotNotesGpsError"));
+			return;
+		}
+		setGpsLoading(true);
+		navigator.geolocation.getCurrentPosition(
+			async (position) => {
+				const { latitude, longitude } = position.coords;
+				setForm((prev) => ({
+					...prev,
+					latitude: String(latitude),
+					longitude: String(longitude),
+				}));
+				try {
+					const res = await fetch(
+						`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+						{ headers: { "Accept-Language": navigator.language } },
+					);
+					const data = await res.json();
+					if (data.display_name) {
+						setForm((prev) => ({ ...prev, location: data.display_name }));
+					}
+				} catch {
+					// Reverse geocoding failed — coordinates are still saved
+				}
+				setGpsLoading(false);
+			},
+			() => {
+				setGpsLoading(false);
+				toast(t("filmDetail.shotNotesGpsError"));
+			},
+			{ enableHighAccuracy: true, timeout: 10000 },
+		);
 	};
 
 	return (
@@ -191,6 +270,9 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 										{note.frameNumber != null ? `#${note.frameNumber}` : "—"}
 									</Badge>
 									<span className="text-sm text-text-sec truncate flex-1">{summary || "—"}</span>
+									{note.latitude != null && note.longitude != null && (
+										<LocateFixed size={14} className="text-accent shrink-0" />
+									)}
 									{note.photo && <ImageIcon size={14} className="text-text-muted shrink-0" />}
 								</ListButton>
 							);
@@ -219,20 +301,22 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 						</FormField>
 
 						<div className="grid grid-cols-2 gap-3">
-							<FormField label={t("filmDetail.shotNotesAperture")}>
-								<Input
-									placeholder={t("filmDetail.shotNotesAperturePlaceholder")}
-									value={form.aperture}
-									onChange={(e) => updateField("aperture", e.target.value)}
-								/>
-							</FormField>
-							<FormField label={t("filmDetail.shotNotesShutter")}>
-								<Input
-									placeholder={t("filmDetail.shotNotesShutterPlaceholder")}
-									value={form.shutterSpeed}
-									onChange={(e) => updateField("shutterSpeed", e.target.value)}
-								/>
-							</FormField>
+							<AutocompleteInput
+								label={t("filmDetail.shotNotesAperture")}
+								placeholder={t("filmDetail.shotNotesAperturePlaceholder")}
+								value={form.aperture}
+								onChange={(v) => updateField("aperture", v)}
+								suggestions={filteredApertures}
+								showAllOnFocus
+							/>
+							<AutocompleteInput
+								label={t("filmDetail.shotNotesShutter")}
+								placeholder={t("filmDetail.shotNotesShutterPlaceholder")}
+								value={form.shutterSpeed}
+								onChange={(v) => updateField("shutterSpeed", v)}
+								suggestions={filteredSpeeds}
+								showAllOnFocus
+							/>
 						</div>
 
 						<FormField label={t("filmDetail.shotNotesLens")}>
@@ -244,11 +328,36 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 						</FormField>
 
 						<FormField label={t("filmDetail.shotNotesLocation")}>
-							<Input
-								placeholder={t("filmDetail.shotNotesLocationPlaceholder")}
-								value={form.location}
-								onChange={(e) => updateField("location", e.target.value)}
-							/>
+							<div className="flex gap-2">
+								<Input
+									placeholder={t("filmDetail.shotNotesLocationPlaceholder")}
+									value={form.location}
+									onChange={(e) => updateField("location", e.target.value)}
+									className="flex-1"
+								/>
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									onClick={handleGpsLocate}
+									disabled={gpsLoading}
+									className="shrink-0 h-10 w-10 p-0"
+									aria-label={t("filmDetail.shotNotesGpsButton")}
+								>
+									{gpsLoading ? <Loader2 size={16} className="animate-spin" /> : <LocateFixed size={16} />}
+								</Button>
+							</div>
+							{form.latitude && form.longitude && (
+								<a
+									href={`https://www.openstreetmap.org/?mlat=${form.latitude}&mlon=${form.longitude}#map=17/${form.latitude}/${form.longitude}`}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="inline-flex items-center gap-1 text-xs text-accent mt-1 hover:underline"
+								>
+									<ExternalLink size={12} />
+									{Number.parseFloat(form.latitude).toFixed(5)}, {Number.parseFloat(form.longitude).toFixed(5)}
+								</a>
+							)}
 						</FormField>
 
 						<FormField label={t("filmDetail.shotNotesNotes")}>
@@ -260,7 +369,7 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 						</FormField>
 
 						<FormField label={t("filmDetail.shotNotesDate")}>
-							<Input type="date" value={form.date} onChange={(e) => updateField("date", e.target.value)} />
+							<Input type="datetime-local" value={form.date} onChange={(e) => updateField("date", e.target.value)} />
 						</FormField>
 
 						<PhotoPicker

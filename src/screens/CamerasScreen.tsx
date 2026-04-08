@@ -11,8 +11,9 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { SHUTTER_SPEEDS } from "@/constants/photography";
 import { alpha, T } from "@/constants/theme";
-import { type AppData, type Back, type Camera as CameraType, INSTANT_FORMATS } from "@/types";
+import { type AppData, type Back, type Camera as CameraType, INSTANT_FORMATS, type StopIncrement } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
 import { uid } from "@/utils/helpers";
@@ -33,6 +34,10 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 		format: "35mm",
 		hasInterchangeableBack: false,
 		photo: undefined as string | undefined,
+		shutterSpeedMin: "" as string,
+		shutterSpeedMax: "" as string,
+		shutterSpeedStops: "" as string,
+		apertureStops: "" as string,
 	});
 	const [showBackModal, setShowBackModal] = useState(false);
 	const [newBack, setNewBack] = useState({
@@ -60,6 +65,10 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			format: newCam.format,
 			hasInterchangeableBack: newCam.hasInterchangeableBack || false,
 			photo: newCam.photo,
+			shutterSpeedMin: newCam.shutterSpeedMin || null,
+			shutterSpeedMax: newCam.shutterSpeedMax || null,
+			shutterSpeedStops: (newCam.shutterSpeedStops as StopIncrement) || null,
+			apertureStops: (newCam.apertureStops as StopIncrement) || null,
 		};
 		setData({ ...data, cameras: [...data.cameras, camera] });
 		setShowAdd(false);
@@ -71,6 +80,10 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			format: "35mm",
 			hasInterchangeableBack: false,
 			photo: undefined,
+			shutterSpeedMin: "",
+			shutterSpeedMax: "",
+			shutterSpeedStops: "",
+			apertureStops: "",
 		});
 	};
 
@@ -87,6 +100,10 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 						format: editCam.format,
 						hasInterchangeableBack: editCam.hasInterchangeableBack || false,
 						photo: editCam.photo,
+						shutterSpeedMin: editCam.shutterSpeedMin || null,
+						shutterSpeedMax: editCam.shutterSpeedMax || null,
+						shutterSpeedStops: editCam.shutterSpeedStops || null,
+						apertureStops: editCam.apertureStops || null,
 					}
 				: c,
 		);
@@ -378,6 +395,78 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 								onCheckedChange={(v) => setNewCam({ ...newCam, hasInterchangeableBack: v })}
 							/>
 						</div>
+
+						<div className="border-t border-border pt-4 mt-1">
+							<span className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
+								{t("cameras.exposureSection")}
+							</span>
+						</div>
+						<div className="grid grid-cols-2 gap-3">
+							<FormField label={t("cameras.shutterSpeedMin")}>
+								<Select
+									value={newCam.shutterSpeedMin}
+									onValueChange={(v) => setNewCam({ ...newCam, shutterSpeedMin: v })}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="—" />
+									</SelectTrigger>
+									<SelectContent>
+										{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
+											<SelectItem key={s} value={s}>
+												{s}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</FormField>
+							<FormField label={t("cameras.shutterSpeedMax")}>
+								<Select
+									value={newCam.shutterSpeedMax}
+									onValueChange={(v) => setNewCam({ ...newCam, shutterSpeedMax: v })}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="—" />
+									</SelectTrigger>
+									<SelectContent>
+										{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
+											<SelectItem key={s} value={s}>
+												{s}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</FormField>
+						</div>
+						<div className="grid grid-cols-2 gap-3">
+							<FormField label={t("cameras.shutterSpeedStops")}>
+								<Select
+									value={newCam.shutterSpeedStops}
+									onValueChange={(v) => setNewCam({ ...newCam, shutterSpeedStops: v })}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="—" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
+										<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
+										<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
+									</SelectContent>
+								</Select>
+							</FormField>
+							<FormField label={t("cameras.apertureStops")}>
+								<Select value={newCam.apertureStops} onValueChange={(v) => setNewCam({ ...newCam, apertureStops: v })}>
+									<SelectTrigger>
+										<SelectValue placeholder="—" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
+										<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
+										<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
+									</SelectContent>
+								</Select>
+							</FormField>
+						</div>
+
 						<Button onClick={addCamera} disabled={!newCam.brand && !newCam.model} className="w-full justify-center">
 							<Plus size={16} /> {t("cameras.add")}
 						</Button>
@@ -442,6 +531,81 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 									onCheckedChange={(v) => setEditCam({ ...editCam, hasInterchangeableBack: v })}
 								/>
 							</div>
+
+							<div className="border-t border-border pt-4 mt-1">
+								<span className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
+									{t("cameras.exposureSection")}
+								</span>
+							</div>
+							<div className="grid grid-cols-2 gap-3">
+								<FormField label={t("cameras.shutterSpeedMin")}>
+									<Select
+										value={editCam.shutterSpeedMin || ""}
+										onValueChange={(v) => setEditCam({ ...editCam, shutterSpeedMin: v || null })}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder="—" />
+										</SelectTrigger>
+										<SelectContent>
+											{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
+												<SelectItem key={s} value={s}>
+													{s}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</FormField>
+								<FormField label={t("cameras.shutterSpeedMax")}>
+									<Select
+										value={editCam.shutterSpeedMax || ""}
+										onValueChange={(v) => setEditCam({ ...editCam, shutterSpeedMax: v || null })}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder="—" />
+										</SelectTrigger>
+										<SelectContent>
+											{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
+												<SelectItem key={s} value={s}>
+													{s}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</FormField>
+							</div>
+							<div className="grid grid-cols-2 gap-3">
+								<FormField label={t("cameras.shutterSpeedStops")}>
+									<Select
+										value={editCam.shutterSpeedStops || ""}
+										onValueChange={(v) => setEditCam({ ...editCam, shutterSpeedStops: (v as StopIncrement) || null })}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder="—" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
+											<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
+											<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
+										</SelectContent>
+									</Select>
+								</FormField>
+								<FormField label={t("cameras.apertureStops")}>
+									<Select
+										value={editCam.apertureStops || ""}
+										onValueChange={(v) => setEditCam({ ...editCam, apertureStops: (v as StopIncrement) || null })}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder="—" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
+											<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
+											<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
+										</SelectContent>
+									</Select>
+								</FormField>
+							</div>
+
 							<Button
 								onClick={saveEditCamera}
 								disabled={!editCam.brand && !editCam.model}
