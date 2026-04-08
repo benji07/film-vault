@@ -8,6 +8,7 @@ import { T } from "@/constants/theme";
 import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmBrand, filmName, filmType } from "@/utils/film-helpers";
+import { lensDisplayName } from "@/utils/lens-helpers";
 
 interface StatsScreenProps {
 	data: AppData;
@@ -19,10 +20,13 @@ export function StatsScreen({ data }: StatsScreenProps) {
 	const shotStates = new Set(["exposed", "developed", "scanned", "loaded", "partial"]);
 	const consumedStates = new Set(["exposed", "developed", "scanned"]);
 
+	const lensNameMap = new Map(data.lenses.map((l) => [l.id, lensDisplayName(l)]));
+
 	const byType: Record<string, number> = {};
 	const byBrand: Record<string, number> = {};
 	const byFormat: Record<string, number> = {};
 	const byCamera: Record<string, number> = {};
+	const byLens: Record<string, number> = {};
 	const topFilms: Record<string, number> = {};
 	const byYearMonth: Record<string, number> = {};
 	let shotCount = 0;
@@ -45,6 +49,12 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				const cam = data.cameras.find((c) => c.id === f.cameraId);
 				const camName = cam ? cameraDisplayName(cam) : t("stats.unknown");
 				byCamera[camName] = (byCamera[camName] || 0) + 1;
+			}
+			if (f.lensId) {
+				const lensName = lensNameMap.get(f.lensId) || f.lens || t("stats.unknown");
+				byLens[lensName] = (byLens[lensName] || 0) + 1;
+			} else if (f.lens) {
+				byLens[f.lens] = (byLens[f.lens] || 0) + 1;
 			}
 		}
 
@@ -116,6 +126,13 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				<Card>
 					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.byCamera")}</span>
 					<BarChart data={byCamera} color={T.amber} />
+				</Card>
+			)}
+
+			{Object.keys(byLens).length > 0 && (
+				<Card>
+					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.byLens")}</span>
+					<BarChart data={byLens} color={T.blue} />
 				</Card>
 			)}
 

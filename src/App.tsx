@@ -8,8 +8,8 @@ import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
 import { TabBar } from "@/components/TabBar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider, useToast } from "@/components/Toast";
-import { CamerasScreen } from "@/screens/CamerasScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
+import { EquipmentScreen } from "@/screens/EquipmentScreen";
 import { FilmDetailScreen } from "@/screens/FilmDetailScreen";
 import { SettingsScreen } from "@/screens/SettingsScreen";
 import { StatsScreen } from "@/screens/StatsScreen";
@@ -151,7 +151,7 @@ function FilmVaultInner() {
 					/>
 				);
 			case "cameras":
-				return <CamerasScreen data={data} setData={updateData} />;
+				return <EquipmentScreen data={data} setData={updateData} />;
 			case "stats":
 				return <StatsScreen data={data} />;
 			case "settings":

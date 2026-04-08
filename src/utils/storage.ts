@@ -60,6 +60,7 @@ export function getInitialData(): AppData {
 		films: [],
 		cameras: [],
 		backs: [],
+		lenses: [],
 		version: CURRENT_VERSION,
 	};
 }

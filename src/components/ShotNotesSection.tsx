@@ -11,14 +11,17 @@ import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } f
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { ListButton } from "@/components/ui/list-button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { type ExposureConfig, filterApertures, filterSpeeds } from "@/constants/photography";
-import type { Camera, Film, ShotNote } from "@/types";
+import type { Camera, Film, Lens, ShotNote } from "@/types";
 import { uid } from "@/utils/helpers";
+import { lensDisplayName } from "@/utils/lens-helpers";
 
 interface ShotNotesSectionProps {
 	film: Film;
 	cameras?: Camera[];
+	lenses?: Lens[];
 	onUpdateNotes: (notes: ShotNote[]) => void;
 }
 
@@ -48,6 +51,7 @@ interface NoteFormData {
 	aperture: string;
 	shutterSpeed: string;
 	lens: string;
+	lensId: string;
 	location: string;
 	latitude: string;
 	longitude: string;
@@ -61,6 +65,7 @@ const emptyForm: NoteFormData = {
 	aperture: "",
 	shutterSpeed: "",
 	lens: "",
+	lensId: "",
 	location: "",
 	latitude: "",
 	longitude: "",
@@ -75,6 +80,7 @@ function noteToForm(note: ShotNote): NoteFormData {
 		aperture: note.aperture ?? "",
 		shutterSpeed: note.shutterSpeed ?? "",
 		lens: note.lens ?? "",
+		lensId: note.lensId ?? "",
 		location: note.location ?? "",
 		latitude: note.latitude != null ? String(note.latitude) : "",
 		longitude: note.longitude != null ? String(note.longitude) : "",
@@ -94,6 +100,7 @@ function formToNote(form: NoteFormData, id?: string): ShotNote {
 		aperture: form.aperture || null,
 		shutterSpeed: form.shutterSpeed || null,
 		lens: form.lens || null,
+		lensId: form.lensId || null,
 		location: form.location || null,
 		latitude: lat != null && !Number.isNaN(lat) ? lat : null,
 		longitude: lng != null && !Number.isNaN(lng) ? lng : null,
@@ -116,7 +123,7 @@ function nextFrameNumber(notes: ShotNote[], posesTotal?: number | null): string 
 	return String(next);
 }
 
-function ShotNotesSection({ film, cameras, onUpdateNotes }: ShotNotesSectionProps) {
+function ShotNotesSection({ film, cameras, lenses, onUpdateNotes }: ShotNotesSectionProps) {
 	const { t } = useTranslation();
 	const { toast } = useToast();
 	const [dialogOpen, setDialogOpen] = useState(false);
@@ -124,10 +131,22 @@ function ShotNotesSection({ film, cameras, onUpdateNotes }: ShotNotesSectionProp
 	const [form, setForm] = useState<NoteFormData>(emptyForm);
 
 	const camera = cameras?.find((c) => c.id === film.cameraId);
-	const speedConfig: ExposureConfig | null = camera
-		? { min: camera.shutterSpeedMin, max: camera.shutterSpeedMax, stops: camera.shutterSpeedStops }
-		: null;
-	const apertureConfig: ExposureConfig | null = camera?.apertureStops ? { stops: camera.apertureStops } : null;
+	const selectedLens = form.lensId ? lenses?.find((l) => l.id === form.lensId) : null;
+
+	// Speed config: lens (leaf shutter) takes priority over camera
+	const speedConfig: ExposureConfig | null = selectedLens?.shutterSpeedMin
+		? { min: selectedLens.shutterSpeedMin, max: selectedLens.shutterSpeedMax, stops: selectedLens.shutterSpeedStops }
+		: camera
+			? { min: camera.shutterSpeedMin, max: camera.shutterSpeedMax, stops: camera.shutterSpeedStops }
+			: null;
+
+	// Aperture config: lens takes priority over camera
+	const apertureConfig: ExposureConfig | null = selectedLens?.apertureStops
+		? { min: selectedLens.apertureMin, max: selectedLens.apertureMax, stops: selectedLens.apertureStops }
+		: camera?.apertureStops
+			? { stops: camera.apertureStops }
+			: null;
+
 	const filteredSpeeds = filterSpeeds(speedConfig);
 	const filteredApertures = filterApertures(apertureConfig);
 
@@ -141,6 +160,7 @@ function ShotNotesSection({ film, cameras, onUpdateNotes }: ShotNotesSectionProp
 		setForm({
 			...emptyForm,
 			lens: film.lens ?? "",
+			lensId: film.lensId ?? "",
 			frameNumber: nextFrameNumber(notes, film.posesTotal),
 			date: nowDateTimeLocal(),
 		});
@@ -320,11 +340,51 @@ function ShotNotesSection({ film, cameras, onUpdateNotes }: ShotNotesSectionProp
 						</div>
 
 						<FormField label={t("filmDetail.shotNotesLens")}>
-							<Input
-								placeholder={t("filmDetail.shotNotesLensPlaceholder")}
-								value={form.lens}
-								onChange={(e) => updateField("lens", e.target.value)}
-							/>
+							{lenses && lenses.length > 0 ? (
+								<>
+									<Select
+										value={form.lensId || "__other__"}
+										onValueChange={(v) => {
+											if (v === "__other__") {
+												setForm((prev) => ({ ...prev, lensId: "", lens: "" }));
+											} else {
+												const lens = lenses.find((l) => l.id === v);
+												setForm((prev) => ({
+													...prev,
+													lensId: v,
+													lens: lens ? lensDisplayName(lens) : "",
+												}));
+											}
+										}}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
+										</SelectTrigger>
+										<SelectContent>
+											{lenses.map((l) => (
+												<SelectItem key={l.id} value={l.id}>
+													{lensDisplayName(l)}
+												</SelectItem>
+											))}
+											<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
+										</SelectContent>
+									</Select>
+									{!form.lensId && (
+										<Input
+											placeholder={t("filmDetail.shotNotesLensPlaceholder")}
+											value={form.lens}
+											onChange={(e) => updateField("lens", e.target.value)}
+											className="mt-2"
+										/>
+									)}
+								</>
+							) : (
+								<Input
+									placeholder={t("filmDetail.shotNotesLensPlaceholder")}
+									value={form.lens}
+									onChange={(e) => updateField("lens", e.target.value)}
+								/>
+							)}
 						</FormField>
 
 						<FormField label={t("filmDetail.shotNotesLocation")}>

@@ -8,8 +8,10 @@ import {
 	Database,
 	Download,
 	Film,
+	Focus,
 	Globe,
 	Loader2,
+	Package,
 	RefreshCw,
 	Upload,
 } from "lucide-react";
@@ -21,6 +23,8 @@ import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { T } from "@/constants/theme";
 import type { AppData } from "@/types";
+import { cameraDisplayName } from "@/utils/camera-helpers";
+import { lensDisplayName } from "@/utils/lens-helpers";
 import { exportData, parseImportFile } from "@/utils/storage";
 import { isSupabaseConfigured } from "@/utils/supabase";
 import {
@@ -292,8 +296,102 @@ export function SettingsScreen({
 						</div>
 						<span className="text-xs font-mono text-text-primary">{data.cameras.length}</span>
 					</div>
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-1.5">
+							<Focus size={14} className="text-text-muted" />
+							<span className="text-xs text-text-sec font-body">{t("settings.lenses")}</span>
+						</div>
+						<span className="text-xs font-mono text-text-primary">{data.lenses.length}</span>
+					</div>
 				</div>
 			</Card>
+
+			{/* Equipment inventory */}
+			{(data.cameras.length > 0 || data.lenses.length > 0 || data.backs.length > 0) && (
+				<Card>
+					<div className="flex items-center gap-3 mb-4">
+						<Package size={18} className="text-accent" />
+						<span className="text-sm font-bold text-text-primary font-body">{t("settings.inventoryTitle")}</span>
+					</div>
+					<div className="flex flex-col gap-3">
+						{data.cameras.map((cam) => (
+							<div key={cam.id} className="flex items-center gap-3">
+								{cam.photo ? (
+									<img
+										src={cam.photo}
+										alt=""
+										className="w-8 h-8 rounded-md object-cover shrink-0 border border-border"
+									/>
+								) : (
+									<div className="w-8 h-8 rounded-md bg-surface-alt flex items-center justify-center shrink-0">
+										<CameraIcon size={14} className="text-text-muted opacity-40" />
+									</div>
+								)}
+								<div className="flex-1 min-w-0">
+									<div className="text-xs font-semibold text-text-primary font-body truncate">
+										{cameraDisplayName(cam)}
+									</div>
+									{cam.serial && (
+										<div className="text-[10px] text-text-muted font-mono">
+											{t("settings.inventorySerial", { serial: cam.serial })}
+										</div>
+									)}
+								</div>
+							</div>
+						))}
+						{data.lenses.map((lens) => (
+							<div key={lens.id} className="flex items-center gap-3">
+								{lens.photo ? (
+									<img
+										src={lens.photo}
+										alt=""
+										className="w-8 h-8 rounded-md object-cover shrink-0 border border-border"
+									/>
+								) : (
+									<div className="w-8 h-8 rounded-md bg-surface-alt flex items-center justify-center shrink-0">
+										<Focus size={14} className="text-text-muted opacity-40" />
+									</div>
+								)}
+								<div className="flex-1 min-w-0">
+									<div className="text-xs font-semibold text-text-primary font-body truncate">
+										{lensDisplayName(lens)}
+									</div>
+									{lens.serial && (
+										<div className="text-[10px] text-text-muted font-mono">
+											{t("settings.inventorySerial", { serial: lens.serial })}
+										</div>
+									)}
+								</div>
+							</div>
+						))}
+						{data.backs.map((back) => (
+							<div key={back.id} className="flex items-center gap-3">
+								{back.photo ? (
+									<img
+										src={back.photo}
+										alt=""
+										className="w-8 h-8 rounded-md object-cover shrink-0 border border-border"
+									/>
+								) : (
+									<div className="w-8 h-8 rounded-md bg-surface-alt flex items-center justify-center shrink-0">
+										<CameraIcon size={14} className="text-text-muted opacity-40" />
+									</div>
+								)}
+								<div className="flex-1 min-w-0">
+									<div className="text-xs font-semibold text-text-primary font-body truncate">
+										{back.nickname ? `${back.nickname} (${back.name})` : back.name}
+									</div>
+									{back.serial && (
+										<div className="text-[10px] text-text-muted font-mono">
+											{t("settings.inventorySerial", { serial: back.serial })}
+										</div>
+									)}
+								</div>
+							</div>
+						))}
+					</div>
+				</Card>
+			)}
 
 			<div className="flex flex-col gap-2.5">
 				<Button variant="outline" onClick={() => exportData(data)} className="w-full justify-center">

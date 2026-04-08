@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 12;
+export const CURRENT_VERSION = 13;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -206,6 +206,15 @@ function migrateV11toV12(data: Record<string, unknown>): Record<string, unknown>
 	return { ...data, version: 12 };
 }
 
+function migrateV12toV13(data: Record<string, unknown>): Record<string, unknown> {
+	// Add lenses array + optional lensId on Film/ShotNote + optional mount on Camera.
+	// No data transformation needed — new fields are all optional, lenses starts empty.
+	if (!Array.isArray(data.lenses)) {
+		data = { ...data, lenses: [] };
+	}
+	return { ...data, version: 13 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -218,6 +227,7 @@ const migrations: Record<number, MigrationFn> = {
 	9: migrateV9toV10,
 	10: migrateV10toV11,
 	11: migrateV11toV12,
+	12: migrateV12toV13,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {
@@ -244,11 +254,19 @@ export function validateAppData(data: unknown): data is AppData {
 	if (!Array.isArray(d.cameras)) return false;
 	if (d.backs !== undefined && d.backs !== null && !Array.isArray(d.backs)) return false;
 	if (d.version !== undefined && d.version !== null && typeof d.version !== "number") return false;
+	const version = typeof d.version === "number" ? d.version : 1;
+	if (version >= 13) {
+		if (!Array.isArray(d.lenses)) return false;
+	} else if (d.lenses !== undefined && d.lenses !== null && !Array.isArray(d.lenses)) {
+		return false;
+	}
 	return true;
 }
 
-/** Ensure backs array exists (for pre-v10 data or edge cases). */
+/** Ensure backs and lenses arrays exist (for pre-v10/v13 data or edge cases). */
 export function normalizeAppData(data: AppData): AppData {
-	if (!data.backs) return { ...data, backs: [] };
-	return data;
+	let normalized = data;
+	if (!normalized.backs) normalized = { ...normalized, backs: [] };
+	if (!normalized.lenses) normalized = { ...normalized, lenses: [] };
+	return normalized;
 }
