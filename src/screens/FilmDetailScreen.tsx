@@ -49,6 +49,7 @@ import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { createNewFilm } from "@/utils/film-factory";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { fmtDate, today } from "@/utils/helpers";
+import { lensDisplayName } from "@/utils/lens-helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 
 type ActionType = "load" | "finish" | "partial" | "reload" | "sendDev" | "develop" | "edit" | "scan" | null;
@@ -57,6 +58,7 @@ interface ActionData {
 	cameraId?: string;
 	backId?: string;
 	lens?: string;
+	lensId?: string;
 	shootIso?: string;
 	startDate?: string;
 	endDate?: string;
@@ -221,7 +223,17 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							value={`${cameraDisplayName(cam)}${back ? ` · ${backDisplayName(back)}` : ""}`}
 						/>
 					)}
-					{film.lens && <InfoLine icon={Focus} label={t("filmDetail.lens")} value={film.lens} />}
+					{(film.lensId || film.lens) && (
+						<InfoLine
+							icon={Focus}
+							label={t("filmDetail.lens")}
+							value={
+								film.lensId
+									? lensDisplayName(data.lenses.find((l) => l.id === film.lensId)!) || film.lens || ""
+									: film.lens || ""
+							}
+						/>
+					)}
 					{film.startDate && <InfoLine icon={Calendar} label={t("filmDetail.start")} value={fmtDate(film.startDate)} />}
 					{film.endDate && <InfoLine icon={Calendar} label={t("filmDetail.end")} value={fmtDate(film.endDate)} />}
 					{film.posesShot != null && (
@@ -268,6 +280,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 				<ShotNotesSection
 					film={film}
 					cameras={data.cameras}
+					lenses={data.lenses}
 					onUpdateNotes={(notes) => updateFilm({ shotNotes: notes })}
 				/>
 			)}
@@ -370,11 +383,51 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							</FormField>
 						)}
 						<FormField label={t("filmDetail.lensField")}>
-							<Input
-								value={actionData.lens || ""}
-								onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
-								placeholder={t("filmDetail.lensPlaceholder")}
-							/>
+							{data.lenses.length > 0 ? (
+								<>
+									<Select
+										value={actionData.lensId || "__other__"}
+										onValueChange={(v) => {
+											if (v === "__other__") {
+												setActionData({ ...actionData, lensId: undefined, lens: "" });
+											} else {
+												const lens = data.lenses.find((l) => l.id === v);
+												setActionData({
+													...actionData,
+													lensId: v,
+													lens: lens ? lensDisplayName(lens) : "",
+												});
+											}
+										}}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
+										</SelectTrigger>
+										<SelectContent>
+											{data.lenses.map((l) => (
+												<SelectItem key={l.id} value={l.id}>
+													{lensDisplayName(l)}
+												</SelectItem>
+											))}
+											<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
+										</SelectContent>
+									</Select>
+									{!actionData.lensId && (
+										<Input
+											value={actionData.lens || ""}
+											onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
+											placeholder={t("filmDetail.lensPlaceholder")}
+											className="mt-2"
+										/>
+									)}
+								</>
+							) : (
+								<Input
+									value={actionData.lens || ""}
+									onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
+									placeholder={t("filmDetail.lensPlaceholder")}
+								/>
+							)}
 						</FormField>
 						<FormField label={t("filmDetail.shootIsoField")}>
 							<Input
@@ -414,6 +467,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										state: "loaded",
 										cameraId: actionData.cameraId,
 										backId: actionData.backId || null,
+										lensId: actionData.lensId || null,
 										lens: actionData.lens?.trim() || null,
 										shootIso: Number.parseInt(actionData.shootIso || "", 10) || (typeof fIso === "number" ? fIso : 0),
 										startDate: actionData.startDate || today(),
@@ -607,11 +661,51 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							</FormField>
 						)}
 						<FormField label={t("filmDetail.lensField")}>
-							<Input
-								value={actionData.lens || ""}
-								onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
-								placeholder={t("filmDetail.lensPlaceholder")}
-							/>
+							{data.lenses.length > 0 ? (
+								<>
+									<Select
+										value={actionData.lensId || "__other__"}
+										onValueChange={(v) => {
+											if (v === "__other__") {
+												setActionData({ ...actionData, lensId: undefined, lens: "" });
+											} else {
+												const lens = data.lenses.find((l) => l.id === v);
+												setActionData({
+													...actionData,
+													lensId: v,
+													lens: lens ? lensDisplayName(lens) : "",
+												});
+											}
+										}}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
+										</SelectTrigger>
+										<SelectContent>
+											{data.lenses.map((l) => (
+												<SelectItem key={l.id} value={l.id}>
+													{lensDisplayName(l)}
+												</SelectItem>
+											))}
+											<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
+										</SelectContent>
+									</Select>
+									{!actionData.lensId && (
+										<Input
+											value={actionData.lens || ""}
+											onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
+											placeholder={t("filmDetail.lensPlaceholder")}
+											className="mt-2"
+										/>
+									)}
+								</>
+							) : (
+								<Input
+									value={actionData.lens || ""}
+									onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
+									placeholder={t("filmDetail.lensPlaceholder")}
+								/>
+							)}
 						</FormField>
 						<FormField label={t("filmDetail.resumeDateField")}>
 							<Input
@@ -637,6 +731,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										state: "loaded",
 										cameraId: actionData.cameraId,
 										backId: actionData.backId || null,
+										lensId: actionData.lensId || film.lensId || null,
 										lens: actionData.lens?.trim() || film.lens || null,
 										startDate: actionData.startDate || today(),
 										history: [

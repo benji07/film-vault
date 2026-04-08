@@ -55,6 +55,7 @@ export interface ShotNote {
 	aperture?: string | null;
 	shutterSpeed?: string | null;
 	lens?: string | null;
+	lensId?: string | null;
 	location?: string | null;
 	latitude?: number | null;
 	longitude?: number | null;
@@ -81,6 +82,7 @@ export interface Film {
 	cameraId?: string | null;
 	backId?: string | null;
 	lens?: string | null;
+	lensId?: string | null;
 	startDate?: string | null;
 	endDate?: string | null;
 	posesShot?: number | null;
@@ -116,16 +118,38 @@ export interface Camera {
 	format: string;
 	hasInterchangeableBack: boolean;
 	photo?: string;
+	mount?: string | null;
 	shutterSpeedMin?: string | null;
 	shutterSpeedMax?: string | null;
 	shutterSpeedStops?: StopIncrement | null;
 	apertureStops?: StopIncrement | null;
 }
 
+export interface Lens {
+	id: string;
+	brand: string;
+	model: string;
+	nickname?: string;
+	serial?: string;
+	photo?: string;
+	mount?: string;
+	focalLengthMin?: number | null;
+	focalLengthMax?: number | null;
+	maxApertureAtMin?: string | null;
+	maxApertureAtMax?: string | null;
+	apertureMin?: string | null;
+	apertureMax?: string | null;
+	apertureStops?: StopIncrement | null;
+	shutterSpeedMin?: string | null;
+	shutterSpeedMax?: string | null;
+	shutterSpeedStops?: StopIncrement | null;
+}
+
 export interface AppData {
 	films: Film[];
 	cameras: Camera[];
 	backs: Back[];
+	lenses: Lens[];
 	version: number;
 }
 

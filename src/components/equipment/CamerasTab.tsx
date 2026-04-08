@@ -13,17 +13,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { SHUTTER_SPEEDS } from "@/constants/photography";
 import { alpha, T } from "@/constants/theme";
-import { type AppData, type Back, type Camera as CameraType, INSTANT_FORMATS, type StopIncrement } from "@/types";
-import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
+import { type AppData, type Camera as CameraType, INSTANT_FORMATS, type StopIncrement } from "@/types";
+import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
 import { uid } from "@/utils/helpers";
 
-interface CamerasScreenProps {
+interface CamerasTabProps {
 	data: AppData;
 	setData: (data: AppData) => void;
 }
 
-export function CamerasScreen({ data, setData }: CamerasScreenProps) {
+export function CamerasTab({ data, setData }: CamerasTabProps) {
 	const { t } = useTranslation();
 	const [showAdd, setShowAdd] = useState(false);
 	const [newCam, setNewCam] = useState({
@@ -32,6 +32,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 		nickname: "",
 		serial: "",
 		format: "35mm",
+		mount: "",
 		hasInterchangeableBack: false,
 		photo: undefined as string | undefined,
 		shutterSpeedMin: "" as string,
@@ -39,20 +40,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 		shutterSpeedStops: "" as string,
 		apertureStops: "" as string,
 	});
-	const [showBackModal, setShowBackModal] = useState(false);
-	const [newBack, setNewBack] = useState({
-		name: "",
-		nickname: "",
-		ref: "",
-		serial: "",
-		format: "120",
-		compatibleCameraIds: [] as string[],
-		photo: undefined as string | undefined,
-	});
-	const [editCam, setEditCam] = useState<CameraType | null>(null);
-	const [editBack, setEditBack] = useState<Back | null>(null);
-
-	const interchangeableCameras = data.cameras.filter((c) => c.hasInterchangeableBack);
+	const [editCam, setEditCam] = useState<(CameraType & { mount?: string | null }) | null>(null);
 
 	const addCamera = () => {
 		if (!newCam.brand && !newCam.model) return;
@@ -63,6 +51,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			nickname: newCam.nickname,
 			serial: newCam.serial,
 			format: newCam.format,
+			mount: newCam.mount || null,
 			hasInterchangeableBack: newCam.hasInterchangeableBack || false,
 			photo: newCam.photo,
 			shutterSpeedMin: newCam.shutterSpeedMin || null,
@@ -78,6 +67,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 			nickname: "",
 			serial: "",
 			format: "35mm",
+			mount: "",
 			hasInterchangeableBack: false,
 			photo: undefined,
 			shutterSpeedMin: "",
@@ -98,6 +88,7 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 						nickname: editCam.nickname,
 						serial: editCam.serial,
 						format: editCam.format,
+						mount: editCam.mount || null,
 						hasInterchangeableBack: editCam.hasInterchangeableBack || false,
 						photo: editCam.photo,
 						shutterSpeedMin: editCam.shutterSpeedMin || null,
@@ -111,45 +102,6 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 		setEditCam(null);
 	};
 
-	const addBack = () => {
-		if (!newBack.name) return;
-		const back: Back = {
-			id: uid(),
-			name: newBack.name,
-			nickname: newBack.nickname,
-			ref: newBack.ref,
-			serial: newBack.serial,
-			format: newBack.format,
-			compatibleCameraIds: newBack.compatibleCameraIds,
-			photo: newBack.photo,
-		};
-		setData({ ...data, backs: [...data.backs, back] });
-		setShowBackModal(false);
-		setNewBack({
-			name: "",
-			nickname: "",
-			ref: "",
-			serial: "",
-			format: "120",
-			compatibleCameraIds: [],
-			photo: undefined,
-		});
-	};
-
-	const saveEditBack = () => {
-		if (!editBack?.name) return;
-		const newBacks = data.backs.map((b) => (b.id === editBack.id ? { ...editBack } : b));
-		setData({ ...data, backs: newBacks });
-		setEditBack(null);
-	};
-
-	const deleteBack = (backId: string) => {
-		const newBacks = data.backs.filter((b) => b.id !== backId);
-		const newFilms = data.films.map((f) => (f.backId === backId ? { ...f, backId: null } : f));
-		setData({ ...data, backs: newBacks, films: newFilms });
-		setEditBack(null);
-	};
-
 	const deleteCamera = (camId: string) => {
 		const newBacks = data.backs.map((b) => ({
 			...b,
@@ -159,22 +111,8 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 		setData({ ...data, cameras: data.cameras.filter((c) => c.id !== camId), backs: newBacks, films: newFilms });
 	};
 
-	const toggleBackCamera = (
-		cameraId: string,
-		backState: { compatibleCameraIds: string[] },
-		setter: (ids: string[]) => void,
-	) => {
-		const ids = backState.compatibleCameraIds;
-		if (ids.includes(cameraId)) {
-			setter(ids.filter((id) => id !== cameraId));
-		} else {
-			setter([...ids, cameraId]);
-		}
-	};
-
 	return (
-		<div className="flex flex-col gap-6">
-			{/* === Cameras section === */}
+		<>
 			<div className="flex flex-col gap-4">
 				<div className="flex justify-between items-center">
 					<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.title")}</h2>
@@ -260,72 +198,6 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 				</div>
 			</div>
 
-			{/* === Backs section === */}
-			<div className="flex flex-col gap-4">
-				<div className="flex justify-between items-center">
-					<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.backsSection")}</h2>
-					<Button size="sm" onClick={() => setShowBackModal(true)}>
-						<Plus size={14} /> {t("cameras.add")}
-					</Button>
-				</div>
-
-				<div className="flex flex-col gap-2.5">
-					{data.backs.map((b) => {
-						const backFilm = data.films.find((f) => f.state === "loaded" && f.backId === b.id);
-						const compatCams = data.cameras.filter((c) => b.compatibleCameraIds.includes(c.id));
-						return (
-							<Card key={b.id}>
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-3 flex-1 min-w-0">
-										{b.photo ? (
-											<img
-												src={b.photo}
-												alt=""
-												className="w-10 h-10 rounded-lg object-cover shrink-0 border border-border"
-											/>
-										) : (
-											<div className="w-10 h-10 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
-												<Camera size={16} className="text-text-muted opacity-40" />
-											</div>
-										)}
-										<div className="min-w-0">
-											<div className="text-[14px] font-semibold text-text-primary font-body">{backDisplayName(b)}</div>
-											<div className="flex gap-1.5 mt-1 flex-wrap">
-												<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{b.format}</Badge>
-												{compatCams.map((c) => (
-													<Badge key={c.id} style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
-														{cameraDisplayName(c)}
-													</Badge>
-												))}
-												{backFilm && (
-													<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
-														{filmName(backFilm)}
-													</Badge>
-												)}
-											</div>
-										</div>
-									</div>
-									<div className="flex gap-1.5">
-										<Button
-											variant="outline"
-											size="icon"
-											onClick={() => setEditBack({ ...b })}
-											className="w-11 h-11 rounded-lg"
-											aria-label={t("aria.editBack")}
-										>
-											<Edit3 size={14} className="text-text-sec" />
-										</Button>
-									</div>
-								</div>
-							</Card>
-						);
-					})}
-					{data.backs.length === 0 && (
-						<EmptyState icon={Camera} title={t("cameras.noBacks")} subtitle={t("cameras.noBacksSubtitle")} />
-					)}
-				</div>
-			</div>
-
 			{/* Add camera modal */}
 			<Dialog open={showAdd} onOpenChange={(open) => !open && setShowAdd(false)}>
 				<DialogContent>
@@ -385,6 +257,13 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 									))}
 								</SelectContent>
 							</Select>
+						</FormField>
+						<FormField label={t("cameras.mount")}>
+							<Input
+								value={newCam.mount}
+								onChange={(e) => setNewCam({ ...newCam, mount: e.target.value })}
+								placeholder={t("cameras.mountPlaceholder")}
+							/>
 						</FormField>
 						<div className="flex items-center justify-between gap-3">
 							<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
@@ -522,6 +401,13 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 									</SelectContent>
 								</Select>
 							</FormField>
+							<FormField label={t("cameras.mount")}>
+								<Input
+									value={editCam.mount || ""}
+									onChange={(e) => setEditCam({ ...editCam, mount: e.target.value })}
+									placeholder={t("cameras.mountPlaceholder")}
+								/>
+							</FormField>
 							<div className="flex items-center justify-between gap-3">
 								<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
 									{t("cameras.interchangeableBack")}
@@ -617,175 +503,6 @@ export function CamerasScreen({ data, setData }: CamerasScreenProps) {
 					)}
 				</DialogContent>
 			</Dialog>
-
-			{/* Add back modal */}
-			<Dialog open={showBackModal} onOpenChange={(open) => !open && setShowBackModal(false)}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>{t("cameras.addBackTitle")}</DialogTitle>
-						<DialogCloseButton />
-					</DialogHeader>
-					<div className="flex flex-col gap-4">
-						<PhotoPicker
-							photos={newBack.photo ? [newBack.photo] : []}
-							onChange={(p) => setNewBack({ ...newBack, photo: p[0] || undefined })}
-							max={1}
-							size={32}
-							placeholderIcon
-							label={t("cameras.photo")}
-						/>
-						<FormField label={t("cameras.backName")}>
-							<Input
-								value={newBack.name}
-								onChange={(e) => setNewBack({ ...newBack, name: e.target.value })}
-								placeholder={t("cameras.backNamePlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.backFormat")}>
-							<Select value={newBack.format} onValueChange={(v) => setNewBack({ ...newBack, format: v })}>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
-									<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-									{INSTANT_FORMATS.map((f) => (
-										<SelectItem key={f} value={f}>
-											{t(`filmFormats.${f}`)}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</FormField>
-						<FormField label={t("cameras.reference")}>
-							<Input
-								value={newBack.ref}
-								onChange={(e) => setNewBack({ ...newBack, ref: e.target.value })}
-								placeholder={t("cameras.refPlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.backNickname")}>
-							<Input
-								value={newBack.nickname}
-								onChange={(e) => setNewBack({ ...newBack, nickname: e.target.value })}
-								placeholder={t("cameras.backNicknamePlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.backSerial")}>
-							<Input
-								value={newBack.serial}
-								onChange={(e) => setNewBack({ ...newBack, serial: e.target.value })}
-								placeholder={t("cameras.serialPlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.compatibleCameras")}>
-							{interchangeableCameras.length > 0 ? (
-								<div className="flex flex-col gap-2">
-									{interchangeableCameras.map((c) => (
-										<div key={c.id} className="flex items-center justify-between gap-3">
-											<span className="text-[13px] text-text-sec font-body">{cameraDisplayName(c)}</span>
-											<Switch
-												checked={newBack.compatibleCameraIds.includes(c.id)}
-												onCheckedChange={() =>
-													toggleBackCamera(c.id, newBack, (ids) => setNewBack({ ...newBack, compatibleCameraIds: ids }))
-												}
-											/>
-										</div>
-									))}
-								</div>
-							) : (
-								<span className="text-[12px] text-text-muted font-body">{t("cameras.noCompatibleCameras")}</span>
-							)}
-						</FormField>
-						<Button onClick={addBack} disabled={!newBack.name} className="w-full justify-center">
-							<Plus size={16} /> {t("cameras.addBackButton")}
-						</Button>
-					</div>
-				</DialogContent>
-			</Dialog>
-
-			{/* Edit back modal */}
-			<Dialog open={!!editBack} onOpenChange={(open) => !open && setEditBack(null)}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>{t("cameras.editBack")}</DialogTitle>
-						<DialogCloseButton />
-					</DialogHeader>
-					{editBack && (
-						<div className="flex flex-col gap-4">
-							<PhotoPicker
-								photos={editBack.photo ? [editBack.photo] : []}
-								onChange={(p) => setEditBack({ ...editBack, photo: p[0] || undefined })}
-								max={1}
-								size={32}
-								placeholderIcon
-								label={t("cameras.photo")}
-							/>
-							<FormField label={t("cameras.backName")}>
-								<Input value={editBack.name} onChange={(e) => setEditBack({ ...editBack, name: e.target.value })} />
-							</FormField>
-							<FormField label={t("cameras.backFormat")}>
-								<Select value={editBack.format} onValueChange={(v) => setEditBack({ ...editBack, format: v })}>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
-										<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-										{INSTANT_FORMATS.map((f) => (
-											<SelectItem key={f} value={f}>
-												{t(`filmFormats.${f}`)}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</FormField>
-							<FormField label={t("cameras.reference")}>
-								<Input value={editBack.ref || ""} onChange={(e) => setEditBack({ ...editBack, ref: e.target.value })} />
-							</FormField>
-							<FormField label={t("cameras.backNickname")}>
-								<Input
-									value={editBack.nickname || ""}
-									onChange={(e) => setEditBack({ ...editBack, nickname: e.target.value })}
-								/>
-							</FormField>
-							<FormField label={t("cameras.backSerial")}>
-								<Input
-									value={editBack.serial || ""}
-									onChange={(e) => setEditBack({ ...editBack, serial: e.target.value })}
-								/>
-							</FormField>
-							<FormField label={t("cameras.compatibleCameras")}>
-								{interchangeableCameras.length > 0 ? (
-									<div className="flex flex-col gap-2">
-										{interchangeableCameras.map((c) => (
-											<div key={c.id} className="flex items-center justify-between gap-3">
-												<span className="text-[13px] text-text-sec font-body">{cameraDisplayName(c)}</span>
-												<Switch
-													checked={editBack.compatibleCameraIds.includes(c.id)}
-													onCheckedChange={() =>
-														toggleBackCamera(c.id, editBack, (ids) =>
-															setEditBack({ ...editBack, compatibleCameraIds: ids }),
-														)
-													}
-												/>
-											</div>
-										))}
-									</div>
-								) : (
-									<span className="text-[12px] text-text-muted font-body">{t("cameras.noCompatibleCameras")}</span>
-								)}
-							</FormField>
-							<Button onClick={saveEditBack} disabled={!editBack.name} className="w-full justify-center">
-								<Check size={16} /> {t("cameras.save")}
-							</Button>
-							<Button variant="destructive" onClick={() => deleteBack(editBack.id)} className="w-full justify-center">
-								<Trash2 size={14} /> {t("cameras.deleteBack")}
-							</Button>
-						</div>
-					)}
-				</DialogContent>
-			</Dialog>
-		</div>
+		</>
 	);
 }
