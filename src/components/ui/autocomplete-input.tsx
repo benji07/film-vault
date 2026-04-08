@@ -11,6 +11,7 @@ interface AutocompleteInputProps {
 	suggestions: string[];
 	placeholder?: string;
 	className?: string;
+	showAllOnFocus?: boolean;
 }
 
 function AutocompleteInput({
@@ -21,11 +22,16 @@ function AutocompleteInput({
 	suggestions,
 	placeholder,
 	className,
+	showAllOnFocus,
 }: AutocompleteInputProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	const filtered = value ? suggestions.filter((s) => s.toLowerCase().includes(value.toLowerCase())).slice(0, 6) : [];
+	const filtered = value
+		? suggestions.filter((s) => s.toLowerCase().includes(value.toLowerCase())).slice(0, 6)
+		: showAllOnFocus
+			? suggestions.slice(0, 6)
+			: [];
 
 	const handleSelect = (item: string) => {
 		onChange(item);

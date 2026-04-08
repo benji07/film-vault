@@ -78,6 +78,7 @@ interface EditData {
 	expDate: string;
 	storageLocation: string;
 	comment: string;
+	shootIso: string;
 }
 
 interface FilmDetailScreenProps {
@@ -102,6 +103,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 		expDate: "",
 		storageLocation: "",
 		comment: "",
+		shootIso: "",
 	});
 	const { toast } = useToast();
 	const { brands, modelsForBrand, filmDataFor } = useFilmSuggestions(data.films);
@@ -127,6 +129,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 			expDate: film.expDate || "",
 			storageLocation: film.storageLocation || "",
 			comment: film.comment || "",
+			shootIso: film.shootIso != null ? String(film.shootIso) : "",
 		});
 		setShowAction("edit");
 	};
@@ -903,6 +906,16 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 								/>
 							</FormField>
 						)}
+						{film.state !== "stock" && (
+							<FormField label={t("filmDetail.shootIsoEditField")}>
+								<Input
+									type="number"
+									value={editData.shootIso}
+									onChange={(e) => setEditData({ ...editData, shootIso: e.target.value })}
+									className="font-mono"
+								/>
+							</FormField>
+						)}
 						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={editData.comment}
@@ -913,20 +926,21 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 						<Button
 							disabled={!editData.brand || !editData.model}
 							onClick={() => {
-								updateFilm(
-									{
-										brand: editData.brand.trim(),
-										model: editData.model.trim(),
-										iso: Number.parseInt(editData.iso, 10) || 0,
-										type: editData.type,
-										format: film.state === "loaded" ? film.format : editData.format,
-										expDate: editData.expDate || null,
-										storageLocation: editData.storageLocation.trim() || null,
-										comment: editData.comment.trim() || null,
-										history: [...(film.history || []), { date: today(), action: "", actionCode: "modified" }],
-									},
-									t("filmDetail.filmModified"),
-								);
+								const editUpdate: Partial<FilmType> = {
+									brand: editData.brand.trim(),
+									model: editData.model.trim(),
+									iso: Number.parseInt(editData.iso, 10) || 0,
+									type: editData.type,
+									format: film.state === "loaded" ? film.format : editData.format,
+									expDate: editData.expDate || null,
+									storageLocation: editData.storageLocation.trim() || null,
+									comment: editData.comment.trim() || null,
+									history: [...(film.history || []), { date: today(), action: "", actionCode: "modified" }],
+								};
+								if (film.state !== "stock" && editData.shootIso) {
+									editUpdate.shootIso = Number.parseInt(editData.shootIso, 10) || film.shootIso;
+								}
+								updateFilm(editUpdate, t("filmDetail.filmModified"));
 							}}
 							className="w-full justify-center"
 						>

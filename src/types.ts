@@ -56,6 +56,8 @@ export interface ShotNote {
 	shutterSpeed?: string | null;
 	lens?: string | null;
 	location?: string | null;
+	latitude?: number | null;
+	longitude?: number | null;
 	notes?: string | null;
 	date?: string | null;
 	photo?: string | null;

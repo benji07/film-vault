@@ -261,6 +261,8 @@ export const fr = {
 		shotNotesDelete: "Supprimer cette note",
 		shotNotesSaved: "Note enregistrée",
 		shotNotesDeleted: "Note supprimée",
+		shotNotesGpsError: "Impossible de récupérer la position",
+		shootIsoEditField: "ISO de prise de vue",
 		// Group info
 		oneOtherInStock: "1 autre pellicule identique en stock",
 		othersInStock: "{{count}} autres pellicules identiques en stock",
