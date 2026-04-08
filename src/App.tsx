@@ -16,8 +16,17 @@ import { StatsScreen } from "@/screens/StatsScreen";
 import { StockScreen } from "@/screens/StockScreen";
 import type { AppData, ScreenName } from "@/types";
 import { checkStorage, getInitialData, isStorageAvailable, loadData, saveData } from "@/utils/storage";
-import { isSupabaseConfigured } from "@/utils/supabase";
-import { getRecoveryCode, pushToCloud, syncData } from "@/utils/sync";
+import { getCurrentUser, isSupabaseConfigured, onAuthStateChange } from "@/utils/supabase";
+import {
+	type AuthUserInfo,
+	clearAuthUser,
+	getAuthUser,
+	getRecoveryCode,
+	getSyncKey,
+	pushToCloud,
+	setAuthUser,
+	syncData,
+} from "@/utils/sync";
 
 function FilmVaultInner() {
 	const [data, setData] = useState<AppData | null>(null);
@@ -28,6 +37,7 @@ function FilmVaultInner() {
 	const [persistent, setPersistent] = useState(false);
 	const [syncing, setSyncing] = useState(false);
 	const [recoveryCode, setRecoveryCodeState] = useState<string | null>(null);
+	const [authUser, setAuthUserState] = useState<AuthUserInfo | null>(null);
 	const { toast } = useToast();
 	const { t } = useTranslation();
 	const dataRef = useRef<AppData | null>(null);
@@ -41,16 +51,16 @@ function FilmVaultInner() {
 				if (!ok) toast(t("app.saveError"), "error");
 			}
 			// Background push to cloud
-			const code = getRecoveryCode();
-			if (code && isSupabaseConfigured) {
-				pushToCloud(code, newData).catch(() => {});
+			const key = getSyncKey();
+			if (key && isSupabaseConfigured) {
+				pushToCloud(key, newData).catch(() => {});
 			}
 		},
 		[toast, t],
 	);
 
 	const triggerSync = useCallback(async () => {
-		const code = getRecoveryCode();
+		const code = getSyncKey();
 		const currentData = dataRef.current;
 		if (!code || !currentData || !isSupabaseConfigured) return;
 		setSyncing(true);
@@ -76,6 +86,17 @@ function FilmVaultInner() {
 			if (cancelled) return;
 			setPersistent(hasStorage);
 
+			// Check for authenticated user (OAuth session)
+			const user = await getCurrentUser();
+			if (user && !cancelled) {
+				const provider = user.app_metadata?.provider ?? "unknown";
+				const info: AuthUserInfo = { id: user.id, email: user.email ?? null, provider };
+				setAuthUser(info);
+				setAuthUserState(info);
+			} else {
+				setAuthUserState(getAuthUser());
+			}
+
 			let appData: AppData;
 			if (hasStorage) {
 				const saved = await loadData();
@@ -87,9 +108,10 @@ function FilmVaultInner() {
 			// Sync with cloud on startup
 			const code = getRecoveryCode();
 			setRecoveryCodeState(code);
-			if (code && isSupabaseConfigured && navigator.onLine) {
+			const syncKey = getSyncKey();
+			if (syncKey && isSupabaseConfigured && navigator.onLine) {
 				try {
-					const result = await syncData(code, appData);
+					const result = await syncData(syncKey, appData);
 					appData = result.data;
 					if (result.source === "cloud" && hasStorage) {
 						await saveData(appData);
@@ -108,6 +130,30 @@ function FilmVaultInner() {
 		return () => {
 			cancelled = true;
 		};
+	}, []);
+
+	// Listen for auth state changes (OAuth redirect callback)
+	useEffect(() => {
+		const {
+			data: { subscription },
+		} = onAuthStateChange(async (event, session) => {
+			if (event === "SIGNED_IN" && session?.user) {
+				const user = session.user;
+				const provider = user.app_metadata?.provider ?? "unknown";
+				const info: AuthUserInfo = { id: user.id, email: user.email ?? null, provider };
+				setAuthUser(info);
+				setAuthUserState(info);
+				// Push current data to cloud under the new user ID
+				const currentData = dataRef.current;
+				if (currentData && isSupabaseConfigured) {
+					await pushToCloud(user.id, currentData);
+				}
+			} else if (event === "SIGNED_OUT") {
+				clearAuthUser();
+				setAuthUserState(null);
+			}
+		});
+		return () => subscription.unsubscribe();
 	}, []);
 
 	// Sync when coming back online
@@ -162,6 +208,8 @@ function FilmVaultInner() {
 						syncing={syncing}
 						recoveryCode={recoveryCode}
 						onRecoveryCodeChange={setRecoveryCodeState}
+						authUser={authUser}
+						onAuthUserChange={setAuthUserState}
 						onSyncNow={triggerSync}
 					/>
 				);

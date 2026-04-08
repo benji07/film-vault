@@ -301,6 +301,12 @@ export const en = {
 		cloudNetworkError: "Server connection error. Please try again.",
 		cloudInvalidData: "The data found is invalid or corrupted.",
 		cloudNotConfigured: "Cloud service is not configured.",
+		signInApple: "Sign in with Apple",
+		signInGoogle: "Sign in with Google",
+		connectedWith: "Connected with",
+		logout: "Sign out",
+		orRecoveryCode: "Or with a recovery code",
+		oauthError: "Login error. Please try again.",
 		// Theme
 		theme: "Theme",
 		themeDark: "Chambre noire",

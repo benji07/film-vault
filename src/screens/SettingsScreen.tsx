@@ -10,6 +10,7 @@ import {
 	Film,
 	Globe,
 	Loader2,
+	LogOut,
 	RefreshCw,
 	Upload,
 } from "lucide-react";
@@ -22,8 +23,10 @@ import { Input } from "@/components/ui/input";
 import { T } from "@/constants/theme";
 import type { AppData } from "@/types";
 import { exportData, parseImportFile } from "@/utils/storage";
-import { isSupabaseConfigured } from "@/utils/supabase";
+import { isSupabaseConfigured, type OAuthProvider, signInWithProvider, signOutUser } from "@/utils/supabase";
 import {
+	type AuthUserInfo,
+	clearAuthUser,
 	clearRecoveryCode,
 	generateRecoveryCode,
 	getLastSync,
@@ -38,6 +41,8 @@ interface SettingsScreenProps {
 	syncing: boolean;
 	recoveryCode: string | null;
 	onRecoveryCodeChange: (code: string | null) => void;
+	authUser: AuthUserInfo | null;
+	onAuthUserChange: (user: AuthUserInfo | null) => void;
 	onSyncNow: () => void;
 }
 
@@ -47,6 +52,8 @@ export function SettingsScreen({
 	syncing,
 	recoveryCode,
 	onRecoveryCodeChange,
+	authUser,
+	onAuthUserChange,
 	onSyncNow,
 }: SettingsScreenProps) {
 	const { t, i18n } = useTranslation();
@@ -128,6 +135,24 @@ export function SettingsScreen({
 		onRecoveryCodeChange(null);
 	};
 
+	const handleOAuthLogin = async (provider: OAuthProvider) => {
+		try {
+			await signInWithProvider(provider);
+		} catch {
+			setImportError(t("settings.oauthError"));
+		}
+	};
+
+	const handleOAuthLogout = async () => {
+		try {
+			await signOutUser();
+			clearAuthUser();
+			onAuthUserChange(null);
+		} catch {
+			setImportError(t("settings.oauthError"));
+		}
+	};
+
 	const handleCopyCode = async () => {
 		if (!recoveryCode) return;
 		try {
@@ -184,7 +209,46 @@ export function SettingsScreen({
 						<span className="text-sm font-bold text-text-primary font-body">{t("settings.cloudBackup")}</span>
 					</div>
 
-					{recoveryCode ? (
+					{authUser ? (
+						/* Connected via OAuth (Apple/Google) */
+						<div className="flex flex-col gap-3">
+							<div className="flex flex-col gap-1.5">
+								<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide">
+									{t("settings.connectedWith")}
+								</span>
+								<div className="flex items-center gap-2">
+									<span className="text-sm font-body text-accent capitalize">{authUser.provider}</span>
+									{authUser.email && <span className="text-xs text-text-sec font-body">({authUser.email})</span>}
+								</div>
+							</div>
+
+							{lastSync && (
+								<div className="flex items-center justify-between">
+									<span className="text-xs text-text-sec font-body">{t("settings.lastSync")}</span>
+									<span className="text-xs font-mono text-text-primary">
+										{new Date(lastSync).toLocaleString(t("dateLocale"), {
+											day: "2-digit",
+											month: "2-digit",
+											year: "numeric",
+											hour: "2-digit",
+											minute: "2-digit",
+										})}
+									</span>
+								</div>
+							)}
+
+							<div className="flex flex-col gap-2">
+								<Button variant="outline" onClick={onSyncNow} disabled={syncing} className="w-full justify-center">
+									{syncing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+									{syncing ? t("settings.syncing") : t("settings.sync")}
+								</Button>
+								<Button variant="outline" onClick={handleOAuthLogout} className="w-full justify-center">
+									<LogOut size={16} /> {t("settings.logout")}
+								</Button>
+							</div>
+						</div>
+					) : recoveryCode ? (
+						/* Connected via recovery code */
 						<div className="flex flex-col gap-3">
 							<div className="flex flex-col gap-1.5">
 								<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide">
@@ -233,32 +297,67 @@ export function SettingsScreen({
 							</div>
 						</div>
 					) : (
+						/* Not connected — show OAuth + recovery code options */
 						<div className="flex flex-col gap-3">
 							<span className="text-xs text-text-sec font-body">{t("settings.cloudInfo")}</span>
 
-							<Button variant="outline" onClick={handleActivateCloud} className="w-full justify-center">
-								<Cloud size={16} /> {t("settings.enableCloud")}
-							</Button>
+							<div className="flex flex-col gap-2">
+								<Button variant="outline" onClick={() => handleOAuthLogin("apple")} className="w-full justify-center">
+									<svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
+										<path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+									</svg>
+									{t("settings.signInApple")}
+								</Button>
+								<Button variant="outline" onClick={() => handleOAuthLogin("google")} className="w-full justify-center">
+									<svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+										<path
+											d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+											fill="#4285F4"
+										/>
+										<path
+											d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+											fill="#34A853"
+										/>
+										<path
+											d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+											fill="#FBBC05"
+										/>
+										<path
+											d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+											fill="#EA4335"
+										/>
+									</svg>
+									{t("settings.signInGoogle")}
+								</Button>
+							</div>
 
 							<div className="border-t border-border pt-3">
 								<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide block mb-2">
-									{t("settings.haveCode")}
+									{t("settings.orRecoveryCode")}
 								</span>
-								<div className="flex gap-2">
-									<Input
-										value={restoreCode}
-										onChange={(e) => setRestoreCode(e.target.value)}
-										placeholder={t("settings.recoveryPlaceholder")}
-										className="flex-1 font-mono uppercase text-xs"
-									/>
-									<Button
-										variant="outline"
-										onClick={handleRestore}
-										disabled={restoring || !restoreCode.trim()}
-										className="shrink-0"
-									>
-										{restoring ? <Loader2 size={16} className="animate-spin" /> : t("settings.restore")}
-									</Button>
+								<Button variant="outline" onClick={handleActivateCloud} className="w-full justify-center mb-2">
+									<Cloud size={16} /> {t("settings.enableCloud")}
+								</Button>
+								<div className="flex flex-col gap-2">
+									<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide">
+										{t("settings.haveCode")}
+									</span>
+									<div className="flex gap-2">
+										<Input
+											value={restoreCode}
+											onChange={(e) => setRestoreCode(e.target.value)}
+											placeholder={t("settings.recoveryPlaceholder")}
+											className="flex-1 font-mono uppercase text-xs"
+										/>
+										<Button
+											variant="outline"
+											onClick={handleRestore}
+											disabled={restoring || !restoreCode.trim()}
+											className="shrink-0"
+										>
+											{restoring ? <Loader2 size={16} className="animate-spin" /> : t("settings.restore")}
+										</Button>
+									</div>
 								</div>
 							</div>
 						</div>

@@ -301,6 +301,12 @@ export const fr = {
 		cloudNetworkError: "Erreur de connexion au serveur. Veuillez réessayer.",
 		cloudInvalidData: "Les données trouvées sont invalides ou corrompues.",
 		cloudNotConfigured: "Le service cloud n'est pas configuré.",
+		signInApple: "Se connecter avec Apple",
+		signInGoogle: "Se connecter avec Google",
+		connectedWith: "Connecté via",
+		logout: "Se déconnecter",
+		orRecoveryCode: "Ou avec un code de récupération",
+		oauthError: "Erreur de connexion. Veuillez réessayer.",
 		// Theme
 		theme: "Thème",
 		themeDark: "Chambre noire",
