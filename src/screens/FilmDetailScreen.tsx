@@ -942,7 +942,8 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 									history: [...(film.history || []), { date: today(), action: "", actionCode: "modified" }],
 								};
 								if (film.state !== "stock" && editData.shootIso) {
-									editUpdate.shootIso = Number.parseInt(editData.shootIso, 10) || film.shootIso;
+									const parsedIso = Number.parseInt(editData.shootIso, 10);
+									editUpdate.shootIso = Number.isNaN(parsedIso) ? film.shootIso : parsedIso;
 								}
 								updateFilm(editUpdate, t("filmDetail.filmModified"));
 							}}

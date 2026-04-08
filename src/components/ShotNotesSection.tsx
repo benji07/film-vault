@@ -112,7 +112,7 @@ function nowDateTimeLocal(): string {
 function nextFrameNumber(notes: ShotNote[], posesTotal?: number | null): string {
 	const frames = notes.map((n) => n.frameNumber).filter((n): n is number => n != null);
 	const next = frames.length > 0 ? Math.max(...frames) + 1 : 1;
-	if (posesTotal != null && next > posesTotal) return String(posesTotal);
+	if (posesTotal != null && next > posesTotal) return "";
 	return String(next);
 }
 
@@ -161,6 +161,8 @@ function ShotNotesSection({ film, cameras, onUpdateNotes }: ShotNotesSectionProp
 			note.shutterSpeed ||
 			note.lens ||
 			note.location ||
+			note.latitude != null ||
+			note.longitude != null ||
 			note.notes ||
 			note.date ||
 			note.photo;
@@ -340,6 +342,7 @@ function ShotNotesSection({ film, cameras, onUpdateNotes }: ShotNotesSectionProp
 									onClick={handleGpsLocate}
 									disabled={gpsLoading}
 									className="shrink-0 h-10 w-10 p-0"
+									aria-label={t("filmDetail.shotNotesGpsButton")}
 								>
 									{gpsLoading ? <Loader2 size={16} className="animate-spin" /> : <LocateFixed size={16} />}
 								</Button>
