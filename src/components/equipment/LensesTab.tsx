@@ -10,7 +10,7 @@ import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } f
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { APERTURES, SHUTTER_SPEEDS } from "@/constants/photography";
+import { APERTURES, filterApertures, filterSpeeds } from "@/constants/photography";
 import { alpha, T } from "@/constants/theme";
 import type { AppData, Lens, StopIncrement } from "@/types";
 import { uid } from "@/utils/helpers";
@@ -231,7 +231,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 				</FormField>
 			</div>
 			<div className={`grid gap-3 ${isZoom(form) ? "grid-cols-2" : "grid-cols-1"}`}>
-				<FormField label={t("lenses.maxApertureAtMin")}>
+				<FormField label={isZoom(form) ? t("lenses.maxApertureAtMin") : t("lenses.maxAperture")}>
 					<Select value={form.maxApertureAtMin} onValueChange={(v) => setForm({ ...form, maxApertureAtMin: v })}>
 						<SelectTrigger>
 							<SelectValue placeholder="—" />
@@ -269,6 +269,18 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 					{t("lenses.apertureSection")}
 				</span>
 			</div>
+			<FormField label={t("lenses.apertureStops")}>
+				<Select value={form.apertureStops} onValueChange={(v) => setForm({ ...form, apertureStops: v })}>
+					<SelectTrigger>
+						<SelectValue placeholder="—" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="1">{t("lenses.stopsFull")}</SelectItem>
+						<SelectItem value="1/2">{t("lenses.stopsHalf")}</SelectItem>
+						<SelectItem value="1/3">{t("lenses.stopsThird")}</SelectItem>
+					</SelectContent>
+				</Select>
+			</FormField>
 			<div className="grid grid-cols-2 gap-3">
 				<FormField label={t("lenses.apertureMin")}>
 					<Select value={form.apertureMin} onValueChange={(v) => setForm({ ...form, apertureMin: v })}>
@@ -276,7 +288,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 							<SelectValue placeholder="—" />
 						</SelectTrigger>
 						<SelectContent>
-							{APERTURES.filter((_, i) => i === 0 || (i - 1) % 3 === 0).map((a) => (
+							{filterApertures(form.apertureStops ? { stops: form.apertureStops as StopIncrement } : null).map((a) => (
 								<SelectItem key={a} value={a}>
 									{a}
 								</SelectItem>
@@ -290,7 +302,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 							<SelectValue placeholder="—" />
 						</SelectTrigger>
 						<SelectContent>
-							{APERTURES.filter((_, i) => i === 0 || (i - 1) % 3 === 0).map((a) => (
+							{filterApertures(form.apertureStops ? { stops: form.apertureStops as StopIncrement } : null).map((a) => (
 								<SelectItem key={a} value={a}>
 									{a}
 								</SelectItem>
@@ -299,54 +311,12 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 					</Select>
 				</FormField>
 			</div>
-			<FormField label={t("lenses.apertureStops")}>
-				<Select value={form.apertureStops} onValueChange={(v) => setForm({ ...form, apertureStops: v })}>
-					<SelectTrigger>
-						<SelectValue placeholder="—" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="1">{t("lenses.stopsFull")}</SelectItem>
-						<SelectItem value="1/2">{t("lenses.stopsHalf")}</SelectItem>
-						<SelectItem value="1/3">{t("lenses.stopsThird")}</SelectItem>
-					</SelectContent>
-				</Select>
-			</FormField>
 
 			{/* Shutter speed section (leaf shutter) */}
 			<div className="border-t border-border pt-4 mt-1">
 				<span className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
 					{t("lenses.exposureSection")}
 				</span>
-			</div>
-			<div className="grid grid-cols-2 gap-3">
-				<FormField label={t("lenses.shutterSpeedMin")}>
-					<Select value={form.shutterSpeedMin} onValueChange={(v) => setForm({ ...form, shutterSpeedMin: v })}>
-						<SelectTrigger>
-							<SelectValue placeholder="—" />
-						</SelectTrigger>
-						<SelectContent>
-							{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
-								<SelectItem key={s} value={s}>
-									{s}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</FormField>
-				<FormField label={t("lenses.shutterSpeedMax")}>
-					<Select value={form.shutterSpeedMax} onValueChange={(v) => setForm({ ...form, shutterSpeedMax: v })}>
-						<SelectTrigger>
-							<SelectValue placeholder="—" />
-						</SelectTrigger>
-						<SelectContent>
-							{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
-								<SelectItem key={s} value={s}>
-									{s}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</FormField>
 			</div>
 			<FormField label={t("lenses.shutterSpeedStops")}>
 				<Select value={form.shutterSpeedStops} onValueChange={(v) => setForm({ ...form, shutterSpeedStops: v })}>
@@ -360,6 +330,40 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 					</SelectContent>
 				</Select>
 			</FormField>
+			<div className="grid grid-cols-2 gap-3">
+				<FormField label={t("lenses.shutterSpeedMin")}>
+					<Select value={form.shutterSpeedMin} onValueChange={(v) => setForm({ ...form, shutterSpeedMin: v })}>
+						<SelectTrigger>
+							<SelectValue placeholder="—" />
+						</SelectTrigger>
+						<SelectContent>
+							{filterSpeeds(form.shutterSpeedStops ? { stops: form.shutterSpeedStops as StopIncrement } : null).map(
+								(s) => (
+									<SelectItem key={s} value={s}>
+										{s}
+									</SelectItem>
+								),
+							)}
+						</SelectContent>
+					</Select>
+				</FormField>
+				<FormField label={t("lenses.shutterSpeedMax")}>
+					<Select value={form.shutterSpeedMax} onValueChange={(v) => setForm({ ...form, shutterSpeedMax: v })}>
+						<SelectTrigger>
+							<SelectValue placeholder="—" />
+						</SelectTrigger>
+						<SelectContent>
+							{filterSpeeds(form.shutterSpeedStops ? { stops: form.shutterSpeedStops as StopIncrement } : null).map(
+								(s) => (
+									<SelectItem key={s} value={s}>
+										{s}
+									</SelectItem>
+								),
+							)}
+						</SelectContent>
+					</Select>
+				</FormField>
+			</div>
 
 			<Button onClick={onSave} disabled={!form.brand && !form.model} className="w-full justify-center">
 				{isEdit ? (

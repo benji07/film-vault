@@ -304,6 +304,7 @@ export const en = {
 		focalLengthMin: "Min focal (mm)",
 		focalLengthMax: "Max focal (mm)",
 		focalLengthPlaceholder: "E.g.: 50",
+		maxAperture: "Max aperture",
 		maxApertureAtMin: "Max aperture (wide)",
 		maxApertureAtMax: "Max aperture (tele)",
 		apertureSection: "Aperture",

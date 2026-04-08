@@ -304,6 +304,7 @@ export const fr = {
 		focalLengthMin: "Focale min (mm)",
 		focalLengthMax: "Focale max (mm)",
 		focalLengthPlaceholder: "Ex : 50",
+		maxAperture: "Ouverture max",
 		maxApertureAtMin: "Ouv. max (grand angle)",
 		maxApertureAtMax: "Ouv. max (téléobjectif)",
 		apertureSection: "Ouverture",
