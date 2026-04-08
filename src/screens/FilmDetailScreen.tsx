@@ -265,7 +265,11 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 				})()}
 
 			{film.state !== "stock" && (
-				<ShotNotesSection film={film} onUpdateNotes={(notes) => updateFilm({ shotNotes: notes })} />
+				<ShotNotesSection
+					film={film}
+					cameras={data.cameras}
+					onUpdateNotes={(notes) => updateFilm({ shotNotes: notes })}
+				/>
 			)}
 
 			{/* Actions by state */}

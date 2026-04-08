@@ -12,12 +12,13 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { ListButton } from "@/components/ui/list-button";
 import { Textarea } from "@/components/ui/textarea";
-import { APERTURES, SHUTTER_SPEEDS } from "@/constants/photography";
-import type { Film, ShotNote } from "@/types";
+import { type ExposureConfig, filterApertures, filterSpeeds } from "@/constants/photography";
+import type { Camera, Film, ShotNote } from "@/types";
 import { uid } from "@/utils/helpers";
 
 interface ShotNotesSectionProps {
 	film: Film;
+	cameras?: Camera[];
 	onUpdateNotes: (notes: ShotNote[]) => void;
 }
 
@@ -115,12 +116,20 @@ function nextFrameNumber(notes: ShotNote[], posesTotal?: number | null): string 
 	return String(next);
 }
 
-function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
+function ShotNotesSection({ film, cameras, onUpdateNotes }: ShotNotesSectionProps) {
 	const { t } = useTranslation();
 	const { toast } = useToast();
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [form, setForm] = useState<NoteFormData>(emptyForm);
+
+	const camera = cameras?.find((c) => c.id === film.cameraId);
+	const speedConfig: ExposureConfig | null = camera
+		? { min: camera.shutterSpeedMin, max: camera.shutterSpeedMax, stops: camera.shutterSpeedStops }
+		: null;
+	const apertureConfig: ExposureConfig | null = camera?.apertureStops ? { stops: camera.apertureStops } : null;
+	const filteredSpeeds = filterSpeeds(speedConfig);
+	const filteredApertures = filterApertures(apertureConfig);
 
 	const notes = film.shotNotes ?? [];
 	const sorted = sortNotes(notes);
@@ -295,7 +304,7 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 								placeholder={t("filmDetail.shotNotesAperturePlaceholder")}
 								value={form.aperture}
 								onChange={(v) => updateField("aperture", v)}
-								suggestions={APERTURES}
+								suggestions={filteredApertures}
 								showAllOnFocus
 							/>
 							<AutocompleteInput
@@ -303,7 +312,7 @@ function ShotNotesSection({ film, onUpdateNotes }: ShotNotesSectionProps) {
 								placeholder={t("filmDetail.shotNotesShutterPlaceholder")}
 								value={form.shutterSpeed}
 								onChange={(v) => updateField("shutterSpeed", v)}
-								suggestions={SHUTTER_SPEEDS}
+								suggestions={filteredSpeeds}
 								showAllOnFocus
 							/>
 						</div>
