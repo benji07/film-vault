@@ -3,7 +3,6 @@ import { applyMigrations, CURRENT_VERSION, validateAppData } from "@/utils/migra
 import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 
 const RECOVERY_CODE_KEY = "filmvault-recovery-code";
-const AUTH_USER_KEY = "filmvault-auth-user";
 const LAST_SYNC_KEY = "filmvault-last-sync";
 const LAST_MODIFIED_KEY = "filmvault-last-modified";
 
@@ -31,41 +30,6 @@ export function setRecoveryCode(code: string): void {
 export function clearRecoveryCode(): void {
 	localStorage.removeItem(RECOVERY_CODE_KEY);
 	localStorage.removeItem(LAST_SYNC_KEY);
-}
-
-// --- Auth user management ---
-
-export interface AuthUserInfo {
-	id: string;
-	email: string | null;
-	provider: string;
-}
-
-export function getAuthUser(): AuthUserInfo | null {
-	try {
-		const raw = localStorage.getItem(AUTH_USER_KEY);
-		return raw ? (JSON.parse(raw) as AuthUserInfo) : null;
-	} catch {
-		return null;
-	}
-}
-
-export function setAuthUser(info: AuthUserInfo): void {
-	localStorage.setItem(AUTH_USER_KEY, JSON.stringify(info));
-}
-
-export function clearAuthUser(): void {
-	localStorage.removeItem(AUTH_USER_KEY);
-	localStorage.removeItem(LAST_SYNC_KEY);
-}
-
-/**
- * Returns the sync identifier: auth user ID (priority) or recovery code.
- */
-export function getSyncKey(): string | null {
-	const authUser = getAuthUser();
-	if (authUser) return authUser.id;
-	return getRecoveryCode();
 }
 
 // --- Last modified / last sync ---
