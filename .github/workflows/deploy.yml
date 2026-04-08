@@ -14,8 +14,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - run: supabase db push --db-url "$SUPABASE_DB_URL"
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+
   build:
     runs-on: ubuntu-latest
+    needs: migrate
     steps:
       - uses: actions/checkout@v4
 
