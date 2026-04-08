@@ -63,15 +63,12 @@ function setLastSync(): void {
 export async function pushToCloud(code: string, data: AppData): Promise<boolean> {
 	if (!supabase) return false;
 	try {
-		const { error } = await supabase.from("user_data").upsert(
-			{
-				recovery_code: code,
-				data,
-				version: data.version,
-				updated_at: new Date().toISOString(),
-			},
-			{ onConflict: "recovery_code" },
-		);
+		const { error } = await supabase.rpc("upsert_user_data", {
+			p_recovery_code: code,
+			p_data: data,
+			p_version: data.version,
+			p_updated_at: new Date().toISOString(),
+		});
 		if (error) {
 			console.error("Push to cloud failed:", error.message);
 			return false;
@@ -90,16 +87,16 @@ export type PullResult = { data: AppData } | { error: PullError };
 export async function pullFromCloud(code: string): Promise<PullResult> {
 	if (!supabase) return { error: "supabase_not_configured" };
 	try {
-		const { data: row, error } = await supabase
-			.from("user_data")
-			.select("data, version, updated_at")
-			.eq("recovery_code", code)
-			.single();
+		const { data: rows, error } = await supabase.rpc("get_user_data", {
+			p_recovery_code: code,
+		});
 
 		if (error) {
 			console.error("Pull from cloud failed:", error.message);
-			return { error: error.code === "PGRST116" ? "not_found" : "network_error" };
+			return { error: "network_error" };
 		}
+
+		const row = rows?.[0];
 		if (!row) return { error: "not_found" };
 
 		const cloudData = row.data as unknown;
@@ -135,14 +132,19 @@ export async function syncData(
 	}
 
 	try {
-		const { data: row, error } = await supabase
-			.from("user_data")
-			.select("data, updated_at")
-			.eq("recovery_code", code)
-			.single();
+		const { data: rows, error } = await supabase.rpc("get_user_data", {
+			p_recovery_code: code,
+		});
 
-		// No cloud data yet → push local
-		if (error || !row) {
+		// No cloud data yet or error → push local
+		if (error) {
+			console.error("Sync check failed:", error.message);
+			await pushToCloud(code, localData);
+			return { data: localData, source: "local" };
+		}
+
+		const row = rows?.[0];
+		if (!row) {
 			await pushToCloud(code, localData);
 			return { data: localData, source: "local" };
 		}
