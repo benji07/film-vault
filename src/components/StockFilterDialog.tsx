@@ -3,11 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
-import { type FilmFormat, type FilmType as FilmTypeEnum, INSTANT_FORMATS } from "@/types";
 import type { StockFilters } from "@/utils/use-stock-filters";
-
-const FORMATS: FilmFormat[] = ["35mm", "120", ...INSTANT_FORMATS];
-const TYPES: FilmTypeEnum[] = ["Couleur", "N&B", "Diapo", "ECN-2"];
 
 interface StockFilterDialogProps {
 	open: boolean;
@@ -15,6 +11,8 @@ interface StockFilterDialogProps {
 	filters: StockFilters;
 	stateFilter: string;
 	stateTabs: { key: string; label: string; count: number }[];
+	availableFormats: string[];
+	availableTypes: string[];
 	availableBrands: string[];
 	availableIsoValues: number[];
 	onSetStateFilter: (v: string) => void;
@@ -31,6 +29,8 @@ export function StockFilterDialog({
 	filters,
 	stateFilter,
 	stateTabs,
+	availableFormats,
+	availableTypes,
 	availableBrands,
 	availableIsoValues,
 	onSetStateFilter,
@@ -61,31 +61,35 @@ export function StockFilterDialog({
 						</div>
 					</FormField>
 
-					<FormField label={t("addFilm.format")}>
-						<div className="flex flex-wrap gap-1.5">
-							<Chip active={filters.format === "all"} onClick={() => onSetFormat("all")}>
-								{t("stock.all")}
-							</Chip>
-							{FORMATS.map((f) => (
-								<Chip key={f} active={filters.format === f} onClick={() => onSetFormat(f)}>
-									{t(`filmFormats.${f}`)}
+					{availableFormats.length > 0 && (
+						<FormField label={t("addFilm.format")}>
+							<div className="flex flex-wrap gap-1.5">
+								<Chip active={filters.format === "all"} onClick={() => onSetFormat("all")}>
+									{t("stock.all")}
 								</Chip>
-							))}
-						</div>
-					</FormField>
+								{availableFormats.map((f) => (
+									<Chip key={f} active={filters.format === f} onClick={() => onSetFormat(f)}>
+										{t(`filmFormats.${f}`)}
+									</Chip>
+								))}
+							</div>
+						</FormField>
+					)}
 
-					<FormField label={t("addFilm.type")}>
-						<div className="flex flex-wrap gap-1.5">
-							<Chip active={filters.type === "all"} onClick={() => onSetType("all")}>
-								{t("stock.all")}
-							</Chip>
-							{TYPES.map((tp) => (
-								<Chip key={tp} active={filters.type === tp} onClick={() => onSetType(tp)}>
-									{t(`filmTypes.${tp}`)}
+					{availableTypes.length > 0 && (
+						<FormField label={t("addFilm.type")}>
+							<div className="flex flex-wrap gap-1.5">
+								<Chip active={filters.type === "all"} onClick={() => onSetType("all")}>
+									{t("stock.all")}
 								</Chip>
-							))}
-						</div>
-					</FormField>
+								{availableTypes.map((tp) => (
+									<Chip key={tp} active={filters.type === tp} onClick={() => onSetType(tp)}>
+										{t(`filmTypes.${tp}`)}
+									</Chip>
+								))}
+							</div>
+						</FormField>
+					)}
 
 					{availableBrands.length > 0 && (
 						<FormField label={t("stock.brand")}>

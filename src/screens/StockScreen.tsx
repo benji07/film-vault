@@ -180,6 +180,8 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 				filters={stockFilters.filters}
 				stateFilter={stockFilters.stateFilter}
 				stateTabs={stateTabs}
+				availableFormats={stockFilters.availableFormats}
+				availableTypes={stockFilters.availableTypes}
 				availableBrands={stockFilters.availableBrands}
 				availableIsoValues={stockFilters.availableIsoValues}
 				onSetStateFilter={stockFilters.setStateFilter}
