@@ -1,6 +1,7 @@
 import type { Lens } from "@/types";
 
-export function lensDisplayName(lens: Lens): string {
+export function lensDisplayName(lens: Lens | undefined): string {
+	if (!lens) return "";
 	const brandModel = [lens.brand, lens.model].filter(Boolean).join(" ");
 	if (lens.nickname) return `${lens.nickname} (${brandModel})`;
 	return brandModel;

@@ -237,7 +237,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 							<SelectValue placeholder="—" />
 						</SelectTrigger>
 						<SelectContent>
-							{APERTURES.filter((_, i) => i % 3 === 0).map((a) => (
+							{APERTURES.filter((_, i) => i === 0 || (i - 1) % 3 === 0).map((a) => (
 								<SelectItem key={a} value={a}>
 									{a}
 								</SelectItem>
@@ -252,7 +252,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 								<SelectValue placeholder="—" />
 							</SelectTrigger>
 							<SelectContent>
-								{APERTURES.filter((_, i) => i % 3 === 0).map((a) => (
+								{APERTURES.filter((_, i) => i === 0 || (i - 1) % 3 === 0).map((a) => (
 									<SelectItem key={a} value={a}>
 										{a}
 									</SelectItem>
@@ -276,7 +276,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 							<SelectValue placeholder="—" />
 						</SelectTrigger>
 						<SelectContent>
-							{APERTURES.filter((_, i) => i % 3 === 0).map((a) => (
+							{APERTURES.filter((_, i) => i === 0 || (i - 1) % 3 === 0).map((a) => (
 								<SelectItem key={a} value={a}>
 									{a}
 								</SelectItem>
@@ -290,7 +290,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 							<SelectValue placeholder="—" />
 						</SelectTrigger>
 						<SelectContent>
-							{APERTURES.filter((_, i) => i % 3 === 0).map((a) => (
+							{APERTURES.filter((_, i) => i === 0 || (i - 1) % 3 === 0).map((a) => (
 								<SelectItem key={a} value={a}>
 									{a}
 								</SelectItem>

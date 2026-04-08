@@ -253,8 +253,13 @@ export function validateAppData(data: unknown): data is AppData {
 	if (!Array.isArray(d.films)) return false;
 	if (!Array.isArray(d.cameras)) return false;
 	if (d.backs !== undefined && d.backs !== null && !Array.isArray(d.backs)) return false;
-	if (d.lenses !== undefined && d.lenses !== null && !Array.isArray(d.lenses)) return false;
 	if (d.version !== undefined && d.version !== null && typeof d.version !== "number") return false;
+	const version = typeof d.version === "number" ? d.version : 1;
+	if (version >= 13) {
+		if (!Array.isArray(d.lenses)) return false;
+	} else if (d.lenses !== undefined && d.lenses !== null && !Array.isArray(d.lenses)) {
+		return false;
+	}
 	return true;
 }
 

@@ -229,7 +229,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 							label={t("filmDetail.lens")}
 							value={
 								film.lensId
-									? lensDisplayName(data.lenses.find((l) => l.id === film.lensId)!) || film.lens || ""
+									? lensDisplayName(data.lenses.find((l) => l.id === film.lensId)) || film.lens || ""
 									: film.lens || ""
 							}
 						/>
@@ -731,7 +731,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 										state: "loaded",
 										cameraId: actionData.cameraId,
 										backId: actionData.backId || null,
-										lensId: actionData.lensId || film.lensId || null,
+										lensId: "lensId" in actionData ? (actionData.lensId ?? null) : (film.lensId ?? null),
 										lens: actionData.lens?.trim() || film.lens || null,
 										startDate: actionData.startDate || today(),
 										history: [

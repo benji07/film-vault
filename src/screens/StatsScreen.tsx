@@ -20,6 +20,8 @@ export function StatsScreen({ data }: StatsScreenProps) {
 	const shotStates = new Set(["exposed", "developed", "scanned", "loaded", "partial"]);
 	const consumedStates = new Set(["exposed", "developed", "scanned"]);
 
+	const lensNameMap = new Map(data.lenses.map((l) => [l.id, lensDisplayName(l)]));
+
 	const byType: Record<string, number> = {};
 	const byBrand: Record<string, number> = {};
 	const byFormat: Record<string, number> = {};
@@ -49,8 +51,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				byCamera[camName] = (byCamera[camName] || 0) + 1;
 			}
 			if (f.lensId) {
-				const lens = data.lenses.find((l) => l.id === f.lensId);
-				const lensName = lens ? lensDisplayName(lens) : f.lens || t("stats.unknown");
+				const lensName = lensNameMap.get(f.lensId) || f.lens || t("stats.unknown");
 				byLens[lensName] = (byLens[lensName] || 0) + 1;
 			} else if (f.lens) {
 				byLens[f.lens] = (byLens[f.lens] || 0) + 1;
