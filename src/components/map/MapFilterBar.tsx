@@ -1,6 +1,7 @@
-import { X } from "lucide-react";
+import { Crosshair, X } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import type { Film, FilmType } from "@/types";
 import { filmName } from "@/utils/film-helpers";
@@ -13,6 +14,7 @@ interface MapFilterBarProps {
 	onFilterFilm: (id: string | null) => void;
 	onFilterType: (type: FilmType | null) => void;
 	onClearFilter: () => void;
+	onRecenter: () => void;
 }
 
 const FILM_TYPES: FilmType[] = ["Couleur", "N&B", "Diapo", "ECN-2"];
@@ -24,6 +26,7 @@ export function MapFilterBar({
 	onFilterFilm,
 	onFilterType,
 	onClearFilter,
+	onRecenter,
 }: MapFilterBarProps) {
 	const { t } = useTranslation();
 
@@ -33,23 +36,34 @@ export function MapFilterBar({
 	);
 
 	return (
-		<div className="absolute top-3 left-3 right-3 z-10 flex flex-col gap-2">
-			{/* Film type filter */}
-			<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-				<Chip active={filterType == null} onClick={() => onFilterType(null)} className="shrink-0 text-xs shadow-md">
-					{t("map.allTypes")}
-				</Chip>
-				{FILM_TYPES.map((type) => (
-					<Chip
-						key={type}
-						active={filterType === type}
-						onClick={() => onFilterType(filterType === type ? null : type)}
-						className="shrink-0 text-xs shadow-md"
-					>
-						<div className="w-2 h-2 rounded-full" style={{ backgroundColor: MARKER_COLORS[type] }} />
-						{t(`filmTypes.${type}`, type)}
+		<div className="absolute top-[max(0.75rem,env(safe-area-inset-top))] left-3 right-3 z-10 flex flex-col gap-2">
+			{/* Film type filter + recenter */}
+			<div className="flex items-center gap-1.5">
+				<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide flex-1 min-w-0">
+					<Chip active={filterType == null} onClick={() => onFilterType(null)} className="shrink-0 text-xs shadow-md">
+						{t("map.allTypes")}
 					</Chip>
-				))}
+					{FILM_TYPES.map((type) => (
+						<Chip
+							key={type}
+							active={filterType === type}
+							onClick={() => onFilterType(filterType === type ? null : type)}
+							className="shrink-0 text-xs shadow-md"
+						>
+							<div className="w-2 h-2 rounded-full" style={{ backgroundColor: MARKER_COLORS[type] }} />
+							{t(`filmTypes.${type}`, type)}
+						</Chip>
+					))}
+				</div>
+				<Button
+					variant="outline"
+					size="icon"
+					onClick={onRecenter}
+					className="shrink-0 shadow-md bg-card/90 backdrop-blur h-[44px] w-[44px]"
+					aria-label={t("map.recenter")}
+				>
+					<Crosshair size={18} className="text-text-sec" />
+				</Button>
 			</div>
 
 			{/* Film filter */}
