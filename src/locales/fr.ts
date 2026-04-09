@@ -515,6 +515,7 @@ export const fr = {
 		filterByFilm: "Par pellicule",
 		filterByType: "Par type",
 		recenter: "Recentrer",
+		locateMe: "Ma position",
 		frame: "Vue n°{{number}}",
 		noteCount: "{{count}} note géolocalisée",
 		noteCount_other: "{{count}} notes géolocalisées",
