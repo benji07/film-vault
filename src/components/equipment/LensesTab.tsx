@@ -94,6 +94,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 	const formToLens = (form: LensFormData, id: string): Lens => {
 		const fMin = Number.parseInt(form.focalLengthMin, 10);
 		const fMax = Number.parseInt(form.focalLengthMax, 10);
+		const validZoom = form.isZoom && !Number.isNaN(fMin) && !Number.isNaN(fMax) && fMax > fMin;
 		return {
 			id,
 			brand: form.brand,
@@ -102,11 +103,11 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 			serial: form.serial || undefined,
 			photo: form.photo,
 			mount: form.mount || undefined,
-			isZoom: form.isZoom,
+			isZoom: validZoom,
 			focalLengthMin: Number.isNaN(fMin) ? null : fMin,
-			focalLengthMax: form.isZoom ? (Number.isNaN(fMax) ? null : fMax) : Number.isNaN(fMin) ? null : fMin,
+			focalLengthMax: validZoom ? fMax : Number.isNaN(fMin) ? null : fMin,
 			maxApertureAtMin: form.maxApertureAtMin || null,
-			maxApertureAtMax: form.isZoom ? form.maxApertureAtMax || null : null,
+			maxApertureAtMax: validZoom ? form.maxApertureAtMax || null : null,
 			apertureMin: form.apertureMin || null,
 			apertureMax: form.apertureMax || null,
 			apertureStops: (form.apertureStops as StopIncrement) || null,
@@ -207,10 +208,10 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 					{t("lenses.focalSection")}
 				</span>
 			</div>
-			<div className="flex items-center justify-between gap-3">
+			<label className="flex items-center justify-between gap-3 cursor-pointer">
 				<span className="text-sm text-text-primary">{t("lenses.isZoom")}</span>
 				<Switch checked={form.isZoom} onCheckedChange={(v) => setForm({ ...form, isZoom: v })} />
-			</div>
+			</label>
 			{form.isZoom ? (
 				<div className="grid grid-cols-2 gap-3">
 					<FormField label={t("lenses.focalLengthMin")}>
