@@ -1,5 +1,5 @@
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Crosshair, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import maplibregl from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -21,21 +21,6 @@ interface MapScreenProps {
 	setSelectedFilm: (id: string) => void;
 	filterFilmId: string | null;
 	onClearFilter: () => void;
-}
-
-function RecenterButton({ onClick }: { onClick: () => void }) {
-	const { t } = useTranslation();
-	return (
-		<Button
-			variant="outline"
-			size="icon"
-			onClick={onClick}
-			className="absolute bottom-20 right-3 z-10 shadow-lg bg-card/90 backdrop-blur"
-			aria-label={t("map.recenter")}
-		>
-			<Crosshair size={18} className="text-text-sec" />
-		</Button>
-	);
 }
 
 export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onClearFilter }: MapScreenProps) {
@@ -149,9 +134,8 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 				onFilterFilm={setLocalFilterFilmId}
 				onFilterType={setFilterType}
 				onClearFilter={onClearFilter}
+				onRecenter={handleRecenter}
 			/>
-
-			<RecenterButton onClick={handleRecenter} />
 
 			{selectedNote && (
 				<NoteSheet geoNote={selectedNote} onClose={() => setSelectedNote(null)} onViewFilm={handleViewFilm} />
