@@ -1,4 +1,4 @@
-import { BarChart3, Camera, Film, Home, Settings } from "lucide-react";
+import { BarChart3, Camera, Film, Home, Map as MapIcon, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ interface Tab {
 const tabDefs: Tab[] = [
 	{ key: "home", icon: Home, labelKey: "nav.home" },
 	{ key: "stock", icon: Film, labelKey: "nav.films" },
+	{ key: "map", icon: MapIcon, labelKey: "nav.map" },
 	{ key: "cameras", icon: Camera, labelKey: "nav.cameras" },
 	{ key: "stats", icon: BarChart3, labelKey: "nav.stats" },
 ];

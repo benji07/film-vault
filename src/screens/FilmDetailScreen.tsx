@@ -89,9 +89,17 @@ interface FilmDetailScreenProps {
 	setScreen: (screen: ScreenName) => void;
 	setSelectedFilm: (id: string) => void;
 	filmId: string | null;
+	onNavigateToMap?: (filmId: string) => void;
 }
 
-export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, filmId }: FilmDetailScreenProps) {
+export function FilmDetailScreen({
+	data,
+	setData,
+	setScreen,
+	setSelectedFilm,
+	filmId,
+	onNavigateToMap,
+}: FilmDetailScreenProps) {
 	const { t } = useTranslation();
 	const film = data.films.find((f) => f.id === filmId);
 	const [showAction, setShowAction] = useState<ActionType>(null);
@@ -282,6 +290,7 @@ export function FilmDetailScreen({ data, setData, setScreen, setSelectedFilm, fi
 					cameras={data.cameras}
 					lenses={data.lenses}
 					onUpdateNotes={(notes) => updateFilm({ shotNotes: notes })}
+					onNavigateToMap={onNavigateToMap ? () => onNavigateToMap(film.id) : undefined}
 				/>
 			)}
 

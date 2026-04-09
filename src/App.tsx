@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AddFilmDialog } from "@/components/AddFilmDialog";
 import { AppHeader } from "@/components/AppHeader";
@@ -19,11 +19,14 @@ import { checkStorage, getInitialData, isStorageAvailable, loadData, saveData } 
 import { isSupabaseConfigured } from "@/utils/supabase";
 import { getRecoveryCode, pushToCloud, syncData } from "@/utils/sync";
 
+const MapScreen = lazy(() => import("@/screens/MapScreen").then((m) => ({ default: m.MapScreen })));
+
 function FilmVaultInner() {
 	const [data, setData] = useState<AppData | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [screen, setScreen] = useState<ScreenName>("home");
 	const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
+	const [mapFilterFilmId, setMapFilterFilmId] = useState<string | null>(null);
 	const [showAddFilm, setShowAddFilm] = useState(false);
 	const [persistent, setPersistent] = useState(false);
 	const [syncing, setSyncing] = useState(false);
@@ -119,6 +122,11 @@ function FilmVaultInner() {
 		return () => window.removeEventListener("online", handleOnline);
 	}, [triggerSync]);
 
+	const navigateToMap = useCallback((filmId?: string) => {
+		setMapFilterFilmId(filmId ?? null);
+		setScreen("map");
+	}, []);
+
 	if (loading || !data) {
 		return (
 			<div className="min-h-screen bg-bg flex flex-col items-center justify-center gap-3">
@@ -148,7 +156,26 @@ function FilmVaultInner() {
 						setScreen={setScreen}
 						setSelectedFilm={setSelectedFilm}
 						filmId={selectedFilm}
+						onNavigateToMap={navigateToMap}
 					/>
+				);
+			case "map":
+				return (
+					<Suspense
+						fallback={
+							<div className="flex-1 flex items-center justify-center">
+								<Loader2 size={24} className="text-accent animate-spin" />
+							</div>
+						}
+					>
+						<MapScreen
+							data={data}
+							setScreen={setScreen}
+							setSelectedFilm={setSelectedFilm}
+							filterFilmId={mapFilterFilmId}
+							onClearFilter={() => setMapFilterFilmId(null)}
+						/>
+					</Suspense>
 				);
 			case "cameras":
 				return <EquipmentScreen data={data} setData={updateData} />;
@@ -182,14 +209,20 @@ function FilmVaultInner() {
 			<TabBar screen={screen} setScreen={setScreen} variant="sidebar" className="hidden md:flex" />
 
 			<main className="flex-1 flex flex-col min-h-0 min-w-0">
-				<AppHeader screen={screen} setScreen={setScreen} filmTitle={filmTitle} className="md:hidden" />
-				<div className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-5 md:pt-[max(1.25rem,env(safe-area-inset-top))]">
-					<div className="max-w-3xl mx-auto">
-						<div key={`${screen}-${selectedFilm || ""}`} className="animate-screen-enter">
-							{renderScreen()}
+				{screen !== "map" && (
+					<AppHeader screen={screen} setScreen={setScreen} filmTitle={filmTitle} className="md:hidden" />
+				)}
+				{screen === "map" ? (
+					<div className="flex-1 min-h-0">{renderScreen()}</div>
+				) : (
+					<div className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-5 md:pt-[max(1.25rem,env(safe-area-inset-top))]">
+						<div className="max-w-3xl mx-auto">
+							<div key={`${screen}-${selectedFilm || ""}`} className="animate-screen-enter">
+								{renderScreen()}
+							</div>
 						</div>
 					</div>
-				</div>
+				)}
 
 				{/* Bottom TabBar — mobile only */}
 				{showTabBar && <TabBar screen={screen} setScreen={setScreen} className="md:hidden" />}

@@ -1,4 +1,4 @@
-import { ExternalLink, ImageIcon, Loader2, LocateFixed, NotebookPen, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, ImageIcon, Loader2, LocateFixed, Map as MapIcon, NotebookPen, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PhotoPicker } from "@/components/PhotoPicker";
@@ -23,6 +23,7 @@ interface ShotNotesSectionProps {
 	cameras?: Camera[];
 	lenses?: Lens[];
 	onUpdateNotes: (notes: ShotNote[]) => void;
+	onNavigateToMap?: () => void;
 }
 
 function formatNoteSummary(note: ShotNote): string {
@@ -123,7 +124,7 @@ function nextFrameNumber(notes: ShotNote[], posesTotal?: number | null): string 
 	return String(next);
 }
 
-function ShotNotesSection({ film, cameras, lenses, onUpdateNotes }: ShotNotesSectionProps) {
+function ShotNotesSection({ film, cameras, lenses, onUpdateNotes, onNavigateToMap }: ShotNotesSectionProps) {
 	const { t } = useTranslation();
 	const { toast } = useToast();
 	const [dialogOpen, setDialogOpen] = useState(false);
@@ -298,6 +299,13 @@ function ShotNotesSection({ film, cameras, lenses, onUpdateNotes }: ShotNotesSec
 							);
 						})}
 					</div>
+				)}
+
+				{onNavigateToMap && sorted.some((n) => n.latitude != null && n.longitude != null) && (
+					<Button variant="ghost" size="sm" onClick={onNavigateToMap} className="mt-2 gap-1.5 text-accent">
+						<MapIcon size={14} />
+						{t("map.viewOnMap")}
+					</Button>
 				)}
 			</Card>
 
