@@ -9,7 +9,7 @@ export function lensDisplayName(lens: Lens | undefined): string {
 
 export function lensFocalLabel(lens: Lens): string {
 	if (!lens.focalLengthMin) return "";
-	if (lens.focalLengthMax && lens.focalLengthMax !== lens.focalLengthMin) {
+	if (lens.isZoom && lens.focalLengthMax && lens.focalLengthMax > lens.focalLengthMin) {
 		return `${lens.focalLengthMin}-${lens.focalLengthMax}mm`;
 	}
 	return `${lens.focalLengthMin}mm`;

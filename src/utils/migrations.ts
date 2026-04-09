@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 13;
+export const CURRENT_VERSION = 14;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -215,6 +215,18 @@ function migrateV12toV13(data: Record<string, unknown>): Record<string, unknown>
 	return { ...data, version: 13 };
 }
 
+function migrateV13toV14(data: Record<string, unknown>): Record<string, unknown> {
+	// Add isZoom boolean on each lens, computed from existing focal length data.
+	const lenses = (data.lenses as Record<string, unknown>[]) || [];
+	const migratedLenses = lenses.map((lens) => {
+		const fMin = typeof lens.focalLengthMin === "number" ? lens.focalLengthMin : null;
+		const fMax = typeof lens.focalLengthMax === "number" ? lens.focalLengthMax : null;
+		const isZoom = fMin != null && fMax != null && fMax > fMin;
+		return { ...lens, isZoom };
+	});
+	return { ...data, lenses: migratedLenses, version: 14 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -228,6 +240,7 @@ const migrations: Record<number, MigrationFn> = {
 	10: migrateV10toV11,
 	11: migrateV11toV12,
 	12: migrateV12toV13,
+	13: migrateV13toV14,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

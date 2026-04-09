@@ -133,6 +133,7 @@ export interface Lens {
 	serial?: string;
 	photo?: string;
 	mount?: string;
+	isZoom?: boolean;
 	focalLengthMin?: number | null;
 	focalLengthMax?: number | null;
 	maxApertureAtMin?: string | null;
