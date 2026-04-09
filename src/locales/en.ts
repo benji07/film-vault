@@ -301,6 +301,8 @@ export const en = {
 		mount: "Mount",
 		mountPlaceholder: "E.g.: Canon EF, Nikon F, M42…",
 		focalSection: "Focal length",
+		isZoom: "Zoom lens",
+		focalLength: "Focal length (mm)",
 		focalLengthMin: "Min focal (mm)",
 		focalLengthMax: "Max focal (mm)",
 		focalLengthPlaceholder: "E.g.: 50",

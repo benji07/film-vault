@@ -10,6 +10,7 @@ import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } f
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { APERTURES, filterApertures, filterSpeeds } from "@/constants/photography";
 import { alpha, T } from "@/constants/theme";
 import type { AppData, Lens, StopIncrement } from "@/types";
@@ -22,6 +23,7 @@ interface LensesTabProps {
 }
 
 interface LensFormData {
+	isZoom: boolean;
 	brand: string;
 	model: string;
 	nickname: string;
@@ -41,6 +43,7 @@ interface LensFormData {
 }
 
 const emptyLensForm: LensFormData = {
+	isZoom: false,
 	brand: "",
 	model: "",
 	nickname: "",
@@ -61,6 +64,7 @@ const emptyLensForm: LensFormData = {
 
 function lensToForm(lens: Lens): LensFormData {
 	return {
+		isZoom: lens.isZoom ?? false,
 		brand: lens.brand,
 		model: lens.model,
 		nickname: lens.nickname || "",
@@ -87,12 +91,6 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 	const [editLensId, setEditLensId] = useState<string | null>(null);
 	const [editLens, setEditLens] = useState<LensFormData>(emptyLensForm);
 
-	const isZoom = (form: LensFormData) => {
-		const min = Number.parseInt(form.focalLengthMin, 10);
-		const max = Number.parseInt(form.focalLengthMax, 10);
-		return !Number.isNaN(min) && !Number.isNaN(max) && max > min;
-	};
-
 	const formToLens = (form: LensFormData, id: string): Lens => {
 		const fMin = Number.parseInt(form.focalLengthMin, 10);
 		const fMax = Number.parseInt(form.focalLengthMax, 10);
@@ -104,10 +102,11 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 			serial: form.serial || undefined,
 			photo: form.photo,
 			mount: form.mount || undefined,
+			isZoom: form.isZoom,
 			focalLengthMin: Number.isNaN(fMin) ? null : fMin,
-			focalLengthMax: Number.isNaN(fMax) ? null : fMax,
+			focalLengthMax: form.isZoom ? (Number.isNaN(fMax) ? null : fMax) : Number.isNaN(fMin) ? null : fMin,
 			maxApertureAtMin: form.maxApertureAtMin || null,
-			maxApertureAtMax: form.maxApertureAtMax || null,
+			maxApertureAtMax: form.isZoom ? form.maxApertureAtMax || null : null,
 			apertureMin: form.apertureMin || null,
 			apertureMax: form.apertureMax || null,
 			apertureStops: (form.apertureStops as StopIncrement) || null,
@@ -208,8 +207,35 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 					{t("lenses.focalSection")}
 				</span>
 			</div>
-			<div className="grid grid-cols-2 gap-3">
-				<FormField label={t("lenses.focalLengthMin")}>
+			<div className="flex items-center justify-between gap-3">
+				<span className="text-sm text-text-primary">{t("lenses.isZoom")}</span>
+				<Switch checked={form.isZoom} onCheckedChange={(v) => setForm({ ...form, isZoom: v })} />
+			</div>
+			{form.isZoom ? (
+				<div className="grid grid-cols-2 gap-3">
+					<FormField label={t("lenses.focalLengthMin")}>
+						<Input
+							type="number"
+							min={1}
+							value={form.focalLengthMin}
+							onChange={(e) => setForm({ ...form, focalLengthMin: e.target.value })}
+							placeholder={t("lenses.focalLengthPlaceholder")}
+							className="font-mono"
+						/>
+					</FormField>
+					<FormField label={t("lenses.focalLengthMax")}>
+						<Input
+							type="number"
+							min={1}
+							value={form.focalLengthMax}
+							onChange={(e) => setForm({ ...form, focalLengthMax: e.target.value })}
+							placeholder={t("lenses.focalLengthPlaceholder")}
+							className="font-mono"
+						/>
+					</FormField>
+				</div>
+			) : (
+				<FormField label={t("lenses.focalLength")}>
 					<Input
 						type="number"
 						min={1}
@@ -219,19 +245,9 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 						className="font-mono"
 					/>
 				</FormField>
-				<FormField label={t("lenses.focalLengthMax")}>
-					<Input
-						type="number"
-						min={1}
-						value={form.focalLengthMax}
-						onChange={(e) => setForm({ ...form, focalLengthMax: e.target.value })}
-						placeholder={t("lenses.focalLengthPlaceholder")}
-						className="font-mono"
-					/>
-				</FormField>
-			</div>
-			<div className={`grid gap-3 ${isZoom(form) ? "grid-cols-2" : "grid-cols-1"}`}>
-				<FormField label={isZoom(form) ? t("lenses.maxApertureAtMin") : t("lenses.maxAperture")}>
+			)}
+			<div className={`grid gap-3 ${form.isZoom ? "grid-cols-2" : "grid-cols-1"}`}>
+				<FormField label={form.isZoom ? t("lenses.maxApertureAtMin") : t("lenses.maxAperture")}>
 					<Select value={form.maxApertureAtMin} onValueChange={(v) => setForm({ ...form, maxApertureAtMin: v })}>
 						<SelectTrigger>
 							<SelectValue placeholder="—" />
@@ -245,7 +261,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 						</SelectContent>
 					</Select>
 				</FormField>
-				{isZoom(form) && (
+				{form.isZoom && (
 					<FormField label={t("lenses.maxApertureAtMax")}>
 						<Select value={form.maxApertureAtMax} onValueChange={(v) => setForm({ ...form, maxApertureAtMax: v })}>
 							<SelectTrigger>
