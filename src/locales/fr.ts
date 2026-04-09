@@ -5,6 +5,7 @@ export const fr = {
 		films: "Pellicules",
 		cameras: "Appareils",
 		stats: "Stats",
+		map: "Carte",
 		settings: "Réglages",
 		subtitle: "Ton inventaire argentique",
 	},
@@ -499,6 +500,24 @@ export const fr = {
 		openPhoto: "Ouvrir la photo {{index}}",
 		copyRecoveryCode: "Copier le code de récupération",
 		dismissBanner: "Fermer la bannière",
+	},
+
+	// Map screen
+	map: {
+		title: "Carte",
+		emptyTitle: "Aucun lieu géolocalisé",
+		emptySubtitle: "Ajoutez des coordonnées GPS à vos notes de prise de vue pour les voir sur la carte",
+		emptyAction: "Voir mes pellicules",
+		viewOnMap: "Voir sur la carte",
+		viewFilm: "Voir la pellicule",
+		allFilms: "Toutes",
+		allTypes: "Tous les types",
+		filterByFilm: "Par pellicule",
+		filterByType: "Par type",
+		recenter: "Recentrer",
+		frame: "Vue n°{{number}}",
+		noteCount: "{{count}} note géolocalisée",
+		noteCount_other: "{{count}} notes géolocalisées",
 	},
 
 	// Date locale

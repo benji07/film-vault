@@ -5,6 +5,7 @@ export const en = {
 		films: "Films",
 		cameras: "Cameras",
 		stats: "Stats",
+		map: "Map",
 		settings: "Settings",
 		subtitle: "Your analog film inventory",
 	},
@@ -499,6 +500,24 @@ export const en = {
 		openPhoto: "Open photo {{index}}",
 		copyRecoveryCode: "Copy recovery code",
 		dismissBanner: "Dismiss banner",
+	},
+
+	// Map screen
+	map: {
+		title: "Map",
+		emptyTitle: "No geolocated locations",
+		emptySubtitle: "Add GPS coordinates to your shot notes to see them on the map",
+		emptyAction: "View my films",
+		viewOnMap: "View on map",
+		viewFilm: "View film",
+		allFilms: "All",
+		allTypes: "All types",
+		filterByFilm: "By film",
+		filterByType: "By type",
+		recenter: "Recenter",
+		frame: "Frame #{{number}}",
+		noteCount: "{{count}} geolocated note",
+		noteCount_other: "{{count}} geolocated notes",
 	},
 
 	// Date locale
