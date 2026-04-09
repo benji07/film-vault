@@ -513,6 +513,7 @@ export const en = {
 		filterByFilm: "By film",
 		filterByType: "By type",
 		recenter: "Recenter",
+		locateMe: "My location",
 		frame: "Frame #{{number}}",
 		noteCount: "{{count}} geolocated note",
 		noteCount_other: "{{count}} geolocated notes",

@@ -1,5 +1,5 @@
 import "maplibre-gl/dist/maplibre-gl.css";
-import { MapPin } from "lucide-react";
+import { Loader2, LocateFixed, MapPin } from "lucide-react";
 import maplibregl from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -33,6 +33,7 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 	const [filterType, setFilterType] = useState<FilmType | null>(null);
 	const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
 	const [selectedNote, setSelectedNote] = useState<GeoNote | null>(null);
+	const [locating, setLocating] = useState(false);
 
 	useEffect(() => {
 		setLocalFilterFilmId(filterFilmId);
@@ -80,12 +81,24 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 		setScreen("filmDetail");
 	}, [selectedNote, setSelectedFilm, setScreen]);
 
-	const handleRecenter = useCallback(() => {
+	const handleLocateMe = useCallback(() => {
 		const map = mapRef.current;
-		if (map) {
-			fitMapToBounds(map, filteredNotes);
-		}
-	}, [filteredNotes]);
+		if (!map || !navigator.geolocation) return;
+		setLocating(true);
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				map.flyTo({
+					center: [position.coords.longitude, position.coords.latitude],
+					zoom: 14,
+				});
+				setLocating(false);
+			},
+			() => {
+				setLocating(false);
+			},
+			{ enableHighAccuracy: true, timeout: 10000 },
+		);
+	}, []);
 
 	if (allGeoNotes.length === 0) {
 		return (
@@ -134,8 +147,22 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 				onFilterFilm={setLocalFilterFilmId}
 				onFilterType={setFilterType}
 				onClearFilter={onClearFilter}
-				onRecenter={handleRecenter}
 			/>
+
+			<Button
+				variant="outline"
+				size="icon"
+				onClick={handleLocateMe}
+				disabled={locating}
+				className="absolute bottom-[max(5rem,calc(4rem+env(safe-area-inset-bottom)))] right-3 z-10 shadow-lg bg-card/90 backdrop-blur"
+				aria-label={t("map.locateMe")}
+			>
+				{locating ? (
+					<Loader2 size={18} className="text-accent animate-spin" />
+				) : (
+					<LocateFixed size={18} className="text-text-sec" />
+				)}
+			</Button>
 
 			{selectedNote && (
 				<NoteSheet geoNote={selectedNote} onClose={() => setSelectedNote(null)} onViewFilm={handleViewFilm} />
