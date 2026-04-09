@@ -122,6 +122,11 @@ function FilmVaultInner() {
 		return () => window.removeEventListener("online", handleOnline);
 	}, [triggerSync]);
 
+	const handleSetScreen = useCallback((s: ScreenName) => {
+		if (s === "map") setMapFilterFilmId(null);
+		setScreen(s);
+	}, []);
+
 	const navigateToMap = useCallback((filmId?: string) => {
 		setMapFilterFilmId(filmId ?? null);
 		setScreen("map");
@@ -206,11 +211,11 @@ function FilmVaultInner() {
 	return (
 		<div className="h-[100dvh] bg-bg text-text-primary font-body flex flex-col md:flex-row relative">
 			{/* Sidebar — desktop only, always visible */}
-			<TabBar screen={screen} setScreen={setScreen} variant="sidebar" className="hidden md:flex" />
+			<TabBar screen={screen} setScreen={handleSetScreen} variant="sidebar" className="hidden md:flex" />
 
 			<main className="flex-1 flex flex-col min-h-0 min-w-0">
 				{screen !== "map" && (
-					<AppHeader screen={screen} setScreen={setScreen} filmTitle={filmTitle} className="md:hidden" />
+					<AppHeader screen={screen} setScreen={handleSetScreen} filmTitle={filmTitle} className="md:hidden" />
 				)}
 				{screen === "map" ? (
 					<div className="flex-1 min-h-0">{renderScreen()}</div>
@@ -225,7 +230,7 @@ function FilmVaultInner() {
 				)}
 
 				{/* Bottom TabBar — mobile only */}
-				{showTabBar && <TabBar screen={screen} setScreen={setScreen} className="md:hidden" />}
+				{showTabBar && <TabBar screen={screen} setScreen={handleSetScreen} className="md:hidden" />}
 			</main>
 
 			<AddFilmDialog open={showAddFilm} onOpenChange={setShowAddFilm} data={data} setData={updateData} />

@@ -130,7 +130,7 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 					mapRef.current = e.target;
 					fitMapToBounds(e.target, filteredNotes);
 				}}
-				onZoom={(e) => setZoom(Math.floor(e.viewState.zoom))}
+				onMoveEnd={(e) => setZoom(Math.floor(e.viewState.zoom))}
 				onClick={() => {
 					setSelectedNote(null);
 					setSelectedCluster(null);

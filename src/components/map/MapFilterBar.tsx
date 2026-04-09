@@ -47,7 +47,7 @@ export function MapFilterBar({
 						className="shrink-0 text-xs shadow-md"
 					>
 						<div className="w-2 h-2 rounded-full" style={{ backgroundColor: MARKER_COLORS[type] }} />
-						{type}
+						{t(`filmTypes.${type}`, type)}
 					</Chip>
 				))}
 			</div>
@@ -69,7 +69,10 @@ export function MapFilterBar({
 						<Chip
 							key={film.id}
 							active={filterFilmId === film.id}
-							onClick={() => onFilterFilm(filterFilmId === film.id ? null : film.id)}
+							onClick={() => {
+								onFilterFilm(filterFilmId === film.id ? null : film.id);
+								onClearFilter();
+							}}
 							className="shrink-0 text-xs shadow-md max-w-[160px] truncate"
 						>
 							{filmName(film)}
