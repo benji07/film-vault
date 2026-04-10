@@ -1,4 +1,4 @@
-import { Archive, BarChart3, Eye, Film } from "lucide-react";
+import { Archive, BarChart3, Coins, Eye, Film } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { BarChart } from "@/components/BarChart";
 import { EmptyState } from "@/components/EmptyState";
@@ -8,6 +8,7 @@ import { T } from "@/constants/theme";
 import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmBrand, filmName, filmType } from "@/utils/film-helpers";
+import { fmtPrice } from "@/utils/helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 
 interface StatsScreenProps {
@@ -76,6 +77,25 @@ export function StatsScreen({ data }: StatsScreenProps) {
 		byMonth[key] = count;
 		annualTotal += count;
 	}
+
+	let totalSpent = 0;
+	let filmsWithCost = 0;
+	let totalFramesWithCost = 0;
+	const costByType: Record<string, number> = {};
+
+	for (const f of films) {
+		const cost = (f.price ?? 0) + (f.devCost ?? 0) + (f.scanCost ?? 0);
+		if (cost > 0) {
+			totalSpent += cost;
+			filmsWithCost++;
+			totalFramesWithCost += f.posesTotal ?? 0;
+			const type = filmType(f);
+			costByType[type] = (costByType[type] || 0) + cost;
+		}
+	}
+
+	const avgPerFilm = filmsWithCost > 0 ? totalSpent / filmsWithCost : 0;
+	const avgPerFrame = totalFramesWithCost > 0 ? totalSpent / totalFramesWithCost : 0;
 
 	const topFilmsSorted = Object.entries(topFilms)
 		.sort((a, b) => b[1] - a[1])
@@ -153,6 +173,23 @@ export function StatsScreen({ data }: StatsScreenProps) {
 						))}
 					</div>
 				</Card>
+			)}
+
+			{totalSpent > 0 && (
+				<>
+					<h3 className="font-display text-xl text-text-primary m-0 italic mt-2">{t("stats.expenses")}</h3>
+					<div className="grid grid-cols-3 gap-2.5">
+						<StatCard icon={Coins} label={t("stats.totalSpent")} value={fmtPrice(totalSpent)} color={T.orange} />
+						<StatCard icon={Coins} label={t("stats.avgPerFilm")} value={fmtPrice(avgPerFilm)} color={T.amber} />
+						<StatCard icon={Coins} label={t("stats.avgPerFrame")} value={fmtPrice(avgPerFrame)} color={T.green} />
+					</div>
+					{Object.keys(costByType).length > 1 && (
+						<Card>
+							<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.costByType")}</span>
+							<BarChart data={costByType} color={T.orange} formatValue={(v) => fmtPrice(v)} />
+						</Card>
+					)}
+				</>
 			)}
 		</div>
 	);

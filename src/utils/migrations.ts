@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 14;
+export const CURRENT_VERSION = 15;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -227,6 +227,12 @@ function migrateV13toV14(data: Record<string, unknown>): Record<string, unknown>
 	return { ...data, lenses: migratedLenses, version: 14 };
 }
 
+function migrateV14toV15(data: Record<string, unknown>): Record<string, unknown> {
+	// Add devCost, scanCost, devScanPackage to Film type.
+	// No data transformation needed — new fields are all optional.
+	return { ...data, version: 15 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -241,6 +247,7 @@ const migrations: Record<number, MigrationFn> = {
 	11: migrateV11toV12,
 	12: migrateV12toV13,
 	13: migrateV13toV14,
+	14: migrateV14toV15,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

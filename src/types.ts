@@ -76,6 +76,9 @@ export interface Film {
 	expDate?: string | null;
 	comment?: string | null;
 	price?: number | null;
+	devCost?: number | null;
+	scanCost?: number | null;
+	devScanPackage?: boolean;
 	addedDate: string;
 	quantity?: number;
 	shootIso?: number | null;
