@@ -1,5 +1,5 @@
 import { ExternalLink, ImageIcon, Loader2, LocateFixed, Map as MapIcon, NotebookPen, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { useToast } from "@/components/Toast";
@@ -24,6 +24,8 @@ interface ShotNotesSectionProps {
 	lenses?: Lens[];
 	onUpdateNotes: (notes: ShotNote[]) => void;
 	onNavigateToMap?: () => void;
+	autoOpenShotNote?: boolean;
+	onAutoOpenConsumed?: () => void;
 }
 
 function formatNoteSummary(note: ShotNote): string {
@@ -124,7 +126,15 @@ function nextFrameNumber(notes: ShotNote[], posesTotal?: number | null): string 
 	return String(next);
 }
 
-function ShotNotesSection({ film, cameras, lenses, onUpdateNotes, onNavigateToMap }: ShotNotesSectionProps) {
+function ShotNotesSection({
+	film,
+	cameras,
+	lenses,
+	onUpdateNotes,
+	onNavigateToMap,
+	autoOpenShotNote,
+	onAutoOpenConsumed,
+}: ShotNotesSectionProps) {
 	const { t } = useTranslation();
 	const { toast } = useToast();
 	const [dialogOpen, setDialogOpen] = useState(false);
@@ -156,7 +166,7 @@ function ShotNotesSection({ film, cameras, lenses, onUpdateNotes, onNavigateToMa
 
 	const [gpsLoading, setGpsLoading] = useState(false);
 
-	const openAdd = () => {
+	const openAdd = useCallback(() => {
 		setEditingId(null);
 		setForm({
 			...emptyForm,
@@ -166,7 +176,14 @@ function ShotNotesSection({ film, cameras, lenses, onUpdateNotes, onNavigateToMa
 			date: nowDateTimeLocal(),
 		});
 		setDialogOpen(true);
-	};
+	}, [film.lens, film.lensId, film.posesTotal, notes]);
+
+	useEffect(() => {
+		if (autoOpenShotNote) {
+			openAdd();
+			onAutoOpenConsumed?.();
+		}
+	}, [autoOpenShotNote, openAdd, onAutoOpenConsumed]);
 
 	const openEdit = (note: ShotNote) => {
 		setEditingId(note.id);
