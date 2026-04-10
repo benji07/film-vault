@@ -193,6 +193,11 @@ export const fr = {
 		developModalTitle: "Marquer comme développée",
 		scanModalTitle: "Marquer comme scannée",
 		editModalTitle: "Modifier la pellicule",
+		// Edit sections
+		editSectionLoading: "Chargement",
+		editSectionExposure: "Exposition",
+		editSectionDevelopment: "Développement",
+		editSectionScanning: "Numérisation",
 		// Form fields
 		cameraField: "Appareil",
 		backField: "Dos",
@@ -207,6 +212,7 @@ export const fr = {
 		endDateField: "Date de fin",
 		commentField: "Commentaire",
 		posesField: "Poses prises",
+		posesTotalField: "Nombre de poses",
 		posesPlaceholder: "Sur {{total}}",
 		resumeDateField: "Date de reprise",
 		labField: "Labo",
@@ -215,6 +221,7 @@ export const fr = {
 		labRefPlaceholder: "Réf. du labo…",
 		devDateField: "Date de développement",
 		scanRefPlaceholder: "Réf. du scan…",
+		scanRefField: "Référence scan",
 		purchasePrice: "Prix d'achat",
 		devCost: "Coût développement",
 		scanCost: "Coût scan",
