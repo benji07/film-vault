@@ -1448,7 +1448,7 @@ export function FilmDetailScreen({
 										{t("filmDetail.editSectionScanning")}
 									</span>
 								</div>
-								<FormField label={t("filmDetail.labRefField")}>
+								<FormField label={t("filmDetail.scanRefField")}>
 									<Input
 										value={editData.scanRef}
 										onChange={(e) => setEditData({ ...editData, scanRef: e.target.value })}
@@ -1493,15 +1493,23 @@ export function FilmDetailScreen({
 						<Button
 							disabled={!editData.brand || !editData.model}
 							onClick={() => {
+								const safeInt = (v: string) => {
+									const n = Number.parseInt(v, 10);
+									return Number.isFinite(n) ? n : null;
+								};
+								const safeFloat = (v: string) => {
+									const n = Number.parseFloat(v);
+									return Number.isFinite(n) ? n : null;
+								};
 								const editUpdate: Partial<FilmType> = {
 									brand: editData.brand.trim(),
 									model: editData.model.trim(),
-									iso: Number.parseInt(editData.iso, 10) || 0,
+									iso: safeInt(editData.iso) ?? 0,
 									type: editData.type,
 									format: film.state !== "stock" ? film.format : editData.format,
 									expDate: editData.expDate || null,
 									storageLocation: editData.storageLocation.trim() || null,
-									price: editData.price.trim() ? Number.parseFloat(editData.price) : null,
+									price: editData.price.trim() ? safeFloat(editData.price) : null,
 									comment: editData.comment.trim() || null,
 									history: [...(film.history || []), { date: today(), action: "", actionCode: "modified" }],
 								};
@@ -1510,21 +1518,21 @@ export function FilmDetailScreen({
 									editUpdate.backId = editData.backId || null;
 									editUpdate.lensId = editData.lensId || null;
 									editUpdate.lens = editData.lens.trim() || null;
-									editUpdate.shootIso = editData.shootIso.trim() ? Number.parseInt(editData.shootIso, 10) : null;
+									editUpdate.shootIso = editData.shootIso.trim() ? safeInt(editData.shootIso) : null;
 									editUpdate.startDate = editData.startDate || null;
-									editUpdate.posesTotal = editData.posesTotal.trim() ? Number.parseInt(editData.posesTotal, 10) : null;
+									editUpdate.posesTotal = editData.posesTotal.trim() ? safeInt(editData.posesTotal) : null;
 								}
 								if (showExposure) {
 									if (showEndDate) {
 										editUpdate.endDate = editData.endDate || null;
 									}
-									editUpdate.posesShot = editData.posesShot.trim() ? Number.parseInt(editData.posesShot, 10) : null;
+									editUpdate.posesShot = editData.posesShot.trim() ? safeInt(editData.posesShot) : null;
 								}
 								if (showDev) {
 									editUpdate.lab = editData.lab.trim() || null;
 									editUpdate.labRef = editData.labRef.trim() || null;
 									editUpdate.devDate = editData.devDate || null;
-									editUpdate.devCost = editData.devCost.trim() ? Number.parseFloat(editData.devCost) : null;
+									editUpdate.devCost = editData.devCost.trim() ? safeFloat(editData.devCost) : null;
 									editUpdate.devScanPackage = editData.devScanPackage;
 								}
 								if (showScan) {
@@ -1532,7 +1540,7 @@ export function FilmDetailScreen({
 									editUpdate.scanCost = editData.devScanPackage
 										? null
 										: editData.scanCost.trim()
-											? Number.parseFloat(editData.scanCost)
+											? safeFloat(editData.scanCost)
 											: null;
 								}
 								updateFilm(editUpdate, t("filmDetail.filmModified"));

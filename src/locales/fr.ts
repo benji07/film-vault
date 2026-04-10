@@ -221,6 +221,7 @@ export const fr = {
 		labRefPlaceholder: "Réf. du labo…",
 		devDateField: "Date de développement",
 		scanRefPlaceholder: "Réf. du scan…",
+		scanRefField: "Référence scan",
 		purchasePrice: "Prix d'achat",
 		devCost: "Coût développement",
 		scanCost: "Coût scan",
