@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { PhotoViewer } from "@/components/PhotoViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -90,6 +91,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 	const [newLens, setNewLens] = useState<LensFormData>(emptyLensForm);
 	const [editLensId, setEditLensId] = useState<string | null>(null);
 	const [editLens, setEditLens] = useState<LensFormData>(emptyLensForm);
+	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
 
 	const formToLens = (form: LensFormData, id: string): Lens => {
 		const fMin = Number.parseInt(form.focalLengthMin, 10);
@@ -422,11 +424,22 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-3">
 										{lens.photo ? (
-											<img
-												src={lens.photo}
-												alt=""
-												className="w-12 h-12 rounded-lg object-cover shrink-0 border border-border"
-											/>
+											<button
+												type="button"
+												onClick={(e) => {
+													e.stopPropagation();
+													setViewerPhoto(lens.photo!);
+												}}
+												aria-label={t("aria.openPhoto", { index: 1 })}
+												className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
+											>
+												<img
+													src={lens.photo}
+													alt=""
+													aria-hidden="true"
+													className="w-full h-full object-cover border border-border cursor-pointer"
+												/>
+											</button>
 										) : (
 											<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
 												<Focus size={20} className="text-text-muted opacity-40" />
@@ -507,6 +520,8 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 					{renderForm(editLens, setEditLens, saveEditLens, true)}
 				</DialogContent>
 			</Dialog>
+
+			{viewerPhoto && <PhotoViewer photos={[viewerPhoto]} initialIndex={0} onClose={() => setViewerPhoto(null)} />}
 		</>
 	);
 }

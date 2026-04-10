@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { PhotoViewer } from "@/components/PhotoViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -35,6 +36,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 		photo: undefined as string | undefined,
 	});
 	const [editBack, setEditBack] = useState<Back | null>(null);
+	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
 
 	const interchangeableCameras = data.cameras.filter((c) => c.hasInterchangeableBack);
 
@@ -109,11 +111,22 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-3 flex-1 min-w-0">
 										{b.photo ? (
-											<img
-												src={b.photo}
-												alt=""
-												className="w-10 h-10 rounded-lg object-cover shrink-0 border border-border"
-											/>
+											<button
+												type="button"
+												onClick={(e) => {
+													e.stopPropagation();
+													setViewerPhoto(b.photo!);
+												}}
+												aria-label={t("aria.openPhoto", { index: 1 })}
+												className="w-10 h-10 rounded-lg overflow-hidden shrink-0"
+											>
+												<img
+													src={b.photo}
+													alt=""
+													aria-hidden="true"
+													className="w-full h-full object-cover border border-border cursor-pointer"
+												/>
+											</button>
 										) : (
 											<div className="w-10 h-10 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
 												<Camera size={16} className="text-text-muted opacity-40" />
@@ -327,6 +340,8 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 					)}
 				</DialogContent>
 			</Dialog>
+
+			{viewerPhoto && <PhotoViewer photos={[viewerPhoto]} initialIndex={0} onClose={() => setViewerPhoto(null)} />}
 		</>
 	);
 }
