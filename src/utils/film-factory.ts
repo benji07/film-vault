@@ -21,6 +21,7 @@ interface NewFilmParams {
 	format: string;
 	expDate: string | null;
 	comment: string | null;
+	price?: number | null;
 	posesTotal?: number;
 	storageLocation?: string | null;
 }
@@ -36,6 +37,7 @@ export function createNewFilm(params: NewFilmParams): Film {
 		state: "stock",
 		expDate: params.expDate,
 		comment: params.comment,
+		price: params.price ?? null,
 		addedDate: today(),
 		shootIso: null,
 		cameraId: null,

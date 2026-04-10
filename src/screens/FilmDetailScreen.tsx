@@ -6,6 +6,7 @@ import {
 	Check,
 	CircleDot,
 	Clock,
+	Coins,
 	CopyPlus,
 	Film,
 	Focus,
@@ -41,6 +42,7 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { getStates } from "@/constants/films";
 import { alpha, T } from "@/constants/theme";
 import { type AppData, type Film as FilmType, isInstantFormat, type ScreenName } from "@/types";
@@ -48,7 +50,7 @@ import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { createNewFilm } from "@/utils/film-factory";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
-import { fmtDate, today } from "@/utils/helpers";
+import { fmtDate, fmtPrice, today } from "@/utils/helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 
@@ -69,6 +71,9 @@ interface ActionData {
 	devDate?: string;
 	scanRef?: string;
 	photos?: string[];
+	devCost?: string;
+	scanCost?: string;
+	devScanPackage?: boolean;
 }
 
 interface EditData {
@@ -81,6 +86,7 @@ interface EditData {
 	storageLocation: string;
 	comment: string;
 	shootIso: string;
+	price: string;
 }
 
 interface FilmDetailScreenProps {
@@ -118,6 +124,7 @@ export function FilmDetailScreen({
 		storageLocation: "",
 		comment: "",
 		shootIso: "",
+		price: "",
 	});
 	const { toast } = useToast();
 	const { brands, modelsForBrand, filmDataFor } = useFilmSuggestions(data.films);
@@ -144,6 +151,7 @@ export function FilmDetailScreen({
 			storageLocation: film.storageLocation || "",
 			comment: film.comment || "",
 			shootIso: film.shootIso != null ? String(film.shootIso) : "",
+			price: film.price != null ? String(film.price) : "",
 		});
 		setShowAction("edit");
 	};
@@ -177,6 +185,7 @@ export function FilmDetailScreen({
 			format: film.format || "35mm",
 			expDate: film.expDate ?? null,
 			comment: film.comment ?? null,
+			price: film.price ?? null,
 			posesTotal: film.posesTotal ?? undefined,
 			storageLocation: film.storageLocation ?? null,
 		});
@@ -254,6 +263,35 @@ export function FilmDetailScreen({
 					{film.lab && <InfoLine icon={Package} label={t("filmDetail.lab")} value={film.lab} />}
 					{film.labRef && <InfoLine icon={Tag} label={t("filmDetail.labRef")} value={film.labRef} />}
 					{film.scanRef && <InfoLine icon={ScanLine} label={t("filmDetail.scanRef")} value={film.scanRef} />}
+					{film.price != null && (
+						<InfoLine icon={Coins} label={t("filmDetail.purchasePrice")} value={fmtPrice(film.price)} />
+					)}
+					{film.devCost != null && (
+						<InfoLine
+							icon={Coins}
+							label={film.devScanPackage ? t("filmDetail.devScanPackageCost") : t("filmDetail.devCost")}
+							value={fmtPrice(film.devCost)}
+						/>
+					)}
+					{film.scanCost != null && (
+						<InfoLine icon={Coins} label={t("filmDetail.scanCost")} value={fmtPrice(film.scanCost)} />
+					)}
+					{(() => {
+						const total = (film.price ?? 0) + (film.devCost ?? 0) + (film.scanCost ?? 0);
+						if (total > 0) {
+							const frameCount = film.posesShot ?? film.posesTotal;
+							const perFrame = frameCount ? total / frameCount : null;
+							return (
+								<>
+									<InfoLine icon={Coins} label={t("filmDetail.totalCost")} value={fmtPrice(total)} />
+									{perFrame != null && (
+										<InfoLine icon={Coins} label={t("filmDetail.costPerFrame")} value={fmtPrice(perFrame)} />
+									)}
+								</>
+							);
+						}
+						return null;
+					})()}
 					{film.state === "stock" && film.storageLocation && (
 						<InfoLine icon={MapPin} label={t("filmDetail.storageLocation")} value={film.storageLocation} />
 					)}
@@ -848,6 +886,38 @@ export function FilmDetailScreen({
 								className="font-mono"
 							/>
 						</FormField>
+						<FormField
+							label={
+								actionData.devScanPackage ? `${t("filmDetail.devScanPackageCost")} (€)` : t("filmDetail.devCostField")
+							}
+						>
+							<Input
+								type="number"
+								value={actionData.devCost || ""}
+								onChange={(e) => setActionData({ ...actionData, devCost: e.target.value })}
+								placeholder={t("filmDetail.costPlaceholder")}
+								className="font-mono"
+								step="0.01"
+								min="0"
+							/>
+						</FormField>
+						<label className="flex items-center justify-between gap-3 cursor-pointer">
+							<span className="text-sm text-text-primary">{t("filmDetail.devScanPackage")}</span>
+							<Switch
+								checked={actionData.devScanPackage || false}
+								onCheckedChange={(v) => setActionData({ ...actionData, devScanPackage: v })}
+							/>
+						</label>
+						{actionData.devScanPackage && (
+							<div
+								className="rounded-xl p-3.5"
+								style={{ background: alpha(T.amber, 0.09), border: `1px solid ${alpha(T.amber, 0.2)}` }}
+							>
+								<span className="text-xs font-body" style={{ color: T.amber }}>
+									{t("filmDetail.devScanPackageInfo")}
+								</span>
+							</div>
+						)}
 						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={actionData.comment || ""}
@@ -869,6 +939,8 @@ export function FilmDetailScreen({
 										lab: actionData.lab?.trim() || null,
 										labRef: actionData.labRef?.trim() || null,
 										devDate: actionData.devDate || today(),
+										devCost: actionData.devCost?.trim() ? Number.parseFloat(actionData.devCost) : null,
+										devScanPackage: actionData.devScanPackage || false,
 										comment: actionData.comment?.trim() || film.comment,
 										history: [
 											...(film.history || []),
@@ -906,6 +978,32 @@ export function FilmDetailScreen({
 								placeholder={t("filmDetail.scanRefPlaceholder")}
 							/>
 						</FormField>
+						{!film.devScanPackage && (
+							<FormField label={t("filmDetail.scanCostField")}>
+								<Input
+									type="number"
+									value={actionData.scanCost || ""}
+									onChange={(e) => setActionData({ ...actionData, scanCost: e.target.value })}
+									placeholder={t("filmDetail.costPlaceholder")}
+									className="font-mono"
+									step="0.01"
+									min="0"
+								/>
+							</FormField>
+						)}
+						{film.devScanPackage && (
+							<div
+								className="rounded-xl p-3.5"
+								style={{
+									background: alpha(T.amber, 0.09),
+									border: `1px solid ${alpha(T.amber, 0.2)}`,
+								}}
+							>
+								<span className="text-xs font-body" style={{ color: T.amber }}>
+									{t("filmDetail.scanCostIncluded")}
+								</span>
+							</div>
+						)}
 						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={actionData.comment || ""}
@@ -925,6 +1023,11 @@ export function FilmDetailScreen({
 									{
 										state: "scanned",
 										scanRef: actionData.scanRef?.trim() || null,
+										scanCost: film.devScanPackage
+											? null
+											: actionData.scanCost?.trim()
+												? Number.parseFloat(actionData.scanCost)
+												: null,
 										comment: actionData.comment?.trim() || film.comment,
 										history: [
 											...(film.history || []),
@@ -1030,6 +1133,17 @@ export function FilmDetailScreen({
 								/>
 							</FormField>
 						)}
+						<FormField label={t("filmDetail.purchasePrice")}>
+							<Input
+								type="number"
+								value={editData.price}
+								onChange={(e) => setEditData({ ...editData, price: e.target.value })}
+								placeholder={t("addFilm.pricePlaceholder")}
+								className="font-mono"
+								step="0.01"
+								min="0"
+							/>
+						</FormField>
 						<FormField label={t("filmDetail.commentField")}>
 							<Input
 								value={editData.comment}
@@ -1048,6 +1162,7 @@ export function FilmDetailScreen({
 									format: film.state === "loaded" ? film.format : editData.format,
 									expDate: editData.expDate || null,
 									storageLocation: editData.storageLocation.trim() || null,
+									price: editData.price.trim() ? Number.parseFloat(editData.price) : null,
 									comment: editData.comment.trim() || null,
 									history: [...(film.history || []), { date: today(), action: "", actionCode: "modified" }],
 								};

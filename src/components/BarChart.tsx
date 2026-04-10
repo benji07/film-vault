@@ -4,9 +4,10 @@ interface BarChartProps {
 	data: Record<string, number>;
 	color?: string;
 	sort?: boolean;
+	formatValue?: (v: number) => string;
 }
 
-export function BarChart({ data: chartData, color = T.accent, sort = true }: BarChartProps) {
+export function BarChart({ data: chartData, color = T.accent, sort = true, formatValue }: BarChartProps) {
 	const entries = Object.entries(chartData);
 	const sorted = sort ? entries.sort((a, b) => b[1] - a[1]) : entries;
 	const max = Math.max(...Object.values(chartData), 1);
@@ -24,7 +25,9 @@ export function BarChart({ data: chartData, color = T.accent, sort = true }: Bar
 							}}
 						/>
 					</div>
-					<span className="text-[13px] font-mono text-text-primary min-w-[24px] font-semibold">{v}</span>
+					<span className="text-[13px] font-mono text-text-primary min-w-[24px] font-semibold">
+						{formatValue ? formatValue(v) : v}
+					</span>
 				</div>
 			))}
 		</div>

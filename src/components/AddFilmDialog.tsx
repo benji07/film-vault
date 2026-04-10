@@ -33,6 +33,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 	const [expDate, setExpDate] = useState(currentMonthYear());
 	const [quantity, setQuantity] = useState("1");
 	const [storageLocation, setStorageLocation] = useState("");
+	const [price, setPrice] = useState("");
 	const [comment, setComment] = useState("");
 
 	useEffect(() => {
@@ -44,6 +45,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 			setFormat("35mm");
 			setExpDate(currentMonthYear());
 			setQuantity("1");
+			setPrice("");
 			setStorageLocation("");
 			setComment("");
 		}
@@ -68,6 +70,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 			format,
 			expDate: expDate || null,
 			comment: comment.trim() || null,
+			price: price.trim() ? Number.parseFloat(price) : null,
 			storageLocation: storageLocation.trim() || null,
 		};
 		const newFilms = Array.from({ length: qty }, () => createNewFilm(params));
@@ -136,6 +139,17 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 						/>
 					</FormField>
 
+					<FormField label={t("addFilm.price")}>
+						<Input
+							type="number"
+							value={price}
+							onChange={(e) => setPrice(e.target.value)}
+							placeholder={t("addFilm.pricePlaceholder")}
+							className="font-mono"
+							step="0.01"
+							min="0"
+						/>
+					</FormField>
 					<FormField label={t("addFilm.expirationDate")}>
 						<MonthYearPicker value={expDate} onChange={setExpDate} />
 					</FormField>
