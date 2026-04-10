@@ -77,6 +77,7 @@ interface ActionData {
 }
 
 interface EditData {
+	// General
 	brand: string;
 	model: string;
 	iso: string;
@@ -85,8 +86,27 @@ interface EditData {
 	expDate: string;
 	storageLocation: string;
 	comment: string;
-	shootIso: string;
 	price: string;
+	// Loading
+	shootIso: string;
+	cameraId: string;
+	backId: string;
+	lensId: string;
+	lens: string;
+	startDate: string;
+	posesTotal: string;
+	// Exposure
+	endDate: string;
+	posesShot: string;
+	// Development
+	lab: string;
+	labRef: string;
+	devDate: string;
+	devCost: string;
+	devScanPackage: boolean;
+	// Scanning
+	scanRef: string;
+	scanCost: string;
 }
 
 interface FilmDetailScreenProps {
@@ -123,8 +143,23 @@ export function FilmDetailScreen({
 		expDate: "",
 		storageLocation: "",
 		comment: "",
-		shootIso: "",
 		price: "",
+		shootIso: "",
+		cameraId: "",
+		backId: "",
+		lensId: "",
+		lens: "",
+		startDate: "",
+		posesTotal: "",
+		endDate: "",
+		posesShot: "",
+		lab: "",
+		labRef: "",
+		devDate: "",
+		devCost: "",
+		devScanPackage: false,
+		scanRef: "",
+		scanCost: "",
 	});
 	const { toast } = useToast();
 	const { brands, modelsForBrand, filmDataFor } = useFilmSuggestions(data.films);
@@ -150,8 +185,23 @@ export function FilmDetailScreen({
 			expDate: film.expDate || "",
 			storageLocation: film.storageLocation || "",
 			comment: film.comment || "",
-			shootIso: film.shootIso != null ? String(film.shootIso) : "",
 			price: film.price != null ? String(film.price) : "",
+			shootIso: film.shootIso != null ? String(film.shootIso) : "",
+			cameraId: film.cameraId || "",
+			backId: film.backId || "",
+			lensId: film.lensId || "",
+			lens: film.lens || "",
+			startDate: film.startDate || "",
+			posesTotal: film.posesTotal != null ? String(film.posesTotal) : "",
+			endDate: film.endDate || "",
+			posesShot: film.posesShot != null ? String(film.posesShot) : "",
+			lab: film.lab || "",
+			labRef: film.labRef || "",
+			devDate: film.devDate || "",
+			devCost: film.devCost != null ? String(film.devCost) : "",
+			devScanPackage: film.devScanPackage || false,
+			scanRef: film.scanRef || "",
+			scanCost: film.scanCost != null ? String(film.scanCost) : "",
 		});
 		setShowAction("edit");
 	};
@@ -210,6 +260,22 @@ export function FilmDetailScreen({
 			: [];
 
 	const closeAction = () => setShowAction(null);
+
+	// Edit modal: section visibility
+	const showLoading = film.state !== "stock";
+	const showExposure = ["partial", "exposed", "developed", "scanned"].includes(film.state);
+	const showEndDate = ["exposed", "developed", "scanned"].includes(film.state);
+	const showDev = ["developed", "scanned"].includes(film.state);
+	const showScan = film.state === "scanned";
+
+	// Edit modal: camera/back/lens selection
+	const editSelectedCamera = editData.cameraId ? data.cameras.find((c) => c.id === editData.cameraId) : null;
+	const editCompatibleBacks =
+		editSelectedCamera?.hasInterchangeableBack === true
+			? data.backs.filter(
+					(b) => b.compatibleCameraIds.includes(editSelectedCamera.id) && b.format === (editData.format || film.format),
+				)
+			: [];
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -1058,6 +1124,7 @@ export function FilmDetailScreen({
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
+						{/* === General section === */}
 						<AutocompleteInput
 							label={t("addFilm.brand")}
 							value={editData.brand}
@@ -1093,7 +1160,7 @@ export function FilmDetailScreen({
 										: {};
 								setEditData({ ...editData, format: v, ...typeReset });
 							}}
-							disabled={film.state === "loaded"}
+							disabled={film.state !== "stock"}
 						/>
 						<div className="grid grid-cols-2 gap-3">
 							<FormField label={t("addFilm.iso")}>
@@ -1123,16 +1190,6 @@ export function FilmDetailScreen({
 								/>
 							</FormField>
 						)}
-						{film.state !== "stock" && (
-							<FormField label={t("filmDetail.shootIsoEditField")}>
-								<Input
-									type="number"
-									value={editData.shootIso}
-									onChange={(e) => setEditData({ ...editData, shootIso: e.target.value })}
-									className="font-mono"
-								/>
-							</FormField>
-						)}
 						<FormField label={t("filmDetail.purchasePrice")}>
 							<Input
 								type="number"
@@ -1151,6 +1208,288 @@ export function FilmDetailScreen({
 								placeholder={t("addFilm.notesPlaceholder")}
 							/>
 						</FormField>
+
+						{/* === Loading section === */}
+						{showLoading && (
+							<>
+								<div className="border-t border-border pt-4 mt-1">
+									<span className="text-[11px] font-semibold text-text-sec uppercase tracking-wide">
+										{t("filmDetail.editSectionLoading")}
+									</span>
+								</div>
+								<FormField label={t("filmDetail.cameraField")}>
+									<Select
+										value={editData.cameraId || ""}
+										onValueChange={(v) => setEditData({ ...editData, cameraId: v, backId: "" })}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder={t("filmDetail.choosePlaceholder")} />
+										</SelectTrigger>
+										<SelectContent>
+											{availableCameras.map((c) => (
+												<SelectItem key={c.id} value={c.id}>
+													{cameraDisplayName(c)}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</FormField>
+								{editCompatibleBacks.length > 0 && (
+									<FormField label={t("filmDetail.backField")}>
+										<Select
+											value={editData.backId || ""}
+											onValueChange={(v) => setEditData({ ...editData, backId: v })}
+										>
+											<SelectTrigger>
+												<SelectValue placeholder={t("filmDetail.chooseBackPlaceholder")} />
+											</SelectTrigger>
+											<SelectContent>
+												{editCompatibleBacks.map((b) => (
+													<SelectItem key={b.id} value={b.id}>
+														{backDisplayName(b)}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</FormField>
+								)}
+								<FormField label={t("filmDetail.lensField")}>
+									{data.lenses.length > 0 ? (
+										<>
+											<Select
+												value={editData.lensId || "__other__"}
+												onValueChange={(v) => {
+													if (v === "__other__") {
+														setEditData({
+															...editData,
+															lensId: "",
+															lens: "",
+														});
+													} else {
+														const lens = data.lenses.find((l) => l.id === v);
+														setEditData({
+															...editData,
+															lensId: v,
+															lens: lens ? lensDisplayName(lens) : "",
+														});
+													}
+												}}
+											>
+												<SelectTrigger>
+													<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
+												</SelectTrigger>
+												<SelectContent>
+													{data.lenses.map((l) => (
+														<SelectItem key={l.id} value={l.id}>
+															{lensDisplayName(l)}
+														</SelectItem>
+													))}
+													<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
+												</SelectContent>
+											</Select>
+											{!editData.lensId && (
+												<Input
+													value={editData.lens}
+													onChange={(e) =>
+														setEditData({
+															...editData,
+															lens: e.target.value,
+														})
+													}
+													placeholder={t("filmDetail.lensPlaceholder")}
+													className="mt-2"
+												/>
+											)}
+										</>
+									) : (
+										<Input
+											value={editData.lens}
+											onChange={(e) => setEditData({ ...editData, lens: e.target.value })}
+											placeholder={t("filmDetail.lensPlaceholder")}
+										/>
+									)}
+								</FormField>
+								<FormField label={t("filmDetail.shootIsoField")}>
+									<Input
+										type="number"
+										value={editData.shootIso}
+										onChange={(e) => setEditData({ ...editData, shootIso: e.target.value })}
+										className="font-mono"
+									/>
+								</FormField>
+								<FormField label={t("filmDetail.startDateField")}>
+									<Input
+										type="date"
+										value={editData.startDate}
+										onChange={(e) => setEditData({ ...editData, startDate: e.target.value })}
+										className="font-mono"
+									/>
+								</FormField>
+								<FormField label={t("filmDetail.posesTotalField")}>
+									<Input
+										type="number"
+										value={editData.posesTotal}
+										onChange={(e) => setEditData({ ...editData, posesTotal: e.target.value })}
+										className="font-mono"
+										min="1"
+									/>
+								</FormField>
+							</>
+						)}
+
+						{/* === Exposure section === */}
+						{showExposure && (
+							<>
+								<div className="border-t border-border pt-4 mt-1">
+									<span className="text-[11px] font-semibold text-text-sec uppercase tracking-wide">
+										{t("filmDetail.editSectionExposure")}
+									</span>
+								</div>
+								{showEndDate && (
+									<FormField label={t("filmDetail.endDateField")}>
+										<Input
+											type="date"
+											value={editData.endDate}
+											onChange={(e) =>
+												setEditData({
+													...editData,
+													endDate: e.target.value,
+												})
+											}
+											className="font-mono"
+										/>
+									</FormField>
+								)}
+								<FormField label={t("filmDetail.posesField")}>
+									<Input
+										type="number"
+										value={editData.posesShot}
+										onChange={(e) => setEditData({ ...editData, posesShot: e.target.value })}
+										className="font-mono"
+										min="0"
+									/>
+								</FormField>
+							</>
+						)}
+
+						{/* === Development section === */}
+						{showDev && (
+							<>
+								<div className="border-t border-border pt-4 mt-1">
+									<span className="text-[11px] font-semibold text-text-sec uppercase tracking-wide">
+										{t("filmDetail.editSectionDevelopment")}
+									</span>
+								</div>
+								<FormField label={t("filmDetail.labField")}>
+									<Input
+										value={editData.lab}
+										onChange={(e) => setEditData({ ...editData, lab: e.target.value })}
+										placeholder={t("filmDetail.labPlaceholder")}
+									/>
+								</FormField>
+								<FormField label={t("filmDetail.labRefField")}>
+									<Input
+										value={editData.labRef}
+										onChange={(e) => setEditData({ ...editData, labRef: e.target.value })}
+										placeholder={t("filmDetail.labRefPlaceholder")}
+									/>
+								</FormField>
+								<FormField label={t("filmDetail.devDateField")}>
+									<Input
+										type="date"
+										value={editData.devDate}
+										onChange={(e) => setEditData({ ...editData, devDate: e.target.value })}
+										className="font-mono"
+									/>
+								</FormField>
+								<FormField
+									label={
+										editData.devScanPackage ? `${t("filmDetail.devScanPackageCost")} (€)` : t("filmDetail.devCostField")
+									}
+								>
+									<Input
+										type="number"
+										value={editData.devCost}
+										onChange={(e) => setEditData({ ...editData, devCost: e.target.value })}
+										placeholder={t("filmDetail.costPlaceholder")}
+										className="font-mono"
+										step="0.01"
+										min="0"
+									/>
+								</FormField>
+								<label className="flex items-center justify-between gap-3 cursor-pointer">
+									<span className="text-sm text-text-primary">{t("filmDetail.devScanPackage")}</span>
+									<Switch
+										checked={editData.devScanPackage}
+										onCheckedChange={(v) => setEditData({ ...editData, devScanPackage: v })}
+									/>
+								</label>
+								{editData.devScanPackage && (
+									<div
+										className="rounded-xl p-3.5"
+										style={{
+											background: alpha(T.amber, 0.09),
+											border: `1px solid ${alpha(T.amber, 0.2)}`,
+										}}
+									>
+										<span className="text-xs font-body" style={{ color: T.amber }}>
+											{t("filmDetail.devScanPackageInfo")}
+										</span>
+									</div>
+								)}
+							</>
+						)}
+
+						{/* === Scanning section === */}
+						{showScan && (
+							<>
+								<div className="border-t border-border pt-4 mt-1">
+									<span className="text-[11px] font-semibold text-text-sec uppercase tracking-wide">
+										{t("filmDetail.editSectionScanning")}
+									</span>
+								</div>
+								<FormField label={t("filmDetail.labRefField")}>
+									<Input
+										value={editData.scanRef}
+										onChange={(e) => setEditData({ ...editData, scanRef: e.target.value })}
+										placeholder={t("filmDetail.scanRefPlaceholder")}
+									/>
+								</FormField>
+								{!editData.devScanPackage && (
+									<FormField label={t("filmDetail.scanCostField")}>
+										<Input
+											type="number"
+											value={editData.scanCost}
+											onChange={(e) =>
+												setEditData({
+													...editData,
+													scanCost: e.target.value,
+												})
+											}
+											placeholder={t("filmDetail.costPlaceholder")}
+											className="font-mono"
+											step="0.01"
+											min="0"
+										/>
+									</FormField>
+								)}
+								{editData.devScanPackage && (
+									<div
+										className="rounded-xl p-3.5"
+										style={{
+											background: alpha(T.amber, 0.09),
+											border: `1px solid ${alpha(T.amber, 0.2)}`,
+										}}
+									>
+										<span className="text-xs font-body" style={{ color: T.amber }}>
+											{t("filmDetail.scanCostIncluded")}
+										</span>
+									</div>
+								)}
+							</>
+						)}
+
+						{/* === Save button === */}
 						<Button
 							disabled={!editData.brand || !editData.model}
 							onClick={() => {
@@ -1159,16 +1498,42 @@ export function FilmDetailScreen({
 									model: editData.model.trim(),
 									iso: Number.parseInt(editData.iso, 10) || 0,
 									type: editData.type,
-									format: film.state === "loaded" ? film.format : editData.format,
+									format: film.state !== "stock" ? film.format : editData.format,
 									expDate: editData.expDate || null,
 									storageLocation: editData.storageLocation.trim() || null,
 									price: editData.price.trim() ? Number.parseFloat(editData.price) : null,
 									comment: editData.comment.trim() || null,
 									history: [...(film.history || []), { date: today(), action: "", actionCode: "modified" }],
 								};
-								if (film.state !== "stock" && editData.shootIso) {
-									const parsedIso = Number.parseInt(editData.shootIso, 10);
-									editUpdate.shootIso = Number.isNaN(parsedIso) ? film.shootIso : parsedIso;
+								if (showLoading) {
+									editUpdate.cameraId = editData.cameraId || null;
+									editUpdate.backId = editData.backId || null;
+									editUpdate.lensId = editData.lensId || null;
+									editUpdate.lens = editData.lens.trim() || null;
+									editUpdate.shootIso = editData.shootIso.trim() ? Number.parseInt(editData.shootIso, 10) : null;
+									editUpdate.startDate = editData.startDate || null;
+									editUpdate.posesTotal = editData.posesTotal.trim() ? Number.parseInt(editData.posesTotal, 10) : null;
+								}
+								if (showExposure) {
+									if (showEndDate) {
+										editUpdate.endDate = editData.endDate || null;
+									}
+									editUpdate.posesShot = editData.posesShot.trim() ? Number.parseInt(editData.posesShot, 10) : null;
+								}
+								if (showDev) {
+									editUpdate.lab = editData.lab.trim() || null;
+									editUpdate.labRef = editData.labRef.trim() || null;
+									editUpdate.devDate = editData.devDate || null;
+									editUpdate.devCost = editData.devCost.trim() ? Number.parseFloat(editData.devCost) : null;
+									editUpdate.devScanPackage = editData.devScanPackage;
+								}
+								if (showScan) {
+									editUpdate.scanRef = editData.scanRef.trim() || null;
+									editUpdate.scanCost = editData.devScanPackage
+										? null
+										: editData.scanCost.trim()
+											? Number.parseFloat(editData.scanCost)
+											: null;
 								}
 								updateFilm(editUpdate, t("filmDetail.filmModified"));
 							}}

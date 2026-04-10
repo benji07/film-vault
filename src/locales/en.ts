@@ -193,6 +193,11 @@ export const en = {
 		developModalTitle: "Mark as developed",
 		scanModalTitle: "Mark as scanned",
 		editModalTitle: "Edit film",
+		// Edit sections
+		editSectionLoading: "Loading",
+		editSectionExposure: "Exposure",
+		editSectionDevelopment: "Development",
+		editSectionScanning: "Scanning",
 		// Form fields
 		cameraField: "Camera",
 		backField: "Back",
@@ -207,6 +212,7 @@ export const en = {
 		endDateField: "End date",
 		commentField: "Comment",
 		posesField: "Frames shot",
+		posesTotalField: "Total frames",
 		posesPlaceholder: "Out of {{total}}",
 		resumeDateField: "Resume date",
 		labField: "Lab",
