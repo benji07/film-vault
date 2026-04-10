@@ -31,7 +31,7 @@ function buildEquipmentItems(cameras: CameraType[], backs: Back[], activeFilms: 
 
 	for (const cam of cameras) {
 		if (!cam.hasInterchangeableBack) {
-			const film = activeFilms.find((f) => f.cameraId === cam.id) || null;
+			const film = activeFilms.find((f) => f.state === "loaded" && f.cameraId === cam.id) || null;
 			items.push({
 				key: `cam-${cam.id}`,
 				label: cameraDisplayName(cam),
@@ -42,7 +42,7 @@ function buildEquipmentItems(cameras: CameraType[], backs: Back[], activeFilms: 
 	}
 
 	for (const back of backs) {
-		const film = activeFilms.find((f) => f.backId === back.id) || null;
+		const film = activeFilms.find((f) => f.state === "loaded" && f.backId === back.id) || null;
 		const cam = film?.cameraId ? cameras.find((c) => c.id === film.cameraId) : null;
 		items.push({
 			key: `back-${back.id}`,
@@ -57,7 +57,7 @@ function buildEquipmentItems(cameras: CameraType[], backs: Back[], activeFilms: 
 		if (cam.hasInterchangeableBack) {
 			const compatibleBacks = backs.filter((b) => b.compatibleCameraIds.includes(cam.id));
 			const hasLoadedBack = activeFilms.some(
-				(f) => f.cameraId === cam.id && compatibleBacks.some((b) => b.id === f.backId),
+				(f) => f.state === "loaded" && f.cameraId === cam.id && compatibleBacks.some((b) => b.id === f.backId),
 			);
 			if (!hasLoadedBack) {
 				items.push({
