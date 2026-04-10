@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { PhotoViewer } from "@/components/PhotoViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -35,6 +36,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 		photo: undefined as string | undefined,
 	});
 	const [editBack, setEditBack] = useState<Back | null>(null);
+	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
 
 	const interchangeableCameras = data.cameras.filter((c) => c.hasInterchangeableBack);
 
@@ -112,7 +114,12 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 											<img
 												src={b.photo}
 												alt=""
-												className="w-10 h-10 rounded-lg object-cover shrink-0 border border-border"
+												className="w-10 h-10 rounded-lg object-cover shrink-0 border border-border cursor-pointer"
+												onClick={(e) => {
+													e.stopPropagation();
+													setViewerPhoto(b.photo!);
+												}}
+												onKeyDown={undefined}
 											/>
 										) : (
 											<div className="w-10 h-10 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
@@ -327,6 +334,8 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 					)}
 				</DialogContent>
 			</Dialog>
+
+			{viewerPhoto && <PhotoViewer photos={[viewerPhoto]} initialIndex={0} onClose={() => setViewerPhoto(null)} />}
 		</>
 	);
 }

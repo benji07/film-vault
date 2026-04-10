@@ -1,6 +1,7 @@
 import { Camera, Plus, X } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PhotoViewer } from "@/components/PhotoViewer";
 import { useToast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { compressImage, estimateStorageUsage } from "@/utils/image";
@@ -18,6 +19,7 @@ export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderI
 	const { t } = useTranslation();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const { toast } = useToast();
+	const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
 	const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
@@ -56,7 +58,13 @@ export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderI
 			<div className="flex items-center gap-2 flex-wrap">
 				{photos.map((photo, i) => (
 					<div key={photo.slice(-20)} className="relative group" style={{ width: size, height: size }}>
-						<img src={photo} alt="" className="w-full h-full rounded-lg object-cover border border-border" />
+						<img
+							src={photo}
+							alt=""
+							className="w-full h-full rounded-lg object-cover border border-border cursor-pointer"
+							onClick={() => setViewerIndex(i)}
+							onKeyDown={undefined}
+						/>
 						<Button
 							variant="destructive"
 							onClick={() => remove(i)}
@@ -103,6 +111,9 @@ export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderI
 				)}
 			</div>
 			<input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+			{viewerIndex !== null && (
+				<PhotoViewer photos={photos} initialIndex={viewerIndex} onClose={() => setViewerIndex(null)} />
+			)}
 		</div>
 	);
 }
