@@ -105,7 +105,10 @@ export const fr = {
 		totalSpent: "Total dépensé",
 		avgPerFilm: "Moy. / pellicule",
 		avgPerFrame: "Moy. / vue",
-		costByType: "Dépenses par type",
+		costByCategory: "Dépenses par catégorie",
+		costPurchase: "Achat",
+		costDev: "Développement",
+		costScan: "Scan",
 		monthLabels: ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."],
 	},
 

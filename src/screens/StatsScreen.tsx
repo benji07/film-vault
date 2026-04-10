@@ -81,21 +81,28 @@ export function StatsScreen({ data }: StatsScreenProps) {
 	let totalSpent = 0;
 	let filmsWithCost = 0;
 	let totalFramesWithCost = 0;
-	const costByType: Record<string, number> = {};
+	let totalPurchase = 0;
+	let totalDev = 0;
+	let totalScan = 0;
 
 	for (const f of films) {
 		const cost = (f.price ?? 0) + (f.devCost ?? 0) + (f.scanCost ?? 0);
 		if (cost > 0) {
 			totalSpent += cost;
 			filmsWithCost++;
-			totalFramesWithCost += f.posesTotal ?? 0;
-			const type = filmType(f);
-			costByType[type] = (costByType[type] || 0) + cost;
+			totalFramesWithCost += f.posesShot ?? f.posesTotal ?? 0;
+			totalPurchase += f.price ?? 0;
+			totalDev += f.devCost ?? 0;
+			totalScan += f.scanCost ?? 0;
 		}
 	}
 
 	const avgPerFilm = filmsWithCost > 0 ? totalSpent / filmsWithCost : 0;
 	const avgPerFrame = totalFramesWithCost > 0 ? totalSpent / totalFramesWithCost : 0;
+	const costByCategory: Record<string, number> = {};
+	if (totalPurchase > 0) costByCategory[t("stats.costPurchase")] = totalPurchase;
+	if (totalDev > 0) costByCategory[t("stats.costDev")] = totalDev;
+	if (totalScan > 0) costByCategory[t("stats.costScan")] = totalScan;
 
 	const topFilmsSorted = Object.entries(topFilms)
 		.sort((a, b) => b[1] - a[1])
@@ -183,10 +190,12 @@ export function StatsScreen({ data }: StatsScreenProps) {
 						<StatCard icon={Coins} label={t("stats.avgPerFilm")} value={fmtPrice(avgPerFilm)} color={T.amber} />
 						<StatCard icon={Coins} label={t("stats.avgPerFrame")} value={fmtPrice(avgPerFrame)} color={T.green} />
 					</div>
-					{Object.keys(costByType).length > 1 && (
+					{Object.keys(costByCategory).length > 1 && (
 						<Card>
-							<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.costByType")}</span>
-							<BarChart data={costByType} color={T.orange} formatValue={(v) => fmtPrice(v)} />
+							<span className="text-sm font-bold text-text-primary font-body mb-3 block">
+								{t("stats.costByCategory")}
+							</span>
+							<BarChart data={costByCategory} color={T.orange} formatValue={(v) => fmtPrice(v)} />
 						</Card>
 					)}
 				</>

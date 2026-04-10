@@ -279,7 +279,8 @@ export function FilmDetailScreen({
 					{(() => {
 						const total = (film.price ?? 0) + (film.devCost ?? 0) + (film.scanCost ?? 0);
 						if (total > 0) {
-							const perFrame = film.posesTotal ? total / film.posesTotal : null;
+							const frameCount = film.posesShot ?? film.posesTotal;
+							const perFrame = frameCount ? total / frameCount : null;
 							return (
 								<>
 									<InfoLine icon={Coins} label={t("filmDetail.totalCost")} value={fmtPrice(total)} />
@@ -885,7 +886,11 @@ export function FilmDetailScreen({
 								className="font-mono"
 							/>
 						</FormField>
-						<FormField label={t("filmDetail.devCostField")}>
+						<FormField
+							label={
+								actionData.devScanPackage ? `${t("filmDetail.devScanPackageCost")} (€)` : t("filmDetail.devCostField")
+							}
+						>
 							<Input
 								type="number"
 								value={actionData.devCost || ""}
