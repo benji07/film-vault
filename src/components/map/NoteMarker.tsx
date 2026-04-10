@@ -15,9 +15,13 @@ export function NoteMarker({ cluster, onClick }: NoteMarkerProps) {
 	const size = isCluster ? Math.min(20 + cluster.notes.length * 3, 44) : 28;
 
 	return (
-		<Marker latitude={cluster.latitude} longitude={cluster.longitude} anchor="center" onClick={() => onClick(cluster)}>
+		<Marker latitude={cluster.latitude} longitude={cluster.longitude} anchor="center">
 			<button
 				type="button"
+				onClick={(e) => {
+					e.stopPropagation();
+					onClick(cluster);
+				}}
 				className="flex items-center justify-center rounded-full border-2 border-white/80 shadow-lg cursor-pointer transition-transform hover:scale-110"
 				style={{ width: size, height: size, backgroundColor: color }}
 			>
