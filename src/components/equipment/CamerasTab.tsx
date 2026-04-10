@@ -132,16 +132,22 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-3">
 										{cam.photo ? (
-											<img
-												src={cam.photo}
-												alt=""
-												className="w-12 h-12 rounded-lg object-cover shrink-0 border border-border cursor-pointer"
+											<button
+												type="button"
 												onClick={(e) => {
 													e.stopPropagation();
 													setViewerPhoto(cam.photo!);
 												}}
-												onKeyDown={undefined}
-											/>
+												aria-label={t("aria.openPhoto", { index: 1 })}
+												className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
+											>
+												<img
+													src={cam.photo}
+													alt=""
+													aria-hidden="true"
+													className="w-full h-full object-cover border border-border cursor-pointer"
+												/>
+											</button>
 										) : (
 											<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
 												<Camera size={20} className="text-text-muted opacity-40" />

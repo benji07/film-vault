@@ -58,13 +58,14 @@ export function NoteSheet({ geoNote, onClose, onViewFilm }: NoteSheetProps) {
 
 						{note.photo && (
 							<div className="mb-3 rounded-lg overflow-hidden">
-								<img
-									src={note.photo}
-									alt=""
-									className="w-full h-32 object-cover cursor-pointer"
+								<button
+									type="button"
+									className="block w-full"
 									onClick={() => setShowViewer(true)}
-									onKeyDown={undefined}
-								/>
+									aria-label={t("aria.openPhoto", { index: 1 })}
+								>
+									<img src={note.photo} alt="" aria-hidden="true" className="w-full h-32 object-cover cursor-pointer" />
+								</button>
 							</div>
 						)}
 

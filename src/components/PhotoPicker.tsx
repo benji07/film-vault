@@ -58,13 +58,19 @@ export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderI
 			<div className="flex items-center gap-2 flex-wrap">
 				{photos.map((photo, i) => (
 					<div key={photo.slice(-20)} className="relative group" style={{ width: size, height: size }}>
-						<img
-							src={photo}
-							alt=""
-							className="w-full h-full rounded-lg object-cover border border-border cursor-pointer"
+						<button
+							type="button"
 							onClick={() => setViewerIndex(i)}
-							onKeyDown={undefined}
-						/>
+							aria-label={t("aria.openPhoto", { index: i + 1 })}
+							className="w-full h-full rounded-lg overflow-hidden"
+						>
+							<img
+								src={photo}
+								alt=""
+								aria-hidden="true"
+								className="w-full h-full rounded-lg object-cover border border-border cursor-pointer"
+							/>
+						</button>
 						<Button
 							variant="destructive"
 							onClick={() => remove(i)}

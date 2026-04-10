@@ -111,16 +111,22 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-3 flex-1 min-w-0">
 										{b.photo ? (
-											<img
-												src={b.photo}
-												alt=""
-												className="w-10 h-10 rounded-lg object-cover shrink-0 border border-border cursor-pointer"
+											<button
+												type="button"
 												onClick={(e) => {
 													e.stopPropagation();
 													setViewerPhoto(b.photo!);
 												}}
-												onKeyDown={undefined}
-											/>
+												aria-label={t("aria.openPhoto", { index: 1 })}
+												className="w-10 h-10 rounded-lg overflow-hidden shrink-0"
+											>
+												<img
+													src={b.photo}
+													alt=""
+													aria-hidden="true"
+													className="w-full h-full object-cover border border-border cursor-pointer"
+												/>
+											</button>
 										) : (
 											<div className="w-10 h-10 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
 												<Camera size={16} className="text-text-muted opacity-40" />
