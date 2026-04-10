@@ -90,6 +90,8 @@ interface FilmDetailScreenProps {
 	setSelectedFilm: (id: string) => void;
 	filmId: string | null;
 	onNavigateToMap?: (filmId: string) => void;
+	autoOpenShotNote?: boolean;
+	setAutoOpenShotNote?: (open: boolean) => void;
 }
 
 export function FilmDetailScreen({
@@ -99,6 +101,8 @@ export function FilmDetailScreen({
 	setSelectedFilm,
 	filmId,
 	onNavigateToMap,
+	autoOpenShotNote,
+	setAutoOpenShotNote,
 }: FilmDetailScreenProps) {
 	const { t } = useTranslation();
 	const film = data.films.find((f) => f.id === filmId);
@@ -291,6 +295,8 @@ export function FilmDetailScreen({
 					lenses={data.lenses}
 					onUpdateNotes={(notes) => updateFilm({ shotNotes: notes })}
 					onNavigateToMap={onNavigateToMap ? () => onNavigateToMap(film.id) : undefined}
+					autoOpenShotNote={autoOpenShotNote}
+					onAutoOpenConsumed={() => setAutoOpenShotNote?.(false)}
 				/>
 			)}
 

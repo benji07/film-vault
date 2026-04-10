@@ -27,6 +27,7 @@ function FilmVaultInner() {
 	const [screen, setScreen] = useState<ScreenName>("home");
 	const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
 	const [mapFilterFilmId, setMapFilterFilmId] = useState<string | null>(null);
+	const [autoOpenShotNote, setAutoOpenShotNote] = useState(false);
 	const [showAddFilm, setShowAddFilm] = useState(false);
 	const [persistent, setPersistent] = useState(false);
 	const [syncing, setSyncing] = useState(false);
@@ -147,7 +148,13 @@ function FilmVaultInner() {
 		switch (screen) {
 			case "home":
 				return (
-					<DashboardScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} onAddFilm={onAddFilm} />
+					<DashboardScreen
+						data={data}
+						setScreen={setScreen}
+						setSelectedFilm={setSelectedFilm}
+						onAddFilm={onAddFilm}
+						setAutoOpenShotNote={setAutoOpenShotNote}
+					/>
 				);
 			case "stock":
 				return (
@@ -162,6 +169,8 @@ function FilmVaultInner() {
 						setSelectedFilm={setSelectedFilm}
 						filmId={selectedFilm}
 						onNavigateToMap={navigateToMap}
+						autoOpenShotNote={autoOpenShotNote}
+						setAutoOpenShotNote={setAutoOpenShotNote}
 					/>
 				);
 			case "map":
@@ -200,7 +209,13 @@ function FilmVaultInner() {
 				);
 			default:
 				return (
-					<DashboardScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} onAddFilm={onAddFilm} />
+					<DashboardScreen
+						data={data}
+						setScreen={setScreen}
+						setSelectedFilm={setSelectedFilm}
+						onAddFilm={onAddFilm}
+						setAutoOpenShotNote={setAutoOpenShotNote}
+					/>
 				);
 		}
 	};

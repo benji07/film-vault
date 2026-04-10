@@ -15,6 +15,7 @@ interface DashboardScreenProps {
 	setScreen: (screen: ScreenName) => void;
 	setSelectedFilm: (id: string) => void;
 	onAddFilm: () => void;
+	setAutoOpenShotNote?: (open: boolean) => void;
 }
 
 interface EquipmentItem {
@@ -83,7 +84,13 @@ function buildEquipmentItems(cameras: CameraType[], backs: Back[], activeFilms: 
 	return items;
 }
 
-export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }: DashboardScreenProps) {
+export function DashboardScreen({
+	data,
+	setScreen,
+	setSelectedFilm,
+	onAddFilm,
+	setAutoOpenShotNote,
+}: DashboardScreenProps) {
 	const { t } = useTranslation();
 	const { films, cameras, backs } = data;
 
@@ -170,6 +177,7 @@ export function DashboardScreen({ data, setScreen, setSelectedFilm, onAddFilm }:
 									camera={cam}
 									back={back}
 									onShotClick={() => {
+										setAutoOpenShotNote?.(true);
 										setSelectedFilm(f.id);
 										setScreen("filmDetail");
 									}}
