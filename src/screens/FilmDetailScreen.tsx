@@ -648,8 +648,6 @@ export function FilmDetailScreen({
 										state: "exposed",
 										endDate: actionData.endDate || today(),
 										comment: actionData.comment?.trim() || film.comment,
-										cameraId: null,
-										backId: null,
 										history: [...(film.history || []), { date: today(), action: "", actionCode: "exposed", photos }],
 									},
 									t("filmDetail.filmExposed"),
@@ -704,8 +702,6 @@ export function FilmDetailScreen({
 										state: "partial",
 										posesShot: Number.parseInt(actionData.posesShot || "", 10) || 0,
 										comment: actionData.comment?.trim() || film.comment,
-										cameraId: null,
-										backId: null,
 										history: [
 											...(film.history || []),
 											{
