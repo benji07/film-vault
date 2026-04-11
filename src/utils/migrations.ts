@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 15;
+export const CURRENT_VERSION = 16;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -233,6 +233,12 @@ function migrateV14toV15(data: Record<string, unknown>): Record<string, unknown>
 	return { ...data, version: 15 };
 }
 
+function migrateV15toV16(data: Record<string, unknown>): Record<string, unknown> {
+	// Version bump: cloud schema now uses normalized tables.
+	// No structural change to the local AppData shape.
+	return { ...data, version: 16 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -248,6 +254,7 @@ const migrations: Record<number, MigrationFn> = {
 	12: migrateV12toV13,
 	13: migrateV13toV14,
 	14: migrateV14toV15,
+	15: migrateV15toV16,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

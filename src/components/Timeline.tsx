@@ -1,6 +1,7 @@
 import { Archive, Camera, Clock, Eye, Package, Plus, RotateCcw, ScanLine, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { PhotoImg } from "@/components/ui/photo-img";
 import type { HistoryAction, HistoryEntry, LucideIcon } from "@/types";
 import { fmtDate } from "@/utils/helpers";
 
@@ -106,7 +107,7 @@ export function Timeline({ entries, onPhotoClick }: TimelineProps) {
 												className="rounded-md overflow-hidden border border-border bg-surface-alt !p-0"
 												aria-label={t("aria.openPhoto", { index: pi + 1 })}
 											>
-												<img src={photo} className="w-full h-full object-cover" alt="" />
+												<PhotoImg src={photo} className="w-full h-full object-cover" alt="" />
 											</Button>
 										))}
 									</div>

@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { PhotoImg } from "@/components/ui/photo-img";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { APERTURES, filterApertures, filterSpeeds } from "@/constants/photography";
@@ -433,7 +434,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 												aria-label={t("aria.openPhoto", { index: 1 })}
 												className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
 											>
-												<img
+												<PhotoImg
 													src={lens.photo}
 													alt=""
 													aria-hidden="true"

@@ -63,7 +63,7 @@ function setLastSync(): void {
 export async function pushToCloud(code: string, data: AppData): Promise<boolean> {
 	if (!supabase) return false;
 	try {
-		const { error } = await supabase.rpc("upsert_user_data", {
+		const { error } = await supabase.rpc("upsert_user_data_v2", {
 			p_recovery_code: code,
 			p_data: data,
 			p_version: data.version,
@@ -87,7 +87,7 @@ export type PullResult = { data: AppData } | { error: PullError };
 export async function pullFromCloud(code: string): Promise<PullResult> {
 	if (!supabase) return { error: "supabase_not_configured" };
 	try {
-		const { data: rows, error } = await supabase.rpc("get_user_data", {
+		const { data: rows, error } = await supabase.rpc("get_user_data_v2", {
 			p_recovery_code: code,
 		});
 
@@ -132,7 +132,7 @@ export async function syncData(
 	}
 
 	try {
-		const { data: rows, error } = await supabase.rpc("get_user_data", {
+		const { data: rows, error } = await supabase.rpc("get_user_data_v2", {
 			p_recovery_code: code,
 		});
 

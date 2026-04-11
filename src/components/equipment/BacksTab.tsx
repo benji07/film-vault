@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { PhotoImg } from "@/components/ui/photo-img";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { alpha, T } from "@/constants/theme";
@@ -120,7 +121,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 												aria-label={t("aria.openPhoto", { index: 1 })}
 												className="w-10 h-10 rounded-lg overflow-hidden shrink-0"
 											>
-												<img
+												<PhotoImg
 													src={b.photo}
 													alt=""
 													aria-hidden="true"

@@ -11,10 +11,12 @@ import { ToastProvider, useToast } from "@/components/Toast";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { EquipmentScreen } from "@/screens/EquipmentScreen";
 import { FilmDetailScreen } from "@/screens/FilmDetailScreen";
+import { LegalScreen } from "@/screens/LegalScreen";
 import { SettingsScreen } from "@/screens/SettingsScreen";
 import { StatsScreen } from "@/screens/StatsScreen";
 import { StockScreen } from "@/screens/StockScreen";
 import type { AppData, ScreenName } from "@/types";
+import { refreshCatalogs } from "@/utils/catalog";
 import { checkStorage, getInitialData, isStorageAvailable, loadData, saveData } from "@/utils/storage";
 import { isSupabaseConfigured } from "@/utils/supabase";
 import { getRecoveryCode, pushToCloud, syncData } from "@/utils/sync";
@@ -101,6 +103,11 @@ function FilmVaultInner() {
 				} catch {
 					// Sync failed silently, use local data
 				}
+			}
+
+			// Refresh catalogs in background (non-blocking)
+			if (isSupabaseConfigured && navigator.onLine) {
+				refreshCatalogs().catch(() => {});
 			}
 
 			if (!cancelled) {
@@ -205,8 +212,11 @@ function FilmVaultInner() {
 						onRecoveryCodeChange={setRecoveryCodeState}
 						onSyncNow={triggerSync}
 						persistent={persistent}
+						setScreen={setScreen}
 					/>
 				);
+			case "legal":
+				return <LegalScreen onBack={() => setScreen("settings")} />;
 			default:
 				return (
 					<DashboardScreen
@@ -221,7 +231,7 @@ function FilmVaultInner() {
 	};
 
 	const filmTitle = selectedFilm ? data.films.find((f) => f.id === selectedFilm)?.model : undefined;
-	const showTabBar = !["filmDetail", "settings"].includes(screen);
+	const showTabBar = !["filmDetail", "settings", "legal"].includes(screen);
 
 	return (
 		<div className="h-[100dvh] bg-bg text-text-primary font-body flex flex-col md:flex-row relative">

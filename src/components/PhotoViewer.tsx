@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { PhotoImg } from "@/components/ui/photo-img";
 
 interface PhotoViewerProps {
 	photos: string[];
@@ -93,7 +94,7 @@ export function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps)
 				</Button>
 			)}
 
-			<img
+			<PhotoImg
 				src={photos[index]}
 				alt=""
 				className="max-w-[90vw] max-h-[80vh] object-contain rounded-lg"

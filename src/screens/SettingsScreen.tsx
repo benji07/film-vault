@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { PhotoImg } from "@/components/ui/photo-img";
 import { T } from "@/constants/theme";
 import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
@@ -44,6 +45,7 @@ interface SettingsScreenProps {
 	onRecoveryCodeChange: (code: string | null) => void;
 	onSyncNow: () => void;
 	persistent: boolean;
+	setScreen: (screen: import("@/types").ScreenName) => void;
 }
 
 export function SettingsScreen({
@@ -54,6 +56,7 @@ export function SettingsScreen({
 	onRecoveryCodeChange,
 	onSyncNow,
 	persistent,
+	setScreen,
 }: SettingsScreenProps) {
 	const { t, i18n } = useTranslation();
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -317,7 +320,7 @@ export function SettingsScreen({
 						{data.cameras.map((cam) => (
 							<div key={cam.id} className="flex items-center gap-3">
 								{cam.photo ? (
-									<img
+									<PhotoImg
 										src={cam.photo}
 										alt=""
 										className="w-8 h-8 rounded-md object-cover shrink-0 border border-border"
@@ -342,7 +345,7 @@ export function SettingsScreen({
 						{data.lenses.map((lens) => (
 							<div key={lens.id} className="flex items-center gap-3">
 								{lens.photo ? (
-									<img
+									<PhotoImg
 										src={lens.photo}
 										alt=""
 										className="w-8 h-8 rounded-md object-cover shrink-0 border border-border"
@@ -367,7 +370,7 @@ export function SettingsScreen({
 						{data.backs.map((back) => (
 							<div key={back.id} className="flex items-center gap-3">
 								{back.photo ? (
-									<img
+									<PhotoImg
 										src={back.photo}
 										alt=""
 										className="w-8 h-8 rounded-md object-cover shrink-0 border border-border"
@@ -392,6 +395,14 @@ export function SettingsScreen({
 					</div>
 				</Card>
 			)}
+
+			<Button
+				variant="ghost"
+				onClick={() => setScreen("legal")}
+				className="w-full justify-center text-text-muted text-xs"
+			>
+				{t("settings.legalNotices")}
+			</Button>
 
 			<div className="flex flex-col gap-2.5">
 				<Button variant="outline" onClick={() => exportData(data)} className="w-full justify-center">
