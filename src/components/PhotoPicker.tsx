@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { useToast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
+import { PhotoImg } from "@/components/ui/photo-img";
 import { compressImage, estimateStorageUsage } from "@/utils/image";
 
 interface PhotoPickerProps {
@@ -64,7 +65,7 @@ export function PhotoPicker({ photos, onChange, max = 3, size = 64, placeholderI
 							aria-label={t("aria.openPhoto", { index: i + 1 })}
 							className="w-full h-full rounded-lg overflow-hidden"
 						>
-							<img
+							<PhotoImg
 								src={photo}
 								alt=""
 								aria-hidden="true"

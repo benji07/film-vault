@@ -451,6 +451,7 @@ export const en = {
 		cloudNetworkError: "Server connection error. Please try again.",
 		cloudInvalidData: "The data found is invalid or corrupted.",
 		cloudNotConfigured: "Cloud service is not configured.",
+		legalNotices: "Legal notices",
 		// Theme
 		theme: "Theme",
 		themeDark: "Chambre noire",
@@ -549,6 +550,39 @@ export const en = {
 		frame: "Frame #{{number}}",
 		noteCount: "{{count}} geolocated note",
 		noteCount_other: "{{count}} geolocated notes",
+	},
+
+	// Legal notices
+	legal: {
+		title: "Legal notices",
+		back: "Back",
+		publisherTitle: "Publisher",
+		publisherContent:
+			"FilmVault is an open-source web application published by benji07. Source code available at github.com/benji07/film-vault.",
+		hostingTitle: "Hosting",
+		hostingContent:
+			"Static site hosted on GitHub Pages (GitHub, Inc., San Francisco, USA). Cloud data hosted on Supabase (region eu-central-1, Frankfurt, Germany, AWS infrastructure).",
+		dataCollectedTitle: "Data collected",
+		dataCollectedContent:
+			"The application only collects data you voluntarily enter:\n• Film inventory: brand, model, ISO, state, dates, notes\n• Equipment: cameras, lenses, backs (brand, model, serial number)\n• Equipment and shot photos (compressed to ~200 KB)\n• GPS coordinates from shot notes (if manually entered)\n• Recovery code (anonymous identifier, format FILM-XXXX-XXXX)\n\nNo personally identifiable information (name, email, address) is collected. No user account is required.",
+		localStorageTitle: "Local storage",
+		localStorageContent:
+			"All your data is stored locally in your browser (localStorage). It does not leave your device unless you enable cloud backup. No cookies are used. No browsing data is collected.",
+		cloudStorageTitle: "Cloud storage (optional)",
+		cloudStorageContent:
+			"If you generate a recovery code, your data is synced with Supabase (hosted on AWS eu-central-1, Frankfurt, Germany). Sync is only initiated by you. The recovery code is the only way to access your cloud data — it is not linked to any account, email, or identity. Photos may be stored on Supabase Storage (same region).",
+		noTrackingTitle: "No tracking or analytics",
+		noTrackingContent:
+			"FilmVault does not use any analytics tools, tracking pixels, or third-party cookies. No data is collected for marketing or advertising purposes. No data is shared with third parties.",
+		gdprTitle: "Your rights (GDPR)",
+		gdprContent:
+			"Under the General Data Protection Regulation (GDPR), you have the following rights:\n• Right of access: export your data at any time via Settings > Export my data (JSON file)\n• Right to rectification: freely modify your data within the application\n• Right to erasure: delete your cloud data by disconnecting your recovery code. Local data can be deleted by clearing your browser's localStorage\n• Right to portability: the JSON export contains all your data in a standard format",
+		retentionTitle: "Data retention",
+		retentionContent:
+			"Local data is retained as long as the browser's localStorage is not cleared. Cloud data is retained as long as the recovery code exists. Disconnecting the code removes access to cloud data.",
+		contactTitle: "Contact",
+		contactContent:
+			"For any questions about your data or to exercise your rights, you can contact the publisher via GitHub: github.com/benji07/film-vault/issues.",
 	},
 
 	// Date locale

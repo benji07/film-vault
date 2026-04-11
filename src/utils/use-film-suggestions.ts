@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { FILM_CATALOG } from "@/constants/film-catalog";
 import type { Film } from "@/types";
+import { getFilmCatalog } from "@/utils/catalog";
 import { normalizeBrand } from "@/utils/film-helpers";
 
 interface FilmData {
@@ -15,7 +15,7 @@ export function useFilmSuggestions(films: Film[]) {
 		for (const f of films) {
 			if (f.brand) set.add(normalizeBrand(f.brand));
 		}
-		for (const c of FILM_CATALOG) {
+		for (const c of getFilmCatalog()) {
 			set.add(c.brand);
 		}
 		return [...set].sort((a, b) => a.localeCompare(b));
@@ -30,7 +30,7 @@ export function useFilmSuggestions(films: Film[]) {
 					set.add(f.model.trim());
 				}
 			}
-			for (const c of FILM_CATALOG) {
+			for (const c of getFilmCatalog()) {
 				if (c.brand.toLowerCase() === lowerBrand) {
 					set.add(c.model);
 				}
@@ -57,7 +57,7 @@ export function useFilmSuggestions(films: Film[]) {
 			}
 
 			// Fallback to catalog
-			const fromCatalog = FILM_CATALOG.find(
+			const fromCatalog = getFilmCatalog().find(
 				(c) => c.brand.toLowerCase() === lowerBrand && c.model.toLowerCase() === lowerModel,
 			);
 			if (fromCatalog) {

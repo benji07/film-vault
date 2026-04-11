@@ -451,6 +451,7 @@ export const fr = {
 		cloudNetworkError: "Erreur de connexion au serveur. Veuillez réessayer.",
 		cloudInvalidData: "Les données trouvées sont invalides ou corrompues.",
 		cloudNotConfigured: "Le service cloud n'est pas configuré.",
+		legalNotices: "Mentions légales",
 		// Theme
 		theme: "Thème",
 		themeDark: "Chambre noire",
@@ -549,6 +550,39 @@ export const fr = {
 		frame: "Vue n°{{number}}",
 		noteCount: "{{count}} note géolocalisée",
 		noteCount_other: "{{count}} notes géolocalisées",
+	},
+
+	// Legal notices
+	legal: {
+		title: "Mentions légales",
+		back: "Retour",
+		publisherTitle: "Éditeur",
+		publisherContent:
+			"FilmVault est une application web open source éditée par benji07. Code source disponible sur github.com/benji07/film-vault.",
+		hostingTitle: "Hébergement",
+		hostingContent:
+			"Site statique hébergé sur GitHub Pages (GitHub, Inc., San Francisco, États-Unis). Données cloud hébergées sur Supabase (région eu-central-1, Francfort, Allemagne, infrastructure AWS).",
+		dataCollectedTitle: "Données collectées",
+		dataCollectedContent:
+			"L'application collecte uniquement les données que vous saisissez volontairement :\n• Inventaire de pellicules : marque, modèle, ISO, état, dates, notes\n• Équipement : appareils photo, objectifs, dos (marque, modèle, numéro de série)\n• Photos d'équipement et de prises de vue (compressées à ~200 Ko)\n• Coordonnées GPS des notes de prise de vue (si renseignées manuellement)\n• Code de récupération (identifiant anonyme, format FILM-XXXX-XXXX)\n\nAucune donnée personnelle identifiante (nom, email, adresse) n'est collectée. Aucun compte utilisateur n'est requis.",
+		localStorageTitle: "Stockage local",
+		localStorageContent:
+			"Toutes vos données sont stockées localement dans le navigateur (localStorage). Elles ne quittent pas votre appareil sauf si vous activez la sauvegarde cloud. Aucun cookie n'est utilisé. Aucune donnée de navigation n'est collectée.",
+		cloudStorageTitle: "Stockage cloud (optionnel)",
+		cloudStorageContent:
+			"Si vous générez un code de récupération, vos données sont synchronisées avec Supabase (hébergé sur AWS eu-central-1, Francfort, Allemagne). La synchronisation est initiée uniquement par vous. Le code de récupération est le seul moyen d'accéder à vos données cloud — il n'est associé à aucun compte, email ou identité. Les photos peuvent être stockées sur Supabase Storage (même région).",
+		noTrackingTitle: "Aucun suivi ni analyse",
+		noTrackingContent:
+			"FilmVault n'utilise aucun outil d'analyse (analytics), aucun pixel de suivi, aucun cookie tiers. Aucune donnée n'est collectée à des fins marketing ou publicitaires. Aucune donnée n'est partagée avec des tiers.",
+		gdprTitle: "Vos droits (RGPD)",
+		gdprContent:
+			"Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants :\n• Droit d'accès : exportez vos données à tout moment via Réglages > Exporter mes données (fichier JSON)\n• Droit de rectification : modifiez librement vos données dans l'application\n• Droit à l'effacement : supprimez vos données cloud en dissociant votre code de récupération. Les données locales sont supprimables en vidant le localStorage du navigateur\n• Droit à la portabilité : l'export JSON contient l'intégralité de vos données dans un format standard",
+		retentionTitle: "Durée de conservation",
+		retentionContent:
+			"Les données locales sont conservées tant que le localStorage du navigateur n'est pas vidé. Les données cloud sont conservées tant que le code de récupération existe. La dissociation du code supprime l'accès aux données cloud.",
+		contactTitle: "Contact",
+		contactContent:
+			"Pour toute question relative à vos données ou pour exercer vos droits, vous pouvez contacter l'éditeur via GitHub : github.com/benji07/film-vault/issues.",
 	},
 
 	// Date locale

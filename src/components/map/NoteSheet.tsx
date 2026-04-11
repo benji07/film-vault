@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PhotoImg } from "@/components/ui/photo-img";
 import { filmName } from "@/utils/film-helpers";
 import type { GeoNote } from "@/utils/map-helpers";
 
@@ -64,7 +65,12 @@ export function NoteSheet({ geoNote, onClose, onViewFilm }: NoteSheetProps) {
 									onClick={() => setShowViewer(true)}
 									aria-label={t("aria.openPhoto", { index: 1 })}
 								>
-									<img src={note.photo} alt="" aria-hidden="true" className="w-full h-32 object-cover cursor-pointer" />
+									<PhotoImg
+										src={note.photo}
+										alt=""
+										aria-hidden="true"
+										className="w-full h-32 object-cover cursor-pointer"
+									/>
 								</button>
 							</div>
 						)}
