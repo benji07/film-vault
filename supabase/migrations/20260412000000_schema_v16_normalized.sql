@@ -135,6 +135,8 @@ CREATE TABLE public.film_history_photos (
     photo_path TEXT NOT NULL,
     sort_order INTEGER NOT NULL DEFAULT 0
 );
+CREATE INDEX idx_film_history_photos_history_sort
+    ON public.film_history_photos(history_id, sort_order);
 
 -- 8. Shot notes
 CREATE TABLE public.shot_notes (
@@ -438,7 +440,8 @@ BEGIN
         )
     ), '[]'::jsonb)
     INTO v_cameras
-    FROM cameras c WHERE c.user_id = v_user_id;
+    FROM cameras c WHERE c.user_id = v_user_id
+    ORDER BY c.created_at, c.id;
 
     -- Lenses
     SELECT COALESCE(jsonb_agg(
@@ -464,7 +467,8 @@ BEGIN
         )
     ), '[]'::jsonb)
     INTO v_lenses
-    FROM lenses l WHERE l.user_id = v_user_id;
+    FROM lenses l WHERE l.user_id = v_user_id
+    ORDER BY l.created_at, l.id;
 
     -- Backs
     SELECT COALESCE(jsonb_agg(
@@ -480,7 +484,8 @@ BEGIN
         )
     ), '[]'::jsonb)
     INTO v_backs
-    FROM backs b WHERE b.user_id = v_user_id;
+    FROM backs b WHERE b.user_id = v_user_id
+    ORDER BY b.created_at, b.id;
 
     -- Films with nested history and shotNotes
     SELECT COALESCE(jsonb_agg(film_obj), '[]'::jsonb)
@@ -558,6 +563,7 @@ BEGIN
         ) AS film_obj
         FROM films f
         WHERE f.user_id = v_user_id
+        ORDER BY f.created_at, f.id
     ) sub;
 
     RETURN QUERY SELECT

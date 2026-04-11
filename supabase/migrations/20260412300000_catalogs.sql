@@ -391,3 +391,7 @@ BEGIN
     ON CONFLICT (brand, model) DO NOTHING;
 END;
 $$;
+
+-- Only callable internally from upsert_user_data_v2, not directly by clients
+REVOKE EXECUTE ON FUNCTION public.enrich_catalogs_from_user_data(UUID) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.enrich_catalogs_from_user_data(UUID) FROM anon;

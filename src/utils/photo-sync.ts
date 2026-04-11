@@ -10,6 +10,27 @@ interface CachedUrl {
 
 const urlCache = new Map<string, CachedUrl>();
 const CACHE_TTL_MS = 50 * 60 * 1000; // 50 minutes (URLs valid for 60 min)
+let cacheRecoveryCode: string | null = null;
+
+/**
+ * Build a cache key scoped by recovery code to prevent stale URLs
+ * when switching between accounts on the same device.
+ */
+function cacheKey(storagePath: string): string {
+	const code = getRecoveryCode();
+	return `${code ?? ""}:${storagePath}`;
+}
+
+/**
+ * Ensure cache is invalidated if recovery code changed.
+ */
+function ensureCacheValid(): void {
+	const code = getRecoveryCode();
+	if (code !== cacheRecoveryCode) {
+		urlCache.clear();
+		cacheRecoveryCode = code;
+	}
+}
 
 /**
  * Resolve a photo reference to a displayable src.
@@ -21,8 +42,9 @@ export function resolvePhotoSrc(photoRef: string | null | undefined): string | n
 	if (!photoRef) return null;
 	if (photoRef.startsWith("data:")) return photoRef;
 
-	// It's a storage path — check cache
-	const cached = urlCache.get(photoRef);
+	ensureCacheValid();
+	const key = cacheKey(photoRef);
+	const cached = urlCache.get(key);
 	if (cached && cached.expiresAt > Date.now()) {
 		return cached.url;
 	}
@@ -52,7 +74,9 @@ export function isStoragePath(photoRef: string | null | undefined): boolean {
 export async function getSignedDownloadUrl(storagePath: string): Promise<string | null> {
 	if (!supabase || !isSupabaseConfigured) return null;
 
-	const cached = urlCache.get(storagePath);
+	ensureCacheValid();
+	const key = cacheKey(storagePath);
+	const cached = urlCache.get(key);
 	if (cached && cached.expiresAt > Date.now()) {
 		return cached.url;
 	}
@@ -72,7 +96,7 @@ export async function getSignedDownloadUrl(storagePath: string): Promise<string 
 		}
 
 		const url = data as string;
-		urlCache.set(storagePath, { url, expiresAt: Date.now() + CACHE_TTL_MS });
+		urlCache.set(key, { url, expiresAt: Date.now() + CACHE_TTL_MS });
 		return url;
 	} catch (e) {
 		console.error("Failed to get download URL:", e);

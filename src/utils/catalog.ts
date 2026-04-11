@@ -11,6 +11,11 @@ export interface CatalogCamera {
 	format: string;
 	mount: string | null;
 	type: string | null;
+	updated_at?: string;
+}
+
+interface FilmCatalogRow extends FilmCatalogEntry {
+	updated_at?: string;
 }
 
 // --- Cache keys ---
@@ -70,49 +75,78 @@ export function getCameraCatalog(): CatalogCamera[] {
 /**
  * Fetch catalogs from Supabase and update local cache.
  * Called on app startup when online.
+ *
+ * Uses server-side updated_at timestamps (not client clock) to avoid
+ * clock-skew issues with incremental fetches.
  */
 export async function refreshCatalogs(): Promise<void> {
 	if (!supabase || !isSupabaseConfigured) return;
 
 	try {
 		const lastUpdate = localStorage.getItem(CATALOG_TIMESTAMP_KEY) ?? undefined;
+		const existingFilms = getFilmCatalog();
+		const existingCameras = getCameraCatalog();
+
+		// Only do incremental fetch if we have cached data; otherwise full fetch
+		const filmSince = lastUpdate && existingFilms.length > 0 ? lastUpdate : null;
+		const cameraSince = lastUpdate && existingCameras.length > 0 ? lastUpdate : null;
+
+		let maxServerTimestamp = lastUpdate ?? "";
 
 		// Fetch film catalog
 		const { data: films, error: filmError } = await supabase.rpc("get_film_catalog", {
-			p_since: lastUpdate ?? null,
+			p_since: filmSince,
 		});
 
-		if (!filmError && films && Array.isArray(films) && films.length > 0) {
-			// If this is an incremental update, merge with existing
-			if (lastUpdate) {
-				const existing = getFilmCatalog();
-				const newEntries = films as FilmCatalogEntry[];
-				const merged = mergeFilmCatalogs(existing, newEntries);
-				filmCatalogCache = merged;
-			} else {
-				filmCatalogCache = films as FilmCatalogEntry[];
+		if (filmError || !Array.isArray(films)) {
+			console.error("Failed to refresh film catalog:", filmError);
+			return;
+		}
+
+		if (filmSince) {
+			const newEntries = films as FilmCatalogRow[];
+			filmCatalogCache = newEntries.length > 0 ? mergeFilmCatalogs(existingFilms, newEntries) : existingFilms;
+		} else {
+			filmCatalogCache = films as FilmCatalogEntry[];
+		}
+		localStorage.setItem(FILM_CATALOG_KEY, JSON.stringify(filmCatalogCache));
+
+		// Track max server timestamp from film rows
+		for (const row of films as FilmCatalogRow[]) {
+			if (row.updated_at && row.updated_at > maxServerTimestamp) {
+				maxServerTimestamp = row.updated_at;
 			}
-			localStorage.setItem(FILM_CATALOG_KEY, JSON.stringify(filmCatalogCache));
 		}
 
 		// Fetch camera catalog
 		const { data: cameras, error: camError } = await supabase.rpc("get_camera_catalog", {
-			p_since: lastUpdate ?? null,
+			p_since: cameraSince,
 		});
 
-		if (!camError && cameras && Array.isArray(cameras) && cameras.length > 0) {
-			if (lastUpdate) {
-				const existing = getCameraCatalog();
-				const newEntries = cameras as CatalogCamera[];
-				const merged = mergeCameraCatalogs(existing, newEntries);
-				cameraCatalogCache = merged;
-			} else {
-				cameraCatalogCache = cameras as CatalogCamera[];
-			}
-			localStorage.setItem(CAMERA_CATALOG_KEY, JSON.stringify(cameraCatalogCache));
+		if (camError || !Array.isArray(cameras)) {
+			console.error("Failed to refresh camera catalog:", camError);
+			return;
 		}
 
-		localStorage.setItem(CATALOG_TIMESTAMP_KEY, new Date().toISOString());
+		if (cameraSince) {
+			const newEntries = cameras as CatalogCamera[];
+			cameraCatalogCache = newEntries.length > 0 ? mergeCameraCatalogs(existingCameras, newEntries) : existingCameras;
+		} else {
+			cameraCatalogCache = cameras as CatalogCamera[];
+		}
+		localStorage.setItem(CAMERA_CATALOG_KEY, JSON.stringify(cameraCatalogCache));
+
+		// Track max server timestamp from camera rows
+		for (const row of cameras as CatalogCamera[]) {
+			if (row.updated_at && row.updated_at > maxServerTimestamp) {
+				maxServerTimestamp = row.updated_at;
+			}
+		}
+
+		// Only update timestamp after both catalogs succeeded, using server time
+		if (maxServerTimestamp) {
+			localStorage.setItem(CATALOG_TIMESTAMP_KEY, maxServerTimestamp);
+		}
 	} catch (e) {
 		console.error("Failed to refresh catalogs:", e);
 	}

@@ -12,32 +12,46 @@ interface PhotoImgProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 
  *
  * - base64 data URLs: rendered immediately
  * - Storage paths: resolved to signed download URLs asynchronously
+ * - Shows a placeholder skeleton while a Storage path is resolving
  */
 export function PhotoImg({ src, className, alt = "", ...props }: PhotoImgProps) {
 	const [resolvedSrc, setResolvedSrc] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		if (!src) {
 			setResolvedSrc(null);
+			setLoading(false);
 			return;
 		}
 
 		if (isBase64Photo(src)) {
 			setResolvedSrc(src);
+			setLoading(false);
 			return;
 		}
 
-		// Storage path — resolve async
+		// Storage path — clear previous and resolve async
+		setResolvedSrc(null);
+		setLoading(true);
 		let cancelled = false;
 		getSignedDownloadUrl(src).then((url) => {
-			if (!cancelled && url) {
+			if (!cancelled) {
 				setResolvedSrc(url);
+				setLoading(false);
 			}
 		});
 		return () => {
 			cancelled = true;
 		};
 	}, [src]);
+
+	if (!src) return null;
+
+	// Placeholder while loading a storage path
+	if (loading || (!resolvedSrc && !isBase64Photo(src))) {
+		return <div className={cn("animate-pulse bg-surface-alt rounded", className)} {...props} />;
+	}
 
 	if (!resolvedSrc) return null;
 

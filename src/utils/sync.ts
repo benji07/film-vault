@@ -1,5 +1,6 @@
 import type { AppData } from "@/types";
 import { applyMigrations, CURRENT_VERSION, validateAppData } from "@/utils/migrations";
+import { clearUrlCache } from "@/utils/photo-sync";
 import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 
 const RECOVERY_CODE_KEY = "filmvault-recovery-code";
@@ -30,6 +31,8 @@ export function setRecoveryCode(code: string): void {
 export function clearRecoveryCode(): void {
 	localStorage.removeItem(RECOVERY_CODE_KEY);
 	localStorage.removeItem(LAST_SYNC_KEY);
+	// Invalidate photo URL cache scoped to the old recovery code
+	clearUrlCache();
 }
 
 // --- Last modified / last sync ---

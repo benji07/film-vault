@@ -7,6 +7,29 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('user-photos', 'user-photos', false)
 ON CONFLICT (id) DO NOTHING;
 
+-- Helper: validate that a relative path is safe
+CREATE OR REPLACE FUNCTION public._validate_relative_path(p_path TEXT)
+RETURNS void
+LANGUAGE plpgsql
+IMMUTABLE
+AS $$
+BEGIN
+    IF p_path IS NULL OR p_path = '' THEN
+        RAISE EXCEPTION 'path must not be empty';
+    END IF;
+    IF p_path LIKE '/%' THEN
+        RAISE EXCEPTION 'path must be relative (no leading /)';
+    END IF;
+    IF p_path LIKE '%..%' THEN
+        RAISE EXCEPTION 'path must not contain .. segments';
+    END IF;
+END;
+$$;
+
+-- Internal only
+REVOKE EXECUTE ON FUNCTION public._validate_relative_path(text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public._validate_relative_path(text) FROM anon;
+
 -- 2. RPC to create a signed upload URL
 -- The client sends a relative path (e.g. "cameras/abc123.jpg")
 -- The function prefixes it with the user's UUID for isolation
@@ -24,6 +47,8 @@ DECLARE
     v_full_path TEXT;
     v_result RECORD;
 BEGIN
+    PERFORM _validate_relative_path(p_relative_path);
+
     SELECT id INTO v_user_id
     FROM user_profiles
     WHERE recovery_code = p_recovery_code;
@@ -57,6 +82,8 @@ DECLARE
     v_full_path TEXT;
     v_result RECORD;
 BEGIN
+    PERFORM _validate_relative_path(p_relative_path);
+
     SELECT id INTO v_user_id
     FROM user_profiles
     WHERE recovery_code = p_recovery_code;
@@ -89,6 +116,8 @@ DECLARE
     v_user_id UUID;
     v_full_path TEXT;
 BEGIN
+    PERFORM _validate_relative_path(p_relative_path);
+
     SELECT id INTO v_user_id
     FROM user_profiles
     WHERE recovery_code = p_recovery_code;
