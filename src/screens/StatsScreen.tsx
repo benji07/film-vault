@@ -116,7 +116,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 		<div className="flex flex-col gap-5">
 			<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("stats.title")}</h2>
 
-			<div className="grid grid-cols-3 gap-2.5">
+			<div className="grid grid-cols-3 gap-2.5" data-tour="stats-overview">
 				<StatCard icon={Film} label={t("stats.totalFilms")} value={films.length} color={T.blue} />
 				<StatCard icon={Eye} label={t("stats.shot")} value={shotCount} color={T.green} />
 				<StatCard icon={Archive} label={t("stats.developed")} value={developedCount} color={T.textSec} />

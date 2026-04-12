@@ -233,3 +233,32 @@
 .animate-banner-enter {
 	animation: bannerEnter 0.3s ease-out;
 }
+
+/* Tour / Guide animations */
+@keyframes tourTooltipEnter {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes tourBackdropFadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.animate-tour-tooltip-enter {
+	animation: tourTooltipEnter 0.3s ease-out;
+}
+
+.animate-tour-backdrop-fade-in {
+	animation: tourBackdropFadeIn 0.25s ease-out;
+}

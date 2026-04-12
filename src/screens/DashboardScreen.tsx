@@ -115,7 +115,7 @@ export function DashboardScreen({
 
 	return (
 		<div className="flex flex-col gap-5">
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+			<div className="grid grid-cols-2 md:grid-cols-4 gap-2.5" data-tour="stat-cards">
 				{[
 					{ icon: Snowflake, label: t("dashboard.inStock"), value: stockCount, color: T.blue },
 					{ icon: Camera, label: t("dashboard.loaded"), value: loadedCount, color: T.green },
@@ -140,7 +140,7 @@ export function DashboardScreen({
 			)}
 
 			{hasEquipment && (
-				<div>
+				<div data-tour="equipment-section">
 					<div className="flex items-center gap-2 mb-3">
 						<Camera size={14} color={T.textSec} />
 						<span className="text-[13px] font-bold text-text-sec font-body">{t("dashboard.myEquipment")}</span>
@@ -161,7 +161,7 @@ export function DashboardScreen({
 			)}
 
 			{activeFilms.length > 0 && (
-				<div>
+				<div data-tour="active-rolls">
 					<div className="flex items-center gap-2 mb-3">
 						<Film size={14} color={T.textSec} />
 						<span className="text-[13px] font-bold text-text-sec font-body">{t("dashboard.activeRolls")}</span>

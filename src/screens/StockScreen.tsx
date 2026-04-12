@@ -152,7 +152,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 				</Select>
 			</div>
 
-			<div className="flex flex-col gap-2">
+			<div className="flex flex-col gap-2" data-tour="stock-list">
 				{groups.map((group) => {
 					const representative = group.films[0]!;
 					return (

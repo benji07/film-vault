@@ -448,13 +448,15 @@ export function FilmDetailScreen({
 
 			{/* History */}
 			{film.history && film.history.length > 0 && (
-				<Timeline
-					entries={film.history}
-					onPhotoClick={(photos, index) => {
-						setViewerPhotos(photos);
-						setViewerIndex(index);
-					}}
-				/>
+				<div data-tour="film-timeline">
+					<Timeline
+						entries={film.history}
+						onPhotoClick={(photos, index) => {
+							setViewerPhotos(photos);
+							setViewerIndex(index);
+						}}
+					/>
+				</div>
 			)}
 
 			{/* MODALS */}
