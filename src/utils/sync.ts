@@ -76,6 +76,8 @@ export async function activateCloud(recoveryCode: string): Promise<string | null
 			console.error("activate_cloud failed:", error.message);
 			return null;
 		}
+		// Reset caches so subsequent operations use the new profile
+		clearUrlCache();
 		return data as string;
 	} catch (e) {
 		console.error("activate_cloud failed:", e);
@@ -97,6 +99,8 @@ export async function linkRecoveryCode(recoveryCode: string): Promise<string | n
 			console.error("link_recovery_code failed:", error.message);
 			return null;
 		}
+		// Reset caches so subsequent operations use the new profile
+		clearUrlCache();
 		return data as string;
 	} catch (e) {
 		console.error("link_recovery_code failed:", e);
@@ -178,7 +182,18 @@ export async function syncData(
 	}
 
 	try {
-		const { data: rows, error } = await supabase.rpc("get_user_data_v3");
+		let { data: rows, error } = await supabase.rpc("get_user_data_v3");
+
+		// If no data found, the profile may exist but auth_uid is not linked yet
+		// (existing user upgrading from v2). Try to link automatically.
+		if (!error && (!rows || rows.length === 0)) {
+			const linked = await linkRecoveryCode(code);
+			if (linked) {
+				const retry = await supabase.rpc("get_user_data_v3");
+				rows = retry.data;
+				error = retry.error;
+			}
+		}
 
 		// No cloud data yet or error → push local
 		if (error) {

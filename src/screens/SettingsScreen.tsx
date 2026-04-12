@@ -97,14 +97,18 @@ export function SettingsScreen({
 
 	const handleActivateCloud = async () => {
 		const code = generateRecoveryCode();
-		const profileId = await activateCloud(code);
-		if (!profileId) {
+		try {
+			const profileId = await activateCloud(code);
+			if (!profileId) {
+				setImportError(t("settings.pushFailed"));
+				return;
+			}
+			await pushToCloud(code, data);
+			setRecoveryCode(code);
+			onRecoveryCodeChange(code);
+		} catch {
 			setImportError(t("settings.pushFailed"));
-			return;
 		}
-		setRecoveryCode(code);
-		onRecoveryCodeChange(code);
-		await pushToCloud(code, data);
 	};
 
 	const pullErrorKey: Record<string, string> = {

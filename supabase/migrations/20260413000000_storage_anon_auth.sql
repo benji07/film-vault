@@ -6,52 +6,67 @@
 -- - Adds activate_cloud / link_recovery_code RPCs for onboarding/restore
 -- ============================================================================
 
--- 1. Add auth_uid column to user_profiles
+-- 1. Add auth_uid column to user_profiles (unique per session, nullable for existing rows)
 ALTER TABLE public.user_profiles
     ADD COLUMN IF NOT EXISTS auth_uid UUID;
 
-CREATE INDEX IF NOT EXISTS idx_user_profiles_auth_uid
-    ON public.user_profiles(auth_uid);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_profiles_auth_uid
+    ON public.user_profiles(auth_uid) WHERE auth_uid IS NOT NULL;
 
--- 2. Storage RLS policies for authenticated users
+-- 2. SECURITY DEFINER helper for Storage RLS policies
+-- (user_profiles has RLS with no SELECT policy for authenticated, so inline
+-- subqueries would return empty sets; this function bypasses RLS safely)
+CREATE OR REPLACE FUNCTION public.get_authenticated_profile_id()
+RETURNS UUID
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+    SELECT id
+    FROM public.user_profiles
+    WHERE auth_uid = auth.uid()
+    LIMIT 1;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_authenticated_profile_id() TO authenticated;
+
+-- 3. Storage RLS policies for authenticated users
 -- Each user can only access files in their own folder ({user_profiles.id}/...)
 CREATE POLICY "auth_user_insert_photos" ON storage.objects
     FOR INSERT TO authenticated
     WITH CHECK (
         bucket_id = 'user-photos'
-        AND (storage.foldername(name))[1] IN (
-            SELECT id::text FROM public.user_profiles WHERE auth_uid = auth.uid()
-        )
+        AND (storage.foldername(name))[1] = public.get_authenticated_profile_id()::text
     );
 
 CREATE POLICY "auth_user_select_photos" ON storage.objects
     FOR SELECT TO authenticated
     USING (
         bucket_id = 'user-photos'
-        AND (storage.foldername(name))[1] IN (
-            SELECT id::text FROM public.user_profiles WHERE auth_uid = auth.uid()
-        )
+        AND (storage.foldername(name))[1] = public.get_authenticated_profile_id()::text
     );
 
 CREATE POLICY "auth_user_update_photos" ON storage.objects
     FOR UPDATE TO authenticated
     USING (
         bucket_id = 'user-photos'
-        AND (storage.foldername(name))[1] IN (
-            SELECT id::text FROM public.user_profiles WHERE auth_uid = auth.uid()
-        )
+        AND (storage.foldername(name))[1] = public.get_authenticated_profile_id()::text
+    )
+    WITH CHECK (
+        bucket_id = 'user-photos'
+        AND (storage.foldername(name))[1] = public.get_authenticated_profile_id()::text
     );
 
 CREATE POLICY "auth_user_delete_photos" ON storage.objects
     FOR DELETE TO authenticated
     USING (
         bucket_id = 'user-photos'
-        AND (storage.foldername(name))[1] IN (
-            SELECT id::text FROM public.user_profiles WHERE auth_uid = auth.uid()
-        )
+        AND (storage.foldername(name))[1] = public.get_authenticated_profile_id()::text
     );
 
--- 3. activate_cloud: creates a user profile linked to the current anonymous session
+-- 4. activate_cloud: creates a NEW user profile linked to the current anonymous session
+-- Fails if the recovery code already exists (use link_recovery_code for restore)
 CREATE OR REPLACE FUNCTION public.activate_cloud(p_recovery_code TEXT)
 RETURNS UUID
 LANGUAGE plpgsql
@@ -67,10 +82,12 @@ BEGIN
 
     INSERT INTO user_profiles (recovery_code, auth_uid, schema_version, updated_at)
     VALUES (p_recovery_code, auth.uid(), 16, now())
-    ON CONFLICT (recovery_code) DO UPDATE
-        SET auth_uid = auth.uid(),
-            updated_at = now()
+    ON CONFLICT (recovery_code) DO NOTHING
     RETURNING id INTO v_user_id;
+
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'recovery_code_already_exists';
+    END IF;
 
     RETURN v_user_id;
 END;
@@ -78,7 +95,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.activate_cloud(text) TO authenticated;
 
--- 4. link_recovery_code: links an existing profile to the current anonymous session (restore)
+-- 5. link_recovery_code: links an existing profile to the current anonymous session (restore)
 CREATE OR REPLACE FUNCTION public.link_recovery_code(p_recovery_code TEXT)
 RETURNS UUID
 LANGUAGE plpgsql
@@ -107,7 +124,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.link_recovery_code(text) TO authenticated;
 
--- 5. get_profile_id: returns the user_profiles.id for the current authenticated session
+-- 6. get_profile_id: returns the user_profiles.id for the current authenticated session
 CREATE OR REPLACE FUNCTION public.get_profile_id()
 RETURNS UUID
 LANGUAGE plpgsql
@@ -119,7 +136,8 @@ DECLARE
 BEGIN
     SELECT id INTO v_id
     FROM user_profiles
-    WHERE auth_uid = auth.uid();
+    WHERE auth_uid = auth.uid()
+    LIMIT 1;
 
     RETURN v_id;
 END;
@@ -127,7 +145,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.get_profile_id() TO authenticated;
 
--- 6. upsert_user_data_v3: same as v2 but uses auth.uid() instead of recovery_code
+-- 7. upsert_user_data_v3: same as v2 but uses auth.uid() instead of recovery_code
 CREATE OR REPLACE FUNCTION public.upsert_user_data_v3(
     p_data JSONB,
     p_version INTEGER,
@@ -159,7 +177,8 @@ BEGIN
     -- Resolve user profile from auth session
     SELECT id, recovery_code INTO v_user_id, v_recovery_code
     FROM user_profiles
-    WHERE auth_uid = auth.uid();
+    WHERE auth_uid = auth.uid()
+    LIMIT 1;
 
     IF v_user_id IS NULL THEN
         RAISE EXCEPTION 'no_profile_linked';
@@ -344,7 +363,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.upsert_user_data_v3(jsonb, integer, timestamptz) TO authenticated;
 
--- 7. get_user_data_v3: same as v2 but uses auth.uid()
+-- 8. get_user_data_v3: same as v2 but uses auth.uid()
 CREATE OR REPLACE FUNCTION public.get_user_data_v3()
 RETURNS TABLE(data JSONB, version INTEGER, updated_at TIMESTAMPTZ)
 LANGUAGE plpgsql
@@ -367,7 +386,8 @@ BEGIN
     SELECT up.id, up.schema_version, up.updated_at
     INTO v_user_id, v_version, v_updated
     FROM user_profiles up
-    WHERE up.auth_uid = auth.uid();
+    WHERE up.auth_uid = auth.uid()
+    LIMIT 1;
 
     IF v_user_id IS NULL THEN
         RETURN;

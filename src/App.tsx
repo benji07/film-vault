@@ -126,9 +126,10 @@ function FilmVaultInner() {
 		};
 	}, []);
 
-	// Sync when coming back online
+	// Sync when coming back online (ensure auth session first)
 	useEffect(() => {
-		const handleOnline = () => {
+		const handleOnline = async () => {
+			await ensureAnonSession();
 			triggerSync();
 		};
 		window.addEventListener("online", handleOnline);
