@@ -27,7 +27,7 @@ export function NoteSheet({ geoNote, onClose, onViewFilm }: NoteSheetProps) {
 					<div className="flex justify-center pt-2 pb-1">
 						<div className="w-10 h-1 rounded-full bg-border" />
 					</div>
-					<div className="px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+					<div className="px-4 pb-4">
 						<div className="flex items-start justify-between gap-3 mb-3">
 							<div className="min-w-0 flex-1">
 								<div className="flex items-center gap-2 mb-1">

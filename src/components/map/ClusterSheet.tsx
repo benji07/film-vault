@@ -19,7 +19,7 @@ export function ClusterSheet({ cluster, onClose, onSelectNote }: ClusterSheetPro
 				<div className="flex justify-center pt-2 pb-1">
 					<div className="w-10 h-1 rounded-full bg-border" />
 				</div>
-				<div className="px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+				<div className="px-4 pb-4">
 					<div className="flex items-center justify-between mb-3">
 						<span className="text-sm font-semibold text-text-primary">
 							{t("map.noteCount", { count: cluster.notes.length })}
