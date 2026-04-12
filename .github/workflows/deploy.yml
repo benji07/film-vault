@@ -21,7 +21,7 @@ jobs:
 
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.89.1
 
       - run: supabase db push --db-url "$SUPABASE_DB_URL"
         env:
