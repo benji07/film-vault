@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ export function TourTooltip({
 	anchorRect,
 }: TourTooltipProps) {
 	const { t } = useTranslation();
+	const dialogRef = useRef<HTMLDivElement>(null);
 
 	const isCentered = placement === "center" || !anchorRect;
 
@@ -40,6 +42,17 @@ export function TourTooltip({
 			? { top: Math.min(anchorRect.bottom + 12, window.innerHeight - 220), left: 16, right: 16 }
 			: { bottom: window.innerHeight - anchorRect.top + 12, left: 16, right: 16 };
 
+	// Move focus into tooltip when step changes
+	const stepKey = currentStep;
+	useEffect(() => {
+		// stepKey triggers re-focus on step change
+		void stepKey;
+		dialogRef.current?.focus();
+	}, [stepKey]);
+
+	const titleId = `tour-title-${currentStep}`;
+	const descId = `tour-desc-${currentStep}`;
+
 	return (
 		<div
 			className={cn(
@@ -48,9 +61,24 @@ export function TourTooltip({
 			)}
 			style={isCentered ? undefined : positionStyle}
 		>
-			<div className={cn("bg-surface border border-border rounded-2xl p-5 shadow-lg", isCentered && "w-full max-w-sm")}>
-				<h3 className="font-display text-lg italic text-text-primary mb-1.5">{title}</h3>
-				<p className="text-sm text-text-sec font-body leading-relaxed mb-4">{description}</p>
+			<div
+				ref={dialogRef}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby={titleId}
+				aria-describedby={descId}
+				tabIndex={-1}
+				className={cn(
+					"bg-surface border border-border rounded-2xl p-5 shadow-lg outline-none",
+					isCentered && "w-full max-w-sm",
+				)}
+			>
+				<h3 id={titleId} className="font-display text-lg italic text-text-primary mb-1.5">
+					{title}
+				</h3>
+				<p id={descId} className="text-sm text-text-sec font-body leading-relaxed mb-4">
+					{description}
+				</p>
 
 				<div className="flex items-center justify-between gap-3">
 					<span className="text-[11px] font-mono text-text-muted">

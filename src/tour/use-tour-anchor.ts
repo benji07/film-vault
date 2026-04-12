@@ -6,6 +6,7 @@ export function useTourAnchor(selector: string | null, delay = 0): DOMRect | nul
 	const elementRef = useRef<Element | null>(null);
 	const retryRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const handlersRef = useRef<{ scroll: () => void; resize: () => void } | null>(null);
+	const rafRef = useRef<number | null>(null);
 
 	const measure = useCallback(() => {
 		if (!selector) {
@@ -23,10 +24,10 @@ export function useTourAnchor(selector: string | null, delay = 0): DOMRect | nul
 	}, [selector]);
 
 	useEffect(() => {
-		// Cleanup previous observers and listeners
 		const cleanup = () => {
 			if (retryRef.current) clearInterval(retryRef.current);
 			observerRef.current?.disconnect();
+			if (rafRef.current) cancelAnimationFrame(rafRef.current);
 			if (handlersRef.current) {
 				window.removeEventListener("scroll", handlersRef.current.scroll, true);
 				window.removeEventListener("resize", handlersRef.current.resize);
@@ -54,21 +55,27 @@ export function useTourAnchor(selector: string | null, delay = 0): DOMRect | nul
 				measure();
 			}, 100);
 
-			// Observe resize changes
-			observerRef.current = new ResizeObserver(() => {
+			// Observe resize changes (with feature detection)
+			if (typeof ResizeObserver !== "undefined") {
+				observerRef.current = new ResizeObserver(() => {
+					if (elementRef.current) {
+						setRect(elementRef.current.getBoundingClientRect());
+					}
+				});
 				if (elementRef.current) {
-					setRect(elementRef.current.getBoundingClientRect());
+					observerRef.current.observe(elementRef.current);
 				}
-			});
-			if (elementRef.current) {
-				observerRef.current.observe(elementRef.current);
 			}
 
-			// Re-measure on scroll / resize
+			// Throttled re-measure on scroll / resize via requestAnimationFrame
 			const handleLayout = () => {
-				if (elementRef.current) {
-					setRect(elementRef.current.getBoundingClientRect());
-				}
+				if (rafRef.current) return;
+				rafRef.current = requestAnimationFrame(() => {
+					rafRef.current = null;
+					if (elementRef.current) {
+						setRect(elementRef.current.getBoundingClientRect());
+					}
+				});
 			};
 			handlersRef.current = { scroll: handleLayout, resize: handleLayout };
 			window.addEventListener("scroll", handleLayout, true);
