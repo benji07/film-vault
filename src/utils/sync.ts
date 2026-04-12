@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 import { applyMigrations, CURRENT_VERSION, validateAppData } from "@/utils/migrations";
-import { clearUrlCache, extractAndUploadPhotos } from "@/utils/photo-sync";
+import { clearUrlCache, extractAndUploadPhotos, hasBase64Photos } from "@/utils/photo-sync";
 import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 
 const RECOVERY_CODE_KEY = "filmvault-recovery-code";
@@ -220,6 +220,10 @@ export async function syncData(
 						? applyMigrations(cloudData as unknown as Record<string, unknown>)
 						: cloudData;
 				setLastSync();
+				// If cloud data has base64 photos, push to migrate them to Storage
+				if (hasBase64Photos(migrated)) {
+					pushToCloud(code, migrated).catch(() => {});
+				}
 				return { data: migrated, source: "cloud" };
 			}
 		}

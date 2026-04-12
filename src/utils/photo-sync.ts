@@ -63,6 +63,28 @@ export function isStoragePath(photoRef: string | null | undefined): boolean {
 }
 
 /**
+ * Check if AppData contains any base64 photos that should be migrated to Storage.
+ */
+export function hasBase64Photos(data: AppData): boolean {
+	for (const cam of data.cameras) {
+		if (isBase64Photo(cam.photo)) return true;
+	}
+	for (const lens of data.lenses) {
+		if (isBase64Photo(lens.photo)) return true;
+	}
+	for (const back of data.backs) {
+		if (isBase64Photo(back.photo)) return true;
+	}
+	for (const film of data.films) {
+		for (const entry of film.history) {
+			if (entry.photos?.some(isBase64Photo)) return true;
+		}
+		if (film.shotNotes?.some((n) => isBase64Photo(n.photo))) return true;
+	}
+	return false;
+}
+
+/**
  * Fetch a signed download URL for a storage path via Supabase Storage SDK.
  * Caches the result for subsequent calls.
  */
