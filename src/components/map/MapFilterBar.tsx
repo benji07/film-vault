@@ -33,7 +33,7 @@ export function MapFilterBar({
 	);
 
 	return (
-		<div className="absolute top-[max(0.75rem,env(safe-area-inset-top))] left-3 right-3 z-10 flex flex-col gap-2">
+		<div className="absolute top-3 left-3 right-3 z-10 flex flex-col gap-2">
 			{/* Film type filter */}
 			<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
 				<Chip active={filterType == null} onClick={() => onFilterType(null)} className="shrink-0 text-xs shadow-md">
