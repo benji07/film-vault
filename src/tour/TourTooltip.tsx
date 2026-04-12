@@ -36,13 +36,15 @@ export function TourTooltip({
 
 	const isCentered = placement === "center" || !anchorRect;
 
-	// When the target element is taller than 60% of viewport, the tooltip
-	// can't reasonably sit above/below it — dock it to the bottom of the screen.
-	const targetTooTall = !isCentered && anchorRect.height > window.innerHeight * 0.6;
+	// When the target element is taller than 40% of viewport, or when there
+	// isn't enough room above/below, dock the tooltip to the bottom of the screen.
+	const targetTooTall = !isCentered && anchorRect.height > window.innerHeight * 0.4;
+	const noRoomAbove = !isCentered && placement === "top" && anchorRect.top < 200;
+	const noRoomBelow = !isCentered && placement === "bottom" && window.innerHeight - anchorRect.bottom < 200;
 
 	let positionStyle: React.CSSProperties = {};
 	if (!isCentered) {
-		if (targetTooTall) {
+		if (targetTooTall || noRoomAbove || noRoomBelow) {
 			positionStyle = { bottom: 80, left: 16, right: 16 };
 		} else if (placement === "bottom") {
 			positionStyle = { top: Math.min(anchorRect.bottom + 12, window.innerHeight - 220), left: 16, right: 16 };
