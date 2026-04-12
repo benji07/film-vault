@@ -33,6 +33,30 @@ function ensureCacheValid(): void {
 }
 
 /**
+ * Call the storage-url Edge Function.
+ */
+async function callStorageFunction(
+	action: "upload" | "download" | "delete",
+	path: string,
+): Promise<{ url?: string; token?: string; error?: string } | null> {
+	if (!supabase || !isSupabaseConfigured) return null;
+
+	const code = getRecoveryCode();
+	if (!code) return null;
+
+	const { data, error } = await supabase.functions.invoke("storage-url", {
+		body: { recovery_code: code, path, action },
+	});
+
+	if (error) {
+		console.error(`Storage ${action} failed:`, error.message);
+		return null;
+	}
+
+	return data as { url?: string; token?: string; error?: string };
+}
+
+/**
  * Resolve a photo reference to a displayable src.
  * - base64 data URLs are returned as-is
  * - Storage paths are resolved to signed download URLs
@@ -49,7 +73,6 @@ export function resolvePhotoSrc(photoRef: string | null | undefined): string | n
 		return cached.url;
 	}
 
-	// Return null for now; the caller should use usePhotoUrl() hook for async resolution
 	return null;
 }
 
@@ -68,12 +91,10 @@ export function isStoragePath(photoRef: string | null | undefined): boolean {
 }
 
 /**
- * Fetch a signed download URL for a storage path.
+ * Fetch a signed download URL for a storage path via Edge Function.
  * Caches the result for subsequent calls.
  */
 export async function getSignedDownloadUrl(storagePath: string): Promise<string | null> {
-	if (!supabase || !isSupabaseConfigured) return null;
-
 	ensureCacheValid();
 	const key = cacheKey(storagePath);
 	const cached = urlCache.get(key);
@@ -81,23 +102,12 @@ export async function getSignedDownloadUrl(storagePath: string): Promise<string 
 		return cached.url;
 	}
 
-	const code = getRecoveryCode();
-	if (!code) return null;
-
 	try {
-		const { data, error } = await supabase.rpc("create_download_url", {
-			p_recovery_code: code,
-			p_relative_path: storagePath,
-		});
+		const result = await callStorageFunction("download", storagePath);
+		if (!result?.url) return null;
 
-		if (error || !data) {
-			console.error("Failed to get download URL:", error?.message);
-			return null;
-		}
-
-		const url = data as string;
-		urlCache.set(key, { url, expiresAt: Date.now() + CACHE_TTL_MS });
-		return url;
+		urlCache.set(key, { url: result.url, expiresAt: Date.now() + CACHE_TTL_MS });
+		return result.url;
 	} catch (e) {
 		console.error("Failed to get download URL:", e);
 		return null;
@@ -105,32 +115,19 @@ export async function getSignedDownloadUrl(storagePath: string): Promise<string 
 }
 
 /**
- * Upload a base64 photo to Supabase Storage.
+ * Upload a base64 photo to Supabase Storage via Edge Function signed URL.
  * Returns the relative storage path on success, or null on failure.
  */
 export async function uploadPhoto(base64DataUrl: string, relativePath: string): Promise<string | null> {
-	if (!supabase || !isSupabaseConfigured) return null;
-
-	const code = getRecoveryCode();
-	if (!code) return null;
-
 	try {
-		// Get signed upload URL
-		const { data: uploadUrl, error: urlError } = await supabase.rpc("create_upload_url", {
-			p_recovery_code: code,
-			p_relative_path: relativePath,
-		});
-
-		if (urlError || !uploadUrl) {
-			console.error("Failed to get upload URL:", urlError?.message);
-			return null;
-		}
+		const result = await callStorageFunction("upload", relativePath);
+		if (!result?.url) return null;
 
 		// Convert base64 to blob
 		const blob = base64ToBlob(base64DataUrl);
 
 		// Upload via signed URL
-		const response = await fetch(uploadUrl as string, {
+		const response = await fetch(result.url, {
 			method: "PUT",
 			headers: { "Content-Type": blob.type },
 			body: blob,
