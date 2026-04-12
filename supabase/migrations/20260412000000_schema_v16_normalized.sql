@@ -438,10 +438,10 @@ BEGIN
             'shutterSpeedStops', c.shutter_speed_stops,
             'apertureStops', c.aperture_stops
         )
+        ORDER BY c.created_at, c.id
     ), '[]'::jsonb)
     INTO v_cameras
-    FROM cameras c WHERE c.user_id = v_user_id
-    ORDER BY c.created_at, c.id;
+    FROM cameras c WHERE c.user_id = v_user_id;
 
     -- Lenses
     SELECT COALESCE(jsonb_agg(
@@ -465,10 +465,10 @@ BEGIN
             'shutterSpeedMax', l.shutter_speed_max,
             'shutterSpeedStops', l.shutter_speed_stops
         )
+        ORDER BY l.created_at, l.id
     ), '[]'::jsonb)
     INTO v_lenses
-    FROM lenses l WHERE l.user_id = v_user_id
-    ORDER BY l.created_at, l.id;
+    FROM lenses l WHERE l.user_id = v_user_id;
 
     -- Backs
     SELECT COALESCE(jsonb_agg(
@@ -482,10 +482,10 @@ BEGIN
             'format', b.format,
             'compatibleCameraIds', to_jsonb(b.compatible_camera_ids)
         )
+        ORDER BY b.created_at, b.id
     ), '[]'::jsonb)
     INTO v_backs
-    FROM backs b WHERE b.user_id = v_user_id
-    ORDER BY b.created_at, b.id;
+    FROM backs b WHERE b.user_id = v_user_id;
 
     -- Films with nested history and shotNotes
     SELECT COALESCE(jsonb_agg(film_obj), '[]'::jsonb)
