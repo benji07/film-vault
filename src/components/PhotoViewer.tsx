@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { PhotoImg } from "@/components/ui/photo-img";
@@ -45,7 +46,7 @@ export function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps)
 		touchRef.current = null;
 	};
 
-	return (
+	return createPortal(
 		<div
 			className="fixed inset-0 z-[1100] flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm animate-backdrop-fade-in"
 			onClick={onClose}
@@ -58,7 +59,7 @@ export function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps)
 					e.stopPropagation();
 					onClose();
 				}}
-				className="absolute top-4 right-4 z-10 bg-surface-alt/80 rounded-full"
+				className="absolute top-[max(1rem,env(safe-area-inset-top))] right-[max(1rem,env(safe-area-inset-right))] z-10 bg-surface-alt/80 rounded-full"
 				aria-label={t("aria.close")}
 			>
 				<X size={18} className="text-text-primary" />
@@ -122,6 +123,7 @@ export function PhotoViewer({ photos, initialIndex, onClose }: PhotoViewerProps)
 					))}
 				</div>
 			)}
-		</div>
+		</div>,
+		document.body,
 	);
 }
