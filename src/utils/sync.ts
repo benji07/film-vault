@@ -222,7 +222,7 @@ export async function syncData(
 				setLastSync();
 				// If cloud data has base64 photos, push to migrate them to Storage
 				if (hasBase64Photos(migrated)) {
-					pushToCloud(code, migrated).catch(() => {});
+					void pushToCloud(code, migrated);
 				}
 				return { data: migrated, source: "cloud" };
 			}
