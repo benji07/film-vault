@@ -18,7 +18,7 @@ import { StockScreen } from "@/screens/StockScreen";
 import type { AppData, ScreenName } from "@/types";
 import { refreshCatalogs } from "@/utils/catalog";
 import { checkStorage, getInitialData, isStorageAvailable, loadData, saveData } from "@/utils/storage";
-import { isSupabaseConfigured } from "@/utils/supabase";
+import { ensureAnonSession, isSupabaseConfigured } from "@/utils/supabase";
 import { getRecoveryCode, pushToCloud, syncData } from "@/utils/sync";
 
 const MapScreen = lazy(() => import("@/screens/MapScreen").then((m) => ({ default: m.MapScreen })));
@@ -78,6 +78,11 @@ function FilmVaultInner() {
 	useEffect(() => {
 		let cancelled = false;
 		(async () => {
+			// Ensure anonymous auth session before any cloud operations
+			if (isSupabaseConfigured && navigator.onLine) {
+				await ensureAnonSession();
+			}
+
 			const hasStorage = await checkStorage();
 			if (cancelled) return;
 			setPersistent(hasStorage);

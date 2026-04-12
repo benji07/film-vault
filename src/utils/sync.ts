@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 import { applyMigrations, CURRENT_VERSION, validateAppData } from "@/utils/migrations";
-import { clearUrlCache } from "@/utils/photo-sync";
+import { clearUrlCache, extractAndUploadPhotos } from "@/utils/photo-sync";
 import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 
 const RECOVERY_CODE_KEY = "filmvault-recovery-code";
@@ -31,7 +31,6 @@ export function setRecoveryCode(code: string): void {
 export function clearRecoveryCode(): void {
 	localStorage.removeItem(RECOVERY_CODE_KEY);
 	localStorage.removeItem(LAST_SYNC_KEY);
-	// Invalidate photo URL cache scoped to the old recovery code
 	clearUrlCache();
 }
 
@@ -61,15 +60,61 @@ function setLastSync(): void {
 	localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
 }
 
-// --- Cloud operations ---
+// --- Cloud activation / restore ---
 
-export async function pushToCloud(code: string, data: AppData): Promise<boolean> {
+/**
+ * Activate cloud sync: creates a user profile linked to the current anonymous session.
+ * Returns the profile UUID on success, or null on failure.
+ */
+export async function activateCloud(recoveryCode: string): Promise<string | null> {
+	if (!supabase) return null;
+	try {
+		const { data, error } = await supabase.rpc("activate_cloud", {
+			p_recovery_code: recoveryCode,
+		});
+		if (error) {
+			console.error("activate_cloud failed:", error.message);
+			return null;
+		}
+		return data as string;
+	} catch (e) {
+		console.error("activate_cloud failed:", e);
+		return null;
+	}
+}
+
+/**
+ * Link an existing recovery code to the current anonymous session (for restore).
+ * Returns the profile UUID on success, or null on failure.
+ */
+export async function linkRecoveryCode(recoveryCode: string): Promise<string | null> {
+	if (!supabase) return null;
+	try {
+		const { data, error } = await supabase.rpc("link_recovery_code", {
+			p_recovery_code: recoveryCode,
+		});
+		if (error) {
+			console.error("link_recovery_code failed:", error.message);
+			return null;
+		}
+		return data as string;
+	} catch (e) {
+		console.error("link_recovery_code failed:", e);
+		return null;
+	}
+}
+
+// --- Cloud operations (v3: auth.uid() based) ---
+
+export async function pushToCloud(_code: string, data: AppData): Promise<boolean> {
 	if (!supabase) return false;
 	try {
-		const { error } = await supabase.rpc("upsert_user_data_v2", {
-			p_recovery_code: code,
-			p_data: data,
-			p_version: data.version,
+		// Upload photos to Storage, replace base64 with paths in the cloud copy
+		const cloudData = await extractAndUploadPhotos(data);
+
+		const { error } = await supabase.rpc("upsert_user_data_v3", {
+			p_data: cloudData,
+			p_version: cloudData.version,
 			p_updated_at: new Date().toISOString(),
 		});
 		if (error) {
@@ -87,12 +132,10 @@ export async function pushToCloud(code: string, data: AppData): Promise<boolean>
 export type PullError = "supabase_not_configured" | "not_found" | "network_error" | "invalid_data";
 export type PullResult = { data: AppData } | { error: PullError };
 
-export async function pullFromCloud(code: string): Promise<PullResult> {
+export async function pullFromCloud(_code: string): Promise<PullResult> {
 	if (!supabase) return { error: "supabase_not_configured" };
 	try {
-		const { data: rows, error } = await supabase.rpc("get_user_data_v2", {
-			p_recovery_code: code,
-		});
+		const { data: rows, error } = await supabase.rpc("get_user_data_v3");
 
 		if (error) {
 			console.error("Pull from cloud failed:", error.message);
@@ -135,9 +178,7 @@ export async function syncData(
 	}
 
 	try {
-		const { data: rows, error } = await supabase.rpc("get_user_data_v2", {
-			p_recovery_code: code,
-		});
+		const { data: rows, error } = await supabase.rpc("get_user_data_v3");
 
 		// No cloud data yet or error → push local
 		if (error) {

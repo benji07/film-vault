@@ -1,5 +1,5 @@
+import type { AppData } from "@/types";
 import { isSupabaseConfigured, supabase } from "@/utils/supabase";
-import { getRecoveryCode } from "@/utils/sync";
 
 // --- Signed URL cache ---
 
@@ -10,50 +10,24 @@ interface CachedUrl {
 
 const urlCache = new Map<string, CachedUrl>();
 const CACHE_TTL_MS = 50 * 60 * 1000; // 50 minutes (URLs valid for 60 min)
-let cacheRecoveryCode: string | null = null;
+
+// --- Profile ID cache (stable UUID for storage paths) ---
+
+let cachedProfileId: string | null = null;
 
 /**
- * Build a cache key scoped by recovery code to prevent stale URLs
- * when switching between accounts on the same device.
+ * Get the user_profiles.id for the current auth session.
+ * This UUID is used as the top-level folder in Storage paths.
  */
-function cacheKey(storagePath: string): string {
-	const code = getRecoveryCode();
-	return `${code ?? ""}:${storagePath}`;
-}
-
-/**
- * Ensure cache is invalidated if recovery code changed.
- */
-function ensureCacheValid(): void {
-	const code = getRecoveryCode();
-	if (code !== cacheRecoveryCode) {
-		urlCache.clear();
-		cacheRecoveryCode = code;
-	}
-}
-
-/**
- * Call the storage-url Edge Function.
- */
-async function callStorageFunction(
-	action: "upload" | "download" | "delete",
-	path: string,
-): Promise<{ url?: string; token?: string; error?: string } | null> {
+export async function getProfileId(): Promise<string | null> {
+	if (cachedProfileId) return cachedProfileId;
 	if (!supabase || !isSupabaseConfigured) return null;
 
-	const code = getRecoveryCode();
-	if (!code) return null;
+	const { data, error } = await supabase.rpc("get_profile_id");
+	if (error || !data) return null;
 
-	const { data, error } = await supabase.functions.invoke("storage-url", {
-		body: { recovery_code: code, path, action },
-	});
-
-	if (error) {
-		console.error(`Storage ${action} failed:`, error.message);
-		return null;
-	}
-
-	return data as { url?: string; token?: string; error?: string };
+	cachedProfileId = data as string;
+	return cachedProfileId;
 }
 
 /**
@@ -66,9 +40,7 @@ export function resolvePhotoSrc(photoRef: string | null | undefined): string | n
 	if (!photoRef) return null;
 	if (photoRef.startsWith("data:")) return photoRef;
 
-	ensureCacheValid();
-	const key = cacheKey(photoRef);
-	const cached = urlCache.get(key);
+	const cached = urlCache.get(photoRef);
 	if (cached && cached.expiresAt > Date.now()) {
 		return cached.url;
 	}
@@ -91,23 +63,31 @@ export function isStoragePath(photoRef: string | null | undefined): boolean {
 }
 
 /**
- * Fetch a signed download URL for a storage path via Edge Function.
+ * Fetch a signed download URL for a storage path via Supabase Storage SDK.
  * Caches the result for subsequent calls.
  */
 export async function getSignedDownloadUrl(storagePath: string): Promise<string | null> {
-	ensureCacheValid();
-	const key = cacheKey(storagePath);
-	const cached = urlCache.get(key);
+	if (!supabase || !isSupabaseConfigured) return null;
+
+	const cached = urlCache.get(storagePath);
 	if (cached && cached.expiresAt > Date.now()) {
 		return cached.url;
 	}
 
-	try {
-		const result = await callStorageFunction("download", storagePath);
-		if (!result?.url) return null;
+	const profileId = await getProfileId();
+	if (!profileId) return null;
 
-		urlCache.set(key, { url: result.url, expiresAt: Date.now() + CACHE_TTL_MS });
-		return result.url;
+	try {
+		const fullPath = `${profileId}/${storagePath}`;
+		const { data, error } = await supabase.storage.from("user-photos").createSignedUrl(fullPath, 3600);
+
+		if (error || !data?.signedUrl) {
+			console.error("Failed to get download URL:", error?.message);
+			return null;
+		}
+
+		urlCache.set(storagePath, { url: data.signedUrl, expiresAt: Date.now() + CACHE_TTL_MS });
+		return data.signedUrl;
 	} catch (e) {
 		console.error("Failed to get download URL:", e);
 		return null;
@@ -115,26 +95,26 @@ export async function getSignedDownloadUrl(storagePath: string): Promise<string 
 }
 
 /**
- * Upload a base64 photo to Supabase Storage via Edge Function signed URL.
+ * Upload a base64 photo to Supabase Storage via direct SDK upload.
  * Returns the relative storage path on success, or null on failure.
  */
 export async function uploadPhoto(base64DataUrl: string, relativePath: string): Promise<string | null> {
+	if (!supabase || !isSupabaseConfigured) return null;
+
+	const profileId = await getProfileId();
+	if (!profileId) return null;
+
 	try {
-		const result = await callStorageFunction("upload", relativePath);
-		if (!result?.url) return null;
-
-		// Convert base64 to blob
 		const blob = base64ToBlob(base64DataUrl);
+		const fullPath = `${profileId}/${relativePath}`;
 
-		// Upload via signed URL
-		const response = await fetch(result.url, {
-			method: "PUT",
-			headers: { "Content-Type": blob.type },
-			body: blob,
+		const { error } = await supabase.storage.from("user-photos").upload(fullPath, blob, {
+			upsert: true,
+			contentType: blob.type,
 		});
 
-		if (!response.ok) {
-			console.error("Upload failed:", response.status, response.statusText);
+		if (error) {
+			console.error("Upload failed:", error.message);
 			return null;
 		}
 
@@ -163,8 +143,100 @@ function base64ToBlob(dataUrl: string): Blob {
 }
 
 /**
- * Clear the signed URL cache (e.g. on recovery code change).
+ * Extract all base64 photos from AppData, upload them to Supabase Storage,
+ * and return a deep copy of the data with base64 replaced by storage paths.
+ * The original data is NOT mutated (offline-first: local keeps base64).
+ */
+export async function extractAndUploadPhotos(data: AppData): Promise<AppData> {
+	if (!supabase || !isSupabaseConfigured) return data;
+
+	const profileId = await getProfileId();
+	if (!profileId) return data;
+
+	// Deep clone to avoid mutating the original
+	const clone: AppData = JSON.parse(JSON.stringify(data));
+
+	const uploads: Promise<void>[] = [];
+
+	// Cameras
+	for (const camera of clone.cameras) {
+		if (camera.photo && isBase64Photo(camera.photo)) {
+			const path = `cameras/${camera.id}.jpg`;
+			uploads.push(
+				uploadPhoto(camera.photo, path).then((result) => {
+					if (result) camera.photo = result;
+				}),
+			);
+		}
+	}
+
+	// Lenses
+	for (const lens of clone.lenses) {
+		if (lens.photo && isBase64Photo(lens.photo)) {
+			const path = `lenses/${lens.id}.jpg`;
+			uploads.push(
+				uploadPhoto(lens.photo, path).then((result) => {
+					if (result) lens.photo = result;
+				}),
+			);
+		}
+	}
+
+	// Backs
+	for (const back of clone.backs) {
+		if (back.photo && isBase64Photo(back.photo)) {
+			const path = `backs/${back.id}.jpg`;
+			uploads.push(
+				uploadPhoto(back.photo, path).then((result) => {
+					if (result) back.photo = result;
+				}),
+			);
+		}
+	}
+
+	// Films: history photos + shot note photos
+	for (const film of clone.films) {
+		for (let hi = 0; hi < film.history.length; hi++) {
+			const entry = film.history[hi];
+			if (!entry?.photos) continue;
+			for (let pi = 0; pi < entry.photos.length; pi++) {
+				const photo = entry.photos[pi];
+				if (!photo || !isBase64Photo(photo)) continue;
+				const path = `history/${film.id}/${hi}_${pi}.jpg`;
+				const photos = entry.photos;
+				const capturedPi = pi;
+				uploads.push(
+					uploadPhoto(photo, path).then((result) => {
+						if (result) photos[capturedPi] = result;
+					}),
+				);
+			}
+		}
+
+		if (film.shotNotes) {
+			for (const note of film.shotNotes) {
+				if (note.photo && isBase64Photo(note.photo)) {
+					const path = `shots/${film.id}/${note.id}.jpg`;
+					uploads.push(
+						uploadPhoto(note.photo, path).then((result) => {
+							if (result) note.photo = result;
+						}),
+					);
+				}
+			}
+		}
+	}
+
+	// Run all uploads in parallel
+	await Promise.allSettled(uploads);
+
+	return clone;
+}
+
+/**
+ * Clear the signed URL cache and profile ID cache.
  */
 export function clearUrlCache(): void {
 	urlCache.clear();
+	cachedProfileId = null;
 }

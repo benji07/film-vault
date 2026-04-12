@@ -29,9 +29,11 @@ import { lensDisplayName } from "@/utils/lens-helpers";
 import { exportData, parseImportFile } from "@/utils/storage";
 import { isSupabaseConfigured } from "@/utils/supabase";
 import {
+	activateCloud,
 	clearRecoveryCode,
 	generateRecoveryCode,
 	getLastSync,
+	linkRecoveryCode,
 	pullFromCloud,
 	pushToCloud,
 	setRecoveryCode,
@@ -95,13 +97,14 @@ export function SettingsScreen({
 
 	const handleActivateCloud = async () => {
 		const code = generateRecoveryCode();
-		const success = await pushToCloud(code, data);
-		if (success) {
-			setRecoveryCode(code);
-			onRecoveryCodeChange(code);
-		} else {
+		const profileId = await activateCloud(code);
+		if (!profileId) {
 			setImportError(t("settings.pushFailed"));
+			return;
 		}
+		setRecoveryCode(code);
+		onRecoveryCodeChange(code);
+		await pushToCloud(code, data);
 	};
 
 	const pullErrorKey: Record<string, string> = {
@@ -116,6 +119,13 @@ export function SettingsScreen({
 		if (!code) return;
 		setRestoring(true);
 		try {
+			// Link the recovery code to the current anonymous session
+			const profileId = await linkRecoveryCode(code);
+			if (!profileId) {
+				setImportError(t("settings.noDataFound"));
+				return;
+			}
+
 			const result = await pullFromCloud(code);
 			if ("data" in result) {
 				setRecoveryCode(code);
