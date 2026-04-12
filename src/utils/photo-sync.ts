@@ -63,6 +63,55 @@ export function isStoragePath(photoRef: string | null | undefined): boolean {
 }
 
 /**
+ * Iterate all photo references in AppData.
+ * Shared by hasBase64Photos and extractAndUploadPhotos to stay in sync.
+ */
+interface PhotoRef {
+	value: string;
+	kind: "camera" | "lens" | "back" | "history" | "shot";
+	entityId: string;
+	/** For history photos: "filmId/historyIndex_photoIndex" */
+	subKey?: string;
+}
+
+function* iteratePhotoRefs(data: AppData): Generator<PhotoRef> {
+	for (const cam of data.cameras) {
+		if (cam.photo) yield { value: cam.photo, kind: "camera", entityId: cam.id };
+	}
+	for (const lens of data.lenses) {
+		if (lens.photo) yield { value: lens.photo, kind: "lens", entityId: lens.id };
+	}
+	for (const back of data.backs) {
+		if (back.photo) yield { value: back.photo, kind: "back", entityId: back.id };
+	}
+	for (const film of data.films) {
+		for (let hi = 0; hi < film.history.length; hi++) {
+			const entry = film.history[hi];
+			if (!entry?.photos) continue;
+			for (let pi = 0; pi < entry.photos.length; pi++) {
+				const photo = entry.photos[pi];
+				if (photo) yield { value: photo, kind: "history", entityId: film.id, subKey: `${hi}_${pi}` };
+			}
+		}
+		if (film.shotNotes) {
+			for (const note of film.shotNotes) {
+				if (note.photo) yield { value: note.photo, kind: "shot", entityId: film.id, subKey: note.id };
+			}
+		}
+	}
+}
+
+/**
+ * Check if AppData contains any base64 photos that should be migrated to Storage.
+ */
+export function hasBase64Photos(data: AppData): boolean {
+	for (const ref of iteratePhotoRefs(data)) {
+		if (isBase64Photo(ref.value)) return true;
+	}
+	return false;
+}
+
+/**
  * Fetch a signed download URL for a storage path via Supabase Storage SDK.
  * Caches the result for subsequent calls.
  */
