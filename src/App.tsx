@@ -15,6 +15,8 @@ import { LegalScreen } from "@/screens/LegalScreen";
 import { SettingsScreen } from "@/screens/SettingsScreen";
 import { StatsScreen } from "@/screens/StatsScreen";
 import { StockScreen } from "@/screens/StockScreen";
+import { TourOverlay } from "@/tour/TourOverlay";
+import { hasCompletedTour, TourProvider, useTour } from "@/tour/TourProvider";
 import type { AppData, ScreenName } from "@/types";
 import { refreshCatalogs } from "@/utils/catalog";
 import { checkStorage, getInitialData, isStorageAvailable, loadData, saveData } from "@/utils/storage";
@@ -155,6 +157,92 @@ function FilmVaultInner() {
 		);
 	}
 
+	return (
+		<TourProvider setScreen={setScreen} setSelectedFilm={setSelectedFilm}>
+			<AppContent
+				data={data}
+				updateData={updateData}
+				screen={screen}
+				handleSetScreen={handleSetScreen}
+				setScreen={setScreen}
+				selectedFilm={selectedFilm}
+				setSelectedFilm={setSelectedFilm}
+				mapFilterFilmId={mapFilterFilmId}
+				setMapFilterFilmId={setMapFilterFilmId}
+				autoOpenShotNote={autoOpenShotNote}
+				setAutoOpenShotNote={setAutoOpenShotNote}
+				showAddFilm={showAddFilm}
+				setShowAddFilm={setShowAddFilm}
+				syncing={syncing}
+				recoveryCode={recoveryCode}
+				setRecoveryCodeState={setRecoveryCodeState}
+				triggerSync={triggerSync}
+				persistent={persistent}
+				navigateToMap={navigateToMap}
+			/>
+		</TourProvider>
+	);
+}
+
+interface AppContentProps {
+	data: AppData;
+	updateData: (data: AppData) => Promise<void>;
+	screen: ScreenName;
+	handleSetScreen: (s: ScreenName) => void;
+	setScreen: (s: ScreenName) => void;
+	selectedFilm: string | null;
+	setSelectedFilm: (id: string | null) => void;
+	mapFilterFilmId: string | null;
+	setMapFilterFilmId: (id: string | null) => void;
+	autoOpenShotNote: boolean;
+	setAutoOpenShotNote: (open: boolean) => void;
+	showAddFilm: boolean;
+	setShowAddFilm: (open: boolean) => void;
+	syncing: boolean;
+	recoveryCode: string | null;
+	setRecoveryCodeState: (code: string | null) => void;
+	triggerSync: () => Promise<void>;
+	persistent: boolean;
+	navigateToMap: (filmId?: string) => void;
+}
+
+function AppContent({
+	data,
+	updateData,
+	screen,
+	handleSetScreen,
+	setScreen,
+	selectedFilm,
+	setSelectedFilm,
+	mapFilterFilmId,
+	setMapFilterFilmId,
+	autoOpenShotNote,
+	setAutoOpenShotNote,
+	showAddFilm,
+	setShowAddFilm,
+	syncing,
+	recoveryCode,
+	setRecoveryCodeState,
+	triggerSync,
+	persistent,
+	navigateToMap,
+}: AppContentProps) {
+	const { isTourActive, tourData, startTour } = useTour();
+	const autoTourTriggered = useRef(false);
+
+	const effectiveData = isTourActive && tourData ? tourData : data;
+	const noopUpdate = useCallback(async () => {}, []);
+	const effectiveUpdateData = isTourActive ? noopUpdate : updateData;
+
+	// Auto-trigger tour on first launch when app is empty
+	useEffect(() => {
+		if (autoTourTriggered.current) return;
+		if (data.films.length === 0 && data.cameras.length === 0 && !hasCompletedTour()) {
+			autoTourTriggered.current = true;
+			startTour();
+		}
+	}, [data, startTour]);
+
 	const onAddFilm = () => setShowAddFilm(true);
 
 	const renderScreen = () => {
@@ -162,7 +250,7 @@ function FilmVaultInner() {
 			case "home":
 				return (
 					<DashboardScreen
-						data={data}
+						data={effectiveData}
 						setScreen={setScreen}
 						setSelectedFilm={setSelectedFilm}
 						onAddFilm={onAddFilm}
@@ -171,13 +259,18 @@ function FilmVaultInner() {
 				);
 			case "stock":
 				return (
-					<StockScreen data={data} setScreen={setScreen} setSelectedFilm={setSelectedFilm} onAddFilm={onAddFilm} />
+					<StockScreen
+						data={effectiveData}
+						setScreen={setScreen}
+						setSelectedFilm={setSelectedFilm}
+						onAddFilm={onAddFilm}
+					/>
 				);
 			case "filmDetail":
 				return (
 					<FilmDetailScreen
-						data={data}
-						setData={updateData}
+						data={effectiveData}
+						setData={effectiveUpdateData}
 						setScreen={setScreen}
 						setSelectedFilm={setSelectedFilm}
 						filmId={selectedFilm}
@@ -196,7 +289,7 @@ function FilmVaultInner() {
 						}
 					>
 						<MapScreen
-							data={data}
+							data={effectiveData}
 							setScreen={setScreen}
 							setSelectedFilm={setSelectedFilm}
 							filterFilmId={mapFilterFilmId}
@@ -205,14 +298,14 @@ function FilmVaultInner() {
 					</Suspense>
 				);
 			case "cameras":
-				return <EquipmentScreen data={data} setData={updateData} />;
+				return <EquipmentScreen data={effectiveData} setData={effectiveUpdateData} />;
 			case "stats":
-				return <StatsScreen data={data} />;
+				return <StatsScreen data={effectiveData} />;
 			case "settings":
 				return (
 					<SettingsScreen
-						data={data}
-						setData={updateData}
+						data={effectiveData}
+						setData={effectiveUpdateData}
 						syncing={syncing}
 						recoveryCode={recoveryCode}
 						onRecoveryCodeChange={setRecoveryCodeState}
@@ -226,7 +319,7 @@ function FilmVaultInner() {
 			default:
 				return (
 					<DashboardScreen
-						data={data}
+						data={effectiveData}
 						setScreen={setScreen}
 						setSelectedFilm={setSelectedFilm}
 						onAddFilm={onAddFilm}
@@ -236,7 +329,7 @@ function FilmVaultInner() {
 		}
 	};
 
-	const filmTitle = selectedFilm ? data.films.find((f) => f.id === selectedFilm)?.model : undefined;
+	const filmTitle = selectedFilm ? effectiveData.films.find((f) => f.id === selectedFilm)?.model : undefined;
 	const showTabBar = !["filmDetail", "settings", "legal"].includes(screen);
 
 	return (
@@ -262,9 +355,16 @@ function FilmVaultInner() {
 				{showTabBar && <TabBar screen={screen} setScreen={handleSetScreen} className="md:hidden" />}
 			</main>
 
-			<AddFilmDialog open={showAddFilm} onOpenChange={setShowAddFilm} data={data} setData={updateData} />
+			<AddFilmDialog
+				open={showAddFilm}
+				onOpenChange={setShowAddFilm}
+				data={effectiveData}
+				setData={effectiveUpdateData}
+			/>
 			<PwaUpdateBanner />
 			<PwaInstallBanner />
+
+			{isTourActive && <TourOverlay />}
 		</div>
 	);
 }

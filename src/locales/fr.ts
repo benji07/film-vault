@@ -585,6 +585,58 @@ export const fr = {
 			"Pour toute question relative à vos données ou pour exercer vos droits, vous pouvez contacter l'éditeur via GitHub : github.com/benji07/film-vault/issues.",
 	},
 
+	// Tour / Guide
+	tour: {
+		welcome: {
+			title: "Bienvenue dans FilmVault !",
+			description:
+				"Découvre comment gérer ton stock de pellicules, suivre tes appareils et analyser ta consommation argentique.",
+		},
+		dashboardStats: {
+			title: "Ton tableau de bord",
+			description:
+				"Ces compteurs te montrent combien de pellicules tu as dans chaque état : en stock, chargées, exposées et développées.",
+		},
+		dashboardEquipment: {
+			title: "Ton équipement",
+			description: "Retrouve tes appareils photo ici. Un indicateur vert signifie qu'une pellicule est chargée.",
+		},
+		dashboardActive: {
+			title: "Pellicules actives",
+			description:
+				"Les pellicules actuellement chargées dans tes appareils. Tu peux noter tes poses directement depuis ici.",
+		},
+		stock: {
+			title: "Ton stock de pellicules",
+			description: "Toutes tes pellicules sont listées ici avec leur état. Tu peux filtrer, trier et rechercher.",
+		},
+		filmDetail: {
+			title: "Détail et historique",
+			description:
+				"Chaque pellicule a un historique complet : du stock au scan, en passant par le chargement et le développement.",
+		},
+		equipment: {
+			title: "Gestion de l'équipement",
+			description: "Ajoute tes boîtiers et objectifs. FilmVault les proposera quand tu charges une pellicule.",
+		},
+		stats: {
+			title: "Tes statistiques",
+			description: "Analyse ta consommation par type, marque, format et appareil. Suis aussi tes dépenses.",
+		},
+		tourEnd: {
+			title: "C'est parti !",
+			description:
+				"Tu es prêt à utiliser FilmVault. Ajoute ta première pellicule ou ton premier appareil pour commencer.",
+		},
+		next: "Suivant",
+		prev: "Précédent",
+		skip: "Passer le guide",
+		finish: "Commencer",
+		stepOf: "{{current}} / {{total}}",
+		restartTour: "Revoir le guide",
+		restartTourSubtitle: "Relance la visite guidée avec des données fictives",
+	},
+
 	// Date locale
 	dateLocale: "fr-FR",
 } as const;

@@ -585,6 +585,55 @@ export const en = {
 			"For any questions about your data or to exercise your rights, you can contact the publisher via GitHub: github.com/benji07/film-vault/issues.",
 	},
 
+	// Tour / Guide
+	tour: {
+		welcome: {
+			title: "Welcome to FilmVault!",
+			description:
+				"Discover how to manage your film stock, track your cameras and analyze your analog photography habits.",
+		},
+		dashboardStats: {
+			title: "Your dashboard",
+			description:
+				"These counters show how many films you have in each state: in stock, loaded, exposed and developed.",
+		},
+		dashboardEquipment: {
+			title: "Your equipment",
+			description: "Find your cameras here. A green indicator means a film is currently loaded.",
+		},
+		dashboardActive: {
+			title: "Active rolls",
+			description: "Films currently loaded in your cameras. You can log your shots directly from here.",
+		},
+		stock: {
+			title: "Your film stock",
+			description: "All your films are listed here with their status. You can filter, sort and search.",
+		},
+		filmDetail: {
+			title: "Detail and history",
+			description: "Each film has a complete history: from stock to scan, through loading and development.",
+		},
+		equipment: {
+			title: "Equipment management",
+			description: "Add your camera bodies and lenses. FilmVault will suggest them when you load a film.",
+		},
+		stats: {
+			title: "Your statistics",
+			description: "Analyze your consumption by type, brand, format and camera. Also track your expenses.",
+		},
+		tourEnd: {
+			title: "You're all set!",
+			description: "You're ready to use FilmVault. Add your first film or camera to get started.",
+		},
+		next: "Next",
+		prev: "Previous",
+		skip: "Skip guide",
+		finish: "Get started",
+		stepOf: "{{current}} / {{total}}",
+		restartTour: "Replay guide",
+		restartTourSubtitle: "Restart the guided tour with sample data",
+	},
+
 	// Date locale
 	dateLocale: "en-US",
 } as const;

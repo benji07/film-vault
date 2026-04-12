@@ -1,5 +1,6 @@
 import {
 	AlertTriangle,
+	BookOpen,
 	Camera as CameraIcon,
 	Check,
 	Cloud,
@@ -12,6 +13,7 @@ import {
 	Globe,
 	Loader2,
 	Package,
+	Play,
 	RefreshCw,
 	Upload,
 } from "lucide-react";
@@ -23,6 +25,7 @@ import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { PhotoImg } from "@/components/ui/photo-img";
 import { T } from "@/constants/theme";
+import { useTour } from "@/tour/TourProvider";
 import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
@@ -162,6 +165,7 @@ export function SettingsScreen({
 		}
 	};
 
+	const { startTour } = useTour();
 	const lastSync = getLastSync();
 	const currentLang = i18n.language;
 
@@ -189,6 +193,18 @@ export function SettingsScreen({
 						{t("settings.languageEn")}
 					</Button>
 				</div>
+			</Card>
+
+			{/* Guide section */}
+			<Card>
+				<div className="flex items-center gap-3 mb-3">
+					<BookOpen size={18} className="text-accent" />
+					<span className="text-sm font-bold text-text-primary font-body">{t("tour.restartTour")}</span>
+				</div>
+				<span className="text-xs text-text-sec font-body block mb-3">{t("tour.restartTourSubtitle")}</span>
+				<Button variant="outline" onClick={startTour} className="w-full justify-center">
+					<Play size={16} /> {t("tour.restartTour")}
+				</Button>
 			</Card>
 
 			{/* Cloud backup section */}
