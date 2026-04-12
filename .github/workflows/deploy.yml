@@ -26,8 +26,6 @@ jobs:
       - run: supabase db push --db-url "$SUPABASE_DB_URL"
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-      # Edge Functions are deployed manually:
-      #   supabase functions deploy storage-url --project-ref <ref>
 
   build:
     runs-on: ubuntu-latest
