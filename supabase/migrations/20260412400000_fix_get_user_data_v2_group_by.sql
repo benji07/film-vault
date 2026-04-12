@@ -94,10 +94,10 @@ BEGIN
     FROM backs b WHERE b.user_id = v_user_id;
 
     -- Films with nested history and shotNotes
-    SELECT COALESCE(jsonb_agg(film_obj), '[]'::jsonb)
+    SELECT COALESCE(jsonb_agg(film_obj ORDER BY created_at, id), '[]'::jsonb)
     INTO v_films
     FROM (
-        SELECT jsonb_build_object(
+        SELECT f.created_at, f.id, jsonb_build_object(
             'id', f.id,
             'brand', f.brand,
             'model', f.model,
@@ -169,7 +169,6 @@ BEGIN
         ) AS film_obj
         FROM films f
         WHERE f.user_id = v_user_id
-        ORDER BY f.created_at, f.id
     ) sub;
 
     RETURN QUERY SELECT
