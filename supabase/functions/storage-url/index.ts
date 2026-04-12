@@ -2,9 +2,17 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.101.1";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+// Allowed origins for CORS (comma-separated env var, fallback to GitHub Pages)
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+	.split(",")
+	.map((o) => o.trim())
+	.filter(Boolean);
 
 const BUCKET = "user-photos";
+
+// Reuse clients across invocations (no per-request state)
+const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
 interface RequestBody {
 	recovery_code: string;
@@ -19,11 +27,19 @@ function validatePath(path: string): string | null {
 	return null;
 }
 
-function corsHeaders(origin: string | null) {
+function isOriginAllowed(origin: string | null): boolean {
+	if (!origin) return false;
+	if (ALLOWED_ORIGINS.length === 0) return true; // no restriction if not configured
+	return ALLOWED_ORIGINS.includes(origin);
+}
+
+function corsHeaders(origin: string | null): Record<string, string> {
+	const allowed = isOriginAllowed(origin);
 	return {
-		"Access-Control-Allow-Origin": origin ?? "*",
+		"Access-Control-Allow-Origin": allowed && origin ? origin : "null",
 		"Access-Control-Allow-Methods": "POST, OPTIONS",
 		"Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+		"Vary": "Origin",
 	};
 }
 
@@ -63,20 +79,19 @@ Deno.serve(async (req) => {
 		return Response.json({ error: "invalid_action" }, { status: 400, headers });
 	}
 
-	// Resolve recovery code to user_id using anon client (via RPC)
-	const anonClient = createClient(supabaseUrl, supabaseAnonKey);
-	const { data: userId, error: resolveError } = await anonClient.rpc("resolve_user_id", {
-		p_recovery_code: recovery_code,
-	});
+	// Resolve recovery code to user_id (service role bypasses RLS)
+	const { data: rows, error: resolveError } = await adminClient
+		.from("user_profiles")
+		.select("id")
+		.eq("recovery_code", recovery_code)
+		.limit(1);
 
-	if (resolveError || !userId) {
+	if (resolveError || !rows || rows.length === 0) {
 		return Response.json({ error: "invalid_recovery_code" }, { status: 401, headers });
 	}
 
+	const userId = rows[0].id as string;
 	const fullPath = `${userId}/${path}`;
-
-	// Use service role client for storage operations
-	const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
 	try {
 		if (action === "upload") {
