@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+function isInViewport(el: Element): boolean {
+	const r = el.getBoundingClientRect();
+	return r.top >= 0 && r.bottom <= window.innerHeight;
+}
+
 export function useTourAnchor(selector: string | null, delay = 0): DOMRect | null {
 	const [rect, setRect] = useState<DOMRect | null>(null);
 	const observerRef = useRef<ResizeObserver | null>(null);
@@ -7,6 +12,7 @@ export function useTourAnchor(selector: string | null, delay = 0): DOMRect | nul
 	const retryRef = useRef<ReturnType<typeof setInterval> | null>(null);
 	const handlersRef = useRef<{ scroll: () => void; resize: () => void } | null>(null);
 	const rafRef = useRef<number | null>(null);
+	const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const measure = useCallback(() => {
 		if (!selector) {
@@ -14,18 +20,31 @@ export function useTourAnchor(selector: string | null, delay = 0): DOMRect | nul
 			return;
 		}
 		const el = document.querySelector(selector);
-		if (el) {
-			elementRef.current = el;
-			setRect(el.getBoundingClientRect());
-		} else {
+		if (!el) {
 			elementRef.current = null;
 			setRect(null);
+			return;
+		}
+
+		elementRef.current = el;
+
+		if (isInViewport(el)) {
+			// Element already visible — measure immediately
+			setRect(el.getBoundingClientRect());
+		} else {
+			// Element off-screen — scroll into view, then re-measure after scroll settles
+			el.scrollIntoView({ behavior: "smooth", block: "center" });
+			if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+			scrollTimerRef.current = setTimeout(() => {
+				setRect(el.getBoundingClientRect());
+			}, 400);
 		}
 	}, [selector]);
 
 	useEffect(() => {
 		const cleanup = () => {
 			if (retryRef.current) clearInterval(retryRef.current);
+			if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
 			observerRef.current?.disconnect();
 			if (rafRef.current) cancelAnimationFrame(rafRef.current);
 			if (handlersRef.current) {
