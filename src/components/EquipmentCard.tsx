@@ -24,7 +24,7 @@ export function EquipmentCard({ label, sublabel, loadedFilm, icon, onClick, clas
 		<Card
 			role="button"
 			tabIndex={0}
-			className={`w-[140px] shrink-0 p-3 cursor-pointer transition-all ${className ?? ""}`}
+			className={`shrink-0 p-3 cursor-pointer transition-all ${className ?? "w-[140px]"}`}
 			onClick={onClick}
 			onKeyDown={(e) => {
 				if (e.key === "Enter" || e.key === " ") {

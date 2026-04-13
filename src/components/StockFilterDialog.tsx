@@ -9,13 +9,10 @@ interface StockFilterDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	filters: StockFilters;
-	stateFilter: string;
-	stateTabs: { key: string; label: string; count: number }[];
 	availableFormats: string[];
 	availableTypes: string[];
 	availableBrands: string[];
 	availableIsoValues: number[];
-	onSetStateFilter: (v: string) => void;
 	onSetFormat: (v: string) => void;
 	onSetType: (v: string) => void;
 	onToggleBrand: (brand: string) => void;
@@ -27,13 +24,10 @@ export function StockFilterDialog({
 	open,
 	onOpenChange,
 	filters,
-	stateFilter,
-	stateTabs,
 	availableFormats,
 	availableTypes,
 	availableBrands,
 	availableIsoValues,
-	onSetStateFilter,
 	onSetFormat,
 	onSetType,
 	onToggleBrand,
@@ -51,16 +45,6 @@ export function StockFilterDialog({
 				</DialogHeader>
 
 				<div className="flex flex-col gap-5">
-					<FormField label={t("stock.stateLabel")}>
-						<div className="flex flex-wrap gap-1.5">
-							{stateTabs.map((tab) => (
-								<Chip key={tab.key} active={stateFilter === tab.key} onClick={() => onSetStateFilter(tab.key)}>
-									{tab.label} <span className="opacity-70">({tab.count})</span>
-								</Chip>
-							))}
-						</div>
-					</FormField>
-
 					{availableFormats.length > 0 && (
 						<FormField label={t("addFilm.format")}>
 							<div className="flex flex-wrap gap-1.5">
