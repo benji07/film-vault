@@ -229,10 +229,26 @@ function AppContent({
 }: AppContentProps) {
 	const { isTourActive, tourData, startTour } = useTour();
 	const autoTourTriggered = useRef(false);
+	const navDirection = useRef<"forward" | "back" | "tab">("tab");
+	const prevScreen = useRef<ScreenName>(screen);
 
 	const effectiveData = isTourActive && tourData ? tourData : data;
 	const noopUpdate = useCallback(async () => {}, []);
 	const effectiveUpdateData = isTourActive ? noopUpdate : updateData;
+
+	// Track navigation direction
+	useEffect(() => {
+		const detailScreens: ScreenName[] = ["filmDetail", "settings", "legal"];
+		const prev = prevScreen.current;
+		if (detailScreens.includes(screen) && !detailScreens.includes(prev)) {
+			navDirection.current = "forward";
+		} else if (!detailScreens.includes(screen) && detailScreens.includes(prev)) {
+			navDirection.current = "back";
+		} else {
+			navDirection.current = "tab";
+		}
+		prevScreen.current = screen;
+	}, [screen]);
 
 	// Auto-trigger tour on first launch when app is empty
 	useEffect(() => {
@@ -344,7 +360,16 @@ function AppContent({
 				) : (
 					<div className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-5 md:pt-[max(1.25rem,env(safe-area-inset-top))]">
 						<div className="max-w-3xl mx-auto">
-							<div key={`${screen}-${selectedFilm || ""}`} className="animate-screen-enter">
+							<div
+								key={`${screen}-${selectedFilm || ""}`}
+								className={
+									navDirection.current === "forward"
+										? "animate-screen-forward"
+										: navDirection.current === "back"
+											? "animate-screen-back"
+											: "animate-screen-enter"
+								}
+							>
 								{renderScreen()}
 							</div>
 						</div>

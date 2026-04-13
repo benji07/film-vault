@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { FilmRow } from "@/components/FilmRow";
 import { StockFilterDialog } from "@/components/StockFilterDialog";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
@@ -130,6 +131,22 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 				</Button>
 			</div>
 
+			{/* State filter tabs - always visible */}
+			<div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+				{stateTabs
+					.filter((tab) => tab.count > 0 || tab.key === "all")
+					.map((tab) => (
+						<Chip
+							key={tab.key}
+							active={stockFilters.stateFilter === tab.key}
+							onClick={() => stockFilters.setStateFilter(tab.key)}
+							className="text-[11px] py-2 px-3 min-h-[36px]"
+						>
+							{tab.label} <span className="opacity-60 ml-0.5 font-mono text-[10px]">{tab.count}</span>
+						</Chip>
+					))}
+			</div>
+
 			<ActiveFilterChips
 				filters={stockFilters.activeFilterDescriptions}
 				onRemove={stockFilters.removeFilter}
@@ -178,13 +195,10 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: Sto
 				open={filterDialogOpen}
 				onOpenChange={setFilterDialogOpen}
 				filters={stockFilters.filters}
-				stateFilter={stockFilters.stateFilter}
-				stateTabs={stateTabs}
 				availableFormats={stockFilters.availableFormats}
 				availableTypes={stockFilters.availableTypes}
 				availableBrands={stockFilters.availableBrands}
 				availableIsoValues={stockFilters.availableIsoValues}
-				onSetStateFilter={stockFilters.setStateFilter}
 				onSetFormat={stockFilters.setFormat}
 				onSetType={stockFilters.setType}
 				onToggleBrand={stockFilters.toggleBrand}

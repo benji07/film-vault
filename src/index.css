@@ -190,8 +190,38 @@
 	}
 }
 
+@keyframes screenSlideForward {
+	from {
+		opacity: 0;
+		transform: translateX(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes screenSlideBack {
+	from {
+		opacity: 0;
+		transform: translateX(-30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
 .animate-screen-enter {
 	animation: screenEnter 0.25s ease-out;
+}
+
+.animate-screen-forward {
+	animation: screenSlideForward 0.25s ease-out;
+}
+
+.animate-screen-back {
+	animation: screenSlideBack 0.25s ease-out;
 }
 
 .animate-stagger-item {
