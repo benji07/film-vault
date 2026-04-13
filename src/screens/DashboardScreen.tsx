@@ -17,6 +17,7 @@ interface DashboardScreenProps {
 	setSelectedFilm: (id: string) => void;
 	onAddFilm: () => void;
 	setAutoOpenShotNote?: (open: boolean) => void;
+	onNavigateToStock: (stateFilter: string) => void;
 }
 
 interface EquipmentItem {
@@ -91,6 +92,7 @@ export function DashboardScreen({
 	setSelectedFilm,
 	onAddFilm,
 	setAutoOpenShotNote,
+	onNavigateToStock,
 }: DashboardScreenProps) {
 	const { t } = useTranslation();
 	const { films, cameras, backs } = data;
@@ -121,12 +123,42 @@ export function DashboardScreen({
 		<div className="flex flex-col gap-6">
 			{/* Barre de stats compacte */}
 			<div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" data-tour="stat-cards">
-				<StatChip icon={Snowflake} label={t("dashboard.inStock")} value={stockCount} color={T.blue} />
-				<StatChip icon={Camera} label={t("dashboard.loaded")} value={loadedCount} color={T.green} />
-				<StatChip icon={Eye} label={t("dashboard.exposed")} value={exposedCount} color={T.accent} />
-				<StatChip icon={Archive} label={t("dashboard.developed")} value={developedCount} color={T.textSec} />
+				<StatChip
+					icon={Snowflake}
+					label={t("dashboard.inStock")}
+					value={stockCount}
+					color={T.blue}
+					onClick={() => onNavigateToStock("stock")}
+				/>
+				<StatChip
+					icon={Camera}
+					label={t("dashboard.loaded")}
+					value={loadedCount}
+					color={T.green}
+					onClick={() => onNavigateToStock("loaded")}
+				/>
+				<StatChip
+					icon={Eye}
+					label={t("dashboard.exposed")}
+					value={exposedCount}
+					color={T.accent}
+					onClick={() => onNavigateToStock("exposed")}
+				/>
+				<StatChip
+					icon={Archive}
+					label={t("dashboard.developed")}
+					value={developedCount}
+					color={T.textSec}
+					onClick={() => onNavigateToStock("developed")}
+				/>
 				{scannedCount > 0 && (
-					<StatChip icon={ScanLine} label={t("dashboard.scanned")} value={scannedCount} color={T.orange} />
+					<StatChip
+						icon={ScanLine}
+						label={t("dashboard.scanned")}
+						value={scannedCount}
+						color={T.orange}
+						onClick={() => onNavigateToStock("scanned")}
+					/>
 				)}
 			</div>
 
