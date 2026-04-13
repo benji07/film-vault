@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useId, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "@/types";
 
@@ -21,12 +21,15 @@ export function CollapsibleSection({
 	className,
 }: CollapsibleSectionProps) {
 	const [open, setOpen] = useState(defaultOpen);
+	const panelId = useId();
 
 	return (
 		<div className={cn("border border-border rounded-[14px] overflow-hidden", className)}>
 			<button
 				type="button"
 				onClick={() => setOpen((prev) => !prev)}
+				aria-expanded={open}
+				aria-controls={panelId}
 				className="flex items-center gap-2.5 w-full px-4 py-3 bg-card hover:bg-card-hover transition-colors cursor-pointer text-left"
 			>
 				{Icon && <Icon size={16} className="text-text-sec shrink-0" />}
@@ -41,7 +44,8 @@ export function CollapsibleSection({
 					className={cn("text-text-muted shrink-0 transition-transform duration-200", open && "rotate-180")}
 				/>
 			</button>
-			<div
+			<section
+				id={panelId}
 				className={cn(
 					"grid transition-[grid-template-rows] duration-200 ease-out",
 					open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
@@ -50,7 +54,7 @@ export function CollapsibleSection({
 				<div className="overflow-hidden">
 					<div className="px-4 pb-4 pt-2">{children}</div>
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }

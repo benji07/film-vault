@@ -187,7 +187,7 @@ export function DevScanModals({
 						<DialogCloseButton />
 					</DialogHeader>
 					<div className="flex flex-col gap-4">
-						<FormField label={t("filmDetail.labRefField")}>
+						<FormField label={t("filmDetail.scanRefField")}>
 							<Input
 								value={actionData.scanRef || ""}
 								onChange={(e) => setActionData({ ...actionData, scanRef: e.target.value })}

@@ -1,8 +1,10 @@
-import { Archive, Camera, CheckCircle2, Clock, Eye, Film, ListTodo, Plus, ScanLine, Snowflake } from "lucide-react";
+import { Archive, Camera, Clock, Eye, Film, ListTodo, Plus, ScanLine, Snowflake } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ActiveRollCard } from "@/components/ActiveRollCard";
 import { EmptyState } from "@/components/EmptyState";
 import { EquipmentCard } from "@/components/EquipmentCard";
+import { StatChip } from "@/components/StatChip";
+import { TodoItem } from "@/components/TodoItem";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { alpha, T } from "@/constants/theme";
@@ -81,56 +83,6 @@ function buildEquipmentItems(cameras: CameraType[], backs: Back[], activeFilms: 
 	});
 
 	return items;
-}
-
-interface StatChipProps {
-	icon: React.ComponentType<{ size?: number; color?: string }>;
-	label: string;
-	value: number;
-	color: string;
-	onClick?: () => void;
-}
-
-function StatChip({ icon: Icon, label, value, color, onClick }: StatChipProps) {
-	return (
-		<button
-			type="button"
-			onClick={onClick}
-			className="flex items-center gap-2 bg-card border border-border rounded-full pl-2.5 pr-3.5 py-2 shrink-0 transition-all hover:border-text-muted cursor-pointer"
-		>
-			<div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: alpha(color, 0.12) }}>
-				<Icon size={12} color={color} />
-			</div>
-			<span className="text-xs text-text-sec font-body font-medium whitespace-nowrap">{label}</span>
-			<span className="text-sm font-bold font-mono text-text-primary tabular-nums">{value}</span>
-		</button>
-	);
-}
-
-interface TodoItemProps {
-	icon: React.ComponentType<{ size?: number; color?: string }>;
-	label: string;
-	color: string;
-	onClick: () => void;
-}
-
-function TodoItem({ icon: Icon, label, color, onClick }: TodoItemProps) {
-	return (
-		<button
-			type="button"
-			onClick={onClick}
-			className="flex items-center gap-3 bg-card border border-border rounded-xl px-3.5 py-3 w-full text-left transition-all hover:border-text-muted cursor-pointer"
-		>
-			<div
-				className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-				style={{ background: alpha(color, 0.1) }}
-			>
-				<Icon size={16} color={color} />
-			</div>
-			<span className="text-[13px] text-text-primary font-body font-medium">{label}</span>
-			<CheckCircle2 size={16} className="text-text-muted ml-auto shrink-0" />
-		</button>
-	);
 }
 
 export function DashboardScreen({

@@ -1,32 +1,8 @@
-import {
-	Aperture,
-	Archive,
-	Calendar,
-	Camera,
-	Check,
-	CircleDot,
-	Clock,
-	Coins,
-	CopyPlus,
-	Film,
-	Focus,
-	History,
-	Info,
-	MapPin,
-	MessageSquare,
-	NotebookPen,
-	Package,
-	Pencil,
-	RotateCcw,
-	ScanLine,
-	Tag,
-	Trash2,
-} from "lucide-react";
+import { CopyPlus, Film, History, Info, NotebookPen, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmLifecycleStepper } from "@/components/FilmLifecycleStepper";
-import { InfoLine } from "@/components/InfoLine";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { ShotNotesSection } from "@/components/ShotNotesSection";
 import { Timeline } from "@/components/Timeline";
@@ -37,15 +13,14 @@ import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { alpha, T } from "@/constants/theme";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
-import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
-import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { createNewFilm } from "@/utils/film-factory";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
-import { fmtDate, fmtPrice, today } from "@/utils/helpers";
-import { lensDisplayName } from "@/utils/lens-helpers";
+import { today } from "@/utils/helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 import { DevScanModals } from "./film-detail/DevScanModals";
 import { EditModal } from "./film-detail/EditModal";
+import { FilmInfoSection } from "./film-detail/FilmInfoSection";
+import { FloatingActionBar } from "./film-detail/FloatingActionBar";
 import { TransitionModals } from "./film-detail/TransitionModals";
 import type { ActionData, ActionType, EditData } from "./film-detail/types";
 
@@ -146,8 +121,6 @@ export function FilmDetailScreen({
 		setShowAction("edit");
 	};
 
-	const cam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
-	const back = film.backId ? data.backs.find((b) => b.id === film.backId) : null;
 	const fIso = filmIso(film);
 
 	const updateFilm = (updates: Partial<FilmType>, toastMessage?: string) => {
@@ -257,76 +230,7 @@ export function FilmDetailScreen({
 
 			{/* Collapsible: Informations */}
 			<CollapsibleSection icon={Info} title={t("filmDetail.sectionInfo")} defaultOpen>
-				<div className="flex flex-col gap-2">
-					{film.expDate && (
-						<InfoLine
-							icon={Calendar}
-							label={t("filmDetail.expiration")}
-							value={fmtExpDate(film.expDate, t("dateLocale"))}
-							warn={getExpirationStatus(film.expDate)?.status === "expired"}
-						/>
-					)}
-					{film.shootIso && <InfoLine icon={Aperture} label={t("filmDetail.shootIso")} value={film.shootIso} />}
-					{cam && (
-						<InfoLine
-							icon={Camera}
-							label={t("filmDetail.camera")}
-							value={`${cameraDisplayName(cam)}${back ? ` · ${backDisplayName(back)}` : ""}`}
-						/>
-					)}
-					{(film.lensId || film.lens) && (
-						<InfoLine
-							icon={Focus}
-							label={t("filmDetail.lens")}
-							value={
-								film.lensId
-									? lensDisplayName(data.lenses.find((l) => l.id === film.lensId)) || film.lens || ""
-									: film.lens || ""
-							}
-						/>
-					)}
-					{film.startDate && <InfoLine icon={Calendar} label={t("filmDetail.start")} value={fmtDate(film.startDate)} />}
-					{film.endDate && <InfoLine icon={Calendar} label={t("filmDetail.end")} value={fmtDate(film.endDate)} />}
-					{film.posesShot != null && (
-						<InfoLine icon={CircleDot} label={t("filmDetail.poses")} value={`${film.posesShot} / ${film.posesTotal}`} />
-					)}
-					{film.lab && <InfoLine icon={Package} label={t("filmDetail.lab")} value={film.lab} />}
-					{film.labRef && <InfoLine icon={Tag} label={t("filmDetail.labRef")} value={film.labRef} />}
-					{film.scanRef && <InfoLine icon={ScanLine} label={t("filmDetail.scanRef")} value={film.scanRef} />}
-					{film.price != null && (
-						<InfoLine icon={Coins} label={t("filmDetail.purchasePrice")} value={fmtPrice(film.price)} />
-					)}
-					{film.devCost != null && (
-						<InfoLine
-							icon={Coins}
-							label={film.devScanPackage ? t("filmDetail.devScanPackageCost") : t("filmDetail.devCost")}
-							value={fmtPrice(film.devCost)}
-						/>
-					)}
-					{film.scanCost != null && (
-						<InfoLine icon={Coins} label={t("filmDetail.scanCost")} value={fmtPrice(film.scanCost)} />
-					)}
-					{(() => {
-						const total = (film.price ?? 0) + (film.devCost ?? 0) + (film.scanCost ?? 0);
-						if (total > 0) {
-							const frameCount = film.posesShot ?? film.posesTotal;
-							const perFrame = frameCount ? total / frameCount : null;
-							return (
-								<>
-									<InfoLine icon={Coins} label={t("filmDetail.totalCost")} value={fmtPrice(total)} />
-									{perFrame != null && (
-										<InfoLine icon={Coins} label={t("filmDetail.costPerFrame")} value={fmtPrice(perFrame)} />
-									)}
-								</>
-							);
-						}
-						return null;
-					})()}
-					{film.state === "stock" && film.storageLocation && (
-						<InfoLine icon={MapPin} label={t("filmDetail.storageLocation")} value={film.storageLocation} />
-					)}
-					{film.comment && <InfoLine icon={MessageSquare} label={t("filmDetail.notes")} value={film.comment} />}
-				</div>
+				<FilmInfoSection film={film} data={data} />
 			</CollapsibleSection>
 
 			{/* Collapsible: Shot notes */}
@@ -380,50 +284,7 @@ export function FilmDetailScreen({
 			</div>
 
 			{/* Floating primary action bar */}
-			{film.state !== "scanned" && (
-				<div className="fixed bottom-0 left-0 right-0 md:left-[220px] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-bg via-bg to-transparent z-10">
-					<div className="max-w-3xl mx-auto">
-						{film.state === "stock" && (
-							<Button onClick={() => setShowAction("load")} className="w-full justify-center shadow-lg">
-								<Camera size={16} /> {t("filmDetail.loadInCamera")}
-							</Button>
-						)}
-						{film.state === "loaded" && (
-							<div className="flex gap-2">
-								<Button onClick={() => setShowAction("finish")} className="flex-1 justify-center shadow-lg">
-									<Check size={16} /> {t("filmDetail.markFinished")}
-								</Button>
-								{film.format === "35mm" && (
-									<Button
-										variant="outline"
-										size="icon"
-										onClick={() => setShowAction("partial")}
-										className="shrink-0 bg-card shadow-lg"
-										aria-label={t("filmDetail.removeNotFinished")}
-									>
-										<Clock size={16} />
-									</Button>
-								)}
-							</div>
-						)}
-						{film.state === "partial" && (
-							<Button onClick={() => setShowAction("reload")} className="w-full justify-center shadow-lg">
-								<RotateCcw size={16} /> {t("filmDetail.reloadInCamera")}
-							</Button>
-						)}
-						{film.state === "exposed" && (
-							<Button onClick={() => setShowAction("develop")} className="w-full justify-center shadow-lg">
-								<Archive size={16} /> {t("filmDetail.markDeveloped")}
-							</Button>
-						)}
-						{film.state === "developed" && (
-							<Button onClick={() => setShowAction("scan")} className="w-full justify-center shadow-lg">
-								<ScanLine size={16} /> {t("filmDetail.markScanned")}
-							</Button>
-						)}
-					</div>
-				</div>
-			)}
+			<FloatingActionBar film={film} setShowAction={setShowAction} />
 
 			{/* MODALS */}
 			<TransitionModals
