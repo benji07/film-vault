@@ -168,6 +168,9 @@ export const en = {
 	filmDetail: {
 		notFound: "Film not found",
 		back: "Back",
+		sectionInfo: "Information",
+		sectionShotNotes: "Shot notes",
+		sectionHistory: "History",
 		expiration: "Expiration",
 		shootIso: "Shooting ISO",
 		camera: "Camera",

@@ -10,6 +10,8 @@ import {
 	CopyPlus,
 	Film,
 	Focus,
+	History,
+	Info,
 	MapPin,
 	MessageSquare,
 	NotebookPen,
@@ -25,6 +27,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
+import { FilmLifecycleStepper } from "@/components/FilmLifecycleStepper";
 import { FilmFormatSelect, FilmTypeSelect } from "@/components/FilmTypeFormatFields";
 import { InfoLine } from "@/components/InfoLine";
 import { PhotoPicker } from "@/components/PhotoPicker";
@@ -36,14 +39,13 @@ import { Alert } from "@/components/ui/alert";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { getStates } from "@/constants/films";
 import { alpha, T } from "@/constants/theme";
 import { type AppData, type Film as FilmType, isInstantFormat, type ScreenName } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
@@ -206,8 +208,6 @@ export function FilmDetailScreen({
 		setShowAction("edit");
 	};
 
-	const STATES = getStates(t);
-	const st = STATES[film.state];
 	const cam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
 	const back = film.backId ? data.backs.find((b) => b.id === film.backId) : null;
 	const fIso = filmIso(film);
@@ -278,21 +278,47 @@ export function FilmDetailScreen({
 			: [];
 
 	return (
-		<div className="flex flex-col gap-4">
-			<div className="flex items-center justify-between">
-				<h2 className="font-display text-[22px] text-text-primary m-0 italic">{filmName(film)}</h2>
-				<Button variant="ghost" size="icon" onClick={openEdit} aria-label={t("aria.editFilm")}>
-					<Pencil size={18} className="text-text-sec" />
-				</Button>
-			</div>
-
-			<Card>
-				<div className="flex gap-2 mb-3 flex-wrap">
-					<Badge style={{ color: st.color, background: alpha(st.color, 0.09) }}>{st.label}</Badge>
+		<div className="flex flex-col gap-5 pb-20">
+			{/* Header: name + edit + badges */}
+			<div>
+				<div className="flex items-center justify-between mb-2">
+					<h2 className="font-display text-[22px] text-text-primary m-0 italic">{filmName(film)}</h2>
+					<Button variant="ghost" size="icon" onClick={openEdit} aria-label={t("aria.editFilm")}>
+						<Pencil size={18} className="text-text-sec" />
+					</Button>
+				</div>
+				<div className="flex gap-2 flex-wrap">
 					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{film.format}</Badge>
 					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{filmType(film)}</Badge>
 					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>ISO {fIso}</Badge>
 				</div>
+			</div>
+
+			{/* Lifecycle stepper */}
+			<FilmLifecycleStepper currentState={film.state} />
+
+			{film.state === "stock" &&
+				(() => {
+					const siblings = data.films.filter(
+						(f) =>
+							f.id !== film.id &&
+							f.state === "stock" &&
+							filmName(f) === filmName(film) &&
+							(f.expDate || "") === (film.expDate || ""),
+					);
+					return siblings.length > 0 ? (
+						<Alert icon={CopyPlus} color={T.accent}>
+							<span>
+								{siblings.length === 1
+									? t("filmDetail.oneOtherInStock")
+									: t("filmDetail.othersInStock", { count: siblings.length })}
+							</span>
+						</Alert>
+					) : null;
+				})()}
+
+			{/* Collapsible: Informations */}
+			<CollapsibleSection icon={Info} title={t("filmDetail.sectionInfo")} defaultOpen>
 				<div className="flex flex-col gap-2">
 					{film.expDate && (
 						<InfoLine
@@ -362,100 +388,102 @@ export function FilmDetailScreen({
 						<InfoLine icon={MapPin} label={t("filmDetail.storageLocation")} value={film.storageLocation} />
 					)}
 					{film.comment && <InfoLine icon={MessageSquare} label={t("filmDetail.notes")} value={film.comment} />}
-					{film.shotNotes && film.shotNotes.length > 0 && (
-						<InfoLine
-							icon={NotebookPen}
-							label={t("filmDetail.shotNotes")}
-							value={t("filmDetail.shotNotesSummary", { count: film.shotNotes.length })}
-						/>
-					)}
 				</div>
-			</Card>
+			</CollapsibleSection>
 
-			{film.state === "stock" &&
-				(() => {
-					const siblings = data.films.filter(
-						(f) =>
-							f.id !== film.id &&
-							f.state === "stock" &&
-							filmName(f) === filmName(film) &&
-							(f.expDate || "") === (film.expDate || ""),
-					);
-					return siblings.length > 0 ? (
-						<Alert icon={CopyPlus} color={T.accent}>
-							<span>
-								{siblings.length === 1
-									? t("filmDetail.oneOtherInStock")
-									: t("filmDetail.othersInStock", { count: siblings.length })}
-							</span>
-						</Alert>
-					) : null;
-				})()}
-
+			{/* Collapsible: Shot notes */}
 			{film.state !== "stock" && (
-				<ShotNotesSection
-					film={film}
-					cameras={data.cameras}
-					lenses={data.lenses}
-					onUpdateNotes={(notes) => updateFilm({ shotNotes: notes })}
-					onNavigateToMap={onNavigateToMap ? () => onNavigateToMap(film.id) : undefined}
-					autoOpenShotNote={autoOpenShotNote}
-					onAutoOpenConsumed={() => setAutoOpenShotNote?.(false)}
-				/>
+				<CollapsibleSection
+					icon={NotebookPen}
+					title={t("filmDetail.sectionShotNotes")}
+					count={film.shotNotes?.length}
+					defaultOpen={!!film.shotNotes?.length}
+				>
+					<ShotNotesSection
+						film={film}
+						cameras={data.cameras}
+						lenses={data.lenses}
+						onUpdateNotes={(notes) => updateFilm({ shotNotes: notes })}
+						onNavigateToMap={onNavigateToMap ? () => onNavigateToMap(film.id) : undefined}
+						autoOpenShotNote={autoOpenShotNote}
+						onAutoOpenConsumed={() => setAutoOpenShotNote?.(false)}
+					/>
+				</CollapsibleSection>
 			)}
 
-			{/* Actions by state */}
-			<div className="flex flex-col gap-2">
-				{film.state === "stock" && (
-					<Button onClick={() => setShowAction("load")} className="w-full justify-center">
-						<Camera size={16} /> {t("filmDetail.loadInCamera")}
-					</Button>
-				)}
-				{film.state === "loaded" && (
-					<>
-						<Button onClick={() => setShowAction("finish")} className="w-full justify-center">
-							<Check size={16} /> {t("filmDetail.markFinished")}
-						</Button>
-						{film.format === "35mm" && (
-							<Button variant="outline" onClick={() => setShowAction("partial")} className="w-full justify-center">
-								<Clock size={16} /> {t("filmDetail.removeNotFinished")}
-							</Button>
-						)}
-					</>
-				)}
-				{film.state === "partial" && (
-					<Button onClick={() => setShowAction("reload")} className="w-full justify-center">
-						<RotateCcw size={16} /> {t("filmDetail.reloadInCamera")}
-					</Button>
-				)}
-				{film.state === "exposed" && (
-					<Button onClick={() => setShowAction("develop")} className="w-full justify-center">
-						<Archive size={16} /> {t("filmDetail.markDeveloped")}
-					</Button>
-				)}
-				{film.state === "developed" && (
-					<Button onClick={() => setShowAction("scan")} className="w-full justify-center">
-						<ScanLine size={16} /> {t("filmDetail.markScanned")}
-					</Button>
-				)}
-				<Button variant="outline" onClick={handleDuplicate} className="w-full justify-center">
+			{/* Collapsible: History */}
+			{film.history && film.history.length > 0 && (
+				<CollapsibleSection
+					icon={History}
+					title={t("filmDetail.sectionHistory")}
+					count={film.history.length}
+					defaultOpen={false}
+				>
+					<div data-tour="film-timeline">
+						<Timeline
+							entries={film.history}
+							onPhotoClick={(photos, index) => {
+								setViewerPhotos(photos);
+								setViewerIndex(index);
+							}}
+						/>
+					</div>
+				</CollapsibleSection>
+			)}
+
+			{/* Secondary actions */}
+			<div className="flex items-center gap-2">
+				<Button variant="outline" onClick={handleDuplicate} className="flex-1 justify-center">
 					<CopyPlus size={16} /> {t("filmDetail.duplicate")}
 				</Button>
-				<Button variant="destructive" onClick={deleteFilm} className="w-full justify-center">
+				<Button variant="destructive" onClick={deleteFilm} className="flex-1 justify-center">
 					<Trash2 size={14} /> {t("filmDetail.delete")}
 				</Button>
 			</div>
 
-			{/* History */}
-			{film.history && film.history.length > 0 && (
-				<div data-tour="film-timeline">
-					<Timeline
-						entries={film.history}
-						onPhotoClick={(photos, index) => {
-							setViewerPhotos(photos);
-							setViewerIndex(index);
-						}}
-					/>
+			{/* Floating primary action bar */}
+			{film.state !== "scanned" && (
+				<div className="fixed bottom-0 left-0 right-0 md:left-[220px] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-gradient-to-t from-bg via-bg to-transparent z-10">
+					<div className="max-w-3xl mx-auto">
+						{film.state === "stock" && (
+							<Button onClick={() => setShowAction("load")} className="w-full justify-center shadow-lg">
+								<Camera size={16} /> {t("filmDetail.loadInCamera")}
+							</Button>
+						)}
+						{film.state === "loaded" && (
+							<div className="flex gap-2">
+								<Button onClick={() => setShowAction("finish")} className="flex-1 justify-center shadow-lg">
+									<Check size={16} /> {t("filmDetail.markFinished")}
+								</Button>
+								{film.format === "35mm" && (
+									<Button
+										variant="outline"
+										size="icon"
+										onClick={() => setShowAction("partial")}
+										className="shrink-0 bg-card shadow-lg"
+										aria-label={t("filmDetail.removeNotFinished")}
+									>
+										<Clock size={16} />
+									</Button>
+								)}
+							</div>
+						)}
+						{film.state === "partial" && (
+							<Button onClick={() => setShowAction("reload")} className="w-full justify-center shadow-lg">
+								<RotateCcw size={16} /> {t("filmDetail.reloadInCamera")}
+							</Button>
+						)}
+						{film.state === "exposed" && (
+							<Button onClick={() => setShowAction("develop")} className="w-full justify-center shadow-lg">
+								<Archive size={16} /> {t("filmDetail.markDeveloped")}
+							</Button>
+						)}
+						{film.state === "developed" && (
+							<Button onClick={() => setShowAction("scan")} className="w-full justify-center shadow-lg">
+								<ScanLine size={16} /> {t("filmDetail.markScanned")}
+							</Button>
+						)}
+					</div>
 				</div>
 			)}
 

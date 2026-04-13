@@ -168,6 +168,9 @@ export const fr = {
 	filmDetail: {
 		notFound: "Pellicule introuvable",
 		back: "Retour",
+		sectionInfo: "Informations",
+		sectionShotNotes: "Notes de prise de vue",
+		sectionHistory: "Historique",
 		expiration: "Expiration",
 		shootIso: "ISO de prise de vue",
 		camera: "Appareil",
