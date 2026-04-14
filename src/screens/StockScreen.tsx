@@ -77,14 +77,15 @@ interface StockScreenProps {
 	setScreen: (screen: ScreenName) => void;
 	setSelectedFilm: (id: string) => void;
 	onAddFilm: () => void;
+	initialStateFilter?: string | null;
 }
 
-export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm }: StockScreenProps) {
+export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm, initialStateFilter }: StockScreenProps) {
 	const { t } = useTranslation();
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 	const { films, cameras, backs } = data;
 
-	const stockFilters = useStockFilters(films);
+	const stockFilters = useStockFilters(films, initialStateFilter);
 	const groups = groupFilms(stockFilters.filteredFilms, t("dateLocale"));
 
 	const stateCounts: Record<string, number> = {};

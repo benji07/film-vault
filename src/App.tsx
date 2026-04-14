@@ -31,6 +31,7 @@ function FilmVaultInner() {
 	const [screen, setScreen] = useState<ScreenName>("home");
 	const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
 	const [mapFilterFilmId, setMapFilterFilmId] = useState<string | null>(null);
+	const [stockStateFilter, setStockStateFilter] = useState<string | null>(null);
 	const [autoOpenShotNote, setAutoOpenShotNote] = useState(false);
 	const [showAddFilm, setShowAddFilm] = useState(false);
 	const [persistent, setPersistent] = useState(false);
@@ -140,12 +141,18 @@ function FilmVaultInner() {
 
 	const handleSetScreen = useCallback((s: ScreenName) => {
 		if (s === "map") setMapFilterFilmId(null);
+		if (s === "stock") setStockStateFilter(null);
 		setScreen(s);
 	}, []);
 
 	const navigateToMap = useCallback((filmId?: string) => {
 		setMapFilterFilmId(filmId ?? null);
 		setScreen("map");
+	}, []);
+
+	const navigateToStock = useCallback((stateFilter: string) => {
+		setStockStateFilter(stateFilter);
+		setScreen("stock");
 	}, []);
 
 	if (loading || !data) {
@@ -169,6 +176,7 @@ function FilmVaultInner() {
 				setSelectedFilm={setSelectedFilm}
 				mapFilterFilmId={mapFilterFilmId}
 				setMapFilterFilmId={setMapFilterFilmId}
+				stockStateFilter={stockStateFilter}
 				autoOpenShotNote={autoOpenShotNote}
 				setAutoOpenShotNote={setAutoOpenShotNote}
 				showAddFilm={showAddFilm}
@@ -179,6 +187,7 @@ function FilmVaultInner() {
 				triggerSync={triggerSync}
 				persistent={persistent}
 				navigateToMap={navigateToMap}
+				navigateToStock={navigateToStock}
 			/>
 		</TourProvider>
 	);
@@ -194,6 +203,7 @@ interface AppContentProps {
 	setSelectedFilm: (id: string | null) => void;
 	mapFilterFilmId: string | null;
 	setMapFilterFilmId: (id: string | null) => void;
+	stockStateFilter: string | null;
 	autoOpenShotNote: boolean;
 	setAutoOpenShotNote: (open: boolean) => void;
 	showAddFilm: boolean;
@@ -204,6 +214,7 @@ interface AppContentProps {
 	triggerSync: () => Promise<void>;
 	persistent: boolean;
 	navigateToMap: (filmId?: string) => void;
+	navigateToStock: (stateFilter: string) => void;
 }
 
 function AppContent({
@@ -216,6 +227,7 @@ function AppContent({
 	setSelectedFilm,
 	mapFilterFilmId,
 	setMapFilterFilmId,
+	stockStateFilter,
 	autoOpenShotNote,
 	setAutoOpenShotNote,
 	showAddFilm,
@@ -226,6 +238,7 @@ function AppContent({
 	triggerSync,
 	persistent,
 	navigateToMap,
+	navigateToStock,
 }: AppContentProps) {
 	const { isTourActive, tourData, startTour } = useTour();
 	const autoTourTriggered = useRef(false);
@@ -271,6 +284,7 @@ function AppContent({
 						setSelectedFilm={setSelectedFilm}
 						onAddFilm={onAddFilm}
 						setAutoOpenShotNote={setAutoOpenShotNote}
+						onNavigateToStock={navigateToStock}
 					/>
 				);
 			case "stock":
@@ -280,6 +294,7 @@ function AppContent({
 						setScreen={setScreen}
 						setSelectedFilm={setSelectedFilm}
 						onAddFilm={onAddFilm}
+						initialStateFilter={stockStateFilter}
 					/>
 				);
 			case "filmDetail":
@@ -340,6 +355,7 @@ function AppContent({
 						setSelectedFilm={setSelectedFilm}
 						onAddFilm={onAddFilm}
 						setAutoOpenShotNote={setAutoOpenShotNote}
+						onNavigateToStock={navigateToStock}
 					/>
 				);
 		}

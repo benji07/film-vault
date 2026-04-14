@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Film } from "@/types";
 import { filmName, normalizeBrand } from "@/utils/film-helpers";
 
@@ -84,9 +84,9 @@ function getSortComparator(option: SortOption): (a: Film, b: Film) => number {
 	}
 }
 
-export function useStockFilters(films: Film[]) {
+export function useStockFilters(films: Film[], initialStateFilter?: string | null) {
 	const [search, setSearch] = useState("");
-	const [stateFilter, setStateFilter] = useState("all");
+	const [stateFilter, setStateFilter] = useState(initialStateFilter || "all");
 	const [filters, setFilters] = useState<StockFilters>({
 		format: "all",
 		type: "all",
@@ -94,6 +94,12 @@ export function useStockFilters(films: Film[]) {
 		isoValues: [],
 	});
 	const [sortOption, setSortOption] = useState<SortOption>("name-asc");
+
+	useEffect(() => {
+		if (initialStateFilter) {
+			setStateFilter(initialStateFilter);
+		}
+	}, [initialStateFilter]);
 
 	const availableFormats = useMemo(() => {
 		const formats = new Set<string>();
