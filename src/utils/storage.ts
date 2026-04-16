@@ -61,6 +61,7 @@ export function getInitialData(): AppData {
 		cameras: [],
 		backs: [],
 		lenses: [],
+		settings: { expirationMode: "date" },
 		version: CURRENT_VERSION,
 	};
 }

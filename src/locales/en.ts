@@ -130,6 +130,7 @@ export const en = {
 		format: "Format",
 		quantity: "Quantity",
 		expirationDate: "Expiration date",
+		expired: "Expired",
 		storageLocation: "Storage location",
 		storageLocationPlaceholder: "E.g. Fridge, Freezer, Cupboard…",
 		comment: "Comment",
@@ -419,6 +420,11 @@ export const en = {
 
 	// Settings screen
 	settings: {
+		expirationMode: "Expiration mode",
+		expirationModeDate: "Date",
+		expirationModeSimple: "Simple",
+		expirationModeDateDesc: "Enter an expiration date for each film",
+		expirationModeSimpleDesc: "Simply mark films as expired or not",
 		cloudBackup: "Cloud backup",
 		recoveryCode: "Recovery code",
 		recoveryCodeHelp: "Save this code to recover your data on another device.",

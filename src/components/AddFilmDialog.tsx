@@ -9,7 +9,9 @@ import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } f
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
+import { Switch } from "@/components/ui/switch";
 import { type AppData, isInstantFormat } from "@/types";
+import { EXPIRED_SENTINEL } from "@/utils/expiration";
 import { createNewFilm } from "@/utils/film-factory";
 import { currentMonthYear } from "@/utils/helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
@@ -32,6 +34,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 	const [format, setFormat] = useState("35mm");
 	const [expDate, setExpDate] = useState(currentMonthYear());
 	const [quantity, setQuantity] = useState("1");
+	const [isExpired, setIsExpired] = useState(false);
 	const [storageLocation, setStorageLocation] = useState("");
 	const [price, setPrice] = useState("");
 	const [comment, setComment] = useState("");
@@ -44,6 +47,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 			setType("Couleur");
 			setFormat("35mm");
 			setExpDate(currentMonthYear());
+			setIsExpired(false);
 			setQuantity("1");
 			setPrice("");
 			setStorageLocation("");
@@ -60,15 +64,18 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 		}
 	};
 
+	const expMode = data.settings?.expirationMode ?? "date";
+
 	const handleSave = () => {
 		const qty = Number.parseInt(quantity, 10) || 1;
+		const resolvedExpDate = expMode === "simple" ? (isExpired ? EXPIRED_SENTINEL : null) : expDate || null;
 		const params = {
 			brand: brand.trim(),
 			model: model.trim(),
 			iso: Number.parseInt(iso, 10) || 0,
 			type,
 			format,
-			expDate: expDate || null,
+			expDate: resolvedExpDate,
 			comment: comment.trim() || null,
 			price: price.trim() ? Number.parseFloat(price) : null,
 			storageLocation: storageLocation.trim() || null,
@@ -150,9 +157,18 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 							min="0"
 						/>
 					</FormField>
-					<FormField label={t("addFilm.expirationDate")}>
-						<MonthYearPicker value={expDate} onChange={setExpDate} />
-					</FormField>
+					{expMode === "date" ? (
+						<FormField label={t("addFilm.expirationDate")}>
+							<MonthYearPicker value={expDate} onChange={setExpDate} />
+						</FormField>
+					) : (
+						<FormField label={t("addFilm.expirationDate")}>
+							<div className="flex items-center justify-between">
+								<span className="text-sm text-text-sec font-body">{t("addFilm.expired")}</span>
+								<Switch checked={isExpired} onCheckedChange={setIsExpired} />
+							</div>
+						</FormField>
+					)}
 					<FormField label={t("addFilm.storageLocation")}>
 						<Input
 							value={storageLocation}

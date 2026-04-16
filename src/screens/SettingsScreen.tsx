@@ -1,6 +1,7 @@
 import {
 	AlertTriangle,
 	BookOpen,
+	Calendar,
 	Camera as CameraIcon,
 	Check,
 	Cloud,
@@ -26,7 +27,7 @@ import { Input } from "@/components/ui/input";
 import { PhotoImg } from "@/components/ui/photo-img";
 import { T } from "@/constants/theme";
 import { useTour } from "@/tour/TourProvider";
-import type { AppData } from "@/types";
+import type { AppData, ExpirationMode } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 import { exportData, parseImportFile } from "@/utils/storage";
@@ -166,8 +167,14 @@ export function SettingsScreen({
 	};
 
 	const { startTour } = useTour();
+
+	const handleExpirationMode = (mode: ExpirationMode) => {
+		setData({ ...data, settings: { ...data.settings, expirationMode: mode } });
+	};
+
 	const lastSync = getLastSync();
 	const currentLang = i18n.language;
+	const expMode = data.settings?.expirationMode ?? "date";
 
 	return (
 		<div className="flex flex-col gap-5">
@@ -205,6 +212,33 @@ export function SettingsScreen({
 				<Button variant="outline" onClick={startTour} className="w-full justify-center">
 					<Play size={16} /> {t("tour.restartTour")}
 				</Button>
+			</Card>
+
+			{/* Expiration mode */}
+			<Card>
+				<div className="flex items-center gap-3 mb-4">
+					<Calendar size={18} className="text-accent" />
+					<span className="text-sm font-bold text-text-primary font-body">{t("settings.expirationMode")}</span>
+				</div>
+				<div className="flex gap-2 mb-3">
+					<Button
+						variant={expMode === "date" ? "default" : "outline"}
+						onClick={() => handleExpirationMode("date")}
+						className="flex-1"
+					>
+						{t("settings.expirationModeDate")}
+					</Button>
+					<Button
+						variant={expMode === "simple" ? "default" : "outline"}
+						onClick={() => handleExpirationMode("simple")}
+						className="flex-1"
+					>
+						{t("settings.expirationModeSimple")}
+					</Button>
+				</div>
+				<span className="text-xs text-text-sec font-body">
+					{expMode === "date" ? t("settings.expirationModeDateDesc") : t("settings.expirationModeSimpleDesc")}
+				</span>
 			</Card>
 
 			{/* Cloud backup section */}

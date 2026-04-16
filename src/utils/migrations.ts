@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 16;
+export const CURRENT_VERSION = 17;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -239,6 +239,10 @@ function migrateV15toV16(data: Record<string, unknown>): Record<string, unknown>
 	return { ...data, version: 16 };
 }
 
+function migrateV16toV17(data: Record<string, unknown>): Record<string, unknown> {
+	return { ...data, settings: { expirationMode: "date" }, version: 17 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -255,6 +259,7 @@ const migrations: Record<number, MigrationFn> = {
 	13: migrateV13toV14,
 	14: migrateV14toV15,
 	15: migrateV15toV16,
+	16: migrateV16toV17,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {
@@ -290,10 +295,11 @@ export function validateAppData(data: unknown): data is AppData {
 	return true;
 }
 
-/** Ensure backs and lenses arrays exist (for pre-v10/v13 data or edge cases). */
+/** Ensure backs, lenses arrays and settings exist (for pre-v10/v13/v17 data or edge cases). */
 export function normalizeAppData(data: AppData): AppData {
 	let normalized = data;
 	if (!normalized.backs) normalized = { ...normalized, backs: [] };
 	if (!normalized.lenses) normalized = { ...normalized, lenses: [] };
+	if (!normalized.settings) normalized = { ...normalized, settings: { expirationMode: "date" } };
 	return normalized;
 }
