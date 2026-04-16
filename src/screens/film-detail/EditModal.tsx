@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { alpha, T } from "@/constants/theme";
 import { type AppData, type Back, type Camera, type Film, isInstantFormat } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
+import { EXPIRED_SENTINEL, isExpiredSentinel } from "@/utils/expiration";
 import { today } from "@/utils/helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 import type { ActionType, EditData } from "./types";
@@ -118,9 +119,21 @@ export function EditModal({
 							format={editData.format}
 						/>
 					</div>
-					<FormField label={t("addFilm.expirationDate")}>
-						<MonthYearPicker value={editData.expDate} onChange={(v) => setEditData({ ...editData, expDate: v })} />
-					</FormField>
+					{(data.settings?.expirationMode ?? "date") === "date" ? (
+						<FormField label={t("addFilm.expirationDate")}>
+							<MonthYearPicker value={editData.expDate} onChange={(v) => setEditData({ ...editData, expDate: v })} />
+						</FormField>
+					) : (
+						<FormField label={t("addFilm.expirationDate")}>
+							<div className="flex items-center justify-between">
+								<span className="text-sm text-text-sec font-body">{t("addFilm.expired")}</span>
+								<Switch
+									checked={isExpiredSentinel(editData.expDate)}
+									onCheckedChange={(v) => setEditData({ ...editData, expDate: v ? EXPIRED_SENTINEL : "" })}
+								/>
+							</div>
+						</FormField>
+					)}
 					{film.state === "stock" && (
 						<FormField label={t("addFilm.storageLocation")}>
 							<Input

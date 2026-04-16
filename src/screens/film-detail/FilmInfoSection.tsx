@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import { InfoLine } from "@/components/InfoLine";
 import type { AppData, Film } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
-import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
+import { fmtExpDate, getExpirationStatus, isExpiredSentinel } from "@/utils/expiration";
 import { fmtDate, fmtPrice } from "@/utils/helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 
@@ -31,14 +31,17 @@ export function FilmInfoSection({ film, data }: FilmInfoSectionProps) {
 
 	return (
 		<div className="flex flex-col gap-2">
-			{film.expDate && (
-				<InfoLine
-					icon={Calendar}
-					label={t("filmDetail.expiration")}
-					value={fmtExpDate(film.expDate, t("dateLocale"))}
-					warn={getExpirationStatus(film.expDate)?.status === "expired"}
-				/>
-			)}
+			{film.expDate &&
+				(isExpiredSentinel(film.expDate) ? (
+					<InfoLine icon={Calendar} label={t("filmDetail.expiration")} value={t("expiration.expired")} warn />
+				) : (
+					<InfoLine
+						icon={Calendar}
+						label={t("filmDetail.expiration")}
+						value={fmtExpDate(film.expDate, t("dateLocale"))}
+						warn={getExpirationStatus(film.expDate)?.status === "expired"}
+					/>
+				))}
 			{film.shootIso && <InfoLine icon={Aperture} label={t("filmDetail.shootIso")} value={film.shootIso} />}
 			{cam && (
 				<InfoLine

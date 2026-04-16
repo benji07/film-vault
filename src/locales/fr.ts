@@ -130,6 +130,7 @@ export const fr = {
 		format: "Format",
 		quantity: "Quantité",
 		expirationDate: "Date d'expiration",
+		expired: "Périmée",
 		storageLocation: "Lieu de stockage",
 		storageLocationPlaceholder: "Ex : Frigo, Congélateur, Placard…",
 		comment: "Commentaire",
@@ -419,6 +420,11 @@ export const fr = {
 
 	// Settings screen
 	settings: {
+		expirationMode: "Mode d'expiration",
+		expirationModeDate: "Date",
+		expirationModeSimple: "Simple",
+		expirationModeDateDesc: "Saisir une date d'expiration pour chaque pellicule",
+		expirationModeSimpleDesc: "Simplement marquer les pellicules comme périmées ou non",
 		cloudBackup: "Sauvegarde cloud",
 		recoveryCode: "Code de récupération",
 		recoveryCodeHelp: "Notez ce code pour récupérer vos données sur un autre appareil.",

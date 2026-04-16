@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { getStates } from "@/constants/films";
 import { alpha, FILM_TYPE_COLORS, T } from "@/constants/theme";
-import type { Back, Camera, Film } from "@/types";
+import type { Back, Camera, ExpirationMode, Film } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
-import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
+import { fmtExpDate, getExpirationStatus, isExpiredSentinel } from "@/utils/expiration";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 
 interface FilmRowProps {
@@ -14,9 +14,10 @@ interface FilmRowProps {
 	cameras: Camera[];
 	backs: Back[];
 	groupCount?: number;
+	expirationMode?: ExpirationMode;
 }
 
-export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowProps) {
+export function FilmRow({ film, onClick, cameras, backs, groupCount, expirationMode = "date" }: FilmRowProps) {
 	const { t } = useTranslation();
 	const STATES = getStates(t);
 	const st = STATES[film.state];
@@ -61,7 +62,7 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowPr
 						</Badge>
 					)}
 					{film.labRef && <Badge style={{ color: T.accent, background: alpha(T.accent, 0.09) }}>{film.labRef}</Badge>}
-					{film.expDate && (
+					{film.expDate && !isExpiredSentinel(film.expDate) && expirationMode === "date" && (
 						<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
 							{fmtExpDate(film.expDate, t("dateLocale"))}
 						</Badge>

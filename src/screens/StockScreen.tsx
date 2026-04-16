@@ -180,6 +180,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm, initi
 							cameras={cameras}
 							backs={backs}
 							groupCount={group.films.length}
+							expirationMode={data.settings?.expirationMode}
 							onClick={() => {
 								setSelectedFilm(representative.id);
 								setScreen("filmDetail");

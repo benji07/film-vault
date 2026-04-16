@@ -230,6 +230,7 @@ export function createDemoData(): AppData {
 		cameras,
 		backs,
 		lenses,
-		version: 16,
+		settings: { expirationMode: "date" as const },
+		version: 17,
 	};
 }

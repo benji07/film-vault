@@ -1,6 +1,12 @@
 import type { TFunction } from "i18next";
 import { alpha, T } from "@/constants/theme";
 
+export const EXPIRED_SENTINEL = "0000-01";
+
+export function isExpiredSentinel(d: string | null | undefined): boolean {
+	return d === EXPIRED_SENTINEL;
+}
+
 export type ExpirationStatus = "expired" | "expiring" | "ok";
 
 export interface ExpirationInfo {
@@ -45,7 +51,7 @@ export function getExpirationStatus(expDate: string | null | undefined, t?: TFun
 
 /** Format "YYYY-MM" as localized short month + year */
 export function fmtExpDate(d: string | null | undefined, locale?: string): string {
-	if (!d) return "";
+	if (!d || isExpiredSentinel(d)) return "";
 	const [y, m] = d.split("-").map(Number);
 	if (!y || !m) return "";
 	const date = new Date(y, m - 1);

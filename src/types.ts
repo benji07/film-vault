@@ -149,11 +149,18 @@ export interface Lens {
 	shutterSpeedStops?: StopIncrement | null;
 }
 
+export type ExpirationMode = "date" | "simple";
+
+export interface AppSettings {
+	expirationMode: ExpirationMode;
+}
+
 export interface AppData {
 	films: Film[];
 	cameras: Camera[];
 	backs: Back[];
 	lenses: Lens[];
+	settings: AppSettings;
 	version: number;
 }
 
