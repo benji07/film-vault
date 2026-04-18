@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 	});
 	const [editBack, setEditBack] = useState<Back | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
+	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
 
 	const interchangeableCameras = data.cameras.filter((c) => c.hasInterchangeableBack && !c.soldAt);
 	const activeBacks = data.backs.filter((b) => !b.soldAt);
@@ -101,7 +103,6 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 	};
 
 	const hardDeleteBack = (backId: string) => {
-		if (!window.confirm(t("cameras.hardDeleteBackConfirm"))) return;
 		const newBacks = data.backs.filter((b) => b.id !== backId);
 		const newFilms = data.films.map((f) => (f.backId === backId ? { ...f, backId: null } : f));
 		setData({ ...data, backs: newBacks, films: newFilms });
@@ -237,12 +238,12 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 														</Badge>
 														{soldDate && (
 															<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
-																{t("cameras.soldOn", { date: soldDate })}
+																{t("equipment.soldOn", { date: soldDate })}
 															</Badge>
 														)}
 														{associatedFilms > 0 && (
 															<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
-																{t("cameras.associatedFilms", { count: associatedFilms })}
+																{t("equipment.associatedFilms", { count: associatedFilms })}
 															</Badge>
 														)}
 													</div>
@@ -261,7 +262,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 												<Button
 													variant="destructive"
 													size="icon"
-													onClick={() => hardDeleteBack(b.id)}
+													onClick={() => setPendingHardDeleteId(b.id)}
 													className="w-11 h-11 rounded-lg"
 													aria-label={t("aria.hardDeleteBack")}
 												>
@@ -447,6 +448,18 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 			</Dialog>
 
 			{viewerPhoto && <PhotoViewer photos={[viewerPhoto]} initialIndex={0} onClose={() => setViewerPhoto(null)} />}
+
+			<ConfirmDialog
+				open={pendingHardDeleteId !== null}
+				onOpenChange={(open) => !open && setPendingHardDeleteId(null)}
+				title={t("equipment.hardDelete")}
+				description={t("cameras.hardDeleteBackConfirm")}
+				confirmLabel={t("equipment.hardDelete")}
+				destructive
+				onConfirm={() => {
+					if (pendingHardDeleteId) hardDeleteBack(pendingHardDeleteId);
+				}}
+			/>
 		</>
 	);
 }

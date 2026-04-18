@@ -1,4 +1,10 @@
 export const fr = {
+	// Common UI labels
+	common: {
+		cancel: "Annuler",
+		confirm: "Confirmer",
+	},
+
 	// Navigation
 	nav: {
 		home: "Accueil",
@@ -317,6 +323,12 @@ export const fr = {
 		camerasTab: "Appareils",
 		lensesTab: "Objectifs",
 		backsTab: "Dos",
+		// Labels shared between cameras, backs, and lenses
+		soldOn: "Vendu le {{date}}",
+		associatedFilms_one: "{{count}} pellicule",
+		associatedFilms_other: "{{count}} pellicules",
+		unarchive: "Remettre en service",
+		hardDelete: "Supprimer définitivement",
 	},
 
 	// Lenses
@@ -364,9 +376,6 @@ export const fr = {
 		loaded_other: "{{count}} chargées",
 		sellLens: "Vendre / Archiver",
 		soldSection: "Objectifs vendus",
-		soldOn: "Vendu le {{date}}",
-		associatedFilms_one: "{{count}} pellicule",
-		associatedFilms_other: "{{count}} pellicules",
 		hardDeleteConfirm: "Cette action supprimera toutes les références à cet objectif sur vos pellicules. Continuer ?",
 	},
 
@@ -425,11 +434,6 @@ export const fr = {
 		sellBack: "Vendre / Archiver ce dos",
 		soldSection: "Appareils vendus",
 		soldBacksSection: "Dos vendus",
-		soldOn: "Vendu le {{date}}",
-		associatedFilms_one: "{{count}} pellicule",
-		associatedFilms_other: "{{count}} pellicules",
-		unarchive: "Remettre en service",
-		hardDelete: "Supprimer définitivement",
 		hardDeleteConfirm: "Cette action supprimera toutes les références à cet appareil sur vos pellicules. Continuer ?",
 		hardDeleteBackConfirm: "Cette action supprimera toutes les références à ce dos sur vos pellicules. Continuer ?",
 	},

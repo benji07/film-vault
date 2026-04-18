@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,7 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 	});
 	const [editCam, setEditCam] = useState<(CameraType & { mount?: string | null }) | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
+	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
 
 	const activeCameras = data.cameras.filter((c) => !c.soldAt);
 	const soldCameras = data.cameras.filter((c) => c.soldAt);
@@ -120,7 +122,6 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 	};
 
 	const hardDeleteCamera = (camId: string) => {
-		if (!window.confirm(t("cameras.hardDeleteConfirm"))) return;
 		const newBacks = data.backs.map((b) => ({
 			...b,
 			compatibleCameraIds: b.compatibleCameraIds.filter((id) => id !== camId),
@@ -268,12 +269,12 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 														</Badge>
 														{soldDate && (
 															<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
-																{t("cameras.soldOn", { date: soldDate })}
+																{t("equipment.soldOn", { date: soldDate })}
 															</Badge>
 														)}
 														{associatedFilms > 0 && (
 															<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
-																{t("cameras.associatedFilms", { count: associatedFilms })}
+																{t("equipment.associatedFilms", { count: associatedFilms })}
 															</Badge>
 														)}
 													</div>
@@ -292,7 +293,7 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 												<Button
 													variant="destructive"
 													size="icon"
-													onClick={() => hardDeleteCamera(cam.id)}
+													onClick={() => setPendingHardDeleteId(cam.id)}
 													className="w-11 h-11 rounded-lg"
 													aria-label={t("aria.hardDeleteCamera")}
 												>
@@ -615,6 +616,18 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 			</Dialog>
 
 			{viewerPhoto && <PhotoViewer photos={[viewerPhoto]} initialIndex={0} onClose={() => setViewerPhoto(null)} />}
+
+			<ConfirmDialog
+				open={pendingHardDeleteId !== null}
+				onOpenChange={(open) => !open && setPendingHardDeleteId(null)}
+				title={t("equipment.hardDelete")}
+				description={t("cameras.hardDeleteConfirm")}
+				confirmLabel={t("equipment.hardDelete")}
+				destructive
+				onConfirm={() => {
+					if (pendingHardDeleteId) hardDeleteCamera(pendingHardDeleteId);
+				}}
+			/>
 		</>
 	);
 }

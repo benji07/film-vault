@@ -1,4 +1,10 @@
 export const en = {
+	// Common UI labels
+	common: {
+		cancel: "Cancel",
+		confirm: "Confirm",
+	},
+
 	// Navigation
 	nav: {
 		home: "Home",
@@ -317,6 +323,12 @@ export const en = {
 		camerasTab: "Cameras",
 		lensesTab: "Lenses",
 		backsTab: "Backs",
+		// Labels shared between cameras, backs, and lenses
+		soldOn: "Sold on {{date}}",
+		associatedFilms_one: "{{count}} film",
+		associatedFilms_other: "{{count}} films",
+		unarchive: "Put back in service",
+		hardDelete: "Delete permanently",
 	},
 
 	// Lenses
@@ -364,9 +376,6 @@ export const en = {
 		loaded_other: "{{count}} loaded",
 		sellLens: "Sell / Archive",
 		soldSection: "Sold lenses",
-		soldOn: "Sold on {{date}}",
-		associatedFilms_one: "{{count}} film",
-		associatedFilms_other: "{{count}} films",
 		hardDeleteConfirm: "This will remove all references to this lens from your films. Continue?",
 	},
 
@@ -425,11 +434,6 @@ export const en = {
 		sellBack: "Sell / Archive this back",
 		soldSection: "Sold cameras",
 		soldBacksSection: "Sold backs",
-		soldOn: "Sold on {{date}}",
-		associatedFilms_one: "{{count}} film",
-		associatedFilms_other: "{{count}} films",
-		unarchive: "Put back in service",
-		hardDelete: "Delete permanently",
 		hardDeleteConfirm: "This will remove all references to this camera from your films. Continue?",
 		hardDeleteBackConfirm: "This will remove all references to this back from your films. Continue?",
 	},

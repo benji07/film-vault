@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -94,6 +95,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 	const [editLensId, setEditLensId] = useState<string | null>(null);
 	const [editLens, setEditLens] = useState<LensFormData>(emptyLensForm);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
+	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
 
 	const activeLenses = data.lenses.filter((l) => !l.soldAt);
 	const soldLenses = data.lenses.filter((l) => l.soldAt);
@@ -152,7 +154,6 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 	};
 
 	const hardDeleteLens = (lensId: string) => {
-		if (!window.confirm(t("lenses.hardDeleteConfirm"))) return;
 		const newFilms = data.films.map((f) => {
 			let film = f;
 			if (film.lensId === lensId) {
@@ -555,12 +556,12 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 													<div className="flex gap-1.5 mt-1.5 flex-wrap">
 														{soldDate && (
 															<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
-																{t("lenses.soldOn", { date: soldDate })}
+																{t("equipment.soldOn", { date: soldDate })}
 															</Badge>
 														)}
 														{associatedFilms > 0 && (
 															<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
-																{t("lenses.associatedFilms", { count: associatedFilms })}
+																{t("equipment.associatedFilms", { count: associatedFilms })}
 															</Badge>
 														)}
 													</div>
@@ -579,7 +580,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 												<Button
 													variant="destructive"
 													size="icon"
-													onClick={() => hardDeleteLens(lens.id)}
+													onClick={() => setPendingHardDeleteId(lens.id)}
 													className="w-11 h-11 rounded-lg"
 													aria-label={t("aria.hardDeleteLens")}
 												>
@@ -618,6 +619,18 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 			</Dialog>
 
 			{viewerPhoto && <PhotoViewer photos={[viewerPhoto]} initialIndex={0} onClose={() => setViewerPhoto(null)} />}
+
+			<ConfirmDialog
+				open={pendingHardDeleteId !== null}
+				onOpenChange={(open) => !open && setPendingHardDeleteId(null)}
+				title={t("equipment.hardDelete")}
+				description={t("lenses.hardDeleteConfirm")}
+				confirmLabel={t("equipment.hardDelete")}
+				destructive
+				onConfirm={() => {
+					if (pendingHardDeleteId) hardDeleteLens(pendingHardDeleteId);
+				}}
+			/>
 		</>
 	);
 }
