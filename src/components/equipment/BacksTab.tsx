@@ -1,4 +1,4 @@
-import { Camera, Check, ChevronDown, ChevronRight, Edit3, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Camera, Check, Edit3, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -7,6 +7,7 @@ import { PhotoViewer } from "@/components/PhotoViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -38,7 +39,6 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 	});
 	const [editBack, setEditBack] = useState<Back | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
-	const [showSold, setShowSold] = useState(false);
 
 	const interchangeableCameras = data.cameras.filter((c) => c.hasInterchangeableBack && !c.soldAt);
 	const activeBacks = data.backs.filter((b) => !b.soldAt);
@@ -120,7 +120,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 				<div className="flex flex-col gap-2.5">
 					{activeBacks.map((b) => {
 						const backFilm = data.films.find((f) => f.state === "loaded" && f.backId === b.id);
-						const compatCams = data.cameras.filter((c) => b.compatibleCameraIds.includes(c.id));
+						const compatCams = data.cameras.filter((c) => !c.soldAt && b.compatibleCameraIds.includes(c.id));
 						return (
 							<Card key={b.id}>
 								<div className="flex items-center justify-between">
@@ -196,17 +196,9 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 				</div>
 
 				{soldBacks.length > 0 && (
-					<div className="flex flex-col gap-2.5">
-						<button
-							type="button"
-							onClick={() => setShowSold((v) => !v)}
-							className="flex items-center gap-2 text-text-sec font-body text-[13px] font-semibold uppercase tracking-wide"
-						>
-							{showSold ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-							{t("cameras.soldBacksSection")} ({soldBacks.length})
-						</button>
-						{showSold &&
-							soldBacks.map((b) => {
+					<CollapsibleSection title={t("cameras.soldBacksSection")} count={soldBacks.length}>
+						<div className="flex flex-col gap-2.5">
+							{soldBacks.map((b) => {
 								const associatedFilms = data.films.filter((f) => f.backId === b.id).length;
 								const soldDate = b.soldAt ? new Date(b.soldAt).toLocaleDateString() : "";
 								return (
@@ -280,7 +272,8 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 									</Card>
 								);
 							})}
-					</div>
+						</div>
+					</CollapsibleSection>
 				)}
 			</div>
 

@@ -1,4 +1,4 @@
-import { Check, ChevronDown, ChevronRight, Edit3, Focus, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Check, Edit3, Focus, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -7,6 +7,7 @@ import { PhotoViewer } from "@/components/PhotoViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -93,7 +94,6 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 	const [editLensId, setEditLensId] = useState<string | null>(null);
 	const [editLens, setEditLens] = useState<LensFormData>(emptyLensForm);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
-	const [showSold, setShowSold] = useState(false);
 
 	const activeLenses = data.lenses.filter((l) => !l.soldAt);
 	const soldLenses = data.lenses.filter((l) => l.soldAt);
@@ -515,17 +515,9 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 				</div>
 
 				{soldLenses.length > 0 && (
-					<div className="flex flex-col gap-2.5">
-						<button
-							type="button"
-							onClick={() => setShowSold((v) => !v)}
-							className="flex items-center gap-2 text-text-sec font-body text-[13px] font-semibold uppercase tracking-wide"
-						>
-							{showSold ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-							{t("lenses.soldSection")} ({soldLenses.length})
-						</button>
-						{showSold &&
-							soldLenses.map((lens) => {
+					<CollapsibleSection title={t("lenses.soldSection")} count={soldLenses.length}>
+						<div className="flex flex-col gap-2.5">
+							{soldLenses.map((lens) => {
 								const associatedFilms = data.films.filter(
 									(f) => f.lensId === lens.id || f.shotNotes?.some((n) => n.lensId === lens.id),
 								).length;
@@ -598,7 +590,8 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 									</Card>
 								);
 							})}
-					</div>
+						</div>
+					</CollapsibleSection>
 				)}
 			</div>
 
