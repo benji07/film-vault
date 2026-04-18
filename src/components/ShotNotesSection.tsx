@@ -365,7 +365,7 @@ function ShotNotesSection({
 						</div>
 
 						<FormField label={t("filmDetail.shotNotesLens")}>
-							{lenses && lenses.length > 0 ? (
+							{lenses && lenses.filter((l) => !l.soldAt).length > 0 ? (
 								<>
 									<Select
 										value={form.lensId || "__other__"}
@@ -386,11 +386,13 @@ function ShotNotesSection({
 											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
 										</SelectTrigger>
 										<SelectContent>
-											{lenses.map((l) => (
-												<SelectItem key={l.id} value={l.id}>
-													{lensDisplayName(l)}
-												</SelectItem>
-											))}
+											{lenses
+												.filter((l) => !l.soldAt || l.id === form.lensId)
+												.map((l) => (
+													<SelectItem key={l.id} value={l.id}>
+														{lensDisplayName(l)}
+													</SelectItem>
+												))}
 											<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
 										</SelectContent>
 									</Select>

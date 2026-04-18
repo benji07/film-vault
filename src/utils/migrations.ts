@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 16;
+export const CURRENT_VERSION = 17;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -239,6 +239,11 @@ function migrateV15toV16(data: Record<string, unknown>): Record<string, unknown>
 	return { ...data, version: 16 };
 }
 
+function migrateV16toV17(data: Record<string, unknown>): Record<string, unknown> {
+	// Add soldAt to Camera, Back, Lens. Optional field, no transformation needed.
+	return { ...data, version: 17 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -255,6 +260,7 @@ const migrations: Record<number, MigrationFn> = {
 	13: migrateV13toV14,
 	14: migrateV14toV15,
 	15: migrateV15toV16,
+	16: migrateV16toV17,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

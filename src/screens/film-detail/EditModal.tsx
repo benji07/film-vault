@@ -58,6 +58,8 @@ export function EditModal({
 }: EditModalProps) {
 	const { t } = useTranslation();
 
+	const activeLenses = data.lenses.filter((l) => !l.soldAt);
+
 	return (
 		<Dialog open={showAction === "edit"} onOpenChange={(open) => !open && closeAction()}>
 			<DialogContent>
@@ -191,7 +193,7 @@ export function EditModal({
 								</FormField>
 							)}
 							<FormField label={t("filmDetail.lensField")}>
-								{data.lenses.length > 0 ? (
+								{activeLenses.length > 0 ? (
 									<>
 										<Select
 											value={editData.lensId || "__other__"}
@@ -212,7 +214,7 @@ export function EditModal({
 												<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
 											</SelectTrigger>
 											<SelectContent>
-												{data.lenses.map((l) => (
+												{activeLenses.map((l) => (
 													<SelectItem key={l.id} value={l.id}>
 														{lensDisplayName(l)}
 													</SelectItem>

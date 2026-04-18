@@ -25,6 +25,7 @@ export function TransitionModals({
 	fIso,
 }: ModalBaseProps) {
 	const { t } = useTranslation();
+	const activeLenses = data.lenses.filter((l) => !l.soldAt);
 
 	return (
 		<>
@@ -73,7 +74,7 @@ export function TransitionModals({
 							</FormField>
 						)}
 						<FormField label={t("filmDetail.lensField")}>
-							{data.lenses.length > 0 ? (
+							{activeLenses.length > 0 ? (
 								<>
 									<Select
 										value={actionData.lensId || "__other__"}
@@ -94,7 +95,7 @@ export function TransitionModals({
 											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
 										</SelectTrigger>
 										<SelectContent>
-											{data.lenses.map((l) => (
+											{activeLenses.map((l) => (
 												<SelectItem key={l.id} value={l.id}>
 													{lensDisplayName(l)}
 												</SelectItem>
@@ -350,7 +351,7 @@ export function TransitionModals({
 							</FormField>
 						)}
 						<FormField label={t("filmDetail.lensField")}>
-							{data.lenses.length > 0 ? (
+							{activeLenses.length > 0 ? (
 								<>
 									<Select
 										value={actionData.lensId || "__other__"}
@@ -371,7 +372,7 @@ export function TransitionModals({
 											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
 										</SelectTrigger>
 										<SelectContent>
-											{data.lenses.map((l) => (
+											{activeLenses.map((l) => (
 												<SelectItem key={l.id} value={l.id}>
 													{lensDisplayName(l)}
 												</SelectItem>

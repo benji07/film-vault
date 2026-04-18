@@ -1,4 +1,4 @@
-import { Camera, Check, Edit3, Plus, Trash2 } from "lucide-react";
+import { Camera, Check, ChevronDown, ChevronRight, Edit3, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -44,6 +44,10 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 	});
 	const [editCam, setEditCam] = useState<(CameraType & { mount?: string | null }) | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
+	const [showSold, setShowSold] = useState(false);
+
+	const activeCameras = data.cameras.filter((c) => !c.soldAt);
+	const soldCameras = data.cameras.filter((c) => c.soldAt);
 
 	const addCamera = () => {
 		if (!newCam.brand && !newCam.model) return;
@@ -105,7 +109,18 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 		setEditCam(null);
 	};
 
-	const deleteCamera = (camId: string) => {
+	const sellCamera = (camId: string) => {
+		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, soldAt: new Date().toISOString() } : c));
+		setData({ ...data, cameras: newCams });
+	};
+
+	const unarchiveCamera = (camId: string) => {
+		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, soldAt: null } : c));
+		setData({ ...data, cameras: newCams });
+	};
+
+	const hardDeleteCamera = (camId: string) => {
+		if (!window.confirm(t("cameras.hardDeleteConfirm"))) return;
 		const newBacks = data.backs.map((b) => ({
 			...b,
 			compatibleCameraIds: b.compatibleCameraIds.filter((id) => id !== camId),
@@ -125,7 +140,7 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 				</div>
 
 				<div className="flex flex-col gap-2.5">
-					{data.cameras.map((cam) => {
+					{activeCameras.map((cam) => {
 						const loadedFilms = data.films.filter((f) => f.state === "loaded" && f.cameraId === cam.id);
 						const camBacks = data.backs.filter((b) => b.compatibleCameraIds.includes(cam.id));
 						return (
@@ -186,11 +201,11 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 										<Button
 											variant="destructive"
 											size="icon"
-											onClick={() => deleteCamera(cam.id)}
+											onClick={() => sellCamera(cam.id)}
 											className="w-11 h-11 rounded-lg"
-											aria-label={t("aria.deleteCamera")}
+											aria-label={t("aria.sellCamera")}
 										>
-											<Trash2 size={14} className="text-accent" />
+											<PackageX size={14} className="text-accent" />
 										</Button>
 									</div>
 								</div>
@@ -206,10 +221,98 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 							</Card>
 						);
 					})}
-					{data.cameras.length === 0 && (
+					{activeCameras.length === 0 && (
 						<EmptyState icon={Camera} title={t("cameras.noCameras")} subtitle={t("cameras.noCamerasSubtitle")} />
 					)}
 				</div>
+
+				{soldCameras.length > 0 && (
+					<div className="flex flex-col gap-2.5">
+						<button
+							type="button"
+							onClick={() => setShowSold((v) => !v)}
+							className="flex items-center gap-2 text-text-sec font-body text-[13px] font-semibold uppercase tracking-wide"
+						>
+							{showSold ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+							{t("cameras.soldSection")} ({soldCameras.length})
+						</button>
+						{showSold &&
+							soldCameras.map((cam) => {
+								const associatedFilms = data.films.filter((f) => f.cameraId === cam.id).length;
+								const soldDate = cam.soldAt ? new Date(cam.soldAt).toLocaleDateString() : "";
+								return (
+									<Card key={cam.id} className="opacity-70">
+										<div className="flex items-center justify-between">
+											<div className="flex items-center gap-3">
+												{cam.photo ? (
+													<button
+														type="button"
+														onClick={(e) => {
+															e.stopPropagation();
+															setViewerPhoto(cam.photo!);
+														}}
+														aria-label={t("aria.openPhoto", { index: 1 })}
+														className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
+													>
+														<PhotoImg
+															src={cam.photo}
+															alt=""
+															aria-hidden="true"
+															className="w-full h-full object-cover border border-border cursor-pointer grayscale"
+														/>
+													</button>
+												) : (
+													<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
+														<Camera size={20} className="text-text-muted opacity-40" />
+													</div>
+												)}
+												<div>
+													<div className="text-[15px] font-semibold text-text-primary font-body">
+														{cameraDisplayName(cam)}
+													</div>
+													<div className="flex gap-1.5 mt-1.5 flex-wrap">
+														<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
+															{cam.format}
+														</Badge>
+														{soldDate && (
+															<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
+																{t("cameras.soldOn", { date: soldDate })}
+															</Badge>
+														)}
+														{associatedFilms > 0 && (
+															<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
+																{t("cameras.associatedFilms", { count: associatedFilms })}
+															</Badge>
+														)}
+													</div>
+												</div>
+											</div>
+											<div className="flex gap-1.5">
+												<Button
+													variant="outline"
+													size="icon"
+													onClick={() => unarchiveCamera(cam.id)}
+													className="w-11 h-11 rounded-lg"
+													aria-label={t("aria.unarchiveCamera")}
+												>
+													<RotateCcw size={14} className="text-text-sec" />
+												</Button>
+												<Button
+													variant="destructive"
+													size="icon"
+													onClick={() => hardDeleteCamera(cam.id)}
+													className="w-11 h-11 rounded-lg"
+													aria-label={t("aria.hardDeleteCamera")}
+												>
+													<Trash2 size={14} className="text-accent" />
+												</Button>
+											</div>
+										</div>
+									</Card>
+								);
+							})}
+					</div>
+				)}
 			</div>
 
 			{/* Add camera modal */}
