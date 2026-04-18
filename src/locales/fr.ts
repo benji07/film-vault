@@ -1,4 +1,10 @@
 export const fr = {
+	// Common UI labels
+	common: {
+		cancel: "Annuler",
+		confirm: "Confirmer",
+	},
+
 	// Navigation
 	nav: {
 		home: "Accueil",
@@ -317,6 +323,12 @@ export const fr = {
 		camerasTab: "Appareils",
 		lensesTab: "Objectifs",
 		backsTab: "Dos",
+		// Labels shared between cameras, backs, and lenses
+		soldOn: "Vendu le {{date}}",
+		associatedFilms_one: "{{count}} pellicule",
+		associatedFilms_other: "{{count}} pellicules",
+		unarchive: "Remettre en service",
+		hardDelete: "Supprimer définitivement",
 	},
 
 	// Lenses
@@ -362,6 +374,9 @@ export const fr = {
 		stopsThird: "Tiers",
 		loaded_one: "{{count}} chargée",
 		loaded_other: "{{count}} chargées",
+		sellLens: "Vendre / Archiver",
+		soldSection: "Objectifs vendus",
+		hardDeleteConfirm: "Cette action supprimera toutes les références à cet objectif sur vos pellicules. Continuer ?",
 	},
 
 	// Cameras screen
@@ -415,6 +430,12 @@ export const fr = {
 		backFormat: "Format",
 		compatibleCameras: "Appareils compatibles",
 		noCompatibleCameras: "Aucun appareil avec dos interchangeable",
+		sellCamera: "Vendre / Archiver",
+		sellBack: "Vendre / Archiver ce dos",
+		soldSection: "Appareils vendus",
+		soldBacksSection: "Dos vendus",
+		hardDeleteConfirm: "Cette action supprimera toutes les références à cet appareil sur vos pellicules. Continuer ?",
+		hardDeleteBackConfirm: "Cette action supprimera toutes les références à ce dos sur vos pellicules. Continuer ?",
 	},
 
 	// Settings screen
@@ -535,6 +556,15 @@ export const fr = {
 		editLens: "Modifier l'objectif",
 		deleteCamera: "Supprimer l'appareil",
 		deleteLens: "Supprimer l'objectif",
+		sellCamera: "Archiver l'appareil",
+		sellBack: "Archiver le dos",
+		sellLens: "Archiver l'objectif",
+		unarchiveCamera: "Remettre en service l'appareil",
+		unarchiveBack: "Remettre en service le dos",
+		unarchiveLens: "Remettre en service l'objectif",
+		hardDeleteCamera: "Supprimer définitivement l'appareil",
+		hardDeleteBack: "Supprimer définitivement le dos",
+		hardDeleteLens: "Supprimer définitivement l'objectif",
 		addPhoto: "Ajouter une photo",
 		removePhoto: "Supprimer la photo {{index}}",
 		openPhoto: "Ouvrir la photo {{index}}",

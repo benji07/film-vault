@@ -58,6 +58,10 @@ export function EditModal({
 }: EditModalProps) {
 	const { t } = useTranslation();
 
+	// Include the currently-selected lens even if sold, so editing a film that references
+	// an archived lens still shows the correct Select value (instead of rendering blank).
+	const visibleLenses = data.lenses.filter((l) => !l.soldAt || l.id === editData.lensId);
+
 	return (
 		<Dialog open={showAction === "edit"} onOpenChange={(open) => !open && closeAction()}>
 			<DialogContent>
@@ -191,7 +195,7 @@ export function EditModal({
 								</FormField>
 							)}
 							<FormField label={t("filmDetail.lensField")}>
-								{data.lenses.length > 0 ? (
+								{visibleLenses.length > 0 ? (
 									<>
 										<Select
 											value={editData.lensId || "__other__"}
@@ -212,7 +216,7 @@ export function EditModal({
 												<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
 											</SelectTrigger>
 											<SelectContent>
-												{data.lenses.map((l) => (
+												{visibleLenses.map((l) => (
 													<SelectItem key={l.id} value={l.id}>
 														{lensDisplayName(l)}
 													</SelectItem>

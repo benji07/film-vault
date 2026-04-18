@@ -157,9 +157,10 @@ export function FilmDetailScreen({
 	};
 
 	const availableCameras = data.cameras.filter((c) => {
+		if (c.soldAt) return false;
 		if (c.format === film.format) return true;
 		if (c.hasInterchangeableBack) {
-			return data.backs.some((b) => b.compatibleCameraIds.includes(c.id) && b.format === film.format);
+			return data.backs.some((b) => !b.soldAt && b.compatibleCameraIds.includes(c.id) && b.format === film.format);
 		}
 		return false;
 	});
@@ -167,7 +168,9 @@ export function FilmDetailScreen({
 	const selectedCamera = actionData.cameraId ? availableCameras.find((c) => c.id === actionData.cameraId) : null;
 	const compatibleBacks =
 		selectedCamera?.hasInterchangeableBack === true
-			? data.backs.filter((b) => b.compatibleCameraIds.includes(selectedCamera.id) && b.format === film.format)
+			? data.backs.filter(
+					(b) => !b.soldAt && b.compatibleCameraIds.includes(selectedCamera.id) && b.format === film.format,
+				)
 			: [];
 
 	const closeAction = () => setShowAction(null);
@@ -181,10 +184,18 @@ export function FilmDetailScreen({
 
 	// Edit modal: camera/back/lens selection
 	const editSelectedCamera = editData.cameraId ? data.cameras.find((c) => c.id === editData.cameraId) : null;
+	// Include the currently-selected camera even if sold, so the Select always has a matching option.
+	const editAvailableCameras =
+		editSelectedCamera?.soldAt && !availableCameras.some((c) => c.id === editSelectedCamera.id)
+			? [...availableCameras, editSelectedCamera]
+			: availableCameras;
 	const editCompatibleBacks =
 		editSelectedCamera?.hasInterchangeableBack === true
 			? data.backs.filter(
-					(b) => b.compatibleCameraIds.includes(editSelectedCamera.id) && b.format === (editData.format || film.format),
+					(b) =>
+						(!b.soldAt || b.id === editData.backId) &&
+						b.compatibleCameraIds.includes(editSelectedCamera.id) &&
+						b.format === (editData.format || film.format),
 				)
 			: [];
 
@@ -319,7 +330,7 @@ export function FilmDetailScreen({
 				editData={editData}
 				setEditData={setEditData}
 				updateFilm={updateFilm}
-				availableCameras={availableCameras}
+				availableCameras={editAvailableCameras}
 				editCompatibleBacks={editCompatibleBacks}
 				showLoading={showLoading}
 				showExposure={showExposure}

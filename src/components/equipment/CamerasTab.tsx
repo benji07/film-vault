@@ -1,4 +1,4 @@
-import { Camera, Check, Edit3, Plus, Trash2 } from "lucide-react";
+import { Camera, Check, Edit3, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -7,6 +7,8 @@ import { PhotoViewer } from "@/components/PhotoViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -44,6 +46,10 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 	});
 	const [editCam, setEditCam] = useState<(CameraType & { mount?: string | null }) | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
+	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
+
+	const activeCameras = data.cameras.filter((c) => !c.soldAt);
+	const soldCameras = data.cameras.filter((c) => c.soldAt);
 
 	const addCamera = () => {
 		if (!newCam.brand && !newCam.model) return;
@@ -105,7 +111,17 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 		setEditCam(null);
 	};
 
-	const deleteCamera = (camId: string) => {
+	const sellCamera = (camId: string) => {
+		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, soldAt: new Date().toISOString() } : c));
+		setData({ ...data, cameras: newCams });
+	};
+
+	const unarchiveCamera = (camId: string) => {
+		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, soldAt: null } : c));
+		setData({ ...data, cameras: newCams });
+	};
+
+	const hardDeleteCamera = (camId: string) => {
 		const newBacks = data.backs.map((b) => ({
 			...b,
 			compatibleCameraIds: b.compatibleCameraIds.filter((id) => id !== camId),
@@ -125,9 +141,9 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 				</div>
 
 				<div className="flex flex-col gap-2.5">
-					{data.cameras.map((cam) => {
+					{activeCameras.map((cam) => {
 						const loadedFilms = data.films.filter((f) => f.state === "loaded" && f.cameraId === cam.id);
-						const camBacks = data.backs.filter((b) => b.compatibleCameraIds.includes(cam.id));
+						const camBacks = data.backs.filter((b) => !b.soldAt && b.compatibleCameraIds.includes(cam.id));
 						return (
 							<Card key={cam.id}>
 								<div className="flex items-center justify-between">
@@ -186,11 +202,11 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 										<Button
 											variant="destructive"
 											size="icon"
-											onClick={() => deleteCamera(cam.id)}
+											onClick={() => sellCamera(cam.id)}
 											className="w-11 h-11 rounded-lg"
-											aria-label={t("aria.deleteCamera")}
+											aria-label={t("aria.sellCamera")}
 										>
-											<Trash2 size={14} className="text-accent" />
+											<PackageX size={14} className="text-accent" />
 										</Button>
 									</div>
 								</div>
@@ -206,10 +222,91 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 							</Card>
 						);
 					})}
-					{data.cameras.length === 0 && (
+					{activeCameras.length === 0 && (
 						<EmptyState icon={Camera} title={t("cameras.noCameras")} subtitle={t("cameras.noCamerasSubtitle")} />
 					)}
 				</div>
+
+				{soldCameras.length > 0 && (
+					<CollapsibleSection title={t("cameras.soldSection")} count={soldCameras.length}>
+						<div className="flex flex-col gap-2.5">
+							{soldCameras.map((cam) => {
+								const associatedFilms = data.films.filter((f) => f.cameraId === cam.id).length;
+								const soldDate = cam.soldAt ? new Date(cam.soldAt).toLocaleDateString() : "";
+								return (
+									<Card key={cam.id} className="opacity-70">
+										<div className="flex items-center justify-between">
+											<div className="flex items-center gap-3">
+												{cam.photo ? (
+													<button
+														type="button"
+														onClick={(e) => {
+															e.stopPropagation();
+															setViewerPhoto(cam.photo!);
+														}}
+														aria-label={t("aria.openPhoto", { index: 1 })}
+														className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
+													>
+														<PhotoImg
+															src={cam.photo}
+															alt=""
+															aria-hidden="true"
+															className="w-full h-full object-cover border border-border cursor-pointer grayscale"
+														/>
+													</button>
+												) : (
+													<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
+														<Camera size={20} className="text-text-muted opacity-40" />
+													</div>
+												)}
+												<div>
+													<div className="text-[15px] font-semibold text-text-primary font-body">
+														{cameraDisplayName(cam)}
+													</div>
+													<div className="flex gap-1.5 mt-1.5 flex-wrap">
+														<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
+															{cam.format}
+														</Badge>
+														{soldDate && (
+															<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
+																{t("equipment.soldOn", { date: soldDate })}
+															</Badge>
+														)}
+														{associatedFilms > 0 && (
+															<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
+																{t("equipment.associatedFilms", { count: associatedFilms })}
+															</Badge>
+														)}
+													</div>
+												</div>
+											</div>
+											<div className="flex gap-1.5">
+												<Button
+													variant="outline"
+													size="icon"
+													onClick={() => unarchiveCamera(cam.id)}
+													className="w-11 h-11 rounded-lg"
+													aria-label={t("aria.unarchiveCamera")}
+												>
+													<RotateCcw size={14} className="text-text-sec" />
+												</Button>
+												<Button
+													variant="destructive"
+													size="icon"
+													onClick={() => setPendingHardDeleteId(cam.id)}
+													className="w-11 h-11 rounded-lg"
+													aria-label={t("aria.hardDeleteCamera")}
+												>
+													<Trash2 size={14} className="text-accent" />
+												</Button>
+											</div>
+										</div>
+									</Card>
+								);
+							})}
+						</div>
+					</CollapsibleSection>
+				)}
 			</div>
 
 			{/* Add camera modal */}
@@ -519,6 +616,18 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 			</Dialog>
 
 			{viewerPhoto && <PhotoViewer photos={[viewerPhoto]} initialIndex={0} onClose={() => setViewerPhoto(null)} />}
+
+			<ConfirmDialog
+				open={pendingHardDeleteId !== null}
+				onOpenChange={(open) => !open && setPendingHardDeleteId(null)}
+				title={t("equipment.hardDelete")}
+				description={t("cameras.hardDeleteConfirm")}
+				confirmLabel={t("equipment.hardDelete")}
+				destructive
+				onConfirm={() => {
+					if (pendingHardDeleteId) hardDeleteCamera(pendingHardDeleteId);
+				}}
+			/>
 		</>
 	);
 }

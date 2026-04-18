@@ -1,4 +1,4 @@
-import { Check, Edit3, Focus, Plus, Trash2 } from "lucide-react";
+import { Check, Edit3, Focus, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -7,6 +7,8 @@ import { PhotoViewer } from "@/components/PhotoViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -93,6 +95,10 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 	const [editLensId, setEditLensId] = useState<string | null>(null);
 	const [editLens, setEditLens] = useState<LensFormData>(emptyLensForm);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
+	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
+
+	const activeLenses = data.lenses.filter((l) => !l.soldAt);
+	const soldLenses = data.lenses.filter((l) => l.soldAt);
 
 	const formToLens = (form: LensFormData, id: string): Lens => {
 		const fMin = Number.parseInt(form.focalLengthMin, 10);
@@ -136,7 +142,18 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 		setEditLensId(null);
 	};
 
-	const deleteLens = (lensId: string) => {
+	const sellLens = (lensId: string) => {
+		const newLenses = data.lenses.map((l) => (l.id === lensId ? { ...l, soldAt: new Date().toISOString() } : l));
+		setData({ ...data, lenses: newLenses });
+		setEditLensId(null);
+	};
+
+	const unarchiveLens = (lensId: string) => {
+		const newLenses = data.lenses.map((l) => (l.id === lensId ? { ...l, soldAt: null } : l));
+		setData({ ...data, lenses: newLenses });
+	};
+
+	const hardDeleteLens = (lensId: string) => {
 		const newFilms = data.films.map((f) => {
 			let film = f;
 			if (film.lensId === lensId) {
@@ -151,7 +168,6 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 			return film;
 		});
 		setData({ ...data, lenses: data.lenses.filter((l) => l.id !== lensId), films: newFilms });
-		setEditLensId(null);
 	};
 
 	const openEdit = (lens: Lens) => {
@@ -398,8 +414,8 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 			</Button>
 
 			{isEdit && editLensId && (
-				<Button variant="destructive" onClick={() => deleteLens(editLensId)} className="w-full justify-center">
-					<Trash2 size={14} /> {t("lenses.deleteLens")}
+				<Button variant="destructive" onClick={() => sellLens(editLensId)} className="w-full justify-center">
+					<PackageX size={14} /> {t("lenses.sellLens")}
 				</Button>
 			)}
 		</div>
@@ -416,7 +432,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 				</div>
 
 				<div className="flex flex-col gap-2.5">
-					{data.lenses.map((lens) => {
+					{activeLenses.map((lens) => {
 						const loadedFilms = data.films.filter((f) => f.state === "loaded" && f.lensId === lens.id);
 						const focal = lensFocalLabel(lens);
 						const aperture = lensApertureLabel(lens);
@@ -483,21 +499,101 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 										<Button
 											variant="destructive"
 											size="icon"
-											onClick={() => deleteLens(lens.id)}
+											onClick={() => sellLens(lens.id)}
 											className="w-11 h-11 rounded-lg"
-											aria-label={t("aria.deleteLens")}
+											aria-label={t("aria.sellLens")}
 										>
-											<Trash2 size={14} className="text-accent" />
+											<PackageX size={14} className="text-accent" />
 										</Button>
 									</div>
 								</div>
 							</Card>
 						);
 					})}
-					{data.lenses.length === 0 && (
+					{activeLenses.length === 0 && (
 						<EmptyState icon={Focus} title={t("lenses.noLenses")} subtitle={t("lenses.noLensesSubtitle")} />
 					)}
 				</div>
+
+				{soldLenses.length > 0 && (
+					<CollapsibleSection title={t("lenses.soldSection")} count={soldLenses.length}>
+						<div className="flex flex-col gap-2.5">
+							{soldLenses.map((lens) => {
+								const associatedFilms = data.films.filter(
+									(f) => f.lensId === lens.id || f.shotNotes?.some((n) => n.lensId === lens.id),
+								).length;
+								const soldDate = lens.soldAt ? new Date(lens.soldAt).toLocaleDateString() : "";
+								return (
+									<Card key={lens.id} className="opacity-70">
+										<div className="flex items-center justify-between">
+											<div className="flex items-center gap-3">
+												{lens.photo ? (
+													<button
+														type="button"
+														onClick={(e) => {
+															e.stopPropagation();
+															setViewerPhoto(lens.photo!);
+														}}
+														aria-label={t("aria.openPhoto", { index: 1 })}
+														className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
+													>
+														<PhotoImg
+															src={lens.photo}
+															alt=""
+															aria-hidden="true"
+															className="w-full h-full object-cover border border-border cursor-pointer grayscale"
+														/>
+													</button>
+												) : (
+													<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
+														<Focus size={20} className="text-text-muted opacity-40" />
+													</div>
+												)}
+												<div>
+													<div className="text-[15px] font-semibold text-text-primary font-body">
+														{lensDisplayName(lens)}
+													</div>
+													<div className="flex gap-1.5 mt-1.5 flex-wrap">
+														{soldDate && (
+															<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
+																{t("equipment.soldOn", { date: soldDate })}
+															</Badge>
+														)}
+														{associatedFilms > 0 && (
+															<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
+																{t("equipment.associatedFilms", { count: associatedFilms })}
+															</Badge>
+														)}
+													</div>
+												</div>
+											</div>
+											<div className="flex gap-1.5">
+												<Button
+													variant="outline"
+													size="icon"
+													onClick={() => unarchiveLens(lens.id)}
+													className="w-11 h-11 rounded-lg"
+													aria-label={t("aria.unarchiveLens")}
+												>
+													<RotateCcw size={14} className="text-text-sec" />
+												</Button>
+												<Button
+													variant="destructive"
+													size="icon"
+													onClick={() => setPendingHardDeleteId(lens.id)}
+													className="w-11 h-11 rounded-lg"
+													aria-label={t("aria.hardDeleteLens")}
+												>
+													<Trash2 size={14} className="text-accent" />
+												</Button>
+											</div>
+										</div>
+									</Card>
+								);
+							})}
+						</div>
+					</CollapsibleSection>
+				)}
 			</div>
 
 			{/* Add lens modal */}
@@ -523,6 +619,18 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 			</Dialog>
 
 			{viewerPhoto && <PhotoViewer photos={[viewerPhoto]} initialIndex={0} onClose={() => setViewerPhoto(null)} />}
+
+			<ConfirmDialog
+				open={pendingHardDeleteId !== null}
+				onOpenChange={(open) => !open && setPendingHardDeleteId(null)}
+				title={t("equipment.hardDelete")}
+				description={t("lenses.hardDeleteConfirm")}
+				confirmLabel={t("equipment.hardDelete")}
+				destructive
+				onConfirm={() => {
+					if (pendingHardDeleteId) hardDeleteLens(pendingHardDeleteId);
+				}}
+			/>
 		</>
 	);
 }

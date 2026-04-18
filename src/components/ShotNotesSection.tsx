@@ -365,51 +365,57 @@ function ShotNotesSection({
 						</div>
 
 						<FormField label={t("filmDetail.shotNotesLens")}>
-							{lenses && lenses.length > 0 ? (
-								<>
-									<Select
-										value={form.lensId || "__other__"}
-										onValueChange={(v) => {
-											if (v === "__other__") {
-												setForm((prev) => ({ ...prev, lensId: "", lens: "" }));
-											} else {
-												const lens = lenses.find((l) => l.id === v);
-												setForm((prev) => ({
-													...prev,
-													lensId: v,
-													lens: lens ? lensDisplayName(lens) : "",
-												}));
-											}
-										}}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
-										</SelectTrigger>
-										<SelectContent>
-											{lenses.map((l) => (
-												<SelectItem key={l.id} value={l.id}>
-													{lensDisplayName(l)}
-												</SelectItem>
-											))}
-											<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
-										</SelectContent>
-									</Select>
-									{!form.lensId && (
+							{(() => {
+								const visibleLenses = lenses?.filter((l) => !l.soldAt || l.id === form.lensId) ?? [];
+								if (visibleLenses.length === 0) {
+									return (
 										<Input
 											placeholder={t("filmDetail.shotNotesLensPlaceholder")}
 											value={form.lens}
 											onChange={(e) => updateField("lens", e.target.value)}
-											className="mt-2"
 										/>
-									)}
-								</>
-							) : (
-								<Input
-									placeholder={t("filmDetail.shotNotesLensPlaceholder")}
-									value={form.lens}
-									onChange={(e) => updateField("lens", e.target.value)}
-								/>
-							)}
+									);
+								}
+								return (
+									<>
+										<Select
+											value={form.lensId || "__other__"}
+											onValueChange={(v) => {
+												if (v === "__other__") {
+													setForm((prev) => ({ ...prev, lensId: "", lens: "" }));
+												} else {
+													const lens = lenses?.find((l) => l.id === v);
+													setForm((prev) => ({
+														...prev,
+														lensId: v,
+														lens: lens ? lensDisplayName(lens) : "",
+													}));
+												}
+											}}
+										>
+											<SelectTrigger>
+												<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
+											</SelectTrigger>
+											<SelectContent>
+												{visibleLenses.map((l) => (
+													<SelectItem key={l.id} value={l.id}>
+														{lensDisplayName(l)}
+													</SelectItem>
+												))}
+												<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
+											</SelectContent>
+										</Select>
+										{!form.lensId && (
+											<Input
+												placeholder={t("filmDetail.shotNotesLensPlaceholder")}
+												value={form.lens}
+												onChange={(e) => updateField("lens", e.target.value)}
+												className="mt-2"
+											/>
+										)}
+									</>
+								);
+							})()}
 						</FormField>
 
 						<FormField label={t("filmDetail.shotNotesLocation")}>

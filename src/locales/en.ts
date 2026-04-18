@@ -1,4 +1,10 @@
 export const en = {
+	// Common UI labels
+	common: {
+		cancel: "Cancel",
+		confirm: "Confirm",
+	},
+
 	// Navigation
 	nav: {
 		home: "Home",
@@ -317,6 +323,12 @@ export const en = {
 		camerasTab: "Cameras",
 		lensesTab: "Lenses",
 		backsTab: "Backs",
+		// Labels shared between cameras, backs, and lenses
+		soldOn: "Sold on {{date}}",
+		associatedFilms_one: "{{count}} film",
+		associatedFilms_other: "{{count}} films",
+		unarchive: "Put back in service",
+		hardDelete: "Delete permanently",
 	},
 
 	// Lenses
@@ -362,6 +374,9 @@ export const en = {
 		stopsThird: "Third",
 		loaded_one: "{{count}} loaded",
 		loaded_other: "{{count}} loaded",
+		sellLens: "Sell / Archive",
+		soldSection: "Sold lenses",
+		hardDeleteConfirm: "This will remove all references to this lens from your films. Continue?",
 	},
 
 	// Cameras screen
@@ -415,6 +430,12 @@ export const en = {
 		backFormat: "Format",
 		compatibleCameras: "Compatible cameras",
 		noCompatibleCameras: "No cameras with interchangeable backs",
+		sellCamera: "Sell / Archive",
+		sellBack: "Sell / Archive this back",
+		soldSection: "Sold cameras",
+		soldBacksSection: "Sold backs",
+		hardDeleteConfirm: "This will remove all references to this camera from your films. Continue?",
+		hardDeleteBackConfirm: "This will remove all references to this back from your films. Continue?",
 	},
 
 	// Settings screen
@@ -535,6 +556,15 @@ export const en = {
 		editLens: "Edit lens",
 		deleteCamera: "Delete camera",
 		deleteLens: "Delete lens",
+		sellCamera: "Archive camera",
+		sellBack: "Archive back",
+		sellLens: "Archive lens",
+		unarchiveCamera: "Put camera back in service",
+		unarchiveBack: "Put back in service",
+		unarchiveLens: "Put lens back in service",
+		hardDeleteCamera: "Delete camera permanently",
+		hardDeleteBack: "Delete back permanently",
+		hardDeleteLens: "Delete lens permanently",
 		addPhoto: "Add photo",
 		removePhoto: "Remove photo {{index}}",
 		openPhoto: "Open photo {{index}}",

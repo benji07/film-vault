@@ -25,6 +25,9 @@ export function TransitionModals({
 	fIso,
 }: ModalBaseProps) {
 	const { t } = useTranslation();
+	// Include the currently-selected lens even if sold, so reloading or continuing a film that
+	// references an archived lens still renders the Select with the correct value.
+	const visibleLenses = data.lenses.filter((l) => !l.soldAt || l.id === actionData.lensId);
 
 	return (
 		<>
@@ -73,7 +76,7 @@ export function TransitionModals({
 							</FormField>
 						)}
 						<FormField label={t("filmDetail.lensField")}>
-							{data.lenses.length > 0 ? (
+							{visibleLenses.length > 0 ? (
 								<>
 									<Select
 										value={actionData.lensId || "__other__"}
@@ -94,7 +97,7 @@ export function TransitionModals({
 											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
 										</SelectTrigger>
 										<SelectContent>
-											{data.lenses.map((l) => (
+											{visibleLenses.map((l) => (
 												<SelectItem key={l.id} value={l.id}>
 													{lensDisplayName(l)}
 												</SelectItem>
@@ -350,7 +353,7 @@ export function TransitionModals({
 							</FormField>
 						)}
 						<FormField label={t("filmDetail.lensField")}>
-							{data.lenses.length > 0 ? (
+							{visibleLenses.length > 0 ? (
 								<>
 									<Select
 										value={actionData.lensId || "__other__"}
@@ -371,7 +374,7 @@ export function TransitionModals({
 											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
 										</SelectTrigger>
 										<SelectContent>
-											{data.lenses.map((l) => (
+											{visibleLenses.map((l) => (
 												<SelectItem key={l.id} value={l.id}>
 													{lensDisplayName(l)}
 												</SelectItem>
