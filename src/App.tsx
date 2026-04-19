@@ -8,6 +8,7 @@ import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
 import { TabBar } from "@/components/TabBar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider, useToast } from "@/components/Toast";
+import { CameraDetailScreen } from "@/screens/CameraDetailScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { EquipmentScreen } from "@/screens/EquipmentScreen";
 import { FilmDetailScreen } from "@/screens/FilmDetailScreen";
@@ -30,6 +31,8 @@ function FilmVaultInner() {
 	const [loading, setLoading] = useState(true);
 	const [screen, setScreen] = useState<ScreenName>("home");
 	const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
+	const [selectedCamera, setSelectedCamera] = useState<string | null>(null);
+	const [filmBackTarget, setFilmBackTarget] = useState<ScreenName | null>(null);
 	const [mapFilterFilmId, setMapFilterFilmId] = useState<string | null>(null);
 	const [stockStateFilter, setStockStateFilter] = useState<string | null>(null);
 	const [autoOpenShotNote, setAutoOpenShotNote] = useState(false);
@@ -142,6 +145,7 @@ function FilmVaultInner() {
 	const handleSetScreen = useCallback((s: ScreenName) => {
 		if (s === "map") setMapFilterFilmId(null);
 		if (s === "stock") setStockStateFilter(null);
+		if (s !== "filmDetail") setFilmBackTarget(null);
 		setScreen(s);
 	}, []);
 
@@ -153,6 +157,17 @@ function FilmVaultInner() {
 	const navigateToStock = useCallback((stateFilter: string) => {
 		setStockStateFilter(stateFilter);
 		setScreen("stock");
+	}, []);
+
+	const navigateToCamera = useCallback((camId: string) => {
+		setSelectedCamera(camId);
+		setScreen("cameraDetail");
+	}, []);
+
+	const navigateToFilm = useCallback((filmId: string) => {
+		setSelectedFilm(filmId);
+		setFilmBackTarget("cameraDetail");
+		setScreen("filmDetail");
 	}, []);
 
 	if (loading || !data) {
@@ -188,6 +203,10 @@ function FilmVaultInner() {
 				persistent={persistent}
 				navigateToMap={navigateToMap}
 				navigateToStock={navigateToStock}
+				navigateToCamera={navigateToCamera}
+				navigateToFilm={navigateToFilm}
+				selectedCamera={selectedCamera}
+				filmBackTarget={filmBackTarget}
 			/>
 		</TourProvider>
 	);
@@ -215,6 +234,10 @@ interface AppContentProps {
 	persistent: boolean;
 	navigateToMap: (filmId?: string) => void;
 	navigateToStock: (stateFilter: string) => void;
+	navigateToCamera: (camId: string) => void;
+	navigateToFilm: (filmId: string) => void;
+	selectedCamera: string | null;
+	filmBackTarget: ScreenName | null;
 }
 
 function AppContent({
@@ -239,6 +262,10 @@ function AppContent({
 	persistent,
 	navigateToMap,
 	navigateToStock,
+	navigateToCamera,
+	navigateToFilm,
+	selectedCamera,
+	filmBackTarget,
 }: AppContentProps) {
 	const { isTourActive, tourData, startTour } = useTour();
 	const autoTourTriggered = useRef(false);
@@ -251,7 +278,7 @@ function AppContent({
 
 	// Track navigation direction
 	useEffect(() => {
-		const detailScreens: ScreenName[] = ["filmDetail", "settings", "legal"];
+		const detailScreens: ScreenName[] = ["filmDetail", "cameraDetail", "settings", "legal"];
 		const prev = prevScreen.current;
 		if (detailScreens.includes(screen) && !detailScreens.includes(prev)) {
 			navDirection.current = "forward";
@@ -306,8 +333,18 @@ function AppContent({
 						setSelectedFilm={setSelectedFilm}
 						filmId={selectedFilm}
 						onNavigateToMap={navigateToMap}
+						onNavigateToCamera={navigateToCamera}
 						autoOpenShotNote={autoOpenShotNote}
 						setAutoOpenShotNote={setAutoOpenShotNote}
+					/>
+				);
+			case "cameraDetail":
+				return (
+					<CameraDetailScreen
+						data={effectiveData}
+						cameraId={selectedCamera}
+						setScreen={setScreen}
+						onFilmClick={navigateToFilm}
 					/>
 				);
 			case "map":
@@ -329,7 +366,7 @@ function AppContent({
 					</Suspense>
 				);
 			case "cameras":
-				return <EquipmentScreen data={effectiveData} setData={effectiveUpdateData} />;
+				return <EquipmentScreen data={effectiveData} setData={effectiveUpdateData} onCameraClick={navigateToCamera} />;
 			case "stats":
 				return <StatsScreen data={effectiveData} />;
 			case "settings":
@@ -362,7 +399,18 @@ function AppContent({
 	};
 
 	const filmTitle = selectedFilm ? effectiveData.films.find((f) => f.id === selectedFilm)?.model : undefined;
-	const showTabBar = !["filmDetail", "settings", "legal"].includes(screen);
+	const cameraTitle = selectedCamera
+		? (() => {
+				const cam = effectiveData.cameras.find((c) => c.id === selectedCamera);
+				if (!cam) return undefined;
+				const fallbackTitle = [cam.brand, cam.model]
+					.map((part) => part?.trim())
+					.filter(Boolean)
+					.join(" ");
+				return cam.nickname || fallbackTitle || undefined;
+			})()
+		: undefined;
+	const showTabBar = !["filmDetail", "cameraDetail", "settings", "legal"].includes(screen);
 
 	return (
 		<div className="h-[100dvh] bg-bg text-text-primary font-body flex flex-col md:flex-row relative">
@@ -370,7 +418,14 @@ function AppContent({
 			<TabBar screen={screen} setScreen={handleSetScreen} variant="sidebar" className="hidden md:flex" />
 
 			<main className="flex-1 flex flex-col min-h-0 min-w-0">
-				<AppHeader screen={screen} setScreen={handleSetScreen} filmTitle={filmTitle} className="md:hidden" />
+				<AppHeader
+					screen={screen}
+					setScreen={handleSetScreen}
+					filmTitle={filmTitle}
+					cameraTitle={cameraTitle}
+					filmBackTarget={filmBackTarget}
+					className="md:hidden"
+				/>
 				{screen === "map" ? (
 					<div className="flex-1 min-h-0">{renderScreen()}</div>
 				) : (

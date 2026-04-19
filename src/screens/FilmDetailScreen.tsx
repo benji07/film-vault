@@ -31,6 +31,7 @@ interface FilmDetailScreenProps {
 	setSelectedFilm: (id: string) => void;
 	filmId: string | null;
 	onNavigateToMap?: (filmId: string) => void;
+	onNavigateToCamera?: (camId: string) => void;
 	autoOpenShotNote?: boolean;
 	setAutoOpenShotNote?: (open: boolean) => void;
 }
@@ -42,6 +43,7 @@ export function FilmDetailScreen({
 	setSelectedFilm,
 	filmId,
 	onNavigateToMap,
+	onNavigateToCamera,
 	autoOpenShotNote,
 	setAutoOpenShotNote,
 }: FilmDetailScreenProps) {
@@ -241,7 +243,7 @@ export function FilmDetailScreen({
 
 			{/* Collapsible: Informations */}
 			<CollapsibleSection icon={Info} title={t("filmDetail.sectionInfo")} defaultOpen>
-				<FilmInfoSection film={film} data={data} />
+				<FilmInfoSection film={film} data={data} onCameraClick={onNavigateToCamera} />
 			</CollapsibleSection>
 
 			{/* Collapsible: Shot notes */}

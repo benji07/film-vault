@@ -12,9 +12,10 @@ type EquipmentTab = "cameras" | "lenses" | "backs";
 interface EquipmentScreenProps {
 	data: AppData;
 	setData: (data: AppData) => void;
+	onCameraClick?: (camId: string) => void;
 }
 
-export function EquipmentScreen({ data, setData }: EquipmentScreenProps) {
+export function EquipmentScreen({ data, setData, onCameraClick }: EquipmentScreenProps) {
 	const { t } = useTranslation();
 	const [activeTab, setActiveTab] = useState<EquipmentTab>("cameras");
 
@@ -43,7 +44,7 @@ export function EquipmentScreen({ data, setData }: EquipmentScreenProps) {
 				))}
 			</div>
 
-			{activeTab === "cameras" && <CamerasTab data={data} setData={setData} />}
+			{activeTab === "cameras" && <CamerasTab data={data} setData={setData} onCameraClick={onCameraClick} />}
 			{activeTab === "lenses" && <LensesTab data={data} setData={setData} />}
 			{activeTab === "backs" && <BacksTab data={data} setData={setData} />}
 		</div>

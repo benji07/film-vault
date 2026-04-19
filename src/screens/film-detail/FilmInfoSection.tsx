@@ -1,7 +1,6 @@
 import {
 	Aperture,
 	Calendar,
-	Camera,
 	CircleDot,
 	Coins,
 	Focus,
@@ -12,9 +11,9 @@ import {
 	Tag,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { CameraMiniCard } from "@/components/CameraMiniCard";
 import { InfoLine } from "@/components/InfoLine";
 import type { AppData, Film } from "@/types";
-import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { fmtDate, fmtPrice } from "@/utils/helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
@@ -22,9 +21,10 @@ import { lensDisplayName } from "@/utils/lens-helpers";
 interface FilmInfoSectionProps {
 	film: Film;
 	data: AppData;
+	onCameraClick?: (camId: string) => void;
 }
 
-export function FilmInfoSection({ film, data }: FilmInfoSectionProps) {
+export function FilmInfoSection({ film, data, onCameraClick }: FilmInfoSectionProps) {
 	const { t } = useTranslation();
 	const cam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
 	const back = film.backId ? data.backs.find((b) => b.id === film.backId) : null;
@@ -41,11 +41,10 @@ export function FilmInfoSection({ film, data }: FilmInfoSectionProps) {
 			)}
 			{film.shootIso && <InfoLine icon={Aperture} label={t("filmDetail.shootIso")} value={film.shootIso} />}
 			{cam && (
-				<InfoLine
-					icon={Camera}
-					label={t("filmDetail.camera")}
-					value={`${cameraDisplayName(cam)}${back ? ` · ${backDisplayName(back)}` : ""}`}
-				/>
+				<div className="py-1">
+					<span className="text-xs text-text-muted font-body block mb-1.5">{t("filmDetail.camera")}</span>
+					<CameraMiniCard camera={cam} back={back} onClick={onCameraClick ? () => onCameraClick(cam.id) : undefined} />
+				</div>
 			)}
 			{(film.lensId || film.lens) && (
 				<InfoLine

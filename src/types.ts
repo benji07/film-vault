@@ -160,7 +160,16 @@ export interface AppData {
 	version: number;
 }
 
-export type ScreenName = "home" | "stock" | "filmDetail" | "cameras" | "stats" | "settings" | "legal" | "map";
+export type ScreenName =
+	| "home"
+	| "stock"
+	| "filmDetail"
+	| "cameras"
+	| "cameraDetail"
+	| "stats"
+	| "settings"
+	| "legal"
+	| "map";
 
 export interface StateConfig {
 	label: string;

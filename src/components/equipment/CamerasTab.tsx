@@ -1,4 +1,4 @@
-import { Camera, Check, Edit3, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Camera, Check, Edit3, Eye, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -25,9 +25,10 @@ import { uid } from "@/utils/helpers";
 interface CamerasTabProps {
 	data: AppData;
 	setData: (data: AppData) => void;
+	onCameraClick?: (camId: string) => void;
 }
 
-export function CamerasTab({ data, setData }: CamerasTabProps) {
+export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 	const { t } = useTranslation();
 	const [showAdd, setShowAdd] = useState(false);
 	const [newCam, setNewCam] = useState({
@@ -112,6 +113,8 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 	};
 
 	const sellCamera = (camId: string) => {
+		const hasLoaded = data.films.some((f) => f.state === "loaded" && f.cameraId === camId);
+		if (hasLoaded) return;
 		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, soldAt: new Date().toISOString() } : c));
 		setData({ ...data, cameras: newCams });
 	};
@@ -144,8 +147,26 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 					{activeCameras.map((cam) => {
 						const loadedFilms = data.films.filter((f) => f.state === "loaded" && f.cameraId === cam.id);
 						const camBacks = data.backs.filter((b) => !b.soldAt && b.compatibleCameraIds.includes(cam.id));
+						const handleCardClick = () => onCameraClick?.(cam.id);
+						const canArchive = loadedFilms.length === 0;
 						return (
-							<Card key={cam.id}>
+							<Card
+								key={cam.id}
+								onClick={onCameraClick ? handleCardClick : undefined}
+								role={onCameraClick ? "button" : undefined}
+								tabIndex={onCameraClick ? 0 : undefined}
+								onKeyDown={
+									onCameraClick
+										? (e) => {
+												if (e.key === "Enter" || e.key === " ") {
+													e.preventDefault();
+													handleCardClick();
+												}
+											}
+										: undefined
+								}
+								className={onCameraClick ? "cursor-pointer hover:bg-card-hover" : undefined}
+							>
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-3">
 										{cam.photo ? (
@@ -190,24 +211,46 @@ export function CamerasTab({ data, setData }: CamerasTabProps) {
 										</div>
 									</div>
 									<div className="flex gap-1.5">
+										{onCameraClick && (
+											<Button
+												variant="outline"
+												size="icon"
+												onClick={(e) => {
+													e.stopPropagation();
+													onCameraClick(cam.id);
+												}}
+												className="w-11 h-11 rounded-lg"
+												aria-label={t("aria.viewCamera")}
+											>
+												<Eye size={14} className="text-text-sec" />
+											</Button>
+										)}
 										<Button
 											variant="outline"
 											size="icon"
-											onClick={() => setEditCam({ ...cam })}
+											onClick={(e) => {
+												e.stopPropagation();
+												setEditCam({ ...cam });
+											}}
 											className="w-11 h-11 rounded-lg"
 											aria-label={t("aria.editCamera")}
 										>
 											<Edit3 size={14} className="text-text-sec" />
 										</Button>
-										<Button
-											variant="destructive"
-											size="icon"
-											onClick={() => sellCamera(cam.id)}
-											className="w-11 h-11 rounded-lg"
-											aria-label={t("aria.sellCamera")}
-										>
-											<PackageX size={14} className="text-accent" />
-										</Button>
+										{canArchive && (
+											<Button
+												variant="destructive"
+												size="icon"
+												onClick={(e) => {
+													e.stopPropagation();
+													sellCamera(cam.id);
+												}}
+												className="w-11 h-11 rounded-lg"
+												aria-label={t("aria.sellCamera")}
+											>
+												<PackageX size={14} className="text-accent" />
+											</Button>
+										)}
 									</div>
 								</div>
 								{loadedFilms.length > 0 && (

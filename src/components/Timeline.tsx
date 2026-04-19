@@ -2,42 +2,14 @@ import { Archive, Camera, Clock, Eye, Package, Plus, RotateCcw, ScanLine, Send }
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { PhotoImg } from "@/components/ui/photo-img";
-import type { HistoryAction, HistoryEntry, LucideIcon } from "@/types";
+import type { HistoryEntry, LucideIcon } from "@/types";
 import { fmtDate } from "@/utils/helpers";
+import { HISTORY_ACTION_ICONS, HISTORY_ACTION_KEYS } from "@/utils/history-action";
 
 interface TimelineProps {
 	entries: HistoryEntry[];
 	onPhotoClick?: (photos: string[], index: number) => void;
 }
-
-const ACTION_ICONS: Record<HistoryAction, LucideIcon> = {
-	added: Plus,
-	loaded: Camera,
-	reloaded: RotateCcw,
-	removed_partial: Clock,
-	exposed: Eye,
-	sent_dev: Send,
-	developed: Archive,
-	scanned: ScanLine,
-	modified: Plus,
-	duplicated: Plus,
-};
-
-const ACTION_TRANSLATION_KEYS: Record<
-	HistoryAction,
-	string | ((params?: Record<string, string | number | null | undefined>) => string)
-> = {
-	added: "filmDetail.historyAdded",
-	loaded: "filmDetail.historyLoaded",
-	reloaded: "filmDetail.historyReloaded",
-	removed_partial: "filmDetail.historyPartial",
-	exposed: "filmDetail.historyExposed",
-	sent_dev: "filmDetail.historySentDev",
-	developed: (params) => (params?.lab ? "filmDetail.historyDevelopedAt" : "filmDetail.historyDeveloped"),
-	scanned: (params) => (params?.ref ? "filmDetail.historyScannedRef" : "filmDetail.historyScanned"),
-	modified: "filmDetail.historyModified",
-	duplicated: "filmDetail.historyDuplicated",
-};
 
 /** Fallback icon detection for legacy entries that only have a free-text action field */
 function getLegacyIcon(action: string): LucideIcon {
@@ -57,8 +29,8 @@ export function Timeline({ entries, onPhotoClick }: TimelineProps) {
 
 	const renderAction = (entry: HistoryEntry): { icon: LucideIcon; text: string } => {
 		if (entry.actionCode) {
-			const icon = ACTION_ICONS[entry.actionCode];
-			const keyOrFn = ACTION_TRANSLATION_KEYS[entry.actionCode];
+			const icon = HISTORY_ACTION_ICONS[entry.actionCode];
+			const keyOrFn = HISTORY_ACTION_KEYS[entry.actionCode];
 			const key = typeof keyOrFn === "function" ? keyOrFn(entry.params) : keyOrFn;
 			const text = t(key, entry.params ?? {});
 			return { icon, text };
