@@ -42,3 +42,18 @@ src/
 - **Langue** : UI et labels en francais, code (variables, fonctions, types) en anglais
 - **Types** : definir les interfaces props au-dessus du composant, utiliser `type` pour les unions simples
 - **Design tokens** : utiliser les variables Tailwind custom (`text-text-primary`, `bg-surface`, `text-accent`...) definies dans `index.css` et `constants/theme.ts`
+
+## Documentation technique
+
+Documentation detaillee dans `docs/` — a consulter avant toute modification non triviale :
+
+- [`docs/architecture.md`](docs/architecture.md) — flux applicatif, gestion d'etat, cycle de demarrage, routing
+- [`docs/data-model.md`](docs/data-model.md) — types partages, cycle de vie des films, `HistoryEntry`, invariants
+- [`docs/persistence.md`](docs/persistence.md) — localStorage, pipeline de migrations, procedure d'ajout
+- [`docs/cloud-sync.md`](docs/cloud-sync.md) — Supabase, recovery codes, RPCs, strategie de merge, photos
+- [`docs/ui-system.md`](docs/ui-system.md) — design tokens Tailwind 4, `T`, composants UI, conventions
+- [`docs/screens.md`](docs/screens.md) — inventaire des 8 ecrans et de leurs props
+- [`docs/i18n.md`](docs/i18n.md) — namespaces FR/EN, pluralisation, ajout d'une traduction
+- [`docs/recipes.md`](docs/recipes.md) — guides pas-a-pas pour les extensions recurrentes
+
+Les regles courtes dans `.claude/rules/` restent la source pour le style de code au jour le jour ; `docs/` sert de reference detaillee.

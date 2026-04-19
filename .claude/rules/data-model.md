@@ -11,3 +11,5 @@ globs: src/utils/**/*.ts, src/types.ts
 - Les changements de schema doivent passer par une migration dans `src/utils/migrations.ts` et incrementer le numero de version
 - Les films suivent un cycle d'etats : stock -> loaded -> partial -> exposed -> developed
 - Chaque changement d'etat doit etre enregistre dans `film.history`
+
+Reference detaillee : `docs/data-model.md` (types complets, invariants) et `docs/persistence.md` (pipeline de migrations, procedure d'ajout).
