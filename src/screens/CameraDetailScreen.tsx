@@ -40,6 +40,7 @@ export function CameraDetailScreen({ data, cameraId, setScreen, onFilmClick }: C
 
 	const cameraFilms = data.films.filter((f) => f.cameraId === camera.id);
 	const loadedCount = cameraFilms.filter((f) => f.state === "loaded").length;
+	const partialCount = cameraFilms.filter((f) => f.state === "partial").length;
 	const totalCount = cameraFilms.length;
 
 	return (
@@ -55,6 +56,11 @@ export function CameraDetailScreen({ data, cameraId, setScreen, onFilmClick }: C
 					{loadedCount > 0 && (
 						<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
 							{t("cameras.loaded", { count: loadedCount })}
+						</Badge>
+					)}
+					{partialCount > 0 && (
+						<Badge style={{ color: T.amber, background: alpha(T.amber, 0.09) }}>
+							{t("cameraDetail.partial", { count: partialCount })}
 						</Badge>
 					)}
 					{totalCount > 0 && (

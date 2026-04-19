@@ -331,6 +331,8 @@ export const fr = {
 		noFilms: "Aucune pellicule",
 		noFilmsSubtitle: "Aucune pellicule n'a encore été utilisée avec cet appareil",
 		noHistory: "Aucun événement pour cet appareil",
+		partial_one: "{{count}} partielle",
+		partial_other: "{{count}} partielles",
 	},
 
 	// Equipment screen

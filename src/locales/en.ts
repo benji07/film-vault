@@ -331,6 +331,8 @@ export const en = {
 		noFilms: "No films",
 		noFilmsSubtitle: "No film has been used with this camera yet",
 		noHistory: "No events for this camera",
+		partial_one: "{{count}} partial",
+		partial_other: "{{count}} partial",
 	},
 
 	// Equipment screen

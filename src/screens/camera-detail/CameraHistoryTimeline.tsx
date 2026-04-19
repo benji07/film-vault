@@ -1,10 +1,11 @@
-import { Archive, Camera, ChevronRight, Clock, Eye, Plus, RotateCcw, ScanLine, Send } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { PhotoImg } from "@/components/ui/photo-img";
-import type { Film, HistoryAction, HistoryEntry, LucideIcon } from "@/types";
+import type { Film, HistoryEntry, LucideIcon } from "@/types";
 import { filmName } from "@/utils/film-helpers";
 import { fmtDate } from "@/utils/helpers";
+import { CAMERA_HISTORY_ACTIONS, HISTORY_ACTION_ICONS, HISTORY_ACTION_KEYS } from "@/utils/history-action";
 
 interface CameraHistoryTimelineProps {
 	films: Film[];
@@ -18,46 +19,17 @@ interface EnrichedEntry extends HistoryEntry {
 	sourceIndex: number;
 }
 
-const ACTION_ICONS: Record<HistoryAction, LucideIcon> = {
-	added: Plus,
-	loaded: Camera,
-	reloaded: RotateCcw,
-	removed_partial: Clock,
-	exposed: Eye,
-	sent_dev: Send,
-	developed: Archive,
-	scanned: ScanLine,
-	modified: Plus,
-	duplicated: Plus,
-};
-
-const ACTION_KEYS: Record<
-	HistoryAction,
-	string | ((params?: Record<string, string | number | null | undefined>) => string)
-> = {
-	added: "filmDetail.historyAdded",
-	loaded: "filmDetail.historyLoaded",
-	reloaded: "filmDetail.historyReloaded",
-	removed_partial: "filmDetail.historyPartial",
-	exposed: "filmDetail.historyExposed",
-	sent_dev: "filmDetail.historySentDev",
-	developed: (params) => (params?.lab ? "filmDetail.historyDevelopedAt" : "filmDetail.historyDeveloped"),
-	scanned: (params) => (params?.ref ? "filmDetail.historyScannedRef" : "filmDetail.historyScanned"),
-	modified: "filmDetail.historyModified",
-	duplicated: "filmDetail.historyDuplicated",
-};
-
-// Actions directly involving the camera (kept in aggregated history)
-const CAMERA_ACTIONS = new Set<HistoryAction>(["loaded", "reloaded", "removed_partial", "exposed"]);
-
 export function CameraHistoryTimeline({ films, onFilmClick, onPhotoClick }: CameraHistoryTimelineProps) {
 	const { t } = useTranslation();
 
+	// Keep actions that physically involve the camera (load/reload/expose/remove).
+	// Legacy entries without an `actionCode` are also kept because they pre-date
+	// the structured codes and would otherwise be invisible for older films.
 	const entries: EnrichedEntry[] = films
 		.flatMap((f) =>
 			(f.history || [])
 				.map((h, idx): EnrichedEntry | null =>
-					!h.actionCode || CAMERA_ACTIONS.has(h.actionCode)
+					!h.actionCode || CAMERA_HISTORY_ACTIONS.has(h.actionCode)
 						? { ...h, filmId: f.id, filmLabel: filmName(f), sourceIndex: idx }
 						: null,
 				)
@@ -81,8 +53,8 @@ export function CameraHistoryTimeline({ films, onFilmClick, onPhotoClick }: Came
 					let Icon: LucideIcon = Plus;
 					let text = h.action;
 					if (h.actionCode) {
-						Icon = ACTION_ICONS[h.actionCode];
-						const keyOrFn = ACTION_KEYS[h.actionCode];
+						Icon = HISTORY_ACTION_ICONS[h.actionCode];
+						const keyOrFn = HISTORY_ACTION_KEYS[h.actionCode];
 						const key = typeof keyOrFn === "function" ? keyOrFn(h.params) : keyOrFn;
 						text = t(key, h.params ?? {});
 					}

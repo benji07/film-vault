@@ -32,6 +32,7 @@ function FilmVaultInner() {
 	const [screen, setScreen] = useState<ScreenName>("home");
 	const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
 	const [selectedCamera, setSelectedCamera] = useState<string | null>(null);
+	const [filmBackTarget, setFilmBackTarget] = useState<ScreenName | null>(null);
 	const [mapFilterFilmId, setMapFilterFilmId] = useState<string | null>(null);
 	const [stockStateFilter, setStockStateFilter] = useState<string | null>(null);
 	const [autoOpenShotNote, setAutoOpenShotNote] = useState(false);
@@ -144,6 +145,7 @@ function FilmVaultInner() {
 	const handleSetScreen = useCallback((s: ScreenName) => {
 		if (s === "map") setMapFilterFilmId(null);
 		if (s === "stock") setStockStateFilter(null);
+		if (s !== "filmDetail") setFilmBackTarget(null);
 		setScreen(s);
 	}, []);
 
@@ -164,6 +166,7 @@ function FilmVaultInner() {
 
 	const navigateToFilm = useCallback((filmId: string) => {
 		setSelectedFilm(filmId);
+		setFilmBackTarget("cameraDetail");
 		setScreen("filmDetail");
 	}, []);
 
@@ -203,6 +206,7 @@ function FilmVaultInner() {
 				navigateToCamera={navigateToCamera}
 				navigateToFilm={navigateToFilm}
 				selectedCamera={selectedCamera}
+				filmBackTarget={filmBackTarget}
 			/>
 		</TourProvider>
 	);
@@ -233,6 +237,7 @@ interface AppContentProps {
 	navigateToCamera: (camId: string) => void;
 	navigateToFilm: (filmId: string) => void;
 	selectedCamera: string | null;
+	filmBackTarget: ScreenName | null;
 }
 
 function AppContent({
@@ -260,6 +265,7 @@ function AppContent({
 	navigateToCamera,
 	navigateToFilm,
 	selectedCamera,
+	filmBackTarget,
 }: AppContentProps) {
 	const { isTourActive, tourData, startTour } = useTour();
 	const autoTourTriggered = useRef(false);
@@ -396,7 +402,12 @@ function AppContent({
 	const cameraTitle = selectedCamera
 		? (() => {
 				const cam = effectiveData.cameras.find((c) => c.id === selectedCamera);
-				return cam ? cam.nickname || `${cam.brand} ${cam.model}` : undefined;
+				if (!cam) return undefined;
+				const fallbackTitle = [cam.brand, cam.model]
+					.map((part) => part?.trim())
+					.filter(Boolean)
+					.join(" ");
+				return cam.nickname || fallbackTitle || undefined;
 			})()
 		: undefined;
 	const showTabBar = !["filmDetail", "cameraDetail", "settings", "legal"].includes(screen);
@@ -412,6 +423,7 @@ function AppContent({
 					setScreen={handleSetScreen}
 					filmTitle={filmTitle}
 					cameraTitle={cameraTitle}
+					filmBackTarget={filmBackTarget}
 					className="md:hidden"
 				/>
 				{screen === "map" ? (

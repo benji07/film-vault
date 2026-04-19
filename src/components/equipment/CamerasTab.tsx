@@ -113,6 +113,8 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 	};
 
 	const sellCamera = (camId: string) => {
+		const hasLoaded = data.films.some((f) => f.state === "loaded" && f.cameraId === camId);
+		if (hasLoaded) return;
 		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, soldAt: new Date().toISOString() } : c));
 		setData({ ...data, cameras: newCams });
 	};
