@@ -3,6 +3,8 @@ export const fr = {
 	common: {
 		cancel: "Annuler",
 		confirm: "Confirmer",
+		yes: "Oui",
+		no: "Non",
 	},
 
 	// Navigation
@@ -317,6 +319,20 @@ export const fr = {
 		othersInStock: "{{count}} autres pellicules identiques en stock",
 	},
 
+	// Camera detail screen
+	cameraDetail: {
+		title: "Appareil",
+		notFound: "Appareil introuvable",
+		sectionInfo: "Informations",
+		sectionFilms: "Pellicules",
+		sectionHistory: "Historique",
+		shutterRange: "Plage vitesses",
+		archivedOn: "Archivé le",
+		noFilms: "Aucune pellicule",
+		noFilmsSubtitle: "Aucune pellicule n'a encore été utilisée avec cet appareil",
+		noHistory: "Aucun événement pour cet appareil",
+	},
+
 	// Equipment screen
 	equipment: {
 		title: "Équipement",
@@ -551,6 +567,7 @@ export const fr = {
 		previousPhoto: "Photo précédente",
 		nextPhoto: "Photo suivante",
 		editFilm: "Modifier la pellicule",
+		viewCamera: "Voir le détail de l'appareil",
 		editCamera: "Modifier l'appareil",
 		editBack: "Modifier le dos",
 		editLens: "Modifier l'objectif",

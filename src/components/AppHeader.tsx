@@ -9,15 +9,17 @@ interface AppHeaderProps {
 	screen: ScreenName;
 	setScreen: (screen: ScreenName) => void;
 	filmTitle?: string;
+	cameraTitle?: string;
 	className?: string;
 }
 
 const backTargets: Partial<Record<ScreenName, ScreenName>> = {
 	filmDetail: "stock",
+	cameraDetail: "cameras",
 	settings: "home",
 };
 
-export function AppHeader({ screen, setScreen, filmTitle, className }: AppHeaderProps) {
+export function AppHeader({ screen, setScreen, filmTitle, cameraTitle, className }: AppHeaderProps) {
 	const { t } = useTranslation();
 	const { theme, setTheme } = useTheme();
 	const backTarget = backTargets[screen];
@@ -25,6 +27,7 @@ export function AppHeader({ screen, setScreen, filmTitle, className }: AppHeader
 
 	const subScreenTitles: Partial<Record<ScreenName, string>> = {
 		filmDetail: filmTitle || t("filmDetail.back"),
+		cameraDetail: cameraTitle || t("cameraDetail.title"),
 		settings: t("nav.settings"),
 	};
 

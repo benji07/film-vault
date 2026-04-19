@@ -3,6 +3,8 @@ export const en = {
 	common: {
 		cancel: "Cancel",
 		confirm: "Confirm",
+		yes: "Yes",
+		no: "No",
 	},
 
 	// Navigation
@@ -317,6 +319,20 @@ export const en = {
 		othersInStock: "{{count}} other identical films in stock",
 	},
 
+	// Camera detail screen
+	cameraDetail: {
+		title: "Camera",
+		notFound: "Camera not found",
+		sectionInfo: "Information",
+		sectionFilms: "Films",
+		sectionHistory: "History",
+		shutterRange: "Shutter range",
+		archivedOn: "Archived on",
+		noFilms: "No films",
+		noFilmsSubtitle: "No film has been used with this camera yet",
+		noHistory: "No events for this camera",
+	},
+
 	// Equipment screen
 	equipment: {
 		title: "Equipment",
@@ -551,6 +567,7 @@ export const en = {
 		previousPhoto: "Previous photo",
 		nextPhoto: "Next photo",
 		editFilm: "Edit film",
+		viewCamera: "View camera details",
 		editCamera: "Edit camera",
 		editBack: "Edit back",
 		editLens: "Edit lens",
