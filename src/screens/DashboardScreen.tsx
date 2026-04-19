@@ -220,7 +220,7 @@ export function DashboardScreen({
 								icon={Eye}
 								label={t("dashboard.awaitingDev", { count: exposedCount })}
 								color={T.accent}
-								onClick={() => setScreen("stock")}
+								onClick={() => onNavigateToStock("exposed")}
 							/>
 						)}
 						{developedCount > 0 && (
@@ -228,7 +228,7 @@ export function DashboardScreen({
 								icon={Archive}
 								label={t("dashboard.awaitingScan", { count: developedCount })}
 								color={T.textSec}
-								onClick={() => setScreen("stock")}
+								onClick={() => onNavigateToStock("developed")}
 							/>
 						)}
 					</div>
