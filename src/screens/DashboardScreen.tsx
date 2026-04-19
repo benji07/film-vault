@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { EquipmentCard } from "@/components/EquipmentCard";
 import { StatChip } from "@/components/StatChip";
 import { TodoItem } from "@/components/TodoItem";
+import { BrushDivider } from "@/components/ui/brush-divider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { alpha, T } from "@/constants/theme";
@@ -176,20 +177,29 @@ export function DashboardScreen({
 			{/* Pellicules actives en PREMIER */}
 			{activeFilms.length > 0 && (
 				<div data-tour="active-rolls">
-					<div className="flex items-center gap-2 mb-3">
-						<Film size={14} color={T.textSec} />
-						<span className="text-[13px] font-bold text-text-sec font-body">{t("dashboard.activeRolls")}</span>
+					<div className="flex items-end gap-2 mb-1">
+						<Film size={16} color={T.accent} />
+						<h2 className="font-display text-[30px] leading-none text-text-primary m-0">
+							{t("dashboard.activeRolls")}
+						</h2>
 					</div>
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+					<BrushDivider className="text-accent w-[170px] mb-4 -mt-1" thickness={2.5} />
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-5 px-2 py-3">
 						{activeFilms.map((f, i) => {
 							const cam = f.cameraId ? cameras.find((c) => c.id === f.cameraId) : null;
 							const back = f.backId ? backs.find((b) => b.id === f.backId) : null;
+							const tilts = [-1.3, 1.8, -0.7, 1.1, -1.6, 0.8];
+							const tapes: ("top-left" | "top-right")[] = ["top-right", "top-left", "top-right", "top-left"];
+							const tapeColors = [T.tape1, T.tape2, T.tape3, T.tape1];
 							return (
 								<div key={f.id} className="animate-stagger-item" style={{ animationDelay: `${i * 60}ms` }}>
 									<ActiveRollCard
 										film={f}
 										camera={cam}
 										back={back}
+										tilt={tilts[i % tilts.length]}
+										tape={tapes[i % tapes.length]}
+										tapeColor={tapeColors[i % tapeColors.length]}
 										onShotClick={() => {
 											setAutoOpenShotNote?.(true);
 											setSelectedFilm(f.id);
@@ -210,10 +220,13 @@ export function DashboardScreen({
 			{/* Section "A faire" */}
 			{hasTodos && (
 				<div>
-					<div className="flex items-center gap-2 mb-3">
-						<ListTodo size={14} color={T.textSec} />
-						<span className="text-[13px] font-bold text-text-sec font-body">{t("dashboard.todoSection")}</span>
+					<div className="flex items-end gap-2 mb-1">
+						<ListTodo size={16} color={T.orange} />
+						<h2 className="font-display text-[28px] leading-none text-text-primary m-0">
+							{t("dashboard.todoSection")}
+						</h2>
 					</div>
+					<BrushDivider className="text-orange w-[130px] mb-3 -mt-1" thickness={2} />
 					<div className="flex flex-col gap-2">
 						{exposedCount > 0 && (
 							<TodoItem
@@ -238,10 +251,13 @@ export function DashboardScreen({
 			{/* Equipement en grille compacte */}
 			{hasEquipment && (
 				<div data-tour="equipment-section">
-					<div className="flex items-center gap-2 mb-3">
-						<Camera size={14} color={T.textSec} />
-						<span className="text-[13px] font-bold text-text-sec font-body">{t("dashboard.myEquipment")}</span>
+					<div className="flex items-end gap-2 mb-1">
+						<Camera size={16} color={T.green} />
+						<h2 className="font-display text-[28px] leading-none text-text-primary m-0">
+							{t("dashboard.myEquipment")}
+						</h2>
 					</div>
+					<BrushDivider className="text-green w-[150px] mb-3 -mt-1" thickness={2} />
 					<div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
 						{equipmentItems.map((item) => (
 							<EquipmentCard

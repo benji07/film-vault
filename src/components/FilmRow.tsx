@@ -1,6 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
+import { Stamp } from "@/components/ui/stamp";
 import { getStates } from "@/constants/films";
 import { alpha, FILM_TYPE_COLORS, T } from "@/constants/theme";
 import type { Back, Camera, Film } from "@/types";
@@ -26,29 +27,47 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowPr
 	const back = film.backId ? backs.find((b) => b.id === film.backId) : null;
 	const expInfo = getExpirationStatus(film.expDate, t);
 
+	// "Day / Month" journal date stamp from addedDate
+	const added = film.addedDate ? new Date(`${film.addedDate}T00:00:00`) : null;
+	const dd = added ? added.getDate().toString().padStart(2, "0") : "??";
+	const mm = added ? added.toLocaleDateString(t("dateLocale") === "fr-FR" ? "fr-FR" : "en-US", { month: "short" }) : "";
+
 	return (
 		<button
 			type="button"
 			onClick={onClick}
-			className="flex items-center gap-3 py-3.5 pr-4 pl-0 bg-card border border-border rounded-[14px] cursor-pointer transition-all overflow-hidden text-left w-full"
+			className="group relative flex items-stretch gap-4 bg-card border border-border-light rounded-[14px] cursor-pointer transition-all overflow-hidden text-left w-full pl-0 pr-3 py-3 hover:border-accent hover:-translate-y-[1px]"
+			style={{ boxShadow: "0 3px 10px rgba(0,0,0,0.08)" }}
 		>
-			<div className="w-[3px] self-stretch shrink-0 rounded-r-full" style={{ backgroundColor: typeColor }} />
+			{/* Date stamp column — journal entry feel */}
 			<div
-				className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
-				style={{ background: `linear-gradient(135deg, ${alpha(st.color, 0.13)}, ${alpha(st.color, 0.03)})` }}
+				className="flex flex-col items-center justify-center shrink-0 w-[64px] border-r-2 border-dashed border-border"
+				style={{ color: typeColor }}
 			>
-				<StIcon size={18} color={st.color} />
+				<span className="font-display text-[30px] leading-none">{dd}</span>
+				<span className="text-[10px] tracking-[0.15em] uppercase text-text-muted font-body font-semibold mt-0.5">
+					{mm}
+				</span>
 			</div>
-			<div className="flex-1 min-w-0">
-				<div className="text-sm font-semibold text-text-primary font-body overflow-hidden text-ellipsis whitespace-nowrap">
-					{filmName(film)}
+
+			{/* Status icon as mini stamp */}
+			<div
+				className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 self-center"
+				style={{ background: alpha(st.color, 0.14), border: `1.5px dashed ${alpha(st.color, 0.55)}` }}
+			>
+				<StIcon size={16} color={st.color} />
+			</div>
+
+			<div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
+				<div className="flex items-center gap-2 flex-wrap">
+					<span className="font-display text-[20px] leading-none text-text-primary">{filmName(film)}</span>
 					{groupCount && groupCount > 1 && (
-						<span className="ml-1.5 text-[11px] font-semibold font-body" style={{ color: T.accent }}>
-							&times;&nbsp;{groupCount}
-						</span>
+						<Stamp color={typeColor} size="sm" rotate={-4}>
+							×{groupCount}
+						</Stamp>
 					)}
 				</div>
-				<div className="flex gap-1.5 mt-1 flex-wrap">
+				<div className="flex gap-1.5 flex-wrap">
 					<Badge style={{ color: st.color, background: alpha(st.color, 0.09) }}>{st.label}</Badge>
 					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{film.format}</Badge>
 					{film.shootIso && film.shootIso !== filmIso(film) && (
@@ -71,7 +90,10 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowPr
 					)}
 				</div>
 			</div>
-			<ChevronRight size={16} className="text-text-muted" />
+			<ChevronRight
+				size={16}
+				className="text-text-muted self-center transition-transform group-hover:translate-x-0.5"
+			/>
 		</button>
 	);
 }

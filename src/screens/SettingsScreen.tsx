@@ -24,6 +24,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { PhotoImg } from "@/components/ui/photo-img";
+import { ScreenTitle } from "@/components/ui/screen-title";
 import { T } from "@/constants/theme";
 import { useTour } from "@/tour/TourProvider";
 import type { AppData } from "@/types";
@@ -171,6 +172,7 @@ export function SettingsScreen({
 
 	return (
 		<div className="flex flex-col gap-5">
+			<ScreenTitle kicker={t("nav.settings")} title={t("nav.settings")} size="md" />
 			{/* Language section */}
 			<Card>
 				<div className="flex items-center gap-3 mb-4">

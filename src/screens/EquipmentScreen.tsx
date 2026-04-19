@@ -4,6 +4,7 @@ import { BacksTab } from "@/components/equipment/BacksTab";
 import { CamerasTab } from "@/components/equipment/CamerasTab";
 import { LensesTab } from "@/components/equipment/LensesTab";
 import { Button } from "@/components/ui/button";
+import { ScreenTitle } from "@/components/ui/screen-title";
 import { cn } from "@/lib/utils";
 import type { AppData } from "@/types";
 
@@ -27,6 +28,7 @@ export function EquipmentScreen({ data, setData, onCameraClick }: EquipmentScree
 
 	return (
 		<div className="flex flex-col gap-5" data-tour="cameras-tab">
+			<ScreenTitle kicker={t("nav.cameras")} title={t("nav.cameras")} hint={t("equipment.camerasTab")} size="md" />
 			<div className="flex gap-2">
 				{tabs.map((tab) => (
 					<Button

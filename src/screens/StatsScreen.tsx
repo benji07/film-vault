@@ -4,6 +4,7 @@ import { BarChart } from "@/components/BarChart";
 import { EmptyState } from "@/components/EmptyState";
 import { StatCard } from "@/components/StatCard";
 import { Card } from "@/components/ui/card";
+import { ScreenTitle } from "@/components/ui/screen-title";
 import { T } from "@/constants/theme";
 import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
@@ -114,12 +115,12 @@ export function StatsScreen({ data }: StatsScreenProps) {
 
 	return (
 		<div className="flex flex-col gap-5">
-			<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("stats.title")}</h2>
+			<ScreenTitle kicker={t("nav.stats")} title={t("stats.title")} hint={t("stats.subtitle", t("stats.title"))} />
 
 			<div className="grid grid-cols-3 gap-2.5" data-tour="stats-overview">
-				<StatCard icon={Film} label={t("stats.totalFilms")} value={films.length} color={T.blue} />
-				<StatCard icon={Eye} label={t("stats.shot")} value={shotCount} color={T.green} />
-				<StatCard icon={Archive} label={t("stats.developed")} value={developedCount} color={T.textSec} />
+				<StatCard icon={Film} label={t("stats.totalFilms")} value={films.length} color={T.blue} tilt={-1.2} />
+				<StatCard icon={Eye} label={t("stats.shot")} value={shotCount} color={T.green} tilt={0.8} />
+				<StatCard icon={Archive} label={t("stats.developed")} value={developedCount} color={T.textSec} tilt={-0.7} />
 			</div>
 
 			<Card>
@@ -186,9 +187,27 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				<>
 					<h3 className="font-display text-xl text-text-primary m-0 italic mt-2">{t("stats.expenses")}</h3>
 					<div className="grid grid-cols-3 gap-2.5">
-						<StatCard icon={Coins} label={t("stats.totalSpent")} value={fmtPrice(totalSpent)} color={T.orange} />
-						<StatCard icon={Coins} label={t("stats.avgPerFilm")} value={fmtPrice(avgPerFilm)} color={T.amber} />
-						<StatCard icon={Coins} label={t("stats.avgPerFrame")} value={fmtPrice(avgPerFrame)} color={T.green} />
+						<StatCard
+							icon={Coins}
+							label={t("stats.totalSpent")}
+							value={fmtPrice(totalSpent)}
+							color={T.orange}
+							tilt={-1}
+						/>
+						<StatCard
+							icon={Coins}
+							label={t("stats.avgPerFilm")}
+							value={fmtPrice(avgPerFilm)}
+							color={T.amber}
+							tilt={1.5}
+						/>
+						<StatCard
+							icon={Coins}
+							label={t("stats.avgPerFrame")}
+							value={fmtPrice(avgPerFrame)}
+							color={T.green}
+							tilt={-0.6}
+						/>
 					</div>
 					{Object.keys(costByCategory).length > 1 && (
 						<Card>

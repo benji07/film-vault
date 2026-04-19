@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ScreenTitle } from "@/components/ui/screen-title";
 
 interface LegalScreenProps {
 	onBack: () => void;
@@ -12,11 +13,11 @@ export function LegalScreen({ onBack }: LegalScreenProps) {
 
 	return (
 		<div className="flex flex-col gap-4 p-4 pb-24 max-w-lg mx-auto">
-			<div className="flex items-center gap-3 mb-2">
-				<Button variant="ghost" size="icon" onClick={onBack} aria-label={t("legal.back")}>
+			<div className="flex items-start gap-3 mb-1">
+				<Button variant="ghost" size="icon" onClick={onBack} aria-label={t("legal.back")} className="mt-1">
 					<ArrowLeft size={20} className="text-text-primary" />
 				</Button>
-				<h1 className="text-lg font-serif text-text-primary">{t("legal.title")}</h1>
+				<ScreenTitle title={t("legal.title")} size="md" className="mb-0" />
 			</div>
 
 			<Card className="p-4 flex flex-col gap-3">

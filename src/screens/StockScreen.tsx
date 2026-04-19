@@ -8,6 +8,7 @@ import { StockFilterDialog } from "@/components/StockFilterDialog";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
+import { ScreenTitle } from "@/components/ui/screen-title";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { AppData, Film as FilmType, ScreenName } from "@/types";
 import { fmtExpDate } from "@/utils/expiration";
@@ -105,8 +106,14 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm, initi
 
 	return (
 		<div className="flex flex-col gap-4">
-			<div className="flex justify-between items-center">
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("stock.title")}</h2>
+			<div className="flex justify-between items-end mb-2">
+				<ScreenTitle
+					kicker={t("nav.films")}
+					title={t("stock.title")}
+					hint={t("stock.all")}
+					size="md"
+					className="mb-0"
+				/>
 				<Button size="sm" onClick={onAddFilm}>
 					<Plus size={14} /> {t("stock.add")}
 				</Button>
