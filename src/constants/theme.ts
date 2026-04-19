@@ -20,6 +20,9 @@ export const T = {
 	greenSoft: "var(--color-green-soft)",
 	blue: "var(--color-blue)",
 	blueSoft: "var(--color-blue-soft)",
+	tape1: "var(--color-tape-1)",
+	tape2: "var(--color-tape-2)",
+	tape3: "var(--color-tape-3)",
 } as const;
 
 /** Returns a CSS color-mix() expression for a CSS variable with the given opacity (0–1). */
@@ -31,11 +34,13 @@ export const FILM_TYPE_COLORS: Record<string, string> = {
 	Couleur: T.amber,
 	"N&B": T.textSec,
 	Diapo: T.blue,
-	"ECN-2": T.accent,
+	"ECN-2": T.orange,
 };
 
 export const FONT = {
-	display: "'Instrument Serif', serif",
+	display: "'Caveat', cursive",
+	serif: "'Fraunces', serif",
 	body: "'DM Sans', sans-serif",
-	mono: "'DM Mono', monospace",
+	mono: "'Special Elite', 'Courier New', monospace",
+	handwritten: "'Caveat', cursive",
 } as const;

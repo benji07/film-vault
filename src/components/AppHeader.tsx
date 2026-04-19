@@ -1,6 +1,7 @@
 import { ArrowLeft, Moon, Settings, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/components/ThemeProvider";
+import { BrushDivider } from "@/components/ui/brush-divider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ScreenName } from "@/types";
@@ -51,10 +52,17 @@ export function AppHeader({ screen, setScreen, filmTitle, cameraTitle, filmBackT
 						>
 							<ArrowLeft size={20} className="text-text-sec" />
 						</Button>
-						<h1 className="font-display text-lg text-text-primary m-0 italic truncate">{subScreenTitles[screen]}</h1>
+						<h1 className="font-display text-[26px] text-text-primary m-0 truncate leading-none">
+							{subScreenTitles[screen]}
+						</h1>
 					</>
 				) : (
-					<h1 className="font-display text-xl text-text-primary m-0 italic">My Film Vault</h1>
+					<div className="flex flex-col">
+						<h1 className="font-display text-[30px] text-text-primary m-0 leading-none tracking-tight">
+							My Film Vault
+						</h1>
+						<BrushDivider className="text-accent -mt-1 w-[130px]" thickness={2} />
+					</div>
 				)}
 			</div>
 

@@ -8,7 +8,7 @@ function ListButton({ className, ...props }: ListButtonProps) {
 		<button
 			type="button"
 			className={cn(
-				"flex items-center gap-3 p-2.5 rounded-[10px] bg-surface-alt border border-border text-left transition-colors hover:border-accent cursor-pointer",
+				"flex items-center gap-3 p-2.5 rounded-[10px] bg-surface-alt border border-dashed border-border text-left transition-all duration-200 hover:border-solid hover:border-accent hover:-translate-y-[1px] hover:rotate-[0.3deg] cursor-pointer",
 				className,
 			)}
 			{...props}

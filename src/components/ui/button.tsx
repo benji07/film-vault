@@ -4,14 +4,17 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-	"inline-flex items-center gap-1.5 border-none cursor-pointer font-body font-semibold rounded-xl transition-all justify-center whitespace-nowrap",
+	"inline-flex items-center gap-1.5 border-none cursor-pointer font-body font-semibold rounded-xl transition-all duration-200 justify-center whitespace-nowrap hover:-translate-y-[1px] active:translate-y-0",
 	{
 		variants: {
 			variant: {
-				default: "bg-accent text-white hover:bg-accent-hover",
-				outline: "bg-surface-alt text-text-primary border border-border",
-				ghost: "bg-transparent text-text-sec",
-				destructive: "bg-accent-soft text-accent",
+				default:
+					"bg-accent text-[#1a2230] shadow-[0_3px_0_rgba(0,0,0,0.2),0_6px_14px_rgba(232,155,74,0.28)] hover:bg-accent-hover hover:rotate-[-0.4deg] active:shadow-[0_1px_0_rgba(0,0,0,0.2),0_3px_6px_rgba(232,155,74,0.2)]",
+				outline:
+					"bg-surface-alt text-text-primary border border-dashed border-border hover:border-accent hover:text-accent",
+				ghost: "bg-transparent text-text-sec hover:text-text-primary",
+				destructive:
+					"bg-orange-soft text-orange border border-dashed border-orange/40 hover:bg-orange hover:text-[#1a2230]",
 			},
 			size: {
 				default: "py-2.5 px-4.5 text-[13px] min-h-[44px]",

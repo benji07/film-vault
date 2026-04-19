@@ -39,7 +39,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 		}
 		document
 			.querySelector('meta[name="theme-color"]')
-			?.setAttribute("content", theme === "light" ? "#F5F0E8" : "#0D0D0D");
+			?.setAttribute("content", theme === "light" ? "#EFE4CC" : "#1A2230");
 	}, [theme]);
 
 	return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;

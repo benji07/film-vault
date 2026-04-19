@@ -22,7 +22,7 @@ function DialogClose(props: ComponentProps<typeof DialogPrimitive.Close>) {
 function DialogOverlay({ className, ...props }: ComponentProps<typeof DialogPrimitive.Overlay>) {
 	return (
 		<DialogPrimitive.Overlay
-			className={cn("fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm animate-backdrop-fade-in", className)}
+			className={cn("fixed inset-0 z-[1000] bg-[#1a2230]/70 backdrop-blur-sm animate-backdrop-fade-in", className)}
 			{...props}
 		/>
 	);
@@ -35,8 +35,8 @@ function DialogContent({ className, children, ...props }: ComponentProps<typeof 
 			<DialogPrimitive.Content
 				className={cn(
 					"fixed z-[1000] w-full max-w-[480px] md:max-w-lg max-h-[85vh] overflow-auto",
-					"bg-surface rounded-t-[20px] md:rounded-[20px] px-5 pt-6 pb-[max(2rem,env(safe-area-inset-bottom))]",
-					"border border-border border-b-0 md:border-b",
+					"bg-card rounded-t-[20px] md:rounded-[20px] px-5 pt-6 pb-[max(2rem,env(safe-area-inset-bottom))]",
+					"border border-border-light border-b-0 md:border-b shadow-[0_10px_30px_rgba(0,0,0,0.35)]",
 					"bottom-0 left-1/2 -translate-x-1/2 md:bottom-auto md:top-1/2 md:-translate-y-1/2",
 					"animate-slide-up md:animate-backdrop-fade-in",
 					"outline-none",

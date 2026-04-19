@@ -56,11 +56,11 @@ export function Timeline({ entries, onPhotoClick }: TimelineProps) {
 								<div
 									className={`w-3 h-3 rounded-full shrink-0 mt-0.5 ${
 										isFirst
-											? "bg-accent border-2 border-accent animate-timeline-pulse"
-											: "bg-bg border-2 border-border-light"
+											? "bg-accent border-2 border-accent animate-sunset-glow"
+											: "bg-bg border-2 border-dashed border-border-light"
 									}`}
 								/>
-								{!isLast && <div className="w-[2px] flex-1 bg-border min-h-4" />}
+								{!isLast && <div className="w-[2px] flex-1 bg-border min-h-4 border-l border-dashed border-border" />}
 							</div>
 							<div className={`flex flex-col gap-0.5 ${isLast ? "pb-0" : "pb-3"}`}>
 								<div className="flex items-center gap-1.5">

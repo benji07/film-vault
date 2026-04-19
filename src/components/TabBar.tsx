@@ -1,5 +1,6 @@
 import { BarChart3, Camera, Film, Home, Map as MapIcon, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { BrushDivider } from "@/components/ui/brush-divider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { LucideIcon, ScreenName } from "@/types";
@@ -83,7 +84,12 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 			{tabs.map((tab) => {
 				const active = screen === tab.key;
 				return (
-					<Button variant="ghost" key={tab.key} onClick={() => setScreen(tab.key)} className="flex-col gap-1 px-3">
+					<Button
+						variant="ghost"
+						key={tab.key}
+						onClick={() => setScreen(tab.key)}
+						className="flex-col gap-0.5 px-3 relative"
+					>
 						<tab.icon
 							size={20}
 							className={active ? "text-accent" : "text-text-muted"}
@@ -94,6 +100,12 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 						>
 							{tab.label}
 						</span>
+						{active && (
+							<BrushDivider
+								className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-accent w-[44px]"
+								thickness={2}
+							/>
+						)}
 					</Button>
 				);
 			})}

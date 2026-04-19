@@ -1,32 +1,39 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Special+Elite&display=swap");
 @import "tailwindcss";
 
 @theme {
-	--color-bg: #0d0d0d;
-	--color-surface: #1a1a1a;
-	--color-surface-alt: #242424;
-	--color-card: #1e1e1e;
-	--color-card-hover: #252525;
-	--color-border: #2a2a2a;
-	--color-border-light: #333333;
-	--color-text-primary: #e8e4df;
-	--color-text-sec: #a09a92;
-	--color-text-muted: #827d75;
-	--color-accent: #c4392d;
-	--color-accent-hover: #d44435;
-	--color-accent-soft: rgba(196, 57, 45, 0.12);
-	--color-orange: #e07940;
-	--color-orange-soft: rgba(224, 121, 64, 0.12);
-	--color-amber: #d4a858;
-	--color-amber-soft: rgba(212, 168, 88, 0.1);
-	--color-green: #4a8c5c;
-	--color-green-soft: rgba(74, 140, 92, 0.12);
-	--color-blue: #5b7fa5;
-	--color-blue-soft: rgba(91, 127, 165, 0.1);
+	/* Dark — "Crépuscule" (Arcadia Bay dusk) */
+	--color-bg: #1a2230;
+	--color-surface: #222c3c;
+	--color-surface-alt: #2a3647;
+	--color-card: #242f40;
+	--color-card-hover: #2d394c;
+	--color-border: #3a4a60;
+	--color-border-light: #475970;
+	--color-text-primary: #f4ead4;
+	--color-text-sec: #c7b89a;
+	--color-text-muted: #8b8070;
+	--color-accent: #e89b4a;
+	--color-accent-hover: #f2ae5e;
+	--color-accent-soft: rgba(232, 155, 74, 0.14);
+	--color-orange: #d47855;
+	--color-orange-soft: rgba(212, 120, 85, 0.14);
+	--color-amber: #d4b66a;
+	--color-amber-soft: rgba(212, 182, 106, 0.12);
+	--color-green: #7aa88f;
+	--color-green-soft: rgba(122, 168, 143, 0.14);
+	--color-blue: #6b9cb5;
+	--color-blue-soft: rgba(107, 156, 181, 0.12);
 
-	--font-display: "Instrument Serif", serif;
+	/* Washi tape pastel colors (scrapbook accents) */
+	--color-tape-1: rgba(232, 155, 74, 0.55);
+	--color-tape-2: rgba(107, 156, 181, 0.5);
+	--color-tape-3: rgba(212, 120, 85, 0.5);
+
+	--font-display: "Caveat", cursive;
+	--font-serif: "Fraunces", serif;
 	--font-body: "DM Sans", sans-serif;
-	--font-mono: "DM Mono", monospace;
+	--font-mono: "Special Elite", "Courier New", monospace;
 }
 
 @layer base {
@@ -38,44 +45,57 @@
 		--popover: var(--color-surface);
 		--popover-foreground: var(--color-text-primary);
 		--primary: var(--color-accent);
-		--primary-foreground: #ffffff;
+		--primary-foreground: #1a2230;
 		--secondary: var(--color-surface-alt);
 		--secondary-foreground: var(--color-text-primary);
 		--muted: var(--color-surface-alt);
 		--muted-foreground: var(--color-text-muted);
 		--accent: var(--color-surface-alt);
 		--accent-foreground: var(--color-text-primary);
-		--destructive: var(--color-accent);
-		--destructive-foreground: #ffffff;
+		--destructive: var(--color-orange);
+		--destructive-foreground: #1a2230;
 		--border: var(--color-border);
 		--input: var(--color-border);
 		--ring: var(--color-accent);
 		--radius: 14px;
+		/* Grain intensity + blend tuned per theme */
+		--grain-opacity: 0.09;
+		--grain-blend: overlay;
+		/* Warm polaroid shadow */
+		--shadow-polaroid: 0 6px 18px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.4);
 	}
 
-	/* Chambre claire — light theme */
+	/* Light — "Carnet" (aged journal paper) */
 	html.light {
-		--color-bg: #f5f0e8;
-		--color-surface: #fffdf8;
-		--color-surface-alt: #ede8e0;
-		--color-card: #fffdf8;
-		--color-card-hover: #f8f3eb;
-		--color-border: #ddd5c8;
-		--color-border-light: #e8e0d5;
-		--color-text-primary: #2c2520;
-		--color-text-sec: #6b6158;
-		--color-text-muted: #928980;
-		--color-accent: #c4392d;
-		--color-accent-hover: #b0322a;
-		--color-accent-soft: rgba(196, 57, 45, 0.1);
-		--color-orange: #d06a30;
-		--color-orange-soft: rgba(208, 106, 48, 0.1);
-		--color-amber: #b8912e;
-		--color-amber-soft: rgba(184, 145, 46, 0.08);
-		--color-green: #3d7a4e;
-		--color-green-soft: rgba(61, 122, 78, 0.1);
-		--color-blue: #4a6f94;
-		--color-blue-soft: rgba(74, 111, 148, 0.08);
+		--color-bg: #efe4cc;
+		--color-surface: #f7ecd3;
+		--color-surface-alt: #e4d6b9;
+		--color-card: #fbf2da;
+		--color-card-hover: #f5ead0;
+		--color-border: #c9b893;
+		--color-border-light: #d8c9a6;
+		--color-text-primary: #3a2f1e;
+		--color-text-sec: #6b5a3e;
+		--color-text-muted: #8f7e5e;
+		--color-accent: #c66234;
+		--color-accent-hover: #b35528;
+		--color-accent-soft: rgba(198, 98, 52, 0.12);
+		--color-orange: #b35d30;
+		--color-orange-soft: rgba(179, 93, 48, 0.12);
+		--color-amber: #a17a2a;
+		--color-amber-soft: rgba(161, 122, 42, 0.1);
+		--color-green: #5a7e5e;
+		--color-green-soft: rgba(90, 126, 94, 0.12);
+		--color-blue: #406f80;
+		--color-blue-soft: rgba(64, 111, 128, 0.1);
+
+		--color-tape-1: rgba(198, 98, 52, 0.45);
+		--color-tape-2: rgba(64, 111, 128, 0.4);
+		--color-tape-3: rgba(161, 122, 42, 0.4);
+
+		--grain-opacity: 0.12;
+		--grain-blend: multiply;
+		--shadow-polaroid: 0 6px 16px rgba(58, 47, 30, 0.18), 0 1px 2px rgba(58, 47, 30, 0.12);
 	}
 	html,
 	body,
@@ -90,6 +110,19 @@
 		background: var(--color-bg);
 		overflow-x: hidden;
 		-webkit-font-smoothing: antialiased;
+		font-family: var(--font-body);
+		color: var(--color-text-primary);
+	}
+	/* Paper grain overlay — inline SVG feTurbulence, no external asset */
+	body::before {
+		content: "";
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		z-index: 9999;
+		opacity: var(--grain-opacity);
+		mix-blend-mode: var(--grain-blend);
+		background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.25 0 0 0 0 0.15 0 0 0 0.85 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 	}
 	::-webkit-scrollbar {
 		display: none;
@@ -100,6 +133,8 @@
 		font-family: inherit;
 	}
 }
+
+/* -------------------- Animations -------------------- */
 
 @keyframes fadeIn {
 	from {
@@ -180,13 +215,14 @@
 	}
 }
 
-@keyframes timelinePulse {
+/* New: warm amber halo replacing timelinePulse */
+@keyframes sunsetGlow {
 	0%,
 	100% {
-		box-shadow: 0 0 0 0 rgba(196, 57, 45, 0.4);
+		box-shadow: 0 0 0 0 rgba(232, 155, 74, 0.5);
 	}
 	50% {
-		box-shadow: 0 0 0 5px rgba(196, 57, 45, 0);
+		box-shadow: 0 0 0 6px rgba(232, 155, 74, 0);
 	}
 }
 
@@ -212,6 +248,42 @@
 	}
 }
 
+/* New: ink bleed (soft scale + opacity) for list items */
+@keyframes inkBleed {
+	from {
+		opacity: 0;
+		transform: translateY(6px) scale(0.985);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/* New: polaroid flip — for future state transitions */
+@keyframes polaroidFlip {
+	0% {
+		transform: perspective(600px) rotateY(0deg);
+	}
+	50% {
+		transform: perspective(600px) rotateY(90deg);
+	}
+	100% {
+		transform: perspective(600px) rotateY(0deg);
+	}
+}
+
+/* New: tiny paper rustle for hover micro-feedback */
+@keyframes paperRustle {
+	0%,
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+	50% {
+		transform: translateY(-1px) rotate(-0.3deg);
+	}
+}
+
 .animate-screen-enter {
 	animation: screenEnter 0.25s ease-out;
 }
@@ -226,7 +298,7 @@
 
 .animate-stagger-item {
 	opacity: 0;
-	animation: staggerItem 0.3s ease-out forwards;
+	animation: inkBleed 0.35s ease-out forwards;
 }
 
 .animate-slide-up {
@@ -245,8 +317,14 @@
 	animation: toastExit 0.2s ease-out forwards;
 }
 
-.animate-timeline-pulse {
-	animation: timelinePulse 2s ease-in-out infinite;
+/* Backward-compatible alias: existing callers use animate-timeline-pulse */
+.animate-timeline-pulse,
+.animate-sunset-glow {
+	animation: sunsetGlow 2s ease-in-out infinite;
+}
+
+.animate-polaroid-flip {
+	animation: polaroidFlip 0.6s ease-in-out;
 }
 
 @keyframes bannerEnter {
@@ -291,4 +369,28 @@
 
 .animate-tour-backdrop-fade-in {
 	animation: tourBackdropFadeIn 0.25s ease-out;
+}
+
+/* -------------------- Scrapbook utilities -------------------- */
+
+/* Polaroid card: warm shadow + asymmetric bottom padding via utility */
+.polaroid {
+	box-shadow: var(--shadow-polaroid);
+	transform: rotate(var(--tilt, 0deg));
+	transition:
+		transform 0.2s ease-out,
+		box-shadow 0.2s ease-out;
+}
+.polaroid:hover {
+	box-shadow:
+		0 10px 22px rgba(0, 0, 0, 0.3),
+		0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Hand-drawn underline helper: pair with a <BrushDivider> child */
+.scrap-title {
+	font-family: var(--font-display);
+	font-weight: 600;
+	letter-spacing: 0;
+	line-height: 1.05;
 }

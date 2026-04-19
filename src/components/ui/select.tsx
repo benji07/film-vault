@@ -12,9 +12,9 @@ function SelectTrigger({ className, children, ...props }: ComponentProps<typeof 
 		<SelectPrimitive.Trigger
 			className={cn(
 				"flex h-auto w-full items-center justify-between gap-2",
-				"bg-surface-alt border border-border rounded-[10px] py-2.5 px-3.5",
+				"bg-surface-alt border border-dashed border-border rounded-[10px] py-2.5 px-3.5",
 				"text-sm font-body text-text-primary outline-none transition-colors",
-				"focus:border-accent",
+				"focus:border-solid focus:border-accent",
 				"disabled:cursor-not-allowed disabled:opacity-50",
 				"[&>span]:truncate",
 				className,
@@ -40,7 +40,7 @@ function SelectContent({
 			<SelectPrimitive.Content
 				className={cn(
 					"relative z-[1001] max-h-[300px] min-w-[8rem] overflow-hidden",
-					"bg-surface-alt border border-border rounded-[10px] shadow-lg",
+					"bg-card border border-border-light rounded-[10px] shadow-[0_8px_22px_rgba(0,0,0,0.35)]",
 					"data-[state=open]:animate-in data-[state=closed]:animate-out",
 					"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
 					"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
