@@ -85,6 +85,9 @@ Le type central. Champs par catégorie (voir `src/types.ts:67`) :
 - `history: HistoryEntry[]` — obligatoire, démarre avec `{ actionCode: "added" }`
 - `shotNotes?: ShotNote[]` — notes par vue
 
+**Organisation**
+- `tags?: string[]` — libellés libres saisis par l'utilisateur pour regrouper les pellicules (projet, voyage, série). Dédupliqués par film (case-insensitive), triés via `collectAllTags(films)` pour l'autocomplete.
+
 ### Poses par défaut
 
 Créés par `createNewFilm()` (`src/utils/film-factory.ts`) via la table `DEFAULT_POSES` :

@@ -5,6 +5,7 @@ export const en = {
 		confirm: "Confirm",
 		yes: "Yes",
 		no: "No",
+		removeTag: "Remove tag",
 	},
 
 	// Navigation
@@ -93,6 +94,7 @@ export const en = {
 		reset: "Reset",
 		apply: "Apply",
 		clearAll: "Clear all",
+		tags: "Tags",
 		resultCount_one: "{{count}} film",
 		resultCount_other: "{{count}} films",
 	},
@@ -113,6 +115,7 @@ export const en = {
 		byFormat: "By format",
 		byCamera: "By camera",
 		byLens: "By lens",
+		byTag: "By project / tag",
 		favoriteFilms: "Favorite films",
 		unknown: "Unknown",
 		expenses: "Expenses",
@@ -149,6 +152,9 @@ export const en = {
 		addButton_one: "Add film",
 		addButton_other: "Add {{count}} films",
 		addedToStock: "Added to stock",
+		tags: "Tags",
+		tagsPlaceholder: "E.g. Japan trip 2025, Portrait…",
+		createTag: 'Create "{{value}}"',
 	},
 
 	// Film types (display labels)
@@ -601,6 +607,7 @@ export const en = {
 		viewFilm: "View film",
 		allFilms: "All",
 		allTypes: "All types",
+		allTags: "All tags",
 		filterByFilm: "By film",
 		filterByType: "By type",
 		recenter: "Recenter",

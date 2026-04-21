@@ -61,6 +61,7 @@ export function FilmDetailScreen({
 		storageLocation: "",
 		comment: "",
 		price: "",
+		tags: [],
 		shootIso: "",
 		cameraId: "",
 		backId: "",
@@ -103,6 +104,7 @@ export function FilmDetailScreen({
 			storageLocation: film.storageLocation || "",
 			comment: film.comment || "",
 			price: film.price != null ? String(film.price) : "",
+			tags: film.tags ?? [],
 			shootIso: film.shootIso != null ? String(film.shootIso) : "",
 			cameraId: film.cameraId || "",
 			backId: film.backId || "",
@@ -215,6 +217,11 @@ export function FilmDetailScreen({
 					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{film.format}</Badge>
 					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{filmType(film)}</Badge>
 					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>ISO {fIso}</Badge>
+					{film.tags?.map((tag) => (
+						<Badge key={tag} style={{ color: T.accent, background: alpha(T.accent, 0.12) }}>
+							{tag}
+						</Badge>
+					))}
 				</div>
 			</div>
 

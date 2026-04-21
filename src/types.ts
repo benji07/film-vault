@@ -97,6 +97,7 @@ export interface Film {
 	storageLocation?: string | null;
 	history: HistoryEntry[];
 	shotNotes?: ShotNote[];
+	tags?: string[];
 }
 
 export interface Back {

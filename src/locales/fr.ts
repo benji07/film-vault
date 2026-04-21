@@ -5,6 +5,7 @@ export const fr = {
 		confirm: "Confirmer",
 		yes: "Oui",
 		no: "Non",
+		removeTag: "Retirer le tag",
 	},
 
 	// Navigation
@@ -93,6 +94,7 @@ export const fr = {
 		reset: "Réinitialiser",
 		apply: "Appliquer",
 		clearAll: "Tout effacer",
+		tags: "Tags",
 		resultCount_one: "{{count}} pellicule",
 		resultCount_other: "{{count}} pellicules",
 	},
@@ -113,6 +115,7 @@ export const fr = {
 		byFormat: "Par format",
 		byCamera: "Par appareil",
 		byLens: "Par objectif",
+		byTag: "Par projet / tag",
 		favoriteFilms: "Films favoris",
 		unknown: "Inconnu",
 		expenses: "Dépenses",
@@ -149,6 +152,9 @@ export const fr = {
 		addButton_one: "Ajouter la pellicule",
 		addButton_other: "Ajouter {{count}} pellicules",
 		addedToStock: "Ajoutée au stock",
+		tags: "Tags",
+		tagsPlaceholder: "Ex : Voyage Japon 2025, Portrait…",
+		createTag: 'Créer "{{value}}"',
 	},
 
 	// Film types (display labels)
@@ -601,6 +607,7 @@ export const fr = {
 		viewFilm: "Voir la pellicule",
 		allFilms: "Toutes",
 		allTypes: "Tous les types",
+		allTags: "Tous les tags",
 		filterByFilm: "Par pellicule",
 		filterByType: "Par type",
 		recenter: "Recentrer",

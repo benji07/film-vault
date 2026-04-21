@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Film } from "@/types";
-import { filmName, normalizeBrand } from "@/utils/film-helpers";
+import { collectAllTags, filmName, normalizeBrand } from "@/utils/film-helpers";
 
 export type SortOption =
 	| "name-asc"
@@ -19,6 +19,7 @@ export interface StockFilters {
 	type: string;
 	brands: string[];
 	isoValues: number[];
+	tags: string[];
 }
 
 interface ActiveFilter {
@@ -92,6 +93,7 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 		type: "all",
 		brands: [],
 		isoValues: [],
+		tags: [],
 	});
 	const [sortOption, setSortOption] = useState<SortOption>("name-asc");
 
@@ -133,6 +135,8 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 		return Array.from(isos).sort((a, b) => a - b);
 	}, [films]);
 
+	const availableTags = useMemo(() => collectAllTags(films), [films]);
+
 	const filteredFilms = useMemo(() => {
 		const result = films.filter((f) => {
 			if (stateFilter !== "all" && f.state !== stateFilter) return false;
@@ -144,6 +148,10 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 			}
 			if (filters.isoValues.length > 0) {
 				if (!f.iso || !filters.isoValues.includes(f.iso)) return false;
+			}
+			if (filters.tags.length > 0) {
+				const filmTags = f.tags ?? [];
+				if (!filmTags.some((t) => filters.tags.includes(t))) return false;
 			}
 			if (search) {
 				const name = filmName(f);
@@ -159,7 +167,11 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 
 	const hasActiveFilters = useMemo(
 		() =>
-			filters.format !== "all" || filters.type !== "all" || filters.brands.length > 0 || filters.isoValues.length > 0,
+			filters.format !== "all" ||
+			filters.type !== "all" ||
+			filters.brands.length > 0 ||
+			filters.isoValues.length > 0 ||
+			filters.tags.length > 0,
 		[filters],
 	);
 
@@ -176,6 +188,9 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 		}
 		for (const iso of filters.isoValues) {
 			descriptions.push({ key: `iso:${iso}`, label: `ISO ${iso}` });
+		}
+		for (const tag of filters.tags) {
+			descriptions.push({ key: `tag:${tag}`, label: tag });
 		}
 		return descriptions;
 	}, [filters]);
@@ -195,6 +210,12 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 			isoValues: prev.isoValues.includes(iso) ? prev.isoValues.filter((i) => i !== iso) : [...prev.isoValues, iso],
 		}));
 
+	const toggleTag = (tag: string) =>
+		setFilters((prev) => ({
+			...prev,
+			tags: prev.tags.includes(tag) ? prev.tags.filter((t) => t !== tag) : [...prev.tags, tag],
+		}));
+
 	const removeFilter = (key: string) => {
 		if (key === "format") {
 			setFormat("all");
@@ -206,12 +227,15 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 		} else if (key.startsWith("iso:")) {
 			const iso = Number(key.slice(4));
 			setFilters((prev) => ({ ...prev, isoValues: prev.isoValues.filter((i) => i !== iso) }));
+		} else if (key.startsWith("tag:")) {
+			const tag = key.slice(4);
+			setFilters((prev) => ({ ...prev, tags: prev.tags.filter((t) => t !== tag) }));
 		}
 	};
 
 	const resetFilters = () => {
 		setStateFilter("all");
-		setFilters({ format: "all", type: "all", brands: [], isoValues: [] });
+		setFilters({ format: "all", type: "all", brands: [], isoValues: [], tags: [] });
 	};
 
 	return {
@@ -228,12 +252,14 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 		availableTypes,
 		availableBrands,
 		availableIsoValues,
+		availableTags,
 		hasActiveFilters,
 		activeFilterDescriptions,
 		setFormat,
 		setType,
 		toggleBrand,
 		toggleIso,
+		toggleTag,
 		removeFilter,
 		resetFilters,
 	};

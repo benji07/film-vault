@@ -12,6 +12,7 @@ import { NoteSheet } from "@/components/map/NoteSheet";
 import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import type { AppData, FilmType, ScreenName } from "@/types";
+import { collectAllTags } from "@/utils/film-helpers";
 import type { Cluster, GeoNote } from "@/utils/map-helpers";
 import { clusterNotes, collectGeoNotes, DARK_STYLE, fitMapToBounds, LIGHT_STYLE } from "@/utils/map-helpers";
 
@@ -31,6 +32,7 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 	const [zoom, setZoom] = useState(3);
 	const [localFilterFilmId, setLocalFilterFilmId] = useState<string | null>(filterFilmId);
 	const [filterType, setFilterType] = useState<FilmType | null>(null);
+	const [filterTag, setFilterTag] = useState<string | null>(null);
 	const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
 	const [selectedNote, setSelectedNote] = useState<GeoNote | null>(null);
 	const [locating, setLocating] = useState(false);
@@ -40,6 +42,10 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 	}, [filterFilmId]);
 
 	const allGeoNotes = useMemo(() => collectGeoNotes(data.films), [data.films]);
+	const availableTags = useMemo(() => {
+		const filmIds = new Set(allGeoNotes.map((n) => n.film.id));
+		return collectAllTags(data.films.filter((f) => filmIds.has(f.id)));
+	}, [data.films, allGeoNotes]);
 
 	const filteredNotes = useMemo(() => {
 		let notes = allGeoNotes;
@@ -49,8 +55,11 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 		if (filterType) {
 			notes = notes.filter((n) => n.film.type === filterType);
 		}
+		if (filterTag) {
+			notes = notes.filter((n) => n.film.tags?.includes(filterTag));
+		}
 		return notes;
-	}, [allGeoNotes, localFilterFilmId, filterType]);
+	}, [allGeoNotes, localFilterFilmId, filterType, filterTag]);
 
 	const clusters = useMemo(() => clusterNotes(filteredNotes, zoom), [filteredNotes, zoom]);
 
@@ -144,8 +153,11 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 				films={data.films}
 				filterFilmId={localFilterFilmId}
 				filterType={filterType}
+				filterTag={filterTag}
+				availableTags={availableTags}
 				onFilterFilm={setLocalFilterFilmId}
 				onFilterType={setFilterType}
+				onFilterTag={setFilterTag}
 				onClearFilter={onClearFilter}
 			/>
 

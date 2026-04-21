@@ -24,6 +24,7 @@ interface NewFilmParams {
 	price?: number | null;
 	posesTotal?: number;
 	storageLocation?: string | null;
+	tags?: string[];
 }
 
 export function createNewFilm(params: NewFilmParams): Film {
@@ -52,5 +53,6 @@ export function createNewFilm(params: NewFilmParams): Film {
 		devDate: null,
 		storageLocation: params.storageLocation ?? null,
 		history: [{ date: today(), action: "", actionCode: "added" }],
+		tags: params.tags && params.tags.length > 0 ? params.tags : undefined,
 	};
 }

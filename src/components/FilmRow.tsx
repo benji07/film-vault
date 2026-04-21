@@ -69,6 +69,11 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowPr
 					{expInfo && expInfo.status !== "ok" && (
 						<Badge style={{ color: expInfo.color, background: expInfo.bgColor }}>{expInfo.label}</Badge>
 					)}
+					{film.tags?.map((tag) => (
+						<Badge key={tag} style={{ color: T.accent, background: alpha(T.accent, 0.12) }}>
+							{tag}
+						</Badge>
+					))}
 				</div>
 			</div>
 			<ChevronRight size={16} className="text-text-muted" />

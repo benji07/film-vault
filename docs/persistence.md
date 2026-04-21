@@ -44,7 +44,7 @@ raw = localStorage.getItem("filmvault-data")
 
 ## Migrations : `src/utils/migrations.ts`
 
-Constante `CURRENT_VERSION = 17`. L'objet `migrations: Record<number, MigrationFn>` associe chaque version source à une fonction `(data) => newData`.
+Constante `CURRENT_VERSION = 18`. L'objet `migrations: Record<number, MigrationFn>` associe chaque version source à une fonction `(data) => newData`.
 
 Fonction publique :
 
@@ -74,6 +74,7 @@ Applique séquentiellement `migrations[v]` tant que `version < CURRENT_VERSION`,
 | 14 → 15 | `migrateV14toV15` | Champs optionnels `devCost`, `scanCost`, `devScanPackage` sur `Film`. Pas de transformation. |
 | 15 → 16 | `migrateV15toV16` | Bump (schéma cloud normalisé côté Supabase). |
 | 16 → 17 | `migrateV16toV17` | Ajoute `soldAt` optionnel sur `Camera`, `Back`, `Lens`. Pas de transformation. |
+| 17 → 18 | `migrateV17toV18` | Ajoute `tags` optionnel sur `Film`. Pas de transformation. |
 
 ## Ajouter une migration
 
@@ -81,23 +82,23 @@ Applique séquentiellement `migrations[v]` tant que `version < CURRENT_VERSION`,
 
 1. **Incrémenter** la constante dans `src/utils/migrations.ts` :
    ```ts
-   export const CURRENT_VERSION = 18;
+   export const CURRENT_VERSION = 19;
    ```
 2. **Écrire** la fonction :
    ```ts
-   function migrateV17toV18(data: Record<string, unknown>): Record<string, unknown> {
+   function migrateV18toV19(data: Record<string, unknown>): Record<string, unknown> {
      // Transformations sur data.films / data.cameras / data.backs / data.lenses
-     return { ...data, version: 18 };
+     return { ...data, version: 19 };
    }
    ```
    - Toujours retourner un nouvel objet avec `version` incrémenté.
-   - Typer les structures intermédiaires via des interfaces locales (`V17Film` ex.) si nécessaire pour documenter le schéma source.
+   - Typer les structures intermédiaires via des interfaces locales (`V18Film` ex.) si nécessaire pour documenter le schéma source.
    - Les champs purement optionnels (présent ou `undefined`) peuvent n'avoir qu'un bump sans transformation.
 3. **Enregistrer** dans l'objet `migrations` :
    ```ts
    const migrations: Record<number, MigrationFn> = {
      …
-     17: migrateV17toV18,
+     18: migrateV18toV19,
    };
    ```
 4. **Mettre à jour** `validateAppData` / `normalizeAppData` si le nouveau champ impose une invariance.

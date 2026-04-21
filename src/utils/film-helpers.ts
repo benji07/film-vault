@@ -27,3 +27,13 @@ export const filmBrand = (film: Film): string => (film.brand ? normalizeBrand(fi
 export const filmType = (film: Film): string => film.type || "?";
 
 export const filmIso = (film: Film): number | string => film.iso || "?";
+
+export const collectAllTags = (films: Film[]): string[] => {
+	const tags = new Set<string>();
+	for (const f of films) {
+		if (f.tags) {
+			for (const tag of f.tags) tags.add(tag);
+		}
+	}
+	return Array.from(tags).sort((a, b) => a.localeCompare(b));
+};
