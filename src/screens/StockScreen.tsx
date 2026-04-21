@@ -200,10 +200,12 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm, initi
 				availableTypes={stockFilters.availableTypes}
 				availableBrands={stockFilters.availableBrands}
 				availableIsoValues={stockFilters.availableIsoValues}
+				availableTags={stockFilters.availableTags}
 				onSetFormat={stockFilters.setFormat}
 				onSetType={stockFilters.setType}
 				onToggleBrand={stockFilters.toggleBrand}
 				onToggleIso={stockFilters.toggleIso}
+				onToggleTag={stockFilters.toggleTag}
 				onReset={stockFilters.resetFilters}
 			/>
 		</div>

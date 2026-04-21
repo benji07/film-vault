@@ -33,6 +33,7 @@ export interface EditData {
 	storageLocation: string;
 	comment: string;
 	price: string;
+	tags: string[];
 	// Loading
 	shootIso: string;
 	cameraId: string;

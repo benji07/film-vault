@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 17;
+export const CURRENT_VERSION = 18;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -244,6 +244,11 @@ function migrateV16toV17(data: Record<string, unknown>): Record<string, unknown>
 	return { ...data, version: 17 };
 }
 
+function migrateV17toV18(data: Record<string, unknown>): Record<string, unknown> {
+	// Add tags to Film. Optional field, no transformation needed.
+	return { ...data, version: 18 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -261,6 +266,7 @@ const migrations: Record<number, MigrationFn> = {
 	14: migrateV14toV15,
 	15: migrateV15toV16,
 	16: migrateV16toV17,
+	17: migrateV17toV18,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

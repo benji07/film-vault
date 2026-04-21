@@ -10,9 +10,11 @@ import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { TagInput } from "@/components/ui/tag-input";
 import { alpha, T } from "@/constants/theme";
 import { type AppData, type Back, type Camera, type Film, isInstantFormat } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
+import { collectAllTags } from "@/utils/film-helpers";
 import { today } from "@/utils/helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 import type { ActionType, EditData } from "./types";
@@ -152,6 +154,13 @@ export function EditModal({
 							placeholder={t("addFilm.notesPlaceholder")}
 						/>
 					</FormField>
+					<TagInput
+						label={t("addFilm.tags")}
+						value={editData.tags}
+						onChange={(tags) => setEditData({ ...editData, tags })}
+						suggestions={collectAllTags(data.films)}
+						placeholder={t("addFilm.tagsPlaceholder")}
+					/>
 
 					{/* === Loading section === */}
 					{showLoading && (
@@ -433,6 +442,7 @@ export function EditModal({
 								storageLocation: editData.storageLocation.trim() || null,
 								price: editData.price.trim() ? safeFloat(editData.price) : null,
 								comment: editData.comment.trim() || null,
+								tags: editData.tags.length > 0 ? editData.tags : undefined,
 								history: [...(film.history || []), { date: today(), action: "", actionCode: "modified" }],
 							};
 							if (showLoading) {

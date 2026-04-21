@@ -28,6 +28,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 	const byFormat: Record<string, number> = {};
 	const byCamera: Record<string, number> = {};
 	const byLens: Record<string, number> = {};
+	const byTag: Record<string, number> = {};
 	const topFilms: Record<string, number> = {};
 	const byYearMonth: Record<string, number> = {};
 	let shotCount = 0;
@@ -62,6 +63,12 @@ export function StatsScreen({ data }: StatsScreenProps) {
 		if (f.endDate && consumedStates.has(f.state)) {
 			const ym = f.endDate.slice(0, 7);
 			byYearMonth[ym] = (byYearMonth[ym] || 0) + 1;
+		}
+
+		if (f.tags) {
+			for (const tag of f.tags) {
+				byTag[tag] = (byTag[tag] || 0) + 1;
+			}
 		}
 	}
 
@@ -160,6 +167,13 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				<Card>
 					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.byLens")}</span>
 					<BarChart data={byLens} color={T.blue} />
+				</Card>
+			)}
+
+			{Object.keys(byTag).length > 0 && (
+				<Card>
+					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.byTag")}</span>
+					<BarChart data={byTag} color={T.accent} />
 				</Card>
 			)}
 

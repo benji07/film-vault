@@ -13,10 +13,12 @@ interface StockFilterDialogProps {
 	availableTypes: string[];
 	availableBrands: string[];
 	availableIsoValues: number[];
+	availableTags: string[];
 	onSetFormat: (v: string) => void;
 	onSetType: (v: string) => void;
 	onToggleBrand: (brand: string) => void;
 	onToggleIso: (iso: number) => void;
+	onToggleTag: (tag: string) => void;
 	onReset: () => void;
 }
 
@@ -28,10 +30,12 @@ export function StockFilterDialog({
 	availableTypes,
 	availableBrands,
 	availableIsoValues,
+	availableTags,
 	onSetFormat,
 	onSetType,
 	onToggleBrand,
 	onToggleIso,
+	onToggleTag,
 	onReset,
 }: StockFilterDialogProps) {
 	const { t } = useTranslation();
@@ -93,6 +97,18 @@ export function StockFilterDialog({
 								{availableIsoValues.map((iso) => (
 									<Chip key={iso} active={filters.isoValues.includes(iso)} onClick={() => onToggleIso(iso)}>
 										{iso}
+									</Chip>
+								))}
+							</div>
+						</FormField>
+					)}
+
+					{availableTags.length > 0 && (
+						<FormField label={t("stock.tags")}>
+							<div className="flex flex-wrap gap-1.5">
+								{availableTags.map((tag) => (
+									<Chip key={tag} active={filters.tags.includes(tag)} onClick={() => onToggleTag(tag)}>
+										{tag}
 									</Chip>
 								))}
 							</div>

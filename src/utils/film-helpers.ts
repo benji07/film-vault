@@ -27,3 +27,15 @@ export const filmBrand = (film: Film): string => (film.brand ? normalizeBrand(fi
 export const filmType = (film: Film): string => film.type || "?";
 
 export const filmIso = (film: Film): number | string => film.iso || "?";
+
+export const collectAllTags = (films: Film[]): string[] => {
+	const canonical = new Map<string, string>();
+	for (const f of films) {
+		if (!f.tags) continue;
+		for (const tag of f.tags) {
+			const key = tag.toLowerCase();
+			if (!canonical.has(key)) canonical.set(key, tag);
+		}
+	}
+	return Array.from(canonical.values()).sort((a, b) => a.localeCompare(b));
+};

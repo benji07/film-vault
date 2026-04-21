@@ -10,8 +10,11 @@ interface MapFilterBarProps {
 	films: Film[];
 	filterFilmId: string | null;
 	filterType: FilmType | null;
+	filterTag: string | null;
+	availableTags: string[];
 	onFilterFilm: (id: string | null) => void;
 	onFilterType: (type: FilmType | null) => void;
+	onFilterTag: (tag: string | null) => void;
 	onClearFilter: () => void;
 }
 
@@ -21,8 +24,11 @@ export function MapFilterBar({
 	films,
 	filterFilmId,
 	filterType,
+	filterTag,
+	availableTags,
 	onFilterFilm,
 	onFilterType,
+	onFilterTag,
 	onClearFilter,
 }: MapFilterBarProps) {
 	const { t } = useTranslation();
@@ -51,6 +57,25 @@ export function MapFilterBar({
 					</Chip>
 				))}
 			</div>
+
+			{/* Tag filter */}
+			{availableTags.length > 0 && (
+				<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+					<Chip active={filterTag == null} onClick={() => onFilterTag(null)} className="shrink-0 text-xs shadow-md">
+						{t("map.allTags")}
+					</Chip>
+					{availableTags.map((tag) => (
+						<Chip
+							key={tag}
+							active={filterTag === tag}
+							onClick={() => onFilterTag(filterTag === tag ? null : tag)}
+							className="shrink-0 text-xs shadow-md"
+						>
+							{tag}
+						</Chip>
+					))}
+				</div>
+			)}
 
 			{/* Film filter */}
 			{filmsWithGeo.length > 1 && (

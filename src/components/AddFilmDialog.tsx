@@ -9,8 +9,10 @@ import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } f
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
+import { TagInput } from "@/components/ui/tag-input";
 import { type AppData, isInstantFormat } from "@/types";
 import { createNewFilm } from "@/utils/film-factory";
+import { collectAllTags } from "@/utils/film-helpers";
 import { currentMonthYear } from "@/utils/helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 
@@ -35,6 +37,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 	const [storageLocation, setStorageLocation] = useState("");
 	const [price, setPrice] = useState("");
 	const [comment, setComment] = useState("");
+	const [tags, setTags] = useState<string[]>([]);
 
 	useEffect(() => {
 		if (!open) {
@@ -48,6 +51,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 			setPrice("");
 			setStorageLocation("");
 			setComment("");
+			setTags([]);
 		}
 	}, [open]);
 
@@ -72,6 +76,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 			comment: comment.trim() || null,
 			price: price.trim() ? Number.parseFloat(price) : null,
 			storageLocation: storageLocation.trim() || null,
+			tags: tags.length > 0 ? tags : undefined,
 		};
 		const newFilms = Array.from({ length: qty }, () => createNewFilm(params));
 		const updated = { ...data, films: [...data.films, ...newFilms] };
@@ -167,6 +172,14 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 							placeholder={t("addFilm.notesPlaceholder")}
 						/>
 					</FormField>
+
+					<TagInput
+						label={t("addFilm.tags")}
+						value={tags}
+						onChange={setTags}
+						suggestions={collectAllTags(data.films)}
+						placeholder={t("addFilm.tagsPlaceholder")}
+					/>
 
 					<Button onClick={handleSave} disabled={!brand || !model} className="w-full justify-center py-3.5 px-5">
 						<Plus size={16} /> {t("addFilm.addButton", { count: qty })}
