@@ -153,6 +153,7 @@ export function FilmDetailScreen({
 			price: film.price ?? null,
 			posesTotal: film.posesTotal ?? undefined,
 			storageLocation: film.storageLocation ?? null,
+			tags: film.tags,
 		});
 		newFilm.history = [{ date: today(), action: "", actionCode: "duplicated", params: { name: filmName(film) } }];
 		setData({ ...data, films: [...data.films, newFilm] });

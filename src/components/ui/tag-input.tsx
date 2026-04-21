@@ -31,8 +31,9 @@ function TagInput({ label, value, onChange, suggestions, placeholder, className 
 	const addTag = (tag: string) => {
 		const normalized = tag.trim();
 		if (!normalized) return;
-		if (value.some((v) => v.toLowerCase() === normalized.toLowerCase())) return;
-		onChange([...value, normalized]);
+		const canonical = suggestions.find((s) => s.toLowerCase() === normalized.toLowerCase()) ?? normalized;
+		if (value.some((v) => v.toLowerCase() === canonical.toLowerCase())) return;
+		onChange([...value, canonical]);
 		setInput("");
 		setIsOpen(false);
 		inputRef.current?.focus();

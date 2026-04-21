@@ -56,7 +56,8 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 			notes = notes.filter((n) => n.film.type === filterType);
 		}
 		if (filterTag) {
-			notes = notes.filter((n) => n.film.tags?.includes(filterTag));
+			const target = filterTag.toLowerCase();
+			notes = notes.filter((n) => n.film.tags?.some((t) => t.toLowerCase() === target));
 		}
 		return notes;
 	}, [allGeoNotes, localFilterFilmId, filterType, filterTag]);

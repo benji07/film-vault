@@ -151,7 +151,8 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 			}
 			if (filters.tags.length > 0) {
 				const filmTags = f.tags ?? [];
-				if (!filmTags.some((t) => filters.tags.includes(t))) return false;
+				const selected = filters.tags.map((t) => t.toLowerCase());
+				if (!filmTags.some((t) => selected.includes(t.toLowerCase()))) return false;
 			}
 			if (search) {
 				const name = filmName(f);
