@@ -151,7 +151,9 @@ export async function pullFromCloud(_code: string): Promise<PullResult> {
 
 		const cloudData = row.data as unknown;
 		if (!validateAppData(cloudData)) {
-			console.error("Cloud data validation failed:", JSON.stringify(row.data).slice(0, 200));
+			if (import.meta.env.DEV) {
+				console.error("Cloud data validation failed:", JSON.stringify(row.data).slice(0, 200));
+			}
 			return { error: "invalid_data" };
 		}
 
