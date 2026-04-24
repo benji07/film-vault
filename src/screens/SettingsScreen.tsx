@@ -50,7 +50,7 @@ interface SettingsScreenProps {
 	onRecoveryCodeChange: (code: string | null) => void;
 	onSyncNow: () => void;
 	persistent: boolean;
-	setScreen: (screen: import("@/types").ScreenName) => void;
+	onOpenLegal: () => void;
 }
 
 export function SettingsScreen({
@@ -61,7 +61,7 @@ export function SettingsScreen({
 	onRecoveryCodeChange,
 	onSyncNow,
 	persistent,
-	setScreen,
+	onOpenLegal,
 }: SettingsScreenProps) {
 	const { t, i18n } = useTranslation();
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -426,11 +426,7 @@ export function SettingsScreen({
 				</Card>
 			)}
 
-			<Button
-				variant="ghost"
-				onClick={() => setScreen("legal")}
-				className="w-full justify-center text-text-muted text-xs"
-			>
+			<Button variant="ghost" onClick={onOpenLegal} className="w-full justify-center text-text-muted text-xs">
 				{t("settings.legalNotices")}
 			</Button>
 

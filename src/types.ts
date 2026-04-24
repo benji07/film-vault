@@ -172,6 +172,14 @@ export type ScreenName =
 	| "legal"
 	| "map";
 
+export interface NavigationEntry {
+	screen: ScreenName;
+	selectedFilm?: string | null;
+	selectedCamera?: string | null;
+	mapFilterFilmId?: string | null;
+	stockStateFilter?: string | null;
+}
+
 export interface StateConfig {
 	label: string;
 	color: string;
