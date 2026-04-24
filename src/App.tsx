@@ -3,8 +3,13 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import { AddFilmDialog } from "@/components/AddFilmDialog";
 import { AppHeader } from "@/components/AppHeader";
+import { AddBackDialog } from "@/components/equipment/AddBackDialog";
+import { AddCameraDialog } from "@/components/equipment/AddCameraDialog";
+import { AddLensDialog } from "@/components/equipment/AddLensDialog";
+import { FloatingActionMenu } from "@/components/FloatingActionMenu";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
+import { QuickShotDialog } from "@/components/QuickShotDialog";
 import { TabBar } from "@/components/TabBar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider, useToast } from "@/components/Toast";
@@ -36,6 +41,10 @@ function FilmVaultInner() {
 	const nav = useNavigationStack({ screen: "home" });
 	const [autoOpenShotNote, setAutoOpenShotNote] = useState(false);
 	const [showAddFilm, setShowAddFilm] = useState(false);
+	const [showAddCamera, setShowAddCamera] = useState(false);
+	const [showAddLens, setShowAddLens] = useState(false);
+	const [showAddBack, setShowAddBack] = useState(false);
+	const [showQuickShot, setShowQuickShot] = useState(false);
 	const [persistent, setPersistent] = useState(false);
 	const [syncing, setSyncing] = useState(false);
 	const [recoveryCode, setRecoveryCodeState] = useState<string | null>(null);
@@ -178,6 +187,14 @@ function FilmVaultInner() {
 				setAutoOpenShotNote={setAutoOpenShotNote}
 				showAddFilm={showAddFilm}
 				setShowAddFilm={setShowAddFilm}
+				showAddCamera={showAddCamera}
+				setShowAddCamera={setShowAddCamera}
+				showAddLens={showAddLens}
+				setShowAddLens={setShowAddLens}
+				showAddBack={showAddBack}
+				setShowAddBack={setShowAddBack}
+				showQuickShot={showQuickShot}
+				setShowQuickShot={setShowQuickShot}
 				syncing={syncing}
 				recoveryCode={recoveryCode}
 				setRecoveryCodeState={setRecoveryCodeState}
@@ -197,6 +214,14 @@ interface AppContentProps {
 	setAutoOpenShotNote: (open: boolean) => void;
 	showAddFilm: boolean;
 	setShowAddFilm: (open: boolean) => void;
+	showAddCamera: boolean;
+	setShowAddCamera: (open: boolean) => void;
+	showAddLens: boolean;
+	setShowAddLens: (open: boolean) => void;
+	showAddBack: boolean;
+	setShowAddBack: (open: boolean) => void;
+	showQuickShot: boolean;
+	setShowQuickShot: (open: boolean) => void;
 	syncing: boolean;
 	recoveryCode: string | null;
 	setRecoveryCodeState: (code: string | null) => void;
@@ -213,6 +238,14 @@ function AppContent({
 	setAutoOpenShotNote,
 	showAddFilm,
 	setShowAddFilm,
+	showAddCamera,
+	setShowAddCamera,
+	showAddLens,
+	setShowAddLens,
+	showAddBack,
+	setShowAddBack,
+	showQuickShot,
+	setShowQuickShot,
 	syncing,
 	recoveryCode,
 	setRecoveryCodeState,
@@ -437,6 +470,43 @@ function AppContent({
 				onOpenChange={setShowAddFilm}
 				data={effectiveData}
 				setData={effectiveUpdateData}
+			/>
+			<AddCameraDialog
+				open={showAddCamera}
+				onOpenChange={setShowAddCamera}
+				data={effectiveData}
+				setData={effectiveUpdateData}
+			/>
+			<AddLensDialog
+				open={showAddLens}
+				onOpenChange={setShowAddLens}
+				data={effectiveData}
+				setData={effectiveUpdateData}
+			/>
+			<AddBackDialog
+				open={showAddBack}
+				onOpenChange={setShowAddBack}
+				data={effectiveData}
+				setData={effectiveUpdateData}
+			/>
+			<QuickShotDialog
+				open={showQuickShot}
+				onOpenChange={setShowQuickShot}
+				data={effectiveData}
+				setData={effectiveUpdateData}
+				onAddFilm={() => {
+					setShowQuickShot(false);
+					setShowAddFilm(true);
+				}}
+			/>
+			<FloatingActionMenu
+				visible={showTabBar && !isTourActive}
+				hasLoadedFilm={effectiveData.films.some((f) => f.state === "loaded" || f.state === "partial")}
+				onAddFilm={() => setShowAddFilm(true)}
+				onAddCamera={() => setShowAddCamera(true)}
+				onAddLens={() => setShowAddLens(true)}
+				onAddBack={() => setShowAddBack(true)}
+				onQuickShot={() => setShowQuickShot(true)}
 			/>
 			<PwaUpdateBanner />
 			<PwaInstallBanner />

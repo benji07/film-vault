@@ -553,6 +553,38 @@ export const en = {
 		reload: "Reload",
 	},
 
+	// Floating action menu (FAB)
+	fab: {
+		openMenu: "Quick add menu",
+		title: "Add",
+		film: "Film",
+		camera: "Camera",
+		lens: "Lens",
+		back: "Back",
+		quickShot: "Log a shot",
+		quickShotDisabled: "Load a film to start",
+	},
+
+	// Quick shot dialog
+	quickShot: {
+		title: "Log a shot",
+		filmField: "Film",
+		filmPlaceholder: "Choose a loaded film…",
+		frameField: "Frame #",
+		apertureField: "Aperture",
+		shutterField: "Shutter",
+		lensField: "Lens",
+		noteField: "Note",
+		locationField: "Location",
+		photoField: "Photo",
+		save: "Save",
+		saveAndNext: "Save + next",
+		saved: "Shot saved",
+		emptyMessage: "No film currently loaded or partially exposed.",
+		addFilm: "Add a film",
+		cancel: "Cancel",
+	},
+
 	// App-level
 	app: {
 		loading: "Loading data…",

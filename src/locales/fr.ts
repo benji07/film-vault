@@ -553,6 +553,38 @@ export const fr = {
 		reload: "Recharger",
 	},
 
+	// Floating action menu (FAB)
+	fab: {
+		openMenu: "Menu d'ajout rapide",
+		title: "Ajouter",
+		film: "Pellicule",
+		camera: "Appareil",
+		lens: "Objectif",
+		back: "Dos",
+		quickShot: "Noter une prise de vue",
+		quickShotDisabled: "Charge une pellicule pour commencer",
+	},
+
+	// Quick shot dialog
+	quickShot: {
+		title: "Noter une prise",
+		filmField: "Pellicule",
+		filmPlaceholder: "Choisir une pellicule chargée…",
+		frameField: "Vue n°",
+		apertureField: "Ouverture",
+		shutterField: "Vitesse",
+		lensField: "Objectif",
+		noteField: "Note",
+		locationField: "Lieu",
+		photoField: "Photo",
+		save: "Enregistrer",
+		saveAndNext: "Enregistrer + suivante",
+		saved: "Prise enregistrée",
+		emptyMessage: "Aucune pellicule chargée ou partiellement exposée.",
+		addFilm: "Ajouter une pellicule",
+		cancel: "Annuler",
+	},
+
 	// App-level
 	app: {
 		loading: "Chargement des données…",
