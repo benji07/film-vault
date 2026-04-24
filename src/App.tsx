@@ -27,6 +27,9 @@ import { useNavigationStack } from "@/utils/use-navigation-stack";
 
 const MapScreen = lazy(() => import("@/screens/MapScreen").then((m) => ({ default: m.MapScreen })));
 
+// Screens without a bottom tab: hide the tabbar and animate as sub-screens.
+const SUB_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetail", "settings", "legal"]);
+
 function FilmVaultInner() {
 	const [data, setData] = useState<AppData | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -140,16 +143,9 @@ function FilmVaultInner() {
 
 	const { resetTo: navResetTo, replace: navReplace, current: navCurrent } = nav;
 
-	// TabBar: tabs are top-level, they reset the history stack.
-	const tabSetScreen = useCallback(
-		(s: ScreenName) => {
-			navResetTo({ screen: s });
-		},
-		[navResetTo],
-	);
-
-	// Tour: scripted screen jumps should not pollute history.
-	const tourSetScreen = useCallback(
+	// Both the TabBar (top-level tabs) and the Tour (scripted jumps) want to
+	// move without pushing onto the history stack.
+	const resetScreen = useCallback(
 		(s: ScreenName) => {
 			navResetTo({ screen: s });
 		},
@@ -172,12 +168,12 @@ function FilmVaultInner() {
 	}
 
 	return (
-		<TourProvider setScreen={tourSetScreen} setSelectedFilm={tourSetSelectedFilm}>
+		<TourProvider setScreen={resetScreen} setSelectedFilm={tourSetSelectedFilm}>
 			<AppContent
 				data={data}
 				updateData={updateData}
 				nav={nav}
-				tabSetScreen={tabSetScreen}
+				resetScreen={resetScreen}
 				autoOpenShotNote={autoOpenShotNote}
 				setAutoOpenShotNote={setAutoOpenShotNote}
 				showAddFilm={showAddFilm}
@@ -196,7 +192,7 @@ interface AppContentProps {
 	data: AppData;
 	updateData: (data: AppData) => Promise<void>;
 	nav: ReturnType<typeof useNavigationStack>;
-	tabSetScreen: (s: ScreenName) => void;
+	resetScreen: (s: ScreenName) => void;
 	autoOpenShotNote: boolean;
 	setAutoOpenShotNote: (open: boolean) => void;
 	showAddFilm: boolean;
@@ -212,7 +208,7 @@ function AppContent({
 	data,
 	updateData,
 	nav,
-	tabSetScreen,
+	resetScreen,
 	autoOpenShotNote,
 	setAutoOpenShotNote,
 	showAddFilm,
@@ -237,15 +233,12 @@ function AppContent({
 
 	// Track navigation direction
 	useEffect(() => {
-		const detailScreens: ScreenName[] = ["filmDetail", "cameraDetail", "settings", "legal"];
 		const prev = prevScreen.current;
-		if (detailScreens.includes(screen) && !detailScreens.includes(prev)) {
-			navDirection.current = "forward";
-		} else if (!detailScreens.includes(screen) && detailScreens.includes(prev)) {
-			navDirection.current = "back";
-		} else {
-			navDirection.current = "tab";
-		}
+		const isSub = SUB_SCREENS.has(screen);
+		const wasSub = SUB_SCREENS.has(prev);
+		if (isSub && !wasSub) navDirection.current = "forward";
+		else if (!isSub && wasSub) navDirection.current = "back";
+		else navDirection.current = "tab";
 		prevScreen.current = screen;
 	}, [screen]);
 
@@ -398,12 +391,12 @@ function AppContent({
 				return cam.nickname || fallbackTitle || undefined;
 			})()
 		: undefined;
-	const showTabBar = !["filmDetail", "cameraDetail", "settings", "legal"].includes(screen);
+	const showTabBar = !SUB_SCREENS.has(screen);
 
 	return (
 		<div className="h-[100dvh] bg-bg text-text-primary font-body flex flex-col md:flex-row relative">
 			{/* Sidebar — desktop only, always visible */}
-			<TabBar screen={screen} setScreen={tabSetScreen} variant="sidebar" className="hidden md:flex" />
+			<TabBar screen={screen} setScreen={resetScreen} variant="sidebar" className="hidden md:flex" />
 
 			<main className="flex-1 flex flex-col min-h-0 min-w-0">
 				<AppHeader
@@ -436,7 +429,7 @@ function AppContent({
 				)}
 
 				{/* Bottom TabBar — mobile only */}
-				{showTabBar && <TabBar screen={screen} setScreen={tabSetScreen} className="md:hidden" />}
+				{showTabBar && <TabBar screen={screen} setScreen={resetScreen} className="md:hidden" />}
 			</main>
 
 			<AddFilmDialog
