@@ -7,24 +7,21 @@ import type { ScreenName } from "@/types";
 
 interface AppHeaderProps {
 	screen: ScreenName;
-	setScreen: (screen: ScreenName) => void;
+	goBack: () => void;
+	onOpenSettings: () => void;
 	filmTitle?: string;
 	cameraTitle?: string;
-	filmBackTarget?: ScreenName | null;
 	className?: string;
 }
 
-const backTargets: Partial<Record<ScreenName, ScreenName>> = {
-	filmDetail: "stock",
-	cameraDetail: "cameras",
-	settings: "home",
-};
+// LegalScreen renders its own back button and title in its body,
+// so it keeps the root-style header here.
+const DETAIL_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetail", "settings"]);
 
-export function AppHeader({ screen, setScreen, filmTitle, cameraTitle, filmBackTarget, className }: AppHeaderProps) {
+export function AppHeader({ screen, goBack, onOpenSettings, filmTitle, cameraTitle, className }: AppHeaderProps) {
 	const { t } = useTranslation();
 	const { theme, setTheme } = useTheme();
-	const backTarget = screen === "filmDetail" && filmBackTarget ? filmBackTarget : backTargets[screen];
-	const isSubScreen = !!backTarget;
+	const isSubScreen = DETAIL_SCREENS.has(screen);
 
 	const subScreenTitles: Partial<Record<ScreenName, string>> = {
 		filmDetail: filmTitle || t("filmDetail.back"),
@@ -42,13 +39,7 @@ export function AppHeader({ screen, setScreen, filmTitle, cameraTitle, filmBackT
 			<div className="flex items-center gap-2 min-w-0">
 				{isSubScreen ? (
 					<>
-						<Button
-							variant="ghost"
-							size="icon"
-							onClick={() => setScreen(backTarget)}
-							className="-ml-2"
-							aria-label={t("aria.back")}
-						>
+						<Button variant="ghost" size="icon" onClick={goBack} className="-ml-2" aria-label={t("aria.back")}>
 							<ArrowLeft size={20} className="text-text-sec" />
 						</Button>
 						<h1 className="font-display text-lg text-text-primary m-0 italic truncate">{subScreenTitles[screen]}</h1>
@@ -76,7 +67,7 @@ export function AppHeader({ screen, setScreen, filmTitle, cameraTitle, filmBackT
 					<Button
 						variant="outline"
 						size="icon"
-						onClick={() => setScreen("settings")}
+						onClick={onOpenSettings}
 						className="shrink-0"
 						aria-label={t("nav.settings")}
 					>

@@ -23,18 +23,17 @@ import { refreshCatalogs } from "@/utils/catalog";
 import { checkStorage, getInitialData, isStorageAvailable, loadData, saveData } from "@/utils/storage";
 import { ensureAnonSession, isSupabaseConfigured } from "@/utils/supabase";
 import { getRecoveryCode, pushToCloud, syncData } from "@/utils/sync";
+import { useNavigationStack } from "@/utils/use-navigation-stack";
 
 const MapScreen = lazy(() => import("@/screens/MapScreen").then((m) => ({ default: m.MapScreen })));
+
+// Screens without a bottom tab: hide the tabbar and animate as sub-screens.
+const SUB_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetail", "settings", "legal"]);
 
 function FilmVaultInner() {
 	const [data, setData] = useState<AppData | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [screen, setScreen] = useState<ScreenName>("home");
-	const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
-	const [selectedCamera, setSelectedCamera] = useState<string | null>(null);
-	const [filmBackTarget, setFilmBackTarget] = useState<ScreenName | null>(null);
-	const [mapFilterFilmId, setMapFilterFilmId] = useState<string | null>(null);
-	const [stockStateFilter, setStockStateFilter] = useState<string | null>(null);
+	const nav = useNavigationStack({ screen: "home" });
 	const [autoOpenShotNote, setAutoOpenShotNote] = useState(false);
 	const [showAddFilm, setShowAddFilm] = useState(false);
 	const [persistent, setPersistent] = useState(false);
@@ -142,33 +141,22 @@ function FilmVaultInner() {
 		return () => window.removeEventListener("online", handleOnline);
 	}, [triggerSync]);
 
-	const handleSetScreen = useCallback((s: ScreenName) => {
-		if (s === "map") setMapFilterFilmId(null);
-		if (s === "stock") setStockStateFilter(null);
-		if (s !== "filmDetail") setFilmBackTarget(null);
-		setScreen(s);
-	}, []);
+	const { resetTo: navResetTo, replace: navReplace, current: navCurrent } = nav;
 
-	const navigateToMap = useCallback((filmId?: string) => {
-		setMapFilterFilmId(filmId ?? null);
-		setScreen("map");
-	}, []);
-
-	const navigateToStock = useCallback((stateFilter: string) => {
-		setStockStateFilter(stateFilter);
-		setScreen("stock");
-	}, []);
-
-	const navigateToCamera = useCallback((camId: string) => {
-		setSelectedCamera(camId);
-		setScreen("cameraDetail");
-	}, []);
-
-	const navigateToFilm = useCallback((filmId: string) => {
-		setSelectedFilm(filmId);
-		setFilmBackTarget("cameraDetail");
-		setScreen("filmDetail");
-	}, []);
+	// Both the TabBar (top-level tabs) and the Tour (scripted jumps) want to
+	// move without pushing onto the history stack.
+	const resetScreen = useCallback(
+		(s: ScreenName) => {
+			navResetTo({ screen: s });
+		},
+		[navResetTo],
+	);
+	const tourSetSelectedFilm = useCallback(
+		(id: string | null) => {
+			navReplace({ ...navCurrent, selectedFilm: id });
+		},
+		[navReplace, navCurrent],
+	);
 
 	if (loading || !data) {
 		return (
@@ -180,18 +168,12 @@ function FilmVaultInner() {
 	}
 
 	return (
-		<TourProvider setScreen={setScreen} setSelectedFilm={setSelectedFilm}>
+		<TourProvider setScreen={resetScreen} setSelectedFilm={tourSetSelectedFilm}>
 			<AppContent
 				data={data}
 				updateData={updateData}
-				screen={screen}
-				handleSetScreen={handleSetScreen}
-				setScreen={setScreen}
-				selectedFilm={selectedFilm}
-				setSelectedFilm={setSelectedFilm}
-				mapFilterFilmId={mapFilterFilmId}
-				setMapFilterFilmId={setMapFilterFilmId}
-				stockStateFilter={stockStateFilter}
+				nav={nav}
+				resetScreen={resetScreen}
 				autoOpenShotNote={autoOpenShotNote}
 				setAutoOpenShotNote={setAutoOpenShotNote}
 				showAddFilm={showAddFilm}
@@ -201,12 +183,6 @@ function FilmVaultInner() {
 				setRecoveryCodeState={setRecoveryCodeState}
 				triggerSync={triggerSync}
 				persistent={persistent}
-				navigateToMap={navigateToMap}
-				navigateToStock={navigateToStock}
-				navigateToCamera={navigateToCamera}
-				navigateToFilm={navigateToFilm}
-				selectedCamera={selectedCamera}
-				filmBackTarget={filmBackTarget}
 			/>
 		</TourProvider>
 	);
@@ -215,14 +191,8 @@ function FilmVaultInner() {
 interface AppContentProps {
 	data: AppData;
 	updateData: (data: AppData) => Promise<void>;
-	screen: ScreenName;
-	handleSetScreen: (s: ScreenName) => void;
-	setScreen: (s: ScreenName) => void;
-	selectedFilm: string | null;
-	setSelectedFilm: (id: string | null) => void;
-	mapFilterFilmId: string | null;
-	setMapFilterFilmId: (id: string | null) => void;
-	stockStateFilter: string | null;
+	nav: ReturnType<typeof useNavigationStack>;
+	resetScreen: (s: ScreenName) => void;
 	autoOpenShotNote: boolean;
 	setAutoOpenShotNote: (open: boolean) => void;
 	showAddFilm: boolean;
@@ -232,25 +202,13 @@ interface AppContentProps {
 	setRecoveryCodeState: (code: string | null) => void;
 	triggerSync: () => Promise<void>;
 	persistent: boolean;
-	navigateToMap: (filmId?: string) => void;
-	navigateToStock: (stateFilter: string) => void;
-	navigateToCamera: (camId: string) => void;
-	navigateToFilm: (filmId: string) => void;
-	selectedCamera: string | null;
-	filmBackTarget: ScreenName | null;
 }
 
 function AppContent({
 	data,
 	updateData,
-	screen,
-	handleSetScreen,
-	setScreen,
-	selectedFilm,
-	setSelectedFilm,
-	mapFilterFilmId,
-	setMapFilterFilmId,
-	stockStateFilter,
+	nav,
+	resetScreen,
 	autoOpenShotNote,
 	setAutoOpenShotNote,
 	showAddFilm,
@@ -260,17 +218,14 @@ function AppContent({
 	setRecoveryCodeState,
 	triggerSync,
 	persistent,
-	navigateToMap,
-	navigateToStock,
-	navigateToCamera,
-	navigateToFilm,
-	selectedCamera,
-	filmBackTarget,
 }: AppContentProps) {
 	const { isTourActive, tourData, startTour } = useTour();
 	const autoTourTriggered = useRef(false);
 	const navDirection = useRef<"forward" | "back" | "tab">("tab");
-	const prevScreen = useRef<ScreenName>(screen);
+	const prevScreen = useRef<ScreenName>(nav.current.screen);
+
+	const { current, navigate, goBack, resetTo, replace } = nav;
+	const { screen, selectedFilm, selectedCamera, mapFilterFilmId, stockStateFilter } = current;
 
 	const effectiveData = isTourActive && tourData ? tourData : data;
 	const noopUpdate = useCallback(async () => {}, []);
@@ -278,15 +233,12 @@ function AppContent({
 
 	// Track navigation direction
 	useEffect(() => {
-		const detailScreens: ScreenName[] = ["filmDetail", "cameraDetail", "settings", "legal"];
 		const prev = prevScreen.current;
-		if (detailScreens.includes(screen) && !detailScreens.includes(prev)) {
-			navDirection.current = "forward";
-		} else if (!detailScreens.includes(screen) && detailScreens.includes(prev)) {
-			navDirection.current = "back";
-		} else {
-			navDirection.current = "tab";
-		}
+		const isSub = SUB_SCREENS.has(screen);
+		const wasSub = SUB_SCREENS.has(prev);
+		if (isSub && !wasSub) navDirection.current = "forward";
+		else if (!isSub && wasSub) navDirection.current = "back";
+		else navDirection.current = "tab";
 		prevScreen.current = screen;
 	}, [screen]);
 
@@ -301,27 +253,56 @@ function AppContent({
 
 	const onAddFilm = () => setShowAddFilm(true);
 
+	// Forward-navigation callbacks. Each one pushes onto the history stack so
+	// the back button can restore the previous screen (and its params).
+	const openFilm = useCallback((id: string) => navigate({ screen: "filmDetail", selectedFilm: id }), [navigate]);
+	const openCamera = useCallback((id: string) => navigate({ screen: "cameraDetail", selectedCamera: id }), [navigate]);
+	const openMap = useCallback(
+		(filmId?: string) => navigate({ screen: "map", mapFilterFilmId: filmId ?? null }),
+		[navigate],
+	);
+	const openStockFiltered = useCallback(
+		(stateFilter: string) => navigate({ screen: "stock", stockStateFilter: stateFilter }),
+		[navigate],
+	);
+	const openCamerasList = useCallback(() => navigate({ screen: "cameras" }), [navigate]);
+	const openSettings = useCallback(() => navigate({ screen: "settings" }), [navigate]);
+	const openLegal = useCallback(() => navigate({ screen: "legal" }), [navigate]);
+
+	// Explicit redirects (not back): used after delete or when target not found.
+	const exitToStock = useCallback(() => resetTo({ screen: "stock" }), [resetTo]);
+	const exitToCameras = useCallback(() => resetTo({ screen: "cameras" }), [resetTo]);
+
+	// Duplicating a film in FilmDetail needs to swap the viewed film without
+	// pushing to history (it's the same screen with a different ID).
+	const replaceSelectedFilm = useCallback(
+		(id: string) => replace({ ...current, selectedFilm: id }),
+		[replace, current],
+	);
+
+	// Map filter clear: stays on the map screen, just drops the filter.
+	const clearMapFilter = useCallback(() => replace({ ...current, mapFilterFilmId: null }), [replace, current]);
+
 	const renderScreen = () => {
 		switch (screen) {
 			case "home":
 				return (
 					<DashboardScreen
 						data={effectiveData}
-						setScreen={setScreen}
-						setSelectedFilm={setSelectedFilm}
+						onOpenFilm={openFilm}
+						onOpenCameras={openCamerasList}
 						onAddFilm={onAddFilm}
 						setAutoOpenShotNote={setAutoOpenShotNote}
-						onNavigateToStock={navigateToStock}
+						onNavigateToStock={openStockFiltered}
 					/>
 				);
 			case "stock":
 				return (
 					<StockScreen
 						data={effectiveData}
-						setScreen={setScreen}
-						setSelectedFilm={setSelectedFilm}
+						onOpenFilm={openFilm}
 						onAddFilm={onAddFilm}
-						initialStateFilter={stockStateFilter}
+						initialStateFilter={stockStateFilter ?? null}
 					/>
 				);
 			case "filmDetail":
@@ -329,11 +310,11 @@ function AppContent({
 					<FilmDetailScreen
 						data={effectiveData}
 						setData={effectiveUpdateData}
-						setScreen={setScreen}
-						setSelectedFilm={setSelectedFilm}
-						filmId={selectedFilm}
-						onNavigateToMap={navigateToMap}
-						onNavigateToCamera={navigateToCamera}
+						onExit={exitToStock}
+						onFilmDuplicated={replaceSelectedFilm}
+						filmId={selectedFilm ?? null}
+						onNavigateToMap={openMap}
+						onNavigateToCamera={openCamera}
 						autoOpenShotNote={autoOpenShotNote}
 						setAutoOpenShotNote={setAutoOpenShotNote}
 					/>
@@ -342,9 +323,9 @@ function AppContent({
 				return (
 					<CameraDetailScreen
 						data={effectiveData}
-						cameraId={selectedCamera}
-						setScreen={setScreen}
-						onFilmClick={navigateToFilm}
+						cameraId={selectedCamera ?? null}
+						onExit={exitToCameras}
+						onFilmClick={openFilm}
 					/>
 				);
 			case "map":
@@ -358,15 +339,15 @@ function AppContent({
 					>
 						<MapScreen
 							data={effectiveData}
-							setScreen={setScreen}
-							setSelectedFilm={setSelectedFilm}
-							filterFilmId={mapFilterFilmId}
-							onClearFilter={() => setMapFilterFilmId(null)}
+							onOpenFilm={openFilm}
+							onOpenStock={exitToStock}
+							filterFilmId={mapFilterFilmId ?? null}
+							onClearFilter={clearMapFilter}
 						/>
 					</Suspense>
 				);
 			case "cameras":
-				return <EquipmentScreen data={effectiveData} setData={effectiveUpdateData} onCameraClick={navigateToCamera} />;
+				return <EquipmentScreen data={effectiveData} setData={effectiveUpdateData} onCameraClick={openCamera} />;
 			case "stats":
 				return <StatsScreen data={effectiveData} />;
 			case "settings":
@@ -379,20 +360,20 @@ function AppContent({
 						onRecoveryCodeChange={setRecoveryCodeState}
 						onSyncNow={triggerSync}
 						persistent={persistent}
-						setScreen={setScreen}
+						onOpenLegal={openLegal}
 					/>
 				);
 			case "legal":
-				return <LegalScreen onBack={() => setScreen("settings")} />;
+				return <LegalScreen onBack={goBack} />;
 			default:
 				return (
 					<DashboardScreen
 						data={effectiveData}
-						setScreen={setScreen}
-						setSelectedFilm={setSelectedFilm}
+						onOpenFilm={openFilm}
+						onOpenCameras={openCamerasList}
 						onAddFilm={onAddFilm}
 						setAutoOpenShotNote={setAutoOpenShotNote}
-						onNavigateToStock={navigateToStock}
+						onNavigateToStock={openStockFiltered}
 					/>
 				);
 		}
@@ -410,20 +391,20 @@ function AppContent({
 				return cam.nickname || fallbackTitle || undefined;
 			})()
 		: undefined;
-	const showTabBar = !["filmDetail", "cameraDetail", "settings", "legal"].includes(screen);
+	const showTabBar = !SUB_SCREENS.has(screen);
 
 	return (
 		<div className="h-[100dvh] bg-bg text-text-primary font-body flex flex-col md:flex-row relative">
 			{/* Sidebar — desktop only, always visible */}
-			<TabBar screen={screen} setScreen={handleSetScreen} variant="sidebar" className="hidden md:flex" />
+			<TabBar screen={screen} setScreen={resetScreen} variant="sidebar" className="hidden md:flex" />
 
 			<main className="flex-1 flex flex-col min-h-0 min-w-0">
 				<AppHeader
 					screen={screen}
-					setScreen={handleSetScreen}
+					goBack={goBack}
+					onOpenSettings={openSettings}
 					filmTitle={filmTitle}
 					cameraTitle={cameraTitle}
-					filmBackTarget={filmBackTarget}
 					className="md:hidden"
 				/>
 				{screen === "map" ? (
@@ -448,7 +429,7 @@ function AppContent({
 				)}
 
 				{/* Bottom TabBar — mobile only */}
-				{showTabBar && <TabBar screen={screen} setScreen={handleSetScreen} className="md:hidden" />}
+				{showTabBar && <TabBar screen={screen} setScreen={resetScreen} className="md:hidden" />}
 			</main>
 
 			<AddFilmDialog

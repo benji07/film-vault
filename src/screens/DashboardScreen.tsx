@@ -8,13 +8,13 @@ import { TodoItem } from "@/components/TodoItem";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { alpha, T } from "@/constants/theme";
-import type { AppData, Back, Camera as CameraType, Film as FilmType, ScreenName } from "@/types";
+import type { AppData, Back, Camera as CameraType, Film as FilmType } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 
 interface DashboardScreenProps {
 	data: AppData;
-	setScreen: (screen: ScreenName) => void;
-	setSelectedFilm: (id: string) => void;
+	onOpenFilm: (id: string) => void;
+	onOpenCameras: () => void;
 	onAddFilm: () => void;
 	setAutoOpenShotNote?: (open: boolean) => void;
 	onNavigateToStock: (stateFilter: string) => void;
@@ -88,8 +88,8 @@ function buildEquipmentItems(cameras: CameraType[], backs: Back[], activeFilms: 
 
 export function DashboardScreen({
 	data,
-	setScreen,
-	setSelectedFilm,
+	onOpenFilm,
+	onOpenCameras,
 	onAddFilm,
 	setAutoOpenShotNote,
 	onNavigateToStock,
@@ -192,13 +192,9 @@ export function DashboardScreen({
 										back={back}
 										onShotClick={() => {
 											setAutoOpenShotNote?.(true);
-											setSelectedFilm(f.id);
-											setScreen("filmDetail");
+											onOpenFilm(f.id);
 										}}
-										onClick={() => {
-											setSelectedFilm(f.id);
-											setScreen("filmDetail");
-										}}
+										onClick={() => onOpenFilm(f.id)}
 									/>
 								</div>
 							);
@@ -250,7 +246,7 @@ export function DashboardScreen({
 								sublabel={item.sublabel}
 								loadedFilm={item.loadedFilm}
 								icon={item.icon}
-								onClick={() => setScreen("cameras")}
+								onClick={onOpenCameras}
 								className="w-full"
 							/>
 						))}

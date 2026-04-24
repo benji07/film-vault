@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { alpha, T } from "@/constants/theme";
-import type { AppData, Film as FilmType, ScreenName } from "@/types";
+import type { AppData, Film as FilmType } from "@/types";
 import { createNewFilm } from "@/utils/film-factory";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { today } from "@/utils/helpers";
@@ -27,8 +27,8 @@ import type { ActionData, ActionType, EditData } from "./film-detail/types";
 interface FilmDetailScreenProps {
 	data: AppData;
 	setData: (data: AppData) => void;
-	setScreen: (screen: ScreenName) => void;
-	setSelectedFilm: (id: string) => void;
+	onExit: () => void;
+	onFilmDuplicated: (id: string) => void;
 	filmId: string | null;
 	onNavigateToMap?: (filmId: string) => void;
 	onNavigateToCamera?: (camId: string) => void;
@@ -39,8 +39,8 @@ interface FilmDetailScreenProps {
 export function FilmDetailScreen({
 	data,
 	setData,
-	setScreen,
-	setSelectedFilm,
+	onExit,
+	onFilmDuplicated,
 	filmId,
 	onNavigateToMap,
 	onNavigateToCamera,
@@ -89,7 +89,7 @@ export function FilmDetailScreen({
 			<EmptyState
 				icon={Film}
 				title={t("filmDetail.notFound")}
-				action={<Button onClick={() => setScreen("stock")}>{t("filmDetail.back")}</Button>}
+				action={<Button onClick={onExit}>{t("filmDetail.back")}</Button>}
 			/>
 		);
 
@@ -138,7 +138,7 @@ export function FilmDetailScreen({
 	const deleteFilm = () => {
 		setData({ ...data, films: data.films.filter((f) => f.id !== filmId) });
 		toast(t("filmDetail.filmDeleted"), "info");
-		setScreen("stock");
+		onExit();
 	};
 
 	const handleDuplicate = () => {
@@ -157,7 +157,7 @@ export function FilmDetailScreen({
 		});
 		newFilm.history = [{ date: today(), action: "", actionCode: "duplicated", params: { name: filmName(film) } }];
 		setData({ ...data, films: [...data.films, newFilm] });
-		setSelectedFilm(newFilm.id);
+		onFilmDuplicated(newFilm.id);
 		toast(t("filmDetail.filmDuplicated"));
 	};
 

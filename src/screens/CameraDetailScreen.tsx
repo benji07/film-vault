@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { PhotoImg } from "@/components/ui/photo-img";
 import { alpha, T } from "@/constants/theme";
-import type { AppData, ScreenName } from "@/types";
+import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { CameraFilmsList } from "./camera-detail/CameraFilmsList";
 import { CameraHistoryTimeline } from "./camera-detail/CameraHistoryTimeline";
@@ -17,11 +17,11 @@ import { CameraInfoSection } from "./camera-detail/CameraInfoSection";
 interface CameraDetailScreenProps {
 	data: AppData;
 	cameraId: string | null;
-	setScreen: (screen: ScreenName) => void;
+	onExit: () => void;
 	onFilmClick: (filmId: string) => void;
 }
 
-export function CameraDetailScreen({ data, cameraId, setScreen, onFilmClick }: CameraDetailScreenProps) {
+export function CameraDetailScreen({ data, cameraId, onExit, onFilmClick }: CameraDetailScreenProps) {
 	const { t } = useTranslation();
 	const camera = cameraId ? data.cameras.find((c) => c.id === cameraId) : null;
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function CameraDetailScreen({ data, cameraId, setScreen, onFilmClick }: C
 			<EmptyState
 				icon={CameraIcon}
 				title={t("cameraDetail.notFound")}
-				action={<Button onClick={() => setScreen("cameras")}>{t("filmDetail.back")}</Button>}
+				action={<Button onClick={onExit}>{t("filmDetail.back")}</Button>}
 			/>
 		);
 	}

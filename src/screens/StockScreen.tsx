@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { AppData, Film as FilmType, ScreenName } from "@/types";
+import type { AppData, Film as FilmType } from "@/types";
 import { fmtExpDate } from "@/utils/expiration";
 import { filmName } from "@/utils/film-helpers";
 import { type SortOption, useStockFilters } from "@/utils/use-stock-filters";
@@ -74,13 +74,12 @@ const SORT_OPTIONS: { value: SortOption; labelKey: string }[] = [
 
 interface StockScreenProps {
 	data: AppData;
-	setScreen: (screen: ScreenName) => void;
-	setSelectedFilm: (id: string) => void;
+	onOpenFilm: (id: string) => void;
 	onAddFilm: () => void;
 	initialStateFilter?: string | null;
 }
 
-export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm, initialStateFilter }: StockScreenProps) {
+export function StockScreen({ data, onOpenFilm, onAddFilm, initialStateFilter }: StockScreenProps) {
 	const { t } = useTranslation();
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 	const { films, cameras, backs } = data;
@@ -181,8 +180,7 @@ export function StockScreen({ data, setScreen, setSelectedFilm, onAddFilm, initi
 							backs={backs}
 							groupCount={group.films.length}
 							onClick={() => {
-								setSelectedFilm(representative.id);
-								setScreen("filmDetail");
+								onOpenFilm(representative.id);
 							}}
 						/>
 					);

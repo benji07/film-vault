@@ -11,20 +11,20 @@ import { NoteMarker } from "@/components/map/NoteMarker";
 import { NoteSheet } from "@/components/map/NoteSheet";
 import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
-import type { AppData, FilmType, ScreenName } from "@/types";
+import type { AppData, FilmType } from "@/types";
 import { collectAllTags } from "@/utils/film-helpers";
 import type { Cluster, GeoNote } from "@/utils/map-helpers";
 import { clusterNotes, collectGeoNotes, DARK_STYLE, fitMapToBounds, LIGHT_STYLE } from "@/utils/map-helpers";
 
 interface MapScreenProps {
 	data: AppData;
-	setScreen: (screen: ScreenName) => void;
-	setSelectedFilm: (id: string) => void;
+	onOpenFilm: (id: string) => void;
+	onOpenStock: () => void;
 	filterFilmId: string | null;
 	onClearFilter: () => void;
 }
 
-export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onClearFilter }: MapScreenProps) {
+export function MapScreen({ data, onOpenFilm, onOpenStock, filterFilmId, onClearFilter }: MapScreenProps) {
 	const { t } = useTranslation();
 	const { theme } = useTheme();
 	const mapRef = useRef<maplibregl.Map | null>(null);
@@ -87,9 +87,8 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 
 	const handleViewFilm = useCallback(() => {
 		if (!selectedNote) return;
-		setSelectedFilm(selectedNote.film.id);
-		setScreen("filmDetail");
-	}, [selectedNote, setSelectedFilm, setScreen]);
+		onOpenFilm(selectedNote.film.id);
+	}, [selectedNote, onOpenFilm]);
 
 	const handleLocateMe = useCallback(() => {
 		const map = mapRef.current;
@@ -118,7 +117,7 @@ export function MapScreen({ data, setScreen, setSelectedFilm, filterFilmId, onCl
 					title={t("map.emptyTitle")}
 					subtitle={t("map.emptySubtitle")}
 					action={
-						<Button variant="outline" onClick={() => setScreen("stock")}>
+						<Button variant="outline" onClick={onOpenStock}>
 							{t("map.emptyAction")}
 						</Button>
 					}
