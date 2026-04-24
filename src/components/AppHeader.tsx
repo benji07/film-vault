@@ -14,7 +14,9 @@ interface AppHeaderProps {
 	className?: string;
 }
 
-const DETAIL_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetail", "settings", "legal"]);
+// LegalScreen renders its own back button and title in its body,
+// so it keeps the root-style header here.
+const DETAIL_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetail", "settings"]);
 
 export function AppHeader({ screen, goBack, onOpenSettings, filmTitle, cameraTitle, className }: AppHeaderProps) {
 	const { t } = useTranslation();

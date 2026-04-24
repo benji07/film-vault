@@ -138,26 +138,28 @@ function FilmVaultInner() {
 		return () => window.removeEventListener("online", handleOnline);
 	}, [triggerSync]);
 
+	const { resetTo: navResetTo, replace: navReplace, current: navCurrent } = nav;
+
 	// TabBar: tabs are top-level, they reset the history stack.
 	const tabSetScreen = useCallback(
 		(s: ScreenName) => {
-			nav.resetTo({ screen: s });
+			navResetTo({ screen: s });
 		},
-		[nav],
+		[navResetTo],
 	);
 
 	// Tour: scripted screen jumps should not pollute history.
 	const tourSetScreen = useCallback(
 		(s: ScreenName) => {
-			nav.resetTo({ screen: s });
+			navResetTo({ screen: s });
 		},
-		[nav],
+		[navResetTo],
 	);
 	const tourSetSelectedFilm = useCallback(
 		(id: string | null) => {
-			nav.replace({ ...nav.current, selectedFilm: id });
+			navReplace({ ...navCurrent, selectedFilm: id });
 		},
-		[nav],
+		[navReplace, navCurrent],
 	);
 
 	if (loading || !data) {

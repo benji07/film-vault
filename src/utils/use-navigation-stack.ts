@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useReducer } from "react";
 import type { NavigationEntry, ScreenName } from "@/types";
 
 const DETAIL_BACK_FALLBACK: Partial<Record<ScreenName, ScreenName>> = {
@@ -18,6 +18,51 @@ function entriesEqual(a: NavigationEntry, b: NavigationEntry): boolean {
 	);
 }
 
+interface NavState {
+	current: NavigationEntry;
+	history: NavigationEntry[];
+}
+
+type NavAction =
+	| { type: "navigate"; entry: NavigationEntry }
+	| { type: "goBack" }
+	| { type: "resetTo"; entry: NavigationEntry }
+	| { type: "replace"; entry: NavigationEntry };
+
+function reducer(state: NavState, action: NavAction): NavState {
+	switch (action.type) {
+		case "navigate": {
+			if (entriesEqual(state.current, action.entry)) return state;
+			const top = state.history[state.history.length - 1];
+			// If the new entry matches the previous history top, drop that duplicate
+			// to avoid A/B/A/B ping-pong growth on symmetric round-trips.
+			if (top && entriesEqual(top, action.entry)) {
+				return {
+					current: action.entry,
+					history: [...state.history.slice(0, -1), state.current],
+				};
+			}
+			return {
+				current: action.entry,
+				history: [...state.history, state.current],
+			};
+		}
+		case "goBack": {
+			if (state.history.length === 0) {
+				const fallback = DETAIL_BACK_FALLBACK[state.current.screen];
+				return fallback ? { current: { screen: fallback }, history: [] } : state;
+			}
+			const next = state.history[state.history.length - 1];
+			if (!next) return state;
+			return { current: next, history: state.history.slice(0, -1) };
+		}
+		case "resetTo":
+			return { current: action.entry, history: [] };
+		case "replace":
+			return { ...state, current: action.entry };
+	}
+}
+
 export interface NavigationStack {
 	current: NavigationEntry;
 	history: NavigationEntry[];
@@ -28,47 +73,15 @@ export interface NavigationStack {
 }
 
 export function useNavigationStack(initial: NavigationEntry): NavigationStack {
-	const [current, setCurrent] = useState<NavigationEntry>(initial);
-	const [history, setHistory] = useState<NavigationEntry[]>([]);
+	const [state, dispatch] = useReducer(reducer, { current: initial, history: [] });
 
-	const navigate = useCallback((entry: NavigationEntry) => {
-		setCurrent((prev) => {
-			if (entriesEqual(prev, entry)) return prev;
-			setHistory((h) => {
-				// Drop a duplicate top to avoid A/B/A/B ping-pong growth
-				const top = h[h.length - 1];
-				if (top && entriesEqual(top, entry)) {
-					return [...h.slice(0, -1), prev];
-				}
-				return [...h, prev];
-			});
-			return entry;
-		});
-	}, []);
+	const navigate = useCallback((entry: NavigationEntry) => dispatch({ type: "navigate", entry }), []);
+	const goBack = useCallback(() => dispatch({ type: "goBack" }), []);
+	const resetTo = useCallback((entry: NavigationEntry) => dispatch({ type: "resetTo", entry }), []);
+	const replace = useCallback((entry: NavigationEntry) => dispatch({ type: "replace", entry }), []);
 
-	const goBack = useCallback(() => {
-		setHistory((h) => {
-			if (h.length === 0) {
-				setCurrent((prev) => {
-					const fallback = DETAIL_BACK_FALLBACK[prev.screen];
-					return fallback ? { screen: fallback } : prev;
-				});
-				return h;
-			}
-			const next = h[h.length - 1];
-			if (next) setCurrent(next);
-			return h.slice(0, -1);
-		});
-	}, []);
-
-	const resetTo = useCallback((entry: NavigationEntry) => {
-		setHistory([]);
-		setCurrent(entry);
-	}, []);
-
-	const replace = useCallback((entry: NavigationEntry) => {
-		setCurrent(entry);
-	}, []);
-
-	return { current, history, navigate, goBack, resetTo, replace };
+	return useMemo(
+		() => ({ current: state.current, history: state.history, navigate, goBack, resetTo, replace }),
+		[state.current, state.history, navigate, goBack, resetTo, replace],
+	);
 }
