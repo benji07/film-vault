@@ -63,10 +63,10 @@ export function EditModal({
 	const selectedCamera = editData.cameraId ? data.cameras.find((c) => c.id === editData.cameraId) : null;
 	const showLensField = selectedCamera?.hasInterchangeableLens ?? true;
 
-	// Include the currently-selected lens even if sold, so editing a film that references
-	// an archived lens still shows the correct Select value (instead of rendering blank).
-	// Filter by camera mount when both camera and lenses have a mount defined.
-	const visibleLenses = filterLensesByMount(data.lenses, selectedCamera).filter(
+	// Include the currently-selected lens even if sold or if its mount doesn't match the
+	// camera's mount, so editing a film that references such a lens still shows the correct
+	// Select value (instead of rendering blank or silently overwriting the existing choice).
+	const visibleLenses = filterLensesByMount(data.lenses, selectedCamera, editData.lensId).filter(
 		(l) => !l.soldAt || l.id === editData.lensId,
 	);
 

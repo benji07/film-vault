@@ -219,7 +219,9 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 		);
 	}
 
-	const visibleLenses = filterLensesByMount(data.lenses, camera).filter((l) => !l.soldAt || l.id === lensId);
+	// Always preserve the currently-selected lens in the dropdown options, even if its
+	// mount doesn't match (or is unset), so the Select value can never become orphaned.
+	const visibleLenses = filterLensesByMount(data.lenses, camera, lensId).filter((l) => !l.soldAt || l.id === lensId);
 
 	return (
 		<Dialog open={open} onOpenChange={(v) => !v && onOpenChange(false)}>

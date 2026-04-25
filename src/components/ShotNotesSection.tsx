@@ -374,7 +374,9 @@ function ShotNotesSection({
 							<FormField label={t("filmDetail.shotNotesLens")}>
 								{(() => {
 									const allLenses = lenses ?? [];
-									const filteredByMount = filterLensesByMount(allLenses, camera);
+									// Preserve the currently-selected lens even if its mount doesn't match the
+									// camera (or is unset), so the Select value never becomes orphaned.
+									const filteredByMount = filterLensesByMount(allLenses, camera, form.lensId);
 									const visibleLenses = filteredByMount.filter((l) => !l.soldAt || l.id === form.lensId);
 									if (visibleLenses.length === 0) {
 										return (

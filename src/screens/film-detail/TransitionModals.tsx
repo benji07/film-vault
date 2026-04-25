@@ -27,10 +27,10 @@ export function TransitionModals({
 	const { t } = useTranslation();
 	const selectedCamera = actionData.cameraId ? data.cameras.find((c) => c.id === actionData.cameraId) : null;
 	const showLensField = selectedCamera?.hasInterchangeableLens ?? true;
-	// Include the currently-selected lens even if sold, so reloading or continuing a film that
-	// references an archived lens still renders the Select with the correct value.
-	// Filter by camera mount when the selected camera has a mount defined.
-	const visibleLenses = filterLensesByMount(data.lenses, selectedCamera).filter(
+	// Include the currently-selected lens even if sold or if its mount doesn't match the
+	// camera's mount, so reloading or continuing a film that references such a lens still
+	// renders the Select with the correct value (instead of blank / silently overwritten).
+	const visibleLenses = filterLensesByMount(data.lenses, selectedCamera, actionData.lensId).filter(
 		(l) => !l.soldAt || l.id === actionData.lensId,
 	);
 
