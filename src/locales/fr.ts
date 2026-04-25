@@ -423,6 +423,8 @@ export const fr = {
 		mount: "Monture",
 		mountPlaceholder: "Ex : Canon EF, Nikon F…",
 		interchangeableBack: "Dos interchangeable",
+		interchangeableLens: "Objectif interchangeable",
+		manualControls: "Réglages manuels",
 		photo: "Photo",
 		backs: "dos",
 		loaded_one: "{{count}} chargée",

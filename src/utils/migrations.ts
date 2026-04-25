@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 18;
+export const CURRENT_VERSION = 19;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -249,6 +249,18 @@ function migrateV17toV18(data: Record<string, unknown>): Record<string, unknown>
 	return { ...data, version: 18 };
 }
 
+function migrateV18toV19(data: Record<string, unknown>): Record<string, unknown> {
+	// Add hasInterchangeableLens and hasManualControls to Camera. Default both to true
+	// for existing cameras to preserve current behavior (manual controls + lens fields visible).
+	const cameras = (data.cameras as Record<string, unknown>[]) || [];
+	const migratedCameras = cameras.map((cam) => ({
+		...cam,
+		hasInterchangeableLens: cam.hasInterchangeableLens ?? true,
+		hasManualControls: cam.hasManualControls ?? true,
+	}));
+	return { ...data, cameras: migratedCameras, version: 19 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -267,6 +279,7 @@ const migrations: Record<number, MigrationFn> = {
 	15: migrateV15toV16,
 	16: migrateV16toV17,
 	17: migrateV17toV18,
+	18: migrateV18toV19,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

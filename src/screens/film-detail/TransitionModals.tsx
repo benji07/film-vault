@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { T } from "@/constants/theme";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { today } from "@/utils/helpers";
-import { lensDisplayName } from "@/utils/lens-helpers";
+import { filterLensesByMount, lensDisplayName } from "@/utils/lens-helpers";
 import type { ModalBaseProps } from "./types";
 
 export function TransitionModals({
@@ -25,9 +25,14 @@ export function TransitionModals({
 	fIso,
 }: ModalBaseProps) {
 	const { t } = useTranslation();
+	const selectedCamera = actionData.cameraId ? data.cameras.find((c) => c.id === actionData.cameraId) : null;
+	const showLensField = selectedCamera?.hasInterchangeableLens ?? true;
 	// Include the currently-selected lens even if sold, so reloading or continuing a film that
 	// references an archived lens still renders the Select with the correct value.
-	const visibleLenses = data.lenses.filter((l) => !l.soldAt || l.id === actionData.lensId);
+	// Filter by camera mount when the selected camera has a mount defined.
+	const visibleLenses = filterLensesByMount(data.lenses, selectedCamera).filter(
+		(l) => !l.soldAt || l.id === actionData.lensId,
+	);
 
 	return (
 		<>
@@ -75,53 +80,55 @@ export function TransitionModals({
 								</Select>
 							</FormField>
 						)}
-						<FormField label={t("filmDetail.lensField")}>
-							{visibleLenses.length > 0 ? (
-								<>
-									<Select
-										value={actionData.lensId || "__other__"}
-										onValueChange={(v) => {
-											if (v === "__other__") {
-												setActionData({ ...actionData, lensId: undefined, lens: "" });
-											} else {
-												const lens = data.lenses.find((l) => l.id === v);
-												setActionData({
-													...actionData,
-													lensId: v,
-													lens: lens ? lensDisplayName(lens) : "",
-												});
-											}
-										}}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
-										</SelectTrigger>
-										<SelectContent>
-											{visibleLenses.map((l) => (
-												<SelectItem key={l.id} value={l.id}>
-													{lensDisplayName(l)}
-												</SelectItem>
-											))}
-											<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
-										</SelectContent>
-									</Select>
-									{!actionData.lensId && (
-										<Input
-											value={actionData.lens || ""}
-											onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
-											placeholder={t("filmDetail.lensPlaceholder")}
-											className="mt-2"
-										/>
-									)}
-								</>
-							) : (
-								<Input
-									value={actionData.lens || ""}
-									onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
-									placeholder={t("filmDetail.lensPlaceholder")}
-								/>
-							)}
-						</FormField>
+						{showLensField && (
+							<FormField label={t("filmDetail.lensField")}>
+								{visibleLenses.length > 0 ? (
+									<>
+										<Select
+											value={actionData.lensId || "__other__"}
+											onValueChange={(v) => {
+												if (v === "__other__") {
+													setActionData({ ...actionData, lensId: undefined, lens: "" });
+												} else {
+													const lens = data.lenses.find((l) => l.id === v);
+													setActionData({
+														...actionData,
+														lensId: v,
+														lens: lens ? lensDisplayName(lens) : "",
+													});
+												}
+											}}
+										>
+											<SelectTrigger>
+												<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
+											</SelectTrigger>
+											<SelectContent>
+												{visibleLenses.map((l) => (
+													<SelectItem key={l.id} value={l.id}>
+														{lensDisplayName(l)}
+													</SelectItem>
+												))}
+												<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
+											</SelectContent>
+										</Select>
+										{!actionData.lensId && (
+											<Input
+												value={actionData.lens || ""}
+												onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
+												placeholder={t("filmDetail.lensPlaceholder")}
+												className="mt-2"
+											/>
+										)}
+									</>
+								) : (
+									<Input
+										value={actionData.lens || ""}
+										onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
+										placeholder={t("filmDetail.lensPlaceholder")}
+									/>
+								)}
+							</FormField>
+						)}
 						<FormField label={t("filmDetail.shootIsoField")}>
 							<Input
 								type="number"
@@ -155,13 +162,14 @@ export function TransitionModals({
 							onClick={() => {
 								const loadCam = data.cameras.find((c) => c.id === actionData.cameraId);
 								const photos = actionData.photos?.length ? actionData.photos : undefined;
+								const camHasLens = loadCam?.hasInterchangeableLens ?? true;
 								updateFilm(
 									{
 										state: "loaded",
 										cameraId: actionData.cameraId,
 										backId: actionData.backId || null,
-										lensId: actionData.lensId || null,
-										lens: actionData.lens?.trim() || null,
+										lensId: camHasLens ? actionData.lensId || null : null,
+										lens: camHasLens ? actionData.lens?.trim() || null : null,
 										shootIso: Number.parseInt(actionData.shootIso || "", 10) || (typeof fIso === "number" ? fIso : 0),
 										startDate: actionData.startDate || today(),
 										comment: actionData.comment?.trim() || film.comment,
@@ -352,53 +360,55 @@ export function TransitionModals({
 								</Select>
 							</FormField>
 						)}
-						<FormField label={t("filmDetail.lensField")}>
-							{visibleLenses.length > 0 ? (
-								<>
-									<Select
-										value={actionData.lensId || "__other__"}
-										onValueChange={(v) => {
-											if (v === "__other__") {
-												setActionData({ ...actionData, lensId: undefined, lens: "" });
-											} else {
-												const lens = data.lenses.find((l) => l.id === v);
-												setActionData({
-													...actionData,
-													lensId: v,
-													lens: lens ? lensDisplayName(lens) : "",
-												});
-											}
-										}}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
-										</SelectTrigger>
-										<SelectContent>
-											{visibleLenses.map((l) => (
-												<SelectItem key={l.id} value={l.id}>
-													{lensDisplayName(l)}
-												</SelectItem>
-											))}
-											<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
-										</SelectContent>
-									</Select>
-									{!actionData.lensId && (
-										<Input
-											value={actionData.lens || ""}
-											onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
-											placeholder={t("filmDetail.lensPlaceholder")}
-											className="mt-2"
-										/>
-									)}
-								</>
-							) : (
-								<Input
-									value={actionData.lens || ""}
-									onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
-									placeholder={t("filmDetail.lensPlaceholder")}
-								/>
-							)}
-						</FormField>
+						{showLensField && (
+							<FormField label={t("filmDetail.lensField")}>
+								{visibleLenses.length > 0 ? (
+									<>
+										<Select
+											value={actionData.lensId || "__other__"}
+											onValueChange={(v) => {
+												if (v === "__other__") {
+													setActionData({ ...actionData, lensId: undefined, lens: "" });
+												} else {
+													const lens = data.lenses.find((l) => l.id === v);
+													setActionData({
+														...actionData,
+														lensId: v,
+														lens: lens ? lensDisplayName(lens) : "",
+													});
+												}
+											}}
+										>
+											<SelectTrigger>
+												<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
+											</SelectTrigger>
+											<SelectContent>
+												{visibleLenses.map((l) => (
+													<SelectItem key={l.id} value={l.id}>
+														{lensDisplayName(l)}
+													</SelectItem>
+												))}
+												<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
+											</SelectContent>
+										</Select>
+										{!actionData.lensId && (
+											<Input
+												value={actionData.lens || ""}
+												onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
+												placeholder={t("filmDetail.lensPlaceholder")}
+												className="mt-2"
+											/>
+										)}
+									</>
+								) : (
+									<Input
+										value={actionData.lens || ""}
+										onChange={(e) => setActionData({ ...actionData, lens: e.target.value })}
+										placeholder={t("filmDetail.lensPlaceholder")}
+									/>
+								)}
+							</FormField>
+						)}
 						<FormField label={t("filmDetail.resumeDateField")}>
 							<Input
 								type="date"
@@ -418,13 +428,16 @@ export function TransitionModals({
 							onClick={() => {
 								const reloadCam = data.cameras.find((c) => c.id === actionData.cameraId);
 								const photos = actionData.photos?.length ? actionData.photos : undefined;
+								const reloadCamHasLens = reloadCam?.hasInterchangeableLens ?? true;
+								const resolvedLensId = "lensId" in actionData ? (actionData.lensId ?? null) : (film.lensId ?? null);
+								const resolvedLens = actionData.lens?.trim() || film.lens || null;
 								updateFilm(
 									{
 										state: "loaded",
 										cameraId: actionData.cameraId,
 										backId: actionData.backId || null,
-										lensId: "lensId" in actionData ? (actionData.lensId ?? null) : (film.lensId ?? null),
-										lens: actionData.lens?.trim() || film.lens || null,
+										lensId: reloadCamHasLens ? resolvedLensId : null,
+										lens: reloadCamHasLens ? resolvedLens : null,
 										startDate: actionData.startDate || today(),
 										history: [
 											...(film.history || []),

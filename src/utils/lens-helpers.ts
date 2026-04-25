@@ -1,4 +1,14 @@
-import type { Lens } from "@/types";
+import type { Camera, Lens } from "@/types";
+
+/**
+ * Keep only lenses whose mount matches the camera's mount. If the camera has no
+ * mount defined, no filtering is applied (returns the original list).
+ */
+export function filterLensesByMount(lenses: Lens[], camera: Camera | null | undefined): Lens[] {
+	const mount = camera?.mount?.trim();
+	if (!mount) return lenses;
+	return lenses.filter((l) => (l.mount?.trim() ?? "") === mount);
+}
 
 export function lensDisplayName(lens: Lens | undefined): string {
 	if (!lens) return "";

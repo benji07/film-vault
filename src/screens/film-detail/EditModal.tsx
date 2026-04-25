@@ -16,7 +16,7 @@ import { type AppData, type Back, type Camera, type Film, isInstantFormat } from
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { collectAllTags } from "@/utils/film-helpers";
 import { today } from "@/utils/helpers";
-import { lensDisplayName } from "@/utils/lens-helpers";
+import { filterLensesByMount, lensDisplayName } from "@/utils/lens-helpers";
 import type { ActionType, EditData } from "./types";
 
 interface EditModalProps {
@@ -60,9 +60,15 @@ export function EditModal({
 }: EditModalProps) {
 	const { t } = useTranslation();
 
+	const selectedCamera = editData.cameraId ? data.cameras.find((c) => c.id === editData.cameraId) : null;
+	const showLensField = selectedCamera?.hasInterchangeableLens ?? true;
+
 	// Include the currently-selected lens even if sold, so editing a film that references
 	// an archived lens still shows the correct Select value (instead of rendering blank).
-	const visibleLenses = data.lenses.filter((l) => !l.soldAt || l.id === editData.lensId);
+	// Filter by camera mount when both camera and lenses have a mount defined.
+	const visibleLenses = filterLensesByMount(data.lenses, selectedCamera).filter(
+		(l) => !l.soldAt || l.id === editData.lensId,
+	);
 
 	return (
 		<Dialog open={showAction === "edit"} onOpenChange={(open) => !open && closeAction()}>
@@ -203,53 +209,55 @@ export function EditModal({
 									</Select>
 								</FormField>
 							)}
-							<FormField label={t("filmDetail.lensField")}>
-								{visibleLenses.length > 0 ? (
-									<>
-										<Select
-											value={editData.lensId || "__other__"}
-											onValueChange={(v) => {
-												if (v === "__other__") {
-													setEditData({ ...editData, lensId: "", lens: "" });
-												} else {
-													const lens = data.lenses.find((l) => l.id === v);
-													setEditData({
-														...editData,
-														lensId: v,
-														lens: lens ? lensDisplayName(lens) : "",
-													});
-												}
-											}}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
-											</SelectTrigger>
-											<SelectContent>
-												{visibleLenses.map((l) => (
-													<SelectItem key={l.id} value={l.id}>
-														{lensDisplayName(l)}
-													</SelectItem>
-												))}
-												<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
-											</SelectContent>
-										</Select>
-										{!editData.lensId && (
-											<Input
-												value={editData.lens}
-												onChange={(e) => setEditData({ ...editData, lens: e.target.value })}
-												placeholder={t("filmDetail.lensPlaceholder")}
-												className="mt-2"
-											/>
-										)}
-									</>
-								) : (
-									<Input
-										value={editData.lens}
-										onChange={(e) => setEditData({ ...editData, lens: e.target.value })}
-										placeholder={t("filmDetail.lensPlaceholder")}
-									/>
-								)}
-							</FormField>
+							{showLensField && (
+								<FormField label={t("filmDetail.lensField")}>
+									{visibleLenses.length > 0 ? (
+										<>
+											<Select
+												value={editData.lensId || "__other__"}
+												onValueChange={(v) => {
+													if (v === "__other__") {
+														setEditData({ ...editData, lensId: "", lens: "" });
+													} else {
+														const lens = data.lenses.find((l) => l.id === v);
+														setEditData({
+															...editData,
+															lensId: v,
+															lens: lens ? lensDisplayName(lens) : "",
+														});
+													}
+												}}
+											>
+												<SelectTrigger>
+													<SelectValue placeholder={t("filmDetail.chooseLensPlaceholder")} />
+												</SelectTrigger>
+												<SelectContent>
+													{visibleLenses.map((l) => (
+														<SelectItem key={l.id} value={l.id}>
+															{lensDisplayName(l)}
+														</SelectItem>
+													))}
+													<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
+												</SelectContent>
+											</Select>
+											{!editData.lensId && (
+												<Input
+													value={editData.lens}
+													onChange={(e) => setEditData({ ...editData, lens: e.target.value })}
+													placeholder={t("filmDetail.lensPlaceholder")}
+													className="mt-2"
+												/>
+											)}
+										</>
+									) : (
+										<Input
+											value={editData.lens}
+											onChange={(e) => setEditData({ ...editData, lens: e.target.value })}
+											placeholder={t("filmDetail.lensPlaceholder")}
+										/>
+									)}
+								</FormField>
+							)}
 							<FormField label={t("filmDetail.shootIsoField")}>
 								<Input
 									type="number"
@@ -448,8 +456,8 @@ export function EditModal({
 							if (showLoading) {
 								editUpdate.cameraId = editData.cameraId || null;
 								editUpdate.backId = editData.backId || null;
-								editUpdate.lensId = editData.lensId || null;
-								editUpdate.lens = editData.lens.trim() || null;
+								editUpdate.lensId = showLensField ? editData.lensId || null : null;
+								editUpdate.lens = showLensField ? editData.lens.trim() || null : null;
 								editUpdate.shootIso = editData.shootIso.trim() ? safeInt(editData.shootIso) : null;
 								editUpdate.startDate = editData.startDate || null;
 								editUpdate.posesTotal = editData.posesTotal.trim() ? safeInt(editData.posesTotal) : null;

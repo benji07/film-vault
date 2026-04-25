@@ -122,6 +122,8 @@ export interface Camera {
 	serial: string;
 	format: string;
 	hasInterchangeableBack: boolean;
+	hasInterchangeableLens?: boolean;
+	hasManualControls?: boolean;
 	photo?: string;
 	mount?: string | null;
 	shutterSpeedMin?: string | null;
