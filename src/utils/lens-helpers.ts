@@ -19,6 +19,23 @@ export function filterLensesByMount(
 }
 
 /**
+ * Returns the unique mounts already used across cameras and lenses, sorted
+ * alphabetically. Used to power autocomplete on mount fields.
+ */
+export function collectMounts(cameras: Camera[], lenses: Lens[]): string[] {
+	const set = new Set<string>();
+	for (const c of cameras) {
+		const m = c.mount?.trim();
+		if (m) set.add(m);
+	}
+	for (const l of lenses) {
+		const m = l.mount?.trim();
+		if (m) set.add(m);
+	}
+	return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+/**
  * Returns the camera's sole compatible (non-sold) lens, or null if there are
  * zero or multiple options. Used to auto-fill lens pickers when the choice is
  * unambiguous.

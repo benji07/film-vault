@@ -12,7 +12,7 @@ import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } f
 import { PhotoImg } from "@/components/ui/photo-img";
 import { alpha, T } from "@/constants/theme";
 import type { AppData, Lens } from "@/types";
-import { lensApertureLabel, lensDisplayName, lensFocalLabel } from "@/utils/lens-helpers";
+import { collectMounts, lensApertureLabel, lensDisplayName, lensFocalLabel } from "@/utils/lens-helpers";
 import { AddLensDialog } from "./AddLensDialog";
 import { emptyLensForm, formToLens, LensForm, type LensFormData, lensToForm } from "./LensForm";
 
@@ -31,6 +31,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 
 	const activeLenses = data.lenses.filter((l) => !l.soldAt);
 	const soldLenses = data.lenses.filter((l) => l.soldAt);
+	const mountSuggestions = collectMounts(data.cameras, data.lenses);
 
 	const saveEditLens = () => {
 		if (!editLensId || (!editLens.brand && !editLens.model)) return;
@@ -248,7 +249,13 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 				)}
 			</div>
 
-			<AddLensDialog open={showAdd} onOpenChange={setShowAdd} data={data} setData={setData} />
+			<AddLensDialog
+				open={showAdd}
+				onOpenChange={setShowAdd}
+				data={data}
+				setData={setData}
+				mountSuggestions={mountSuggestions}
+			/>
 
 			{/* Edit lens modal */}
 			<Dialog open={!!editLensId} onOpenChange={(open) => !open && setEditLensId(null)}>
@@ -263,6 +270,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 						onSave={saveEditLens}
 						isEdit={true}
 						onSell={editLensId ? () => sellLens(editLensId) : undefined}
+						mountSuggestions={mountSuggestions}
 					/>
 				</DialogContent>
 			</Dialog>

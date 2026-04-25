@@ -1,6 +1,7 @@
 import { Check, PackageX, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -103,9 +104,10 @@ interface LensFormProps {
 	onSave: () => void;
 	isEdit: boolean;
 	onSell?: () => void;
+	mountSuggestions?: string[];
 }
 
-export function LensForm({ form, setForm, onSave, isEdit, onSell }: LensFormProps) {
+export function LensForm({ form, setForm, onSave, isEdit, onSell, mountSuggestions = [] }: LensFormProps) {
 	const { t } = useTranslation();
 
 	return (
@@ -146,13 +148,14 @@ export function LensForm({ form, setForm, onSave, isEdit, onSell }: LensFormProp
 					placeholder={t("lenses.serialPlaceholder")}
 				/>
 			</FormField>
-			<FormField label={t("lenses.mount")}>
-				<Input
-					value={form.mount}
-					onChange={(e) => setForm({ ...form, mount: e.target.value })}
-					placeholder={t("lenses.mountPlaceholder")}
-				/>
-			</FormField>
+			<AutocompleteInput
+				label={t("lenses.mount")}
+				value={form.mount}
+				onChange={(v) => setForm({ ...form, mount: v })}
+				suggestions={mountSuggestions}
+				placeholder={t("lenses.mountPlaceholder")}
+				showAllOnFocus
+			/>
 
 			<div className="border-t border-border pt-4 mt-1">
 				<span className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
