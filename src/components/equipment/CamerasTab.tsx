@@ -1,9 +1,10 @@
 import { Camera, Check, Edit3, Eye, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { PhotoViewer } from "@/components/PhotoViewer";
+import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import { alpha, T } from "@/constants/theme";
 import { type AppData, type Camera as CameraType, INSTANT_FORMATS, type StopIncrement } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
+import { collectMounts } from "@/utils/lens-helpers";
 import { AddCameraDialog } from "./AddCameraDialog";
 
 interface CamerasTabProps {
@@ -34,6 +36,7 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 	const [editCam, setEditCam] = useState<(CameraType & { mount?: string | null }) | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
 	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
+	const mountSuggestions = useMemo(() => collectMounts(data.cameras, data.lenses), [data.cameras, data.lenses]);
 
 	const activeCameras = data.cameras.filter((c) => !c.soldAt);
 	const soldCameras = data.cameras.filter((c) => c.soldAt);
@@ -367,13 +370,14 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 								/>
 							</div>
 							{(editCam.hasInterchangeableLens ?? true) && (
-								<FormField label={t("cameras.mount")}>
-									<Input
-										value={editCam.mount || ""}
-										onChange={(e) => setEditCam({ ...editCam, mount: e.target.value })}
-										placeholder={t("cameras.mountPlaceholder")}
-									/>
-								</FormField>
+								<AutocompleteInput
+									label={t("cameras.mount")}
+									value={editCam.mount || ""}
+									onChange={(v) => setEditCam({ ...editCam, mount: v })}
+									suggestions={mountSuggestions}
+									placeholder={t("cameras.mountPlaceholder")}
+									showAllOnFocus
+								/>
 							)}
 							<div className="flex items-center justify-between gap-3">
 								<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">

@@ -10,9 +10,10 @@ interface AddLensDialogProps {
 	onOpenChange: (open: boolean) => void;
 	data: AppData;
 	setData: (data: AppData) => void;
+	mountSuggestions?: string[];
 }
 
-export function AddLensDialog({ open, onOpenChange, data, setData }: AddLensDialogProps) {
+export function AddLensDialog({ open, onOpenChange, data, setData, mountSuggestions }: AddLensDialogProps) {
 	const { t } = useTranslation();
 	const [newLens, setNewLens] = useState<LensFormData>(emptyLensForm);
 
@@ -34,7 +35,13 @@ export function AddLensDialog({ open, onOpenChange, data, setData }: AddLensDial
 					<DialogTitle>{t("lenses.newLens")}</DialogTitle>
 					<DialogCloseButton />
 				</DialogHeader>
-				<LensForm form={newLens} setForm={setNewLens} onSave={addLens} isEdit={false} />
+				<LensForm
+					form={newLens}
+					setForm={setNewLens}
+					onSave={addLens}
+					isEdit={false}
+					mountSuggestions={mountSuggestions}
+				/>
 			</DialogContent>
 		</Dialog>
 	);

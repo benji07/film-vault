@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { type ExposureConfig, filterApertures, filterSpeeds } from "@/constants/photography";
 import type { Camera, Film, Lens, ShotNote } from "@/types";
 import { nowDateTimeLocal, uid } from "@/utils/helpers";
-import { filterLensesByMount, lensDisplayName } from "@/utils/lens-helpers";
+import { filterLensesByMount, lensDisplayName, pickSoleCompatibleLens } from "@/utils/lens-helpers";
 
 interface ShotNotesSectionProps {
 	film: Film;
@@ -164,16 +164,17 @@ function ShotNotesSection({
 	const [gpsLoading, setGpsLoading] = useState(false);
 
 	const openAdd = useCallback(() => {
+		const sole = !film.lensId && camera?.hasInterchangeableLens ? pickSoleCompatibleLens(lenses ?? [], camera) : null;
 		setEditingId(null);
 		setForm({
 			...emptyForm,
-			lens: film.lens ?? "",
-			lensId: film.lensId ?? "",
+			lens: sole ? lensDisplayName(sole) : (film.lens ?? ""),
+			lensId: sole ? sole.id : (film.lensId ?? ""),
 			frameNumber: nextFrameNumber(notes, film.posesTotal),
 			date: nowDateTimeLocal(),
 		});
 		setDialogOpen(true);
-	}, [film.lens, film.lensId, film.posesTotal, notes]);
+	}, [camera, lenses, film.lens, film.lensId, film.posesTotal, notes]);
 
 	useEffect(() => {
 		if (autoOpenShotNote) {

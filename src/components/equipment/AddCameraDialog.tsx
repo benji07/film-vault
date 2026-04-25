@@ -1,7 +1,8 @@
 import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
@@ -11,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { SHUTTER_SPEEDS } from "@/constants/photography";
 import { type AppData, type Camera as CameraType, INSTANT_FORMATS, type StopIncrement } from "@/types";
 import { uid } from "@/utils/helpers";
+import { collectMounts } from "@/utils/lens-helpers";
 
 interface AddCameraDialogProps {
 	open: boolean;
@@ -39,6 +41,7 @@ const emptyCam = {
 export function AddCameraDialog({ open, onOpenChange, data, setData }: AddCameraDialogProps) {
 	const { t } = useTranslation();
 	const [newCam, setNewCam] = useState(emptyCam);
+	const mountSuggestions = useMemo(() => collectMounts(data.cameras, data.lenses), [data.cameras, data.lenses]);
 
 	useEffect(() => {
 		if (!open) setNewCam(emptyCam);
@@ -137,13 +140,14 @@ export function AddCameraDialog({ open, onOpenChange, data, setData }: AddCamera
 						/>
 					</div>
 					{newCam.hasInterchangeableLens && (
-						<FormField label={t("cameras.mount")}>
-							<Input
-								value={newCam.mount}
-								onChange={(e) => setNewCam({ ...newCam, mount: e.target.value })}
-								placeholder={t("cameras.mountPlaceholder")}
-							/>
-						</FormField>
+						<AutocompleteInput
+							label={t("cameras.mount")}
+							value={newCam.mount}
+							onChange={(v) => setNewCam({ ...newCam, mount: v })}
+							suggestions={mountSuggestions}
+							placeholder={t("cameras.mountPlaceholder")}
+							showAllOnFocus
+						/>
 					)}
 					<div className="flex items-center justify-between gap-3">
 						<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
