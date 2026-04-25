@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { type ExposureConfig, filterApertures, filterSpeeds } from "@/constants/photography";
 import type { Camera, Film, Lens, ShotNote } from "@/types";
-import { uid } from "@/utils/helpers";
+import { nowDateTimeLocal, uid } from "@/utils/helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 
 interface ShotNotesSectionProps {
@@ -111,12 +111,6 @@ function formToNote(form: NoteFormData, id?: string): ShotNote {
 		date: form.date || null,
 		photo: form.photo[0] || null,
 	};
-}
-
-function nowDateTimeLocal(): string {
-	const now = new Date();
-	const pad = (n: number) => String(n).padStart(2, "0");
-	return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
 function nextFrameNumber(notes: ShotNote[], posesTotal?: number | null): string {

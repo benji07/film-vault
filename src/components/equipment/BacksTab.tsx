@@ -19,7 +19,7 @@ import { alpha, T } from "@/constants/theme";
 import { type AppData, type Back, INSTANT_FORMATS } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
-import { uid } from "@/utils/helpers";
+import { AddBackDialog } from "./AddBackDialog";
 
 interface BacksTabProps {
 	data: AppData;
@@ -29,15 +29,6 @@ interface BacksTabProps {
 export function BacksTab({ data, setData }: BacksTabProps) {
 	const { t } = useTranslation();
 	const [showBackModal, setShowBackModal] = useState(false);
-	const [newBack, setNewBack] = useState({
-		name: "",
-		nickname: "",
-		ref: "",
-		serial: "",
-		format: "120",
-		compatibleCameraIds: [] as string[],
-		photo: undefined as string | undefined,
-	});
 	const [editBack, setEditBack] = useState<Back | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
 	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
@@ -46,42 +37,14 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 	const activeBacks = data.backs.filter((b) => !b.soldAt);
 	const soldBacks = data.backs.filter((b) => b.soldAt);
 
-	const toggleBackCamera = (
-		cameraId: string,
-		backState: { compatibleCameraIds: string[] },
-		setter: (ids: string[]) => void,
-	) => {
-		const ids = backState.compatibleCameraIds;
+	const toggleEditBackCamera = (cameraId: string) => {
+		if (!editBack) return;
+		const ids = editBack.compatibleCameraIds;
 		if (ids.includes(cameraId)) {
-			setter(ids.filter((id) => id !== cameraId));
+			setEditBack({ ...editBack, compatibleCameraIds: ids.filter((id) => id !== cameraId) });
 		} else {
-			setter([...ids, cameraId]);
+			setEditBack({ ...editBack, compatibleCameraIds: [...ids, cameraId] });
 		}
-	};
-
-	const addBack = () => {
-		if (!newBack.name) return;
-		const back: Back = {
-			id: uid(),
-			name: newBack.name,
-			nickname: newBack.nickname,
-			ref: newBack.ref,
-			serial: newBack.serial,
-			format: newBack.format,
-			compatibleCameraIds: newBack.compatibleCameraIds,
-			photo: newBack.photo,
-		};
-		setData({ ...data, backs: [...data.backs, back] });
-		setShowBackModal(false);
-		setNewBack({
-			name: "",
-			nickname: "",
-			ref: "",
-			serial: "",
-			format: "120",
-			compatibleCameraIds: [],
-			photo: undefined,
-		});
 	};
 
 	const saveEditBack = () => {
@@ -278,91 +241,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 				)}
 			</div>
 
-			{/* Add back modal */}
-			<Dialog open={showBackModal} onOpenChange={(open) => !open && setShowBackModal(false)}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>{t("cameras.addBackTitle")}</DialogTitle>
-						<DialogCloseButton />
-					</DialogHeader>
-					<div className="flex flex-col gap-4">
-						<PhotoPicker
-							photos={newBack.photo ? [newBack.photo] : []}
-							onChange={(p) => setNewBack({ ...newBack, photo: p[0] || undefined })}
-							max={1}
-							size={32}
-							placeholderIcon
-							label={t("cameras.photo")}
-						/>
-						<FormField label={t("cameras.backName")}>
-							<Input
-								value={newBack.name}
-								onChange={(e) => setNewBack({ ...newBack, name: e.target.value })}
-								placeholder={t("cameras.backNamePlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.backFormat")}>
-							<Select value={newBack.format} onValueChange={(v) => setNewBack({ ...newBack, format: v })}>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
-									<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-									{INSTANT_FORMATS.map((f) => (
-										<SelectItem key={f} value={f}>
-											{t(`filmFormats.${f}`)}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</FormField>
-						<FormField label={t("cameras.reference")}>
-							<Input
-								value={newBack.ref}
-								onChange={(e) => setNewBack({ ...newBack, ref: e.target.value })}
-								placeholder={t("cameras.refPlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.backNickname")}>
-							<Input
-								value={newBack.nickname}
-								onChange={(e) => setNewBack({ ...newBack, nickname: e.target.value })}
-								placeholder={t("cameras.backNicknamePlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.backSerial")}>
-							<Input
-								value={newBack.serial}
-								onChange={(e) => setNewBack({ ...newBack, serial: e.target.value })}
-								placeholder={t("cameras.serialPlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.compatibleCameras")}>
-							{interchangeableCameras.length > 0 ? (
-								<div className="flex flex-col gap-2">
-									{interchangeableCameras.map((c) => (
-										<div key={c.id} className="flex items-center justify-between gap-3">
-											<span className="text-[13px] text-text-sec font-body">{cameraDisplayName(c)}</span>
-											<Switch
-												checked={newBack.compatibleCameraIds.includes(c.id)}
-												onCheckedChange={() =>
-													toggleBackCamera(c.id, newBack, (ids) => setNewBack({ ...newBack, compatibleCameraIds: ids }))
-												}
-											/>
-										</div>
-									))}
-								</div>
-							) : (
-								<span className="text-[12px] text-text-muted font-body">{t("cameras.noCompatibleCameras")}</span>
-							)}
-						</FormField>
-						<Button onClick={addBack} disabled={!newBack.name} className="w-full justify-center">
-							<Plus size={16} /> {t("cameras.addBackButton")}
-						</Button>
-					</div>
-				</DialogContent>
-			</Dialog>
+			<AddBackDialog open={showBackModal} onOpenChange={setShowBackModal} data={data} setData={setData} />
 
 			{/* Edit back modal */}
 			<Dialog open={!!editBack} onOpenChange={(open) => !open && setEditBack(null)}>
@@ -423,11 +302,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 												<span className="text-[13px] text-text-sec font-body">{cameraDisplayName(c)}</span>
 												<Switch
 													checked={editBack.compatibleCameraIds.includes(c.id)}
-													onCheckedChange={() =>
-														toggleBackCamera(c.id, editBack, (ids) =>
-															setEditBack({ ...editBack, compatibleCameraIds: ids }),
-														)
-													}
+													onCheckedChange={() => toggleEditBackCamera(c.id)}
 												/>
 											</div>
 										))}

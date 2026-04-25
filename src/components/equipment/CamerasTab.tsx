@@ -20,7 +20,7 @@ import { alpha, T } from "@/constants/theme";
 import { type AppData, type Camera as CameraType, INSTANT_FORMATS, type StopIncrement } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
-import { uid } from "@/utils/helpers";
+import { AddCameraDialog } from "./AddCameraDialog";
 
 interface CamerasTabProps {
 	data: AppData;
@@ -31,61 +31,12 @@ interface CamerasTabProps {
 export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 	const { t } = useTranslation();
 	const [showAdd, setShowAdd] = useState(false);
-	const [newCam, setNewCam] = useState({
-		brand: "",
-		model: "",
-		nickname: "",
-		serial: "",
-		format: "35mm",
-		mount: "",
-		hasInterchangeableBack: false,
-		photo: undefined as string | undefined,
-		shutterSpeedMin: "" as string,
-		shutterSpeedMax: "" as string,
-		shutterSpeedStops: "" as string,
-		apertureStops: "" as string,
-	});
 	const [editCam, setEditCam] = useState<(CameraType & { mount?: string | null }) | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
 	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
 
 	const activeCameras = data.cameras.filter((c) => !c.soldAt);
 	const soldCameras = data.cameras.filter((c) => c.soldAt);
-
-	const addCamera = () => {
-		if (!newCam.brand && !newCam.model) return;
-		const camera: CameraType = {
-			id: uid(),
-			brand: newCam.brand,
-			model: newCam.model,
-			nickname: newCam.nickname,
-			serial: newCam.serial,
-			format: newCam.format,
-			mount: newCam.mount || null,
-			hasInterchangeableBack: newCam.hasInterchangeableBack || false,
-			photo: newCam.photo,
-			shutterSpeedMin: newCam.shutterSpeedMin || null,
-			shutterSpeedMax: newCam.shutterSpeedMax || null,
-			shutterSpeedStops: (newCam.shutterSpeedStops as StopIncrement) || null,
-			apertureStops: (newCam.apertureStops as StopIncrement) || null,
-		};
-		setData({ ...data, cameras: [...data.cameras, camera] });
-		setShowAdd(false);
-		setNewCam({
-			brand: "",
-			model: "",
-			nickname: "",
-			serial: "",
-			format: "35mm",
-			mount: "",
-			hasInterchangeableBack: false,
-			photo: undefined,
-			shutterSpeedMin: "",
-			shutterSpeedMax: "",
-			shutterSpeedStops: "",
-			apertureStops: "",
-		});
-	};
 
 	const saveEditCamera = () => {
 		if (!editCam?.brand && !editCam?.model) return;
@@ -352,160 +303,7 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 				)}
 			</div>
 
-			{/* Add camera modal */}
-			<Dialog open={showAdd} onOpenChange={(open) => !open && setShowAdd(false)}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>{t("cameras.newCamera")}</DialogTitle>
-						<DialogCloseButton />
-					</DialogHeader>
-					<div className="flex flex-col gap-4">
-						<PhotoPicker
-							photos={newCam.photo ? [newCam.photo] : []}
-							onChange={(p) => setNewCam({ ...newCam, photo: p[0] || undefined })}
-							max={1}
-							size={48}
-							placeholderIcon
-							label={t("cameras.photo")}
-						/>
-						<FormField label={t("cameras.brand")}>
-							<Input
-								value={newCam.brand}
-								onChange={(e) => setNewCam({ ...newCam, brand: e.target.value })}
-								placeholder={t("cameras.brandPlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.model")}>
-							<Input
-								value={newCam.model}
-								onChange={(e) => setNewCam({ ...newCam, model: e.target.value })}
-								placeholder={t("cameras.modelPlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.nickname")}>
-							<Input
-								value={newCam.nickname}
-								onChange={(e) => setNewCam({ ...newCam, nickname: e.target.value })}
-								placeholder={t("cameras.nicknamePlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.serial")}>
-							<Input
-								value={newCam.serial}
-								onChange={(e) => setNewCam({ ...newCam, serial: e.target.value })}
-								placeholder={t("cameras.serialPlaceholder")}
-							/>
-						</FormField>
-						<FormField label={t("cameras.format")}>
-							<Select value={newCam.format} onValueChange={(v) => setNewCam({ ...newCam, format: v })}>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
-									<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-									{INSTANT_FORMATS.map((f) => (
-										<SelectItem key={f} value={f}>
-											{t(`filmFormats.${f}`)}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</FormField>
-						<FormField label={t("cameras.mount")}>
-							<Input
-								value={newCam.mount}
-								onChange={(e) => setNewCam({ ...newCam, mount: e.target.value })}
-								placeholder={t("cameras.mountPlaceholder")}
-							/>
-						</FormField>
-						<div className="flex items-center justify-between gap-3">
-							<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
-								{t("cameras.interchangeableBack")}
-							</label>
-							<Switch
-								checked={newCam.hasInterchangeableBack}
-								onCheckedChange={(v) => setNewCam({ ...newCam, hasInterchangeableBack: v })}
-							/>
-						</div>
-
-						<div className="border-t border-border pt-4 mt-1">
-							<span className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
-								{t("cameras.exposureSection")}
-							</span>
-						</div>
-						<div className="grid grid-cols-2 gap-3">
-							<FormField label={t("cameras.shutterSpeedMin")}>
-								<Select
-									value={newCam.shutterSpeedMin}
-									onValueChange={(v) => setNewCam({ ...newCam, shutterSpeedMin: v })}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="—" />
-									</SelectTrigger>
-									<SelectContent>
-										{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
-											<SelectItem key={s} value={s}>
-												{s}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</FormField>
-							<FormField label={t("cameras.shutterSpeedMax")}>
-								<Select
-									value={newCam.shutterSpeedMax}
-									onValueChange={(v) => setNewCam({ ...newCam, shutterSpeedMax: v })}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="—" />
-									</SelectTrigger>
-									<SelectContent>
-										{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
-											<SelectItem key={s} value={s}>
-												{s}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</FormField>
-						</div>
-						<div className="grid grid-cols-2 gap-3">
-							<FormField label={t("cameras.shutterSpeedStops")}>
-								<Select
-									value={newCam.shutterSpeedStops}
-									onValueChange={(v) => setNewCam({ ...newCam, shutterSpeedStops: v })}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="—" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
-										<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
-										<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
-									</SelectContent>
-								</Select>
-							</FormField>
-							<FormField label={t("cameras.apertureStops")}>
-								<Select value={newCam.apertureStops} onValueChange={(v) => setNewCam({ ...newCam, apertureStops: v })}>
-									<SelectTrigger>
-										<SelectValue placeholder="—" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
-										<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
-										<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
-									</SelectContent>
-								</Select>
-							</FormField>
-						</div>
-
-						<Button onClick={addCamera} disabled={!newCam.brand && !newCam.model} className="w-full justify-center">
-							<Plus size={16} /> {t("cameras.add")}
-						</Button>
-					</div>
-				</DialogContent>
-			</Dialog>
+			<AddCameraDialog open={showAdd} onOpenChange={setShowAdd} data={data} setData={setData} />
 
 			{/* Edit camera modal */}
 			<Dialog open={!!editCam} onOpenChange={(open) => !open && setEditCam(null)}>
