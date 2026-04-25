@@ -19,8 +19,15 @@ function pickCameraWithSoleLens(
 	camera: Camera | null,
 	lenses: Lens[],
 ): ActionData {
-	const next: ActionData = { ...actionData, cameraId, backId: "" };
+	const next: ActionData = { ...actionData, cameraId, backId: "", lensId: "", lens: "" };
 	if (!camera?.hasInterchangeableLens) return next;
+	const compatible = filterLensesByMount(lenses, camera).filter((l) => !l.soldAt);
+	const keep = actionData.lensId ? compatible.find((l) => l.id === actionData.lensId) : null;
+	if (keep) {
+		next.lensId = keep.id;
+		next.lens = lensDisplayName(keep);
+		return next;
+	}
 	const sole = pickSoleCompatibleLens(lenses, camera);
 	if (sole) {
 		next.lensId = sole.id;

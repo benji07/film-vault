@@ -181,12 +181,22 @@ export function EditModal({
 									value={editData.cameraId || ""}
 									onValueChange={(v) => {
 										const cam = data.cameras.find((c) => c.id === v) ?? null;
-										const sole = cam?.hasInterchangeableLens ? pickSoleCompatibleLens(data.lenses, cam) : null;
+										const compatible = cam?.hasInterchangeableLens
+											? filterLensesByMount(data.lenses, cam).filter((l) => !l.soldAt)
+											: [];
+										const keep = editData.lensId ? compatible.find((l) => l.id === editData.lensId) : null;
+										const sole = keep
+											? null
+											: cam?.hasInterchangeableLens
+												? pickSoleCompatibleLens(data.lenses, cam)
+												: null;
+										const picked = keep ?? sole;
 										setEditData({
 											...editData,
 											cameraId: v,
 											backId: "",
-											...(sole ? { lensId: sole.id, lens: lensDisplayName(sole) } : {}),
+											lensId: picked?.id ?? "",
+											lens: picked ? lensDisplayName(picked) : "",
 										});
 									}}
 								>

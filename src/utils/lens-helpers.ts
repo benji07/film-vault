@@ -24,7 +24,7 @@ export function filterLensesByMount(
  * unambiguous.
  */
 export function pickSoleCompatibleLens(lenses: Lens[], camera: Camera | null | undefined): Lens | null {
-	if (!camera) return null;
+	if (!camera?.mount?.trim()) return null;
 	const compatible = filterLensesByMount(lenses, camera).filter((l) => !l.soldAt);
 	return compatible.length === 1 ? (compatible[0] ?? null) : null;
 }
