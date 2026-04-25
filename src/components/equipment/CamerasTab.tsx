@@ -1,4 +1,4 @@
-import { Camera, Check, Edit3, Eye, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Camera, Check, Edit3, Eye, PackageX, RotateCcw, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -22,7 +22,6 @@ import { type AppData, type Camera as CameraType, INSTANT_FORMATS } from "@/type
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
 import { collectMounts } from "@/utils/lens-helpers";
-import { AddCameraDialog } from "./AddCameraDialog";
 
 interface CamerasTabProps {
 	data: AppData;
@@ -32,7 +31,6 @@ interface CamerasTabProps {
 
 export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 	const { t } = useTranslation();
-	const [showAdd, setShowAdd] = useState(false);
 	const [editCam, setEditCam] = useState<(CameraType & { mount?: string | null }) | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
 	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
@@ -92,12 +90,7 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<div className="flex justify-between items-center">
-					<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.title")}</h2>
-					<Button size="sm" onClick={() => setShowAdd(true)}>
-						<Plus size={14} /> {t("cameras.add")}
-					</Button>
-				</div>
+				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.title")}</h2>
 
 				<div className="flex flex-col gap-2.5">
 					{activeCameras.map((cam) => {
@@ -307,8 +300,6 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 					</CollapsibleSection>
 				)}
 			</div>
-
-			<AddCameraDialog open={showAdd} onOpenChange={setShowAdd} data={data} setData={setData} />
 
 			{/* Edit camera modal */}
 			<Dialog open={!!editCam} onOpenChange={(open) => !open && setEditCam(null)}>

@@ -1,4 +1,4 @@
-import { Camera, Check, Edit3, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Camera, Check, Edit3, PackageX, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -19,7 +19,6 @@ import { alpha, T } from "@/constants/theme";
 import { type AppData, type Back, INSTANT_FORMATS } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
-import { AddBackDialog } from "./AddBackDialog";
 
 interface BacksTabProps {
 	data: AppData;
@@ -28,7 +27,6 @@ interface BacksTabProps {
 
 export function BacksTab({ data, setData }: BacksTabProps) {
 	const { t } = useTranslation();
-	const [showBackModal, setShowBackModal] = useState(false);
 	const [editBack, setEditBack] = useState<Back | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
 	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
@@ -74,12 +72,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<div className="flex justify-between items-center">
-					<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.backsSection")}</h2>
-					<Button size="sm" onClick={() => setShowBackModal(true)}>
-						<Plus size={14} /> {t("cameras.add")}
-					</Button>
-				</div>
+				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.backsSection")}</h2>
 
 				<div className="flex flex-col gap-2.5">
 					{activeBacks.map((b) => {
@@ -240,8 +233,6 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 					</CollapsibleSection>
 				)}
 			</div>
-
-			<AddBackDialog open={showBackModal} onOpenChange={setShowBackModal} data={data} setData={setData} />
 
 			{/* Edit back modal */}
 			<Dialog open={!!editBack} onOpenChange={(open) => !open && setEditBack(null)}>

@@ -1,11 +1,10 @@
-import { Archive, Camera, Clock, Eye, Film, ListTodo, Plus, ScanLine, Snowflake } from "lucide-react";
+import { Archive, Camera, Clock, Eye, Film, ListTodo, ScanLine, Snowflake } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ActiveRollCard } from "@/components/ActiveRollCard";
 import { EmptyState } from "@/components/EmptyState";
 import { EquipmentCard } from "@/components/EquipmentCard";
 import { StatChip } from "@/components/StatChip";
 import { TodoItem } from "@/components/TodoItem";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { alpha, T } from "@/constants/theme";
 import type { AppData, Back, Camera as CameraType, Film as FilmType } from "@/types";
@@ -15,7 +14,6 @@ interface DashboardScreenProps {
 	data: AppData;
 	onOpenFilm: (id: string) => void;
 	onOpenCameras: () => void;
-	onAddFilm: () => void;
 	setAutoOpenShotNote?: (open: boolean) => void;
 	onNavigateToStock: (stateFilter: string) => void;
 }
@@ -90,7 +88,6 @@ export function DashboardScreen({
 	data,
 	onOpenFilm,
 	onOpenCameras,
-	onAddFilm,
 	setAutoOpenShotNote,
 	onNavigateToStock,
 }: DashboardScreenProps) {
@@ -255,16 +252,7 @@ export function DashboardScreen({
 			)}
 
 			{films.length === 0 && (
-				<EmptyState
-					icon={Film}
-					title={t("dashboard.noFilms")}
-					subtitle={t("dashboard.noFilmsSubtitle")}
-					action={
-						<Button onClick={onAddFilm}>
-							<Plus size={14} /> {t("dashboard.addFilm")}
-						</Button>
-					}
-				/>
+				<EmptyState icon={Film} title={t("dashboard.noFilms")} subtitle={t("dashboard.noFilmsSubtitle")} />
 			)}
 		</div>
 	);
