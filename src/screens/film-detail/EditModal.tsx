@@ -16,7 +16,7 @@ import { type AppData, type Back, type Camera, type Film, isInstantFormat } from
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { collectAllTags } from "@/utils/film-helpers";
 import { today } from "@/utils/helpers";
-import { filterLensesByMount, lensDisplayName } from "@/utils/lens-helpers";
+import { filterLensesByMount, lensDisplayName, pickSoleCompatibleLens } from "@/utils/lens-helpers";
 import type { ActionType, EditData } from "./types";
 
 interface EditModalProps {
@@ -179,7 +179,16 @@ export function EditModal({
 							<FormField label={t("filmDetail.cameraField")}>
 								<Select
 									value={editData.cameraId || ""}
-									onValueChange={(v) => setEditData({ ...editData, cameraId: v, backId: "" })}
+									onValueChange={(v) => {
+										const cam = data.cameras.find((c) => c.id === v) ?? null;
+										const sole = cam?.hasInterchangeableLens ? pickSoleCompatibleLens(data.lenses, cam) : null;
+										setEditData({
+											...editData,
+											cameraId: v,
+											backId: "",
+											...(sole ? { lensId: sole.id, lens: lensDisplayName(sole) } : {}),
+										});
+									}}
 								>
 									<SelectTrigger>
 										<SelectValue placeholder={t("filmDetail.choosePlaceholder")} />

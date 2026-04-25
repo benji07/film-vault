@@ -14,7 +14,7 @@ import { type ExposureConfig, filterApertures, filterSpeeds } from "@/constants/
 import type { AppData, ShotNote } from "@/types";
 import { filmName } from "@/utils/film-helpers";
 import { nowDateTimeLocal, uid } from "@/utils/helpers";
-import { filterLensesByMount, lensDisplayName } from "@/utils/lens-helpers";
+import { filterLensesByMount, lensDisplayName, pickSoleCompatibleLens } from "@/utils/lens-helpers";
 
 interface QuickShotDialogProps {
 	open: boolean;
@@ -91,10 +91,13 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 		}
 		const only = eligibleFilms.length === 1 ? eligibleFilms[0] : null;
 		if (only && !filmId) {
+			const onlyCam = only.cameraId ? data.cameras.find((c) => c.id === only.cameraId) : null;
+			const sole =
+				!only.lensId && onlyCam?.hasInterchangeableLens ? pickSoleCompatibleLens(data.lenses, onlyCam) : null;
 			setFilmId(only.id);
 			setFrameNumber(nextFrame(only.posesShot));
-			setLensId(only.lensId ?? "");
-			setLens(only.lens ?? "");
+			setLensId(sole ? sole.id : (only.lensId ?? ""));
+			setLens(sole ? lensDisplayName(sole) : (only.lens ?? ""));
 		}
 	}, [open]);
 
@@ -102,9 +105,11 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 		setFilmId(newId);
 		const film = data.films.find((f) => f.id === newId);
 		if (film) {
+			const cam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
+			const sole = !film.lensId && cam?.hasInterchangeableLens ? pickSoleCompatibleLens(data.lenses, cam) : null;
 			setFrameNumber(nextFrame(film.posesShot));
-			setLensId(film.lensId ?? "");
-			setLens(film.lens ?? "");
+			setLensId(sole ? sole.id : (film.lensId ?? ""));
+			setLens(sole ? lensDisplayName(sole) : (film.lens ?? ""));
 			resetExposureFields();
 		}
 	};

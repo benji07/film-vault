@@ -16,6 +16,7 @@ import type { AppData, Film as FilmType } from "@/types";
 import { createNewFilm } from "@/utils/film-factory";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { today } from "@/utils/helpers";
+import { lensDisplayName, pickSoleCompatibleLens } from "@/utils/lens-helpers";
 import { useFilmSuggestions } from "@/utils/use-film-suggestions";
 import { DevScanModals } from "./film-detail/DevScanModals";
 import { EditModal } from "./film-detail/EditModal";
@@ -94,6 +95,9 @@ export function FilmDetailScreen({
 		);
 
 	const openEdit = () => {
+		const editCam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
+		const soleLens =
+			!film.lensId && editCam?.hasInterchangeableLens ? pickSoleCompatibleLens(data.lenses, editCam) : null;
 		setEditData({
 			brand: film.brand || "",
 			model: film.model || "",
@@ -108,8 +112,8 @@ export function FilmDetailScreen({
 			shootIso: film.shootIso != null ? String(film.shootIso) : "",
 			cameraId: film.cameraId || "",
 			backId: film.backId || "",
-			lensId: film.lensId || "",
-			lens: film.lens || "",
+			lensId: soleLens ? soleLens.id : film.lensId || "",
+			lens: soleLens ? lensDisplayName(soleLens) : film.lens || "",
 			startDate: film.startDate || "",
 			posesTotal: film.posesTotal != null ? String(film.posesTotal) : "",
 			endDate: film.endDate || "",

@@ -1,4 +1,4 @@
-import { Camera, Check, Clock, RotateCcw } from "lucide-react";
+import { Camera as CameraIcon, Check, Clock, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,27 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { T } from "@/constants/theme";
+import type { Camera, Lens } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { today } from "@/utils/helpers";
-import { filterLensesByMount, lensDisplayName } from "@/utils/lens-helpers";
-import type { ModalBaseProps } from "./types";
+import { filterLensesByMount, lensDisplayName, pickSoleCompatibleLens } from "@/utils/lens-helpers";
+import type { ActionData, ModalBaseProps } from "./types";
+
+function pickCameraWithSoleLens(
+	actionData: ActionData,
+	cameraId: string,
+	camera: Camera | null,
+	lenses: Lens[],
+): ActionData {
+	const next: ActionData = { ...actionData, cameraId, backId: "" };
+	if (!camera?.hasInterchangeableLens) return next;
+	const sole = pickSoleCompatibleLens(lenses, camera);
+	if (sole) {
+		next.lensId = sole.id;
+		next.lens = lensDisplayName(sole);
+	}
+	return next;
+}
 
 export function TransitionModals({
 	film,
@@ -47,7 +64,10 @@ export function TransitionModals({
 						<FormField label={t("filmDetail.cameraField")}>
 							<Select
 								value={actionData.cameraId || ""}
-								onValueChange={(v) => setActionData({ ...actionData, cameraId: v, backId: "" })}
+								onValueChange={(v) => {
+									const cam = data.cameras.find((c) => c.id === v) ?? null;
+									setActionData(pickCameraWithSoleLens(actionData, v, cam, data.lenses));
+								}}
 							>
 								<SelectTrigger>
 									<SelectValue placeholder={t("filmDetail.choosePlaceholder")} />
@@ -189,7 +209,7 @@ export function TransitionModals({
 							}}
 							className="w-full justify-center"
 						>
-							<Camera size={16} /> {t("filmDetail.loadButton")}
+							<CameraIcon size={16} /> {t("filmDetail.loadButton")}
 						</Button>
 					</div>
 				</DialogContent>
@@ -327,7 +347,10 @@ export function TransitionModals({
 						<FormField label={t("filmDetail.cameraField")}>
 							<Select
 								value={actionData.cameraId || ""}
-								onValueChange={(v) => setActionData({ ...actionData, cameraId: v, backId: "" })}
+								onValueChange={(v) => {
+									const cam = data.cameras.find((c) => c.id === v) ?? null;
+									setActionData(pickCameraWithSoleLens(actionData, v, cam, data.lenses));
+								}}
 							>
 								<SelectTrigger>
 									<SelectValue placeholder={t("filmDetail.choosePlaceholder")} />
