@@ -1,6 +1,6 @@
 import type { AppData } from "@/types";
 
-export const CURRENT_VERSION = 19;
+export const CURRENT_VERSION = 20;
 
 type MigrationFn = (data: Record<string, unknown>) => Record<string, unknown>;
 
@@ -201,7 +201,7 @@ function migrateV10toV11(data: Record<string, unknown>): Record<string, unknown>
 }
 
 function migrateV11toV12(data: Record<string, unknown>): Record<string, unknown> {
-	// Camera gains optional exposure fields (shutterSpeedMin, shutterSpeedMax, shutterSpeedStops, apertureStops).
+	// Camera gains optional exposure fields (shutterSpeedMin, shutterSpeedMax).
 	// No data transformation needed — new fields are all optional.
 	return { ...data, version: 12 };
 }
@@ -261,6 +261,21 @@ function migrateV18toV19(data: Record<string, unknown>): Record<string, unknown>
 	return { ...data, cameras: migratedCameras, version: 19 };
 }
 
+function migrateV19toV20(data: Record<string, unknown>): Record<string, unknown> {
+	// Drop the stop-increment fields on cameras and lenses; min/max are now free text.
+	const cameras = (data.cameras as Record<string, unknown>[]) || [];
+	const migratedCameras = cameras.map((cam) => {
+		const { shutterSpeedStops: _s, apertureStops: _a, ...rest } = cam;
+		return rest;
+	});
+	const lenses = (data.lenses as Record<string, unknown>[]) || [];
+	const migratedLenses = lenses.map((lens) => {
+		const { shutterSpeedStops: _s, apertureStops: _a, ...rest } = lens;
+		return rest;
+	});
+	return { ...data, cameras: migratedCameras, lenses: migratedLenses, version: 20 };
+}
+
 const migrations: Record<number, MigrationFn> = {
 	1: migrateV1toV2,
 	2: migrateV2toV3,
@@ -280,6 +295,7 @@ const migrations: Record<number, MigrationFn> = {
 	16: migrateV16toV17,
 	17: migrateV17toV18,
 	18: migrateV18toV19,
+	19: migrateV19toV20,
 };
 
 export function applyMigrations(data: Record<string, unknown>): AppData {

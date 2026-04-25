@@ -44,7 +44,7 @@ raw = localStorage.getItem("filmvault-data")
 
 ## Migrations : `src/utils/migrations.ts`
 
-Constante `CURRENT_VERSION = 18`. L'objet `migrations: Record<number, MigrationFn>` associe chaque version source à une fonction `(data) => newData`.
+Constante `CURRENT_VERSION = 20`. L'objet `migrations: Record<number, MigrationFn>` associe chaque version source à une fonction `(data) => newData`.
 
 Fonction publique :
 
@@ -75,6 +75,8 @@ Applique séquentiellement `migrations[v]` tant que `version < CURRENT_VERSION`,
 | 15 → 16 | `migrateV15toV16` | Bump (schéma cloud normalisé côté Supabase). |
 | 16 → 17 | `migrateV16toV17` | Ajoute `soldAt` optionnel sur `Camera`, `Back`, `Lens`. Pas de transformation. |
 | 17 → 18 | `migrateV17toV18` | Ajoute `tags` optionnel sur `Film`. Pas de transformation. |
+| 18 → 19 | `migrateV18toV19` | Ajoute `hasInterchangeableLens`/`hasManualControls` sur `Camera` (défaut `true`). |
+| 19 → 20 | `migrateV19toV20` | Supprime `shutterSpeedStops` et `apertureStops` sur `Camera` et `Lens` (min/max libres). |
 
 ## Ajouter une migration
 

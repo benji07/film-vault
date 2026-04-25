@@ -112,8 +112,6 @@ export interface Back {
 	soldAt?: string | null;
 }
 
-export type StopIncrement = "1" | "1/2" | "1/3";
-
 export interface Camera {
 	id: string;
 	brand: string;
@@ -128,8 +126,6 @@ export interface Camera {
 	mount?: string | null;
 	shutterSpeedMin?: string | null;
 	shutterSpeedMax?: string | null;
-	shutterSpeedStops?: StopIncrement | null;
-	apertureStops?: StopIncrement | null;
 	soldAt?: string | null;
 }
 
@@ -148,10 +144,8 @@ export interface Lens {
 	maxApertureAtMax?: string | null;
 	apertureMin?: string | null;
 	apertureMax?: string | null;
-	apertureStops?: StopIncrement | null;
 	shutterSpeedMin?: string | null;
 	shutterSpeedMax?: string | null;
-	shutterSpeedStops?: StopIncrement | null;
 	soldAt?: string | null;
 }
 
