@@ -559,10 +559,10 @@ export const en = {
 	fab: {
 		openMenu: "Quick add menu",
 		title: "Add",
-		film: "Film",
-		camera: "Camera",
-		lens: "Lens",
-		back: "Back",
+		film: "Add a film",
+		camera: "Add a camera",
+		lens: "Add a lens",
+		back: "Add a back",
 		quickShot: "Log a shot",
 	},
 

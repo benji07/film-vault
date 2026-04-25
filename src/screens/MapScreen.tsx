@@ -166,7 +166,7 @@ export function MapScreen({ data, onOpenFilm, onOpenStock, filterFilmId, onClear
 				size="icon"
 				onClick={handleLocateMe}
 				disabled={locating}
-				className="absolute bottom-16 right-3 z-10 shadow-lg bg-card/90 backdrop-blur"
+				className="absolute bottom-3 left-3 z-10 shadow-lg bg-card/90 backdrop-blur"
 				aria-label={t("map.locateMe")}
 			>
 				{locating ? (
