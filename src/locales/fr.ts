@@ -562,7 +562,6 @@ export const fr = {
 		lens: "Objectif",
 		back: "Dos",
 		quickShot: "Noter une prise de vue",
-		quickShotDisabled: "Charge une pellicule pour commencer",
 	},
 
 	// Quick shot dialog

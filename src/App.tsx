@@ -501,7 +501,6 @@ function AppContent({
 			/>
 			<FloatingActionMenu
 				visible={showTabBar && !isTourActive}
-				hasLoadedFilm={effectiveData.films.some((f) => f.state === "loaded" || f.state === "partial")}
 				onAddFilm={() => setShowAddFilm(true)}
 				onAddCamera={() => setShowAddCamera(true)}
 				onAddLens={() => setShowAddLens(true)}

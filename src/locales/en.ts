@@ -562,7 +562,6 @@ export const en = {
 		lens: "Lens",
 		back: "Back",
 		quickShot: "Log a shot",
-		quickShotDisabled: "Load a film to start",
 	},
 
 	// Quick shot dialog

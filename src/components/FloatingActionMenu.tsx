@@ -2,10 +2,10 @@ import { Camera, Film as FilmIcon, Focus, NotebookPen, Package, Plus } from "luc
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import type { LucideIcon } from "@/types";
 
 interface FloatingActionMenuProps {
 	visible: boolean;
-	hasLoadedFilm: boolean;
 	onAddFilm: () => void;
 	onAddCamera: () => void;
 	onAddLens: () => void;
@@ -15,7 +15,6 @@ interface FloatingActionMenuProps {
 
 export function FloatingActionMenu({
 	visible,
-	hasLoadedFilm,
 	onAddFilm,
 	onAddCamera,
 	onAddLens,
@@ -63,14 +62,10 @@ export function FloatingActionMenu({
 						<button
 							type="button"
 							onClick={() => run(onQuickShot)}
-							disabled={!hasLoadedFilm}
-							className="w-full bg-accent hover:bg-accent-hover disabled:bg-surface-alt disabled:text-text-muted disabled:cursor-not-allowed text-white rounded-lg p-4 flex flex-col items-center justify-center gap-1 transition-colors"
+							className="w-full bg-accent hover:bg-accent-hover text-white rounded-lg p-4 flex items-center justify-center gap-2 transition-colors"
 						>
-							<div className="flex items-center gap-2">
-								<NotebookPen size={18} />
-								<span className="text-[15px] font-semibold">{t("fab.quickShot")}</span>
-							</div>
-							{!hasLoadedFilm && <span className="text-[12px] opacity-80">{t("fab.quickShotDisabled")}</span>}
+							<NotebookPen size={18} />
+							<span className="text-[15px] font-semibold">{t("fab.quickShot")}</span>
 						</button>
 					</div>
 				</DialogContent>
@@ -80,7 +75,7 @@ export function FloatingActionMenu({
 }
 
 interface GridCardProps {
-	icon: typeof FilmIcon;
+	icon: LucideIcon;
 	label: string;
 	onClick: () => void;
 }

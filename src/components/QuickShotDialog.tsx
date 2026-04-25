@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { type ExposureConfig, filterApertures, filterSpeeds } from "@/constants/photography";
 import type { AppData, ShotNote } from "@/types";
 import { filmName } from "@/utils/film-helpers";
-import { uid } from "@/utils/helpers";
+import { nowDateTimeLocal, uid } from "@/utils/helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 
 interface QuickShotDialogProps {
@@ -22,12 +22,6 @@ interface QuickShotDialogProps {
 	data: AppData;
 	setData: (data: AppData) => void;
 	onAddFilm?: () => void;
-}
-
-function nowDateTimeLocal(): string {
-	const now = new Date();
-	const pad = (n: number) => String(n).padStart(2, "0");
-	return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
 function nextFrame(posesShot: number | null | undefined): string {
@@ -45,6 +39,7 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 	const [aperture, setAperture] = useState("");
 	const [shutterSpeed, setShutterSpeed] = useState("");
 	const [lensId, setLensId] = useState("");
+	const [lens, setLens] = useState("");
 	const [notes, setNotes] = useState("");
 	const [location, setLocation] = useState("");
 	const [latitude, setLatitude] = useState("");
@@ -87,6 +82,7 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 			setFilmId("");
 			setFrameNumber("");
 			setLensId("");
+			setLens("");
 			resetExposureFields();
 			return;
 		}
@@ -95,6 +91,7 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 			setFilmId(only.id);
 			setFrameNumber(nextFrame(only.posesShot));
 			setLensId(only.lensId ?? "");
+			setLens(only.lens ?? "");
 		}
 	}, [open]);
 
@@ -104,6 +101,7 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 		if (film) {
 			setFrameNumber(nextFrame(film.posesShot));
 			setLensId(film.lensId ?? "");
+			setLens(film.lens ?? "");
 			resetExposureFields();
 		}
 	};
@@ -143,12 +141,13 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 		const fn = Number.parseInt(frameNumber, 10);
 		const lat = latitude ? Number.parseFloat(latitude) : null;
 		const lng = longitude ? Number.parseFloat(longitude) : null;
+		const resolvedLens = selectedLens ? lensDisplayName(selectedLens) : lens.trim() || null;
 		return {
 			id: uid(),
 			frameNumber: Number.isNaN(fn) ? null : fn,
 			aperture: aperture || null,
 			shutterSpeed: shutterSpeed || null,
-			lens: selectedLens ? lensDisplayName(selectedLens) : null,
+			lens: resolvedLens,
 			lensId: lensId || null,
 			location: location || null,
 			latitude: lat != null && !Number.isNaN(lat) ? lat : null,
@@ -276,23 +275,32 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 						/>
 					</div>
 
-					{visibleLenses.length > 0 && (
-						<FormField label={t("quickShot.lensField")}>
-							<Select value={lensId || "__other__"} onValueChange={(v) => setLensId(v === "__other__" ? "" : v)}>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{visibleLenses.map((l) => (
-										<SelectItem key={l.id} value={l.id}>
-											{lensDisplayName(l)}
-										</SelectItem>
-									))}
-									<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
-								</SelectContent>
-							</Select>
-						</FormField>
-					)}
+					<FormField label={t("quickShot.lensField")}>
+						<div className="flex flex-col gap-2">
+							{visibleLenses.length > 0 && (
+								<Select value={lensId || "__other__"} onValueChange={(v) => setLensId(v === "__other__" ? "" : v)}>
+									<SelectTrigger>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										{visibleLenses.map((l) => (
+											<SelectItem key={l.id} value={l.id}>
+												{lensDisplayName(l)}
+											</SelectItem>
+										))}
+										<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
+									</SelectContent>
+								</Select>
+							)}
+							{!lensId && (
+								<Input
+									value={lens}
+									onChange={(e) => setLens(e.target.value)}
+									placeholder={t("filmDetail.shotNotesLensPlaceholder")}
+								/>
+							)}
+						</div>
+					</FormField>
 
 					<FormField label={t("quickShot.noteField")}>
 						<Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
