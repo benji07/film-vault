@@ -48,12 +48,6 @@ Configuration (label i18n, couleur, icône Lucide) fournie par `getStates(t)` da
 | "modified" | "duplicated"
 ```
 
-### `StopIncrement`
-```
-"1" | "1/2" | "1/3"
-```
-Incrément des crans de vitesse/ouverture pour une `Camera` ou `Lens`.
-
 ## `Film`
 
 Le type central. Champs par catégorie (voir `src/types.ts:67`) :
@@ -175,8 +169,6 @@ interface Camera {
   mount?: string | null;                // "M42", "EF", "F", ...
   shutterSpeedMin?: string | null;
   shutterSpeedMax?: string | null;
-  shutterSpeedStops?: StopIncrement | null;
-  apertureStops?: StopIncrement | null;
   soldAt?: string | null;               // Date de revente
 }
 ```
@@ -214,10 +206,8 @@ interface Lens {
   maxApertureAtMax?: string | null;
   apertureMin?: string | null;
   apertureMax?: string | null;
-  apertureStops?: StopIncrement | null;
   shutterSpeedMin?: string | null;
   shutterSpeedMax?: string | null;
-  shutterSpeedStops?: StopIncrement | null;
   soldAt?: string | null;
 }
 ```

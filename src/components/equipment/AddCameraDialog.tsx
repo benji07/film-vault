@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { SHUTTER_SPEEDS } from "@/constants/photography";
-import { type AppData, type Camera as CameraType, INSTANT_FORMATS, type StopIncrement } from "@/types";
+import { type AppData, type Camera as CameraType, INSTANT_FORMATS } from "@/types";
 import { uid } from "@/utils/helpers";
 import { collectMounts } from "@/utils/lens-helpers";
 
@@ -34,8 +34,6 @@ const emptyCam = {
 	photo: undefined as string | undefined,
 	shutterSpeedMin: "" as string,
 	shutterSpeedMax: "" as string,
-	shutterSpeedStops: "" as string,
-	apertureStops: "" as string,
 };
 
 export function AddCameraDialog({ open, onOpenChange, data, setData }: AddCameraDialogProps) {
@@ -63,8 +61,6 @@ export function AddCameraDialog({ open, onOpenChange, data, setData }: AddCamera
 			photo: newCam.photo,
 			shutterSpeedMin: newCam.hasManualControls ? newCam.shutterSpeedMin || null : null,
 			shutterSpeedMax: newCam.hasManualControls ? newCam.shutterSpeedMax || null : null,
-			shutterSpeedStops: newCam.hasManualControls ? (newCam.shutterSpeedStops as StopIncrement) || null : null,
-			apertureStops: newCam.hasManualControls ? (newCam.apertureStops as StopIncrement) || null : null,
 		};
 		setData({ ...data, cameras: [...data.cameras, camera] });
 		onOpenChange(false);
@@ -176,72 +172,20 @@ export function AddCameraDialog({ open, onOpenChange, data, setData }: AddCamera
 								</span>
 							</div>
 							<div className="grid grid-cols-2 gap-3">
-								<FormField label={t("cameras.shutterSpeedMin")}>
-									<Select
-										value={newCam.shutterSpeedMin}
-										onValueChange={(v) => setNewCam({ ...newCam, shutterSpeedMin: v })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="—" />
-										</SelectTrigger>
-										<SelectContent>
-											{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
-												<SelectItem key={s} value={s}>
-													{s}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</FormField>
-								<FormField label={t("cameras.shutterSpeedMax")}>
-									<Select
-										value={newCam.shutterSpeedMax}
-										onValueChange={(v) => setNewCam({ ...newCam, shutterSpeedMax: v })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="—" />
-										</SelectTrigger>
-										<SelectContent>
-											{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
-												<SelectItem key={s} value={s}>
-													{s}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</FormField>
-							</div>
-							<div className="grid grid-cols-2 gap-3">
-								<FormField label={t("cameras.shutterSpeedStops")}>
-									<Select
-										value={newCam.shutterSpeedStops}
-										onValueChange={(v) => setNewCam({ ...newCam, shutterSpeedStops: v })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="—" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
-											<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
-											<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
-										</SelectContent>
-									</Select>
-								</FormField>
-								<FormField label={t("cameras.apertureStops")}>
-									<Select
-										value={newCam.apertureStops}
-										onValueChange={(v) => setNewCam({ ...newCam, apertureStops: v })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="—" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
-											<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
-											<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
-										</SelectContent>
-									</Select>
-								</FormField>
+								<AutocompleteInput
+									label={t("cameras.shutterSpeedMin")}
+									value={newCam.shutterSpeedMin}
+									onChange={(v) => setNewCam({ ...newCam, shutterSpeedMin: v })}
+									suggestions={SHUTTER_SPEEDS}
+									showAllOnFocus
+								/>
+								<AutocompleteInput
+									label={t("cameras.shutterSpeedMax")}
+									value={newCam.shutterSpeedMax}
+									onChange={(v) => setNewCam({ ...newCam, shutterSpeedMax: v })}
+									suggestions={SHUTTER_SPEEDS}
+									showAllOnFocus
+								/>
 							</div>
 						</>
 					)}

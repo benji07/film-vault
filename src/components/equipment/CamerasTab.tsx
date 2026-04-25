@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { SHUTTER_SPEEDS } from "@/constants/photography";
 import { alpha, T } from "@/constants/theme";
-import { type AppData, type Camera as CameraType, INSTANT_FORMATS, type StopIncrement } from "@/types";
+import { type AppData, type Camera as CameraType, INSTANT_FORMATS } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { filmName } from "@/utils/film-helpers";
 import { collectMounts } from "@/utils/lens-helpers";
@@ -61,8 +61,6 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 						photo: editCam.photo,
 						shutterSpeedMin: hasManual ? editCam.shutterSpeedMin || null : null,
 						shutterSpeedMax: hasManual ? editCam.shutterSpeedMax || null : null,
-						shutterSpeedStops: hasManual ? editCam.shutterSpeedStops || null : null,
-						apertureStops: hasManual ? editCam.apertureStops || null : null,
 					}
 				: c,
 		);
@@ -406,74 +404,20 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 										</span>
 									</div>
 									<div className="grid grid-cols-2 gap-3">
-										<FormField label={t("cameras.shutterSpeedMin")}>
-											<Select
-												value={editCam.shutterSpeedMin || ""}
-												onValueChange={(v) => setEditCam({ ...editCam, shutterSpeedMin: v || null })}
-											>
-												<SelectTrigger>
-													<SelectValue placeholder="—" />
-												</SelectTrigger>
-												<SelectContent>
-													{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
-														<SelectItem key={s} value={s}>
-															{s}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</FormField>
-										<FormField label={t("cameras.shutterSpeedMax")}>
-											<Select
-												value={editCam.shutterSpeedMax || ""}
-												onValueChange={(v) => setEditCam({ ...editCam, shutterSpeedMax: v || null })}
-											>
-												<SelectTrigger>
-													<SelectValue placeholder="—" />
-												</SelectTrigger>
-												<SelectContent>
-													{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
-														<SelectItem key={s} value={s}>
-															{s}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</FormField>
-									</div>
-									<div className="grid grid-cols-2 gap-3">
-										<FormField label={t("cameras.shutterSpeedStops")}>
-											<Select
-												value={editCam.shutterSpeedStops || ""}
-												onValueChange={(v) =>
-													setEditCam({ ...editCam, shutterSpeedStops: (v as StopIncrement) || null })
-												}
-											>
-												<SelectTrigger>
-													<SelectValue placeholder="—" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
-													<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
-													<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
-												</SelectContent>
-											</Select>
-										</FormField>
-										<FormField label={t("cameras.apertureStops")}>
-											<Select
-												value={editCam.apertureStops || ""}
-												onValueChange={(v) => setEditCam({ ...editCam, apertureStops: (v as StopIncrement) || null })}
-											>
-												<SelectTrigger>
-													<SelectValue placeholder="—" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
-													<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
-													<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
-												</SelectContent>
-											</Select>
-										</FormField>
+										<AutocompleteInput
+											label={t("cameras.shutterSpeedMin")}
+											value={editCam.shutterSpeedMin || ""}
+											onChange={(v) => setEditCam({ ...editCam, shutterSpeedMin: v || null })}
+											suggestions={SHUTTER_SPEEDS}
+											showAllOnFocus
+										/>
+										<AutocompleteInput
+											label={t("cameras.shutterSpeedMax")}
+											value={editCam.shutterSpeedMax || ""}
+											onChange={(v) => setEditCam({ ...editCam, shutterSpeedMax: v || null })}
+											suggestions={SHUTTER_SPEEDS}
+											showAllOnFocus
+										/>
 									</div>
 								</>
 							)}

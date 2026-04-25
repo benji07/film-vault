@@ -10,7 +10,7 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { type ExposureConfig, filterApertures, filterSpeeds } from "@/constants/photography";
+import { filterApertures, filterSpeeds } from "@/constants/photography";
 import type { AppData, ShotNote } from "@/types";
 import { filmName } from "@/utils/film-helpers";
 import { nowDateTimeLocal, uid } from "@/utils/helpers";
@@ -54,20 +54,9 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 	const showManualFields = camera?.hasManualControls ?? true;
 	const showLensField = camera?.hasInterchangeableLens ?? true;
 
-	const speedConfig: ExposureConfig | null = selectedLens?.shutterSpeedMin
-		? { min: selectedLens.shutterSpeedMin, max: selectedLens.shutterSpeedMax, stops: selectedLens.shutterSpeedStops }
-		: camera
-			? { min: camera.shutterSpeedMin, max: camera.shutterSpeedMax, stops: camera.shutterSpeedStops }
-			: null;
-
-	const apertureConfig: ExposureConfig | null = selectedLens?.apertureStops
-		? { min: selectedLens.apertureMin, max: selectedLens.apertureMax, stops: selectedLens.apertureStops }
-		: camera?.apertureStops
-			? { stops: camera.apertureStops }
-			: null;
-
-	const filteredSpeeds = filterSpeeds(speedConfig);
-	const filteredApertures = filterApertures(apertureConfig);
+	const speedSource = selectedLens?.shutterSpeedMin || selectedLens?.shutterSpeedMax ? selectedLens : camera;
+	const filteredSpeeds = filterSpeeds(speedSource?.shutterSpeedMin, speedSource?.shutterSpeedMax);
+	const filteredApertures = filterApertures(selectedLens?.apertureMin, selectedLens?.apertureMax);
 
 	const resetExposureFields = () => {
 		setAperture("");

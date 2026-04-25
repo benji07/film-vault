@@ -5,10 +5,9 @@ import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { APERTURES, filterApertures, filterSpeeds } from "@/constants/photography";
-import type { Lens, StopIncrement } from "@/types";
+import { APERTURES, SHUTTER_SPEEDS } from "@/constants/photography";
+import type { Lens } from "@/types";
 
 export interface LensFormData {
 	isZoom: boolean;
@@ -23,10 +22,8 @@ export interface LensFormData {
 	maxApertureAtMax: string;
 	apertureMin: string;
 	apertureMax: string;
-	apertureStops: string;
 	shutterSpeedMin: string;
 	shutterSpeedMax: string;
-	shutterSpeedStops: string;
 	photo: string | undefined;
 }
 
@@ -43,10 +40,8 @@ export const emptyLensForm: LensFormData = {
 	maxApertureAtMax: "",
 	apertureMin: "",
 	apertureMax: "",
-	apertureStops: "",
 	shutterSpeedMin: "",
 	shutterSpeedMax: "",
-	shutterSpeedStops: "",
 	photo: undefined,
 };
 
@@ -64,10 +59,8 @@ export function lensToForm(lens: Lens): LensFormData {
 		maxApertureAtMax: lens.maxApertureAtMax || "",
 		apertureMin: lens.apertureMin || "",
 		apertureMax: lens.apertureMax || "",
-		apertureStops: lens.apertureStops || "",
 		shutterSpeedMin: lens.shutterSpeedMin || "",
 		shutterSpeedMax: lens.shutterSpeedMax || "",
-		shutterSpeedStops: lens.shutterSpeedStops || "",
 		photo: lens.photo,
 	};
 }
@@ -91,10 +84,8 @@ export function formToLens(form: LensFormData, id: string): Lens {
 		maxApertureAtMax: validZoom ? form.maxApertureAtMax || null : null,
 		apertureMin: form.apertureMin || null,
 		apertureMax: form.apertureMax || null,
-		apertureStops: (form.apertureStops as StopIncrement) || null,
 		shutterSpeedMin: form.shutterSpeedMin || null,
 		shutterSpeedMax: form.shutterSpeedMax || null,
-		shutterSpeedStops: (form.shutterSpeedStops as StopIncrement) || null,
 	};
 }
 
@@ -202,35 +193,21 @@ export function LensForm({ form, setForm, onSave, isEdit, onSell, mountSuggestio
 				</FormField>
 			)}
 			<div className={`grid gap-3 ${form.isZoom ? "grid-cols-2" : "grid-cols-1"}`}>
-				<FormField label={form.isZoom ? t("lenses.maxApertureAtMin") : t("lenses.maxAperture")}>
-					<Select value={form.maxApertureAtMin} onValueChange={(v) => setForm({ ...form, maxApertureAtMin: v })}>
-						<SelectTrigger>
-							<SelectValue placeholder="—" />
-						</SelectTrigger>
-						<SelectContent>
-							{APERTURES.filter((_, i) => i === 0 || (i - 1) % 3 === 0).map((a) => (
-								<SelectItem key={a} value={a}>
-									{a}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</FormField>
+				<AutocompleteInput
+					label={form.isZoom ? t("lenses.maxApertureAtMin") : t("lenses.maxAperture")}
+					value={form.maxApertureAtMin}
+					onChange={(v) => setForm({ ...form, maxApertureAtMin: v })}
+					suggestions={APERTURES}
+					showAllOnFocus
+				/>
 				{form.isZoom && (
-					<FormField label={t("lenses.maxApertureAtMax")}>
-						<Select value={form.maxApertureAtMax} onValueChange={(v) => setForm({ ...form, maxApertureAtMax: v })}>
-							<SelectTrigger>
-								<SelectValue placeholder="—" />
-							</SelectTrigger>
-							<SelectContent>
-								{APERTURES.filter((_, i) => i === 0 || (i - 1) % 3 === 0).map((a) => (
-									<SelectItem key={a} value={a}>
-										{a}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</FormField>
+					<AutocompleteInput
+						label={t("lenses.maxApertureAtMax")}
+						value={form.maxApertureAtMax}
+						onChange={(v) => setForm({ ...form, maxApertureAtMax: v })}
+						suggestions={APERTURES}
+						showAllOnFocus
+					/>
 				)}
 			</div>
 
@@ -239,47 +216,21 @@ export function LensForm({ form, setForm, onSave, isEdit, onSell, mountSuggestio
 					{t("lenses.apertureSection")}
 				</span>
 			</div>
-			<FormField label={t("lenses.apertureStops")}>
-				<Select value={form.apertureStops} onValueChange={(v) => setForm({ ...form, apertureStops: v })}>
-					<SelectTrigger>
-						<SelectValue placeholder="—" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="1">{t("lenses.stopsFull")}</SelectItem>
-						<SelectItem value="1/2">{t("lenses.stopsHalf")}</SelectItem>
-						<SelectItem value="1/3">{t("lenses.stopsThird")}</SelectItem>
-					</SelectContent>
-				</Select>
-			</FormField>
 			<div className="grid grid-cols-2 gap-3">
-				<FormField label={t("lenses.apertureMin")}>
-					<Select value={form.apertureMin} onValueChange={(v) => setForm({ ...form, apertureMin: v })}>
-						<SelectTrigger>
-							<SelectValue placeholder="—" />
-						</SelectTrigger>
-						<SelectContent>
-							{filterApertures(form.apertureStops ? { stops: form.apertureStops as StopIncrement } : null).map((a) => (
-								<SelectItem key={a} value={a}>
-									{a}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</FormField>
-				<FormField label={t("lenses.apertureMax")}>
-					<Select value={form.apertureMax} onValueChange={(v) => setForm({ ...form, apertureMax: v })}>
-						<SelectTrigger>
-							<SelectValue placeholder="—" />
-						</SelectTrigger>
-						<SelectContent>
-							{filterApertures(form.apertureStops ? { stops: form.apertureStops as StopIncrement } : null).map((a) => (
-								<SelectItem key={a} value={a}>
-									{a}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</FormField>
+				<AutocompleteInput
+					label={t("lenses.apertureMin")}
+					value={form.apertureMin}
+					onChange={(v) => setForm({ ...form, apertureMin: v })}
+					suggestions={APERTURES}
+					showAllOnFocus
+				/>
+				<AutocompleteInput
+					label={t("lenses.apertureMax")}
+					value={form.apertureMax}
+					onChange={(v) => setForm({ ...form, apertureMax: v })}
+					suggestions={APERTURES}
+					showAllOnFocus
+				/>
 			</div>
 
 			<div className="border-t border-border pt-4 mt-1">
@@ -287,51 +238,21 @@ export function LensForm({ form, setForm, onSave, isEdit, onSell, mountSuggestio
 					{t("lenses.exposureSection")}
 				</span>
 			</div>
-			<FormField label={t("lenses.shutterSpeedStops")}>
-				<Select value={form.shutterSpeedStops} onValueChange={(v) => setForm({ ...form, shutterSpeedStops: v })}>
-					<SelectTrigger>
-						<SelectValue placeholder="—" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="1">{t("lenses.stopsFull")}</SelectItem>
-						<SelectItem value="1/2">{t("lenses.stopsHalf")}</SelectItem>
-						<SelectItem value="1/3">{t("lenses.stopsThird")}</SelectItem>
-					</SelectContent>
-				</Select>
-			</FormField>
 			<div className="grid grid-cols-2 gap-3">
-				<FormField label={t("lenses.shutterSpeedMin")}>
-					<Select value={form.shutterSpeedMin} onValueChange={(v) => setForm({ ...form, shutterSpeedMin: v })}>
-						<SelectTrigger>
-							<SelectValue placeholder="—" />
-						</SelectTrigger>
-						<SelectContent>
-							{filterSpeeds(form.shutterSpeedStops ? { stops: form.shutterSpeedStops as StopIncrement } : null).map(
-								(s) => (
-									<SelectItem key={s} value={s}>
-										{s}
-									</SelectItem>
-								),
-							)}
-						</SelectContent>
-					</Select>
-				</FormField>
-				<FormField label={t("lenses.shutterSpeedMax")}>
-					<Select value={form.shutterSpeedMax} onValueChange={(v) => setForm({ ...form, shutterSpeedMax: v })}>
-						<SelectTrigger>
-							<SelectValue placeholder="—" />
-						</SelectTrigger>
-						<SelectContent>
-							{filterSpeeds(form.shutterSpeedStops ? { stops: form.shutterSpeedStops as StopIncrement } : null).map(
-								(s) => (
-									<SelectItem key={s} value={s}>
-										{s}
-									</SelectItem>
-								),
-							)}
-						</SelectContent>
-					</Select>
-				</FormField>
+				<AutocompleteInput
+					label={t("lenses.shutterSpeedMin")}
+					value={form.shutterSpeedMin}
+					onChange={(v) => setForm({ ...form, shutterSpeedMin: v })}
+					suggestions={SHUTTER_SPEEDS}
+					showAllOnFocus
+				/>
+				<AutocompleteInput
+					label={t("lenses.shutterSpeedMax")}
+					value={form.shutterSpeedMax}
+					onChange={(v) => setForm({ ...form, shutterSpeedMax: v })}
+					suggestions={SHUTTER_SPEEDS}
+					showAllOnFocus
+				/>
 			</div>
 
 			<Button onClick={onSave} disabled={!form.brand && !form.model} className="w-full justify-center">
