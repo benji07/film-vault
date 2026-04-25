@@ -40,6 +40,8 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 
 	const saveEditCamera = () => {
 		if (!editCam?.brand && !editCam?.model) return;
+		const hasLens = editCam.hasInterchangeableLens ?? true;
+		const hasManual = editCam.hasManualControls ?? true;
 		const newCams = data.cameras.map((c) =>
 			c.id === editCam.id
 				? {
@@ -49,13 +51,15 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 						nickname: editCam.nickname,
 						serial: editCam.serial,
 						format: editCam.format,
-						mount: editCam.mount || null,
+						mount: hasLens ? editCam.mount || null : null,
 						hasInterchangeableBack: editCam.hasInterchangeableBack || false,
+						hasInterchangeableLens: hasLens,
+						hasManualControls: hasManual,
 						photo: editCam.photo,
-						shutterSpeedMin: editCam.shutterSpeedMin || null,
-						shutterSpeedMax: editCam.shutterSpeedMax || null,
-						shutterSpeedStops: editCam.shutterSpeedStops || null,
-						apertureStops: editCam.apertureStops || null,
+						shutterSpeedMin: hasManual ? editCam.shutterSpeedMin || null : null,
+						shutterSpeedMax: hasManual ? editCam.shutterSpeedMax || null : null,
+						shutterSpeedStops: hasManual ? editCam.shutterSpeedStops || null : null,
+						apertureStops: hasManual ? editCam.apertureStops || null : null,
 					}
 				: c,
 		);
@@ -353,13 +357,33 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 									</SelectContent>
 								</Select>
 							</FormField>
-							<FormField label={t("cameras.mount")}>
-								<Input
-									value={editCam.mount || ""}
-									onChange={(e) => setEditCam({ ...editCam, mount: e.target.value })}
-									placeholder={t("cameras.mountPlaceholder")}
+							<div className="flex items-center justify-between gap-3">
+								<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
+									{t("cameras.interchangeableLens")}
+								</label>
+								<Switch
+									checked={editCam.hasInterchangeableLens ?? true}
+									onCheckedChange={(v) => setEditCam({ ...editCam, hasInterchangeableLens: v })}
 								/>
-							</FormField>
+							</div>
+							{(editCam.hasInterchangeableLens ?? true) && (
+								<FormField label={t("cameras.mount")}>
+									<Input
+										value={editCam.mount || ""}
+										onChange={(e) => setEditCam({ ...editCam, mount: e.target.value })}
+										placeholder={t("cameras.mountPlaceholder")}
+									/>
+								</FormField>
+							)}
+							<div className="flex items-center justify-between gap-3">
+								<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
+									{t("cameras.manualControls")}
+								</label>
+								<Switch
+									checked={editCam.hasManualControls ?? true}
+									onCheckedChange={(v) => setEditCam({ ...editCam, hasManualControls: v })}
+								/>
+							</div>
 							<div className="flex items-center justify-between gap-3">
 								<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
 									{t("cameras.interchangeableBack")}
@@ -370,79 +394,85 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 								/>
 							</div>
 
-							<div className="border-t border-border pt-4 mt-1">
-								<span className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
-									{t("cameras.exposureSection")}
-								</span>
-							</div>
-							<div className="grid grid-cols-2 gap-3">
-								<FormField label={t("cameras.shutterSpeedMin")}>
-									<Select
-										value={editCam.shutterSpeedMin || ""}
-										onValueChange={(v) => setEditCam({ ...editCam, shutterSpeedMin: v || null })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="—" />
-										</SelectTrigger>
-										<SelectContent>
-											{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
-												<SelectItem key={s} value={s}>
-													{s}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</FormField>
-								<FormField label={t("cameras.shutterSpeedMax")}>
-									<Select
-										value={editCam.shutterSpeedMax || ""}
-										onValueChange={(v) => setEditCam({ ...editCam, shutterSpeedMax: v || null })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="—" />
-										</SelectTrigger>
-										<SelectContent>
-											{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
-												<SelectItem key={s} value={s}>
-													{s}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</FormField>
-							</div>
-							<div className="grid grid-cols-2 gap-3">
-								<FormField label={t("cameras.shutterSpeedStops")}>
-									<Select
-										value={editCam.shutterSpeedStops || ""}
-										onValueChange={(v) => setEditCam({ ...editCam, shutterSpeedStops: (v as StopIncrement) || null })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="—" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
-											<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
-											<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
-										</SelectContent>
-									</Select>
-								</FormField>
-								<FormField label={t("cameras.apertureStops")}>
-									<Select
-										value={editCam.apertureStops || ""}
-										onValueChange={(v) => setEditCam({ ...editCam, apertureStops: (v as StopIncrement) || null })}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="—" />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
-											<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
-											<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
-										</SelectContent>
-									</Select>
-								</FormField>
-							</div>
+							{(editCam.hasManualControls ?? true) && (
+								<>
+									<div className="border-t border-border pt-4 mt-1">
+										<span className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
+											{t("cameras.exposureSection")}
+										</span>
+									</div>
+									<div className="grid grid-cols-2 gap-3">
+										<FormField label={t("cameras.shutterSpeedMin")}>
+											<Select
+												value={editCam.shutterSpeedMin || ""}
+												onValueChange={(v) => setEditCam({ ...editCam, shutterSpeedMin: v || null })}
+											>
+												<SelectTrigger>
+													<SelectValue placeholder="—" />
+												</SelectTrigger>
+												<SelectContent>
+													{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
+														<SelectItem key={s} value={s}>
+															{s}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</FormField>
+										<FormField label={t("cameras.shutterSpeedMax")}>
+											<Select
+												value={editCam.shutterSpeedMax || ""}
+												onValueChange={(v) => setEditCam({ ...editCam, shutterSpeedMax: v || null })}
+											>
+												<SelectTrigger>
+													<SelectValue placeholder="—" />
+												</SelectTrigger>
+												<SelectContent>
+													{SHUTTER_SPEEDS.filter((_, i) => i % 3 === 0).map((s) => (
+														<SelectItem key={s} value={s}>
+															{s}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</FormField>
+									</div>
+									<div className="grid grid-cols-2 gap-3">
+										<FormField label={t("cameras.shutterSpeedStops")}>
+											<Select
+												value={editCam.shutterSpeedStops || ""}
+												onValueChange={(v) =>
+													setEditCam({ ...editCam, shutterSpeedStops: (v as StopIncrement) || null })
+												}
+											>
+												<SelectTrigger>
+													<SelectValue placeholder="—" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
+													<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
+													<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
+												</SelectContent>
+											</Select>
+										</FormField>
+										<FormField label={t("cameras.apertureStops")}>
+											<Select
+												value={editCam.apertureStops || ""}
+												onValueChange={(v) => setEditCam({ ...editCam, apertureStops: (v as StopIncrement) || null })}
+											>
+												<SelectTrigger>
+													<SelectValue placeholder="—" />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="1">{t("cameras.stopsFull")}</SelectItem>
+													<SelectItem value="1/2">{t("cameras.stopsHalf")}</SelectItem>
+													<SelectItem value="1/3">{t("cameras.stopsThird")}</SelectItem>
+												</SelectContent>
+											</Select>
+										</FormField>
+									</div>
+								</>
+							)}
 
 							<Button
 								onClick={saveEditCamera}

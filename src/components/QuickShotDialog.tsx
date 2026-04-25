@@ -14,7 +14,7 @@ import { type ExposureConfig, filterApertures, filterSpeeds } from "@/constants/
 import type { AppData, ShotNote } from "@/types";
 import { filmName } from "@/utils/film-helpers";
 import { nowDateTimeLocal, uid } from "@/utils/helpers";
-import { lensDisplayName } from "@/utils/lens-helpers";
+import { filterLensesByMount, lensDisplayName } from "@/utils/lens-helpers";
 
 interface QuickShotDialogProps {
 	open: boolean;
@@ -50,6 +50,9 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 	const currentFilm = filmId ? (data.films.find((f) => f.id === filmId) ?? null) : null;
 	const camera = currentFilm?.cameraId ? data.cameras.find((c) => c.id === currentFilm.cameraId) : null;
 	const selectedLens = lensId ? data.lenses.find((l) => l.id === lensId) : null;
+
+	const showManualFields = camera?.hasManualControls ?? true;
+	const showLensField = camera?.hasInterchangeableLens ?? true;
 
 	const speedConfig: ExposureConfig | null = selectedLens?.shutterSpeedMin
 		? { min: selectedLens.shutterSpeedMin, max: selectedLens.shutterSpeedMax, stops: selectedLens.shutterSpeedStops }
@@ -145,10 +148,10 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 		return {
 			id: uid(),
 			frameNumber: Number.isNaN(fn) ? null : fn,
-			aperture: aperture || null,
-			shutterSpeed: shutterSpeed || null,
-			lens: resolvedLens,
-			lensId: lensId || null,
+			aperture: showManualFields ? aperture || null : null,
+			shutterSpeed: showManualFields ? shutterSpeed || null : null,
+			lens: showLensField ? resolvedLens : null,
+			lensId: showLensField ? lensId || null : null,
 			location: location || null,
 			latitude: lat != null && !Number.isNaN(lat) ? lat : null,
 			longitude: lng != null && !Number.isNaN(lng) ? lng : null,
@@ -216,7 +219,9 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 		);
 	}
 
-	const visibleLenses = data.lenses.filter((l) => !l.soldAt || l.id === lensId);
+	// Always preserve the currently-selected lens in the dropdown options, even if its
+	// mount doesn't match (or is unset), so the Select value can never become orphaned.
+	const visibleLenses = filterLensesByMount(data.lenses, camera, lensId).filter((l) => !l.soldAt || l.id === lensId);
 
 	return (
 		<Dialog open={open} onOpenChange={(v) => !v && onOpenChange(false)}>
@@ -258,49 +263,53 @@ export function QuickShotDialog({ open, onOpenChange, data, setData, onAddFilm }
 						/>
 					</FormField>
 
-					<div className="grid grid-cols-2 gap-3">
-						<AutocompleteInput
-							label={t("quickShot.apertureField")}
-							value={aperture}
-							onChange={setAperture}
-							suggestions={filteredApertures}
-							showAllOnFocus
-						/>
-						<AutocompleteInput
-							label={t("quickShot.shutterField")}
-							value={shutterSpeed}
-							onChange={setShutterSpeed}
-							suggestions={filteredSpeeds}
-							showAllOnFocus
-						/>
-					</div>
-
-					<FormField label={t("quickShot.lensField")}>
-						<div className="flex flex-col gap-2">
-							{visibleLenses.length > 0 && (
-								<Select value={lensId || "__other__"} onValueChange={(v) => setLensId(v === "__other__" ? "" : v)}>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										{visibleLenses.map((l) => (
-											<SelectItem key={l.id} value={l.id}>
-												{lensDisplayName(l)}
-											</SelectItem>
-										))}
-										<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
-									</SelectContent>
-								</Select>
-							)}
-							{!lensId && (
-								<Input
-									value={lens}
-									onChange={(e) => setLens(e.target.value)}
-									placeholder={t("filmDetail.shotNotesLensPlaceholder")}
-								/>
-							)}
+					{showManualFields && (
+						<div className="grid grid-cols-2 gap-3">
+							<AutocompleteInput
+								label={t("quickShot.apertureField")}
+								value={aperture}
+								onChange={setAperture}
+								suggestions={filteredApertures}
+								showAllOnFocus
+							/>
+							<AutocompleteInput
+								label={t("quickShot.shutterField")}
+								value={shutterSpeed}
+								onChange={setShutterSpeed}
+								suggestions={filteredSpeeds}
+								showAllOnFocus
+							/>
 						</div>
-					</FormField>
+					)}
+
+					{showLensField && (
+						<FormField label={t("quickShot.lensField")}>
+							<div className="flex flex-col gap-2">
+								{visibleLenses.length > 0 && (
+									<Select value={lensId || "__other__"} onValueChange={(v) => setLensId(v === "__other__" ? "" : v)}>
+										<SelectTrigger>
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											{visibleLenses.map((l) => (
+												<SelectItem key={l.id} value={l.id}>
+													{lensDisplayName(l)}
+												</SelectItem>
+											))}
+											<SelectItem value="__other__">{t("filmDetail.otherLens")}</SelectItem>
+										</SelectContent>
+									</Select>
+								)}
+								{!lensId && (
+									<Input
+										value={lens}
+										onChange={(e) => setLens(e.target.value)}
+										placeholder={t("filmDetail.shotNotesLensPlaceholder")}
+									/>
+								)}
+							</div>
+						</FormField>
+					)}
 
 					<FormField label={t("quickShot.noteField")}>
 						<Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
