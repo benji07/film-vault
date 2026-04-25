@@ -1,4 +1,4 @@
-import { Edit3, Focus, PackageX, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Edit3, Focus, PackageX, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -13,7 +13,6 @@ import { PhotoImg } from "@/components/ui/photo-img";
 import { alpha, T } from "@/constants/theme";
 import type { AppData, Lens } from "@/types";
 import { collectMounts, lensApertureLabel, lensDisplayName, lensFocalLabel } from "@/utils/lens-helpers";
-import { AddLensDialog } from "./AddLensDialog";
 import { emptyLensForm, formToLens, LensForm, type LensFormData, lensToForm } from "./LensForm";
 
 interface LensesTabProps {
@@ -23,7 +22,6 @@ interface LensesTabProps {
 
 export function LensesTab({ data, setData }: LensesTabProps) {
 	const { t } = useTranslation();
-	const [showAdd, setShowAdd] = useState(false);
 	const [editLensId, setEditLensId] = useState<string | null>(null);
 	const [editLens, setEditLens] = useState<LensFormData>(emptyLensForm);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
@@ -77,12 +75,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<div className="flex justify-between items-center">
-					<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("lenses.title")}</h2>
-					<Button size="sm" onClick={() => setShowAdd(true)}>
-						<Plus size={14} /> {t("lenses.add")}
-					</Button>
-				</div>
+				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("lenses.title")}</h2>
 
 				<div className="flex flex-col gap-2.5">
 					{activeLenses.map((lens) => {
@@ -248,14 +241,6 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 					</CollapsibleSection>
 				)}
 			</div>
-
-			<AddLensDialog
-				open={showAdd}
-				onOpenChange={setShowAdd}
-				data={data}
-				setData={setData}
-				mountSuggestions={mountSuggestions}
-			/>
 
 			{/* Edit lens modal */}
 			<Dialog open={!!editLensId} onOpenChange={(open) => !open && setEditLensId(null)}>

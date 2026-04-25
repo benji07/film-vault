@@ -284,8 +284,6 @@ function AppContent({
 		}
 	}, [data, startTour]);
 
-	const onAddFilm = () => setShowAddFilm(true);
-
 	// Forward-navigation callbacks. Each one pushes onto the history stack so
 	// the back button can restore the previous screen (and its params).
 	const openFilm = useCallback((id: string) => navigate({ screen: "filmDetail", selectedFilm: id }), [navigate]);
@@ -324,20 +322,12 @@ function AppContent({
 						data={effectiveData}
 						onOpenFilm={openFilm}
 						onOpenCameras={openCamerasList}
-						onAddFilm={onAddFilm}
 						setAutoOpenShotNote={setAutoOpenShotNote}
 						onNavigateToStock={openStockFiltered}
 					/>
 				);
 			case "stock":
-				return (
-					<StockScreen
-						data={effectiveData}
-						onOpenFilm={openFilm}
-						onAddFilm={onAddFilm}
-						initialStateFilter={stockStateFilter ?? null}
-					/>
-				);
+				return <StockScreen data={effectiveData} onOpenFilm={openFilm} initialStateFilter={stockStateFilter ?? null} />;
 			case "filmDetail":
 				return (
 					<FilmDetailScreen
@@ -404,7 +394,6 @@ function AppContent({
 						data={effectiveData}
 						onOpenFilm={openFilm}
 						onOpenCameras={openCamerasList}
-						onAddFilm={onAddFilm}
 						setAutoOpenShotNote={setAutoOpenShotNote}
 						onNavigateToStock={openStockFiltered}
 					/>

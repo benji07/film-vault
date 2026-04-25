@@ -1,4 +1,4 @@
-import { Film, Plus, Search, SlidersHorizontal } from "lucide-react";
+import { Film, Search, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
@@ -75,11 +75,10 @@ const SORT_OPTIONS: { value: SortOption; labelKey: string }[] = [
 interface StockScreenProps {
 	data: AppData;
 	onOpenFilm: (id: string) => void;
-	onAddFilm: () => void;
 	initialStateFilter?: string | null;
 }
 
-export function StockScreen({ data, onOpenFilm, onAddFilm, initialStateFilter }: StockScreenProps) {
+export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScreenProps) {
 	const { t } = useTranslation();
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 	const { films, cameras, backs } = data;
@@ -104,12 +103,7 @@ export function StockScreen({ data, onOpenFilm, onAddFilm, initialStateFilter }:
 
 	return (
 		<div className="flex flex-col gap-4">
-			<div className="flex justify-between items-center">
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("stock.title")}</h2>
-				<Button size="sm" onClick={onAddFilm}>
-					<Plus size={14} /> {t("stock.add")}
-				</Button>
-			</div>
+			<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("stock.title")}</h2>
 
 			<div className="flex gap-2">
 				<div className="relative flex-1">
