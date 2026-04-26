@@ -1,7 +1,7 @@
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 
-export function usePersistedState<T>(key: string, defaultValue: T): [T, (value: T | ((prev: T) => T)) => void] {
-	const [value, setValueState] = useState<T>(() => {
+export function usePersistedState<T>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+	const [value, setValue] = useState<T>(() => {
 		try {
 			const stored = localStorage.getItem(key);
 			if (stored === null) return defaultValue;
@@ -11,20 +11,13 @@ export function usePersistedState<T>(key: string, defaultValue: T): [T, (value: 
 		}
 	});
 
-	const setValue = useCallback(
-		(next: T | ((prev: T) => T)) => {
-			setValueState((prev) => {
-				const resolved = typeof next === "function" ? (next as (p: T) => T)(prev) : next;
-				try {
-					localStorage.setItem(key, JSON.stringify(resolved));
-				} catch {
-					// ignore quota / serialization errors
-				}
-				return resolved;
-			});
-		},
-		[key],
-	);
+	useEffect(() => {
+		try {
+			localStorage.setItem(key, JSON.stringify(value));
+		} catch {
+			// ignore quota / serialization errors
+		}
+	}, [key, value]);
 
 	return [value, setValue];
 }

@@ -1,5 +1,5 @@
 import { Search, SlidersHorizontal } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { StockFilterDialog } from "@/components/StockFilterDialog";
@@ -54,44 +54,52 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 	const [tab, setTab] = usePersistedState<StockTabKey>(TAB_STORAGE_KEY, "stock");
 	const [path, setPath] = usePersistedState<HierarchyPath>(PATH_STORAGE_KEY, {});
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
-	const [openSection, setOpenSection] = useState<FilmState | null>(null);
+	const [activeStateFilter, setActiveStateFilter] = useState<FilmState | null>(null);
 
 	useEffect(() => {
 		if (!initialStateFilter) return;
 		const target = mapStateToTab(initialStateFilter);
-		if (target) {
-			setTab(target);
-			if (target === "stock") setPath({});
-			if (target === "active" && ACTIVE_STATES.includes(initialStateFilter as FilmState)) {
-				setOpenSection(initialStateFilter as FilmState);
-			} else {
-				setOpenSection(null);
-			}
+		if (!target) return;
+		setTab(target);
+		if (target === "stock") setPath({});
+		if (target === "active" && ACTIVE_STATES.includes(initialStateFilter as FilmState)) {
+			setActiveStateFilter(initialStateFilter as FilmState);
+		} else {
+			setActiveStateFilter(null);
 		}
 	}, [initialStateFilter, setTab, setPath]);
 
+	const handleTabChange = useCallback(
+		(next: StockTabKey) => {
+			setTab(next);
+			// Manually changing tabs clears the per-tab single-state filter coming from navigation intent.
+			setActiveStateFilter(null);
+		},
+		[setTab],
+	);
+
 	const stockFilters = useStockFilters(films);
 
-	const tabFilms = useMemo(() => {
+	// Buckets per tab, preserving the sort order produced by useStockFilters.
+	const filteredByTab = useMemo(() => {
 		const active: Film[] = [];
 		const stock: Film[] = [];
 		const archive: Film[] = [];
-		for (const f of films) {
+		for (const f of stockFilters.filteredFilms) {
 			if (f.state === "stock") stock.push(f);
 			else if (f.state === "scanned") archive.push(f);
 			else if (ACTIVE_STATES.includes(f.state)) active.push(f);
 		}
 		return { active, stock, archive };
-	}, [films]);
+	}, [stockFilters.filteredFilms]);
 
-	const filteredByTab = useMemo(() => {
-		const ids = new Set(stockFilters.filteredFilms.map((f) => f.id));
-		return {
-			active: tabFilms.active.filter((f) => ids.has(f.id)),
-			stock: tabFilms.stock.filter((f) => ids.has(f.id)),
-			archive: tabFilms.archive.filter((f) => ids.has(f.id)),
-		};
-	}, [tabFilms, stockFilters.filteredFilms]);
+	// Raw stock films (unfiltered) — needed to build the hierarchy categories regardless of search/filter.
+	const rawStockFilms = useMemo(() => films.filter((f) => f.state === "stock"), [films]);
+
+	const activeForRender = useMemo(() => {
+		if (!activeStateFilter) return filteredByTab.active;
+		return filteredByTab.active.filter((f) => f.state === activeStateFilter);
+	}, [filteredByTab.active, activeStateFilter]);
 
 	const tabCounts = {
 		active: filteredByTab.active.length,
@@ -102,13 +110,13 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 	const searchActive = stockFilters.search.trim() !== "" || stockFilters.hasActiveFilters;
 
 	const currentResultCount =
-		tab === "active" ? tabCounts.active : tab === "stock" ? tabCounts.stock : tabCounts.archive;
+		tab === "active" ? activeForRender.length : tab === "stock" ? tabCounts.stock : tabCounts.archive;
 
 	return (
 		<div className="flex flex-col gap-4">
 			<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("stock.title")}</h2>
 
-			<StockTabBar tab={tab} onChange={setTab} counts={tabCounts} />
+			<StockTabBar tab={tab} onChange={handleTabChange} counts={tabCounts} />
 
 			<div className="flex gap-2">
 				<div className="relative flex-1">
@@ -154,17 +162,18 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 
 			{tab === "active" && (
 				<ActiveTab
-					films={filteredByTab.active}
+					films={activeForRender}
 					cameras={cameras}
 					backs={backs}
 					onOpenFilm={onOpenFilm}
-					openSection={openSection}
+					stateFilter={activeStateFilter}
+					onClearStateFilter={() => setActiveStateFilter(null)}
 				/>
 			)}
 
 			{tab === "stock" && (
 				<StockTab
-					films={tabFilms.stock}
+					films={rawStockFilms}
 					filteredFilms={filteredByTab.stock}
 					cameras={cameras}
 					backs={backs}

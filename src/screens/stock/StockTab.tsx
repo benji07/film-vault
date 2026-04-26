@@ -11,6 +11,7 @@ import {
 	type HierarchyPath,
 	isLeaf,
 	setPathLevel,
+	truncatePath,
 } from "@/utils/stock-hierarchy";
 import { InventoryGroup } from "./InventoryGroup";
 import { StockBreadcrumb } from "./StockBreadcrumb";
@@ -26,8 +27,6 @@ interface StockTabProps {
 	onOpenFilm: (id: string) => void;
 	searchActive: boolean;
 }
-
-const LEVELS: HierarchyLevel[] = ["format", "type", "brand", "model"];
 
 export function StockTab({
 	films,
@@ -60,16 +59,7 @@ export function StockTab({
 	);
 
 	const handleBreadcrumb = (lvl: HierarchyLevel | null) => {
-		if (lvl === null) {
-			onPathChange({});
-			return;
-		}
-		const next: HierarchyPath = {};
-		for (const key of LEVELS) {
-			if (path[key] != null) next[key] = path[key];
-			if (key === lvl) break;
-		}
-		onPathChange(next);
+		onPathChange(truncatePath(path, lvl));
 	};
 
 	const handleNodeClick = (lvl: HierarchyLevel, value: string) => {
