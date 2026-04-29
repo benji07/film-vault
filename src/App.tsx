@@ -160,11 +160,13 @@ function FilmVaultInner() {
 		(async () => {
 			// 1. If we have a legacy recovery code in localStorage, link it first
 			//    so ensure_profile finds the existing profile (instead of creating a new one).
+			//    Only clear the code on success — keeping it lets us retry on a
+			//    transient network/server failure on the next launch.
 			const legacy = getLegacyRecoveryCode();
 			if (legacy) {
 				const linked = await linkRecoveryCode(legacy);
-				clearLegacyRecoveryCode();
 				if (linked) {
+					clearLegacyRecoveryCode();
 					toast(t("account.migrated"), "success");
 				}
 			}

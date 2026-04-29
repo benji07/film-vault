@@ -136,9 +136,12 @@ export function SettingsScreen({
 		if (!code) return;
 		setRestoring(true);
 		try {
+			// linkRecoveryCode returns null both for invalid codes and for
+			// network/server failures, so surface a generic error rather than
+			// claiming the code was wrong.
 			const profileId = await linkRecoveryCode(code);
 			if (!profileId) {
-				setImportError(t("settings.noDataFound"));
+				setImportError(t("settings.restoreError"));
 				return;
 			}
 
