@@ -32,7 +32,7 @@ export function StockBreadcrumb({ path, onNavigate, disabled }: StockBreadcrumbP
 	];
 	for (const level of HIERARCHY_ORDER) {
 		const value = path[level];
-		if (!value) break;
+		if (!value) continue;
 		segments.push({ level, label: resolveSegmentLabel(level, value, t) });
 	}
 

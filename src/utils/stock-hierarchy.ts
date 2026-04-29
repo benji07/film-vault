@@ -6,6 +6,10 @@ export type HierarchyLevel = "format" | "type" | "brand" | "model";
 
 export const HIERARCHY_ORDER: HierarchyLevel[] = ["format", "type", "brand", "model"];
 
+// Below this number of stock films, the stock view collapses to a flat list grouped by expiration
+// instead of the multi-level navigation — fewer clicks for small inventories.
+export const STOCK_FLAT_THRESHOLD = 20;
+
 export interface HierarchyPath {
 	format?: string;
 	type?: string;
@@ -51,25 +55,40 @@ export function nextLevel(level: HierarchyLevel | null): HierarchyLevel | null {
 	return HIERARCHY_ORDER[idx + 1] ?? null;
 }
 
-export function currentLevel(path: HierarchyPath): HierarchyLevel | null {
-	if (!path.format) return "format";
-	if (!path.type) return "type";
-	if (!path.brand) return "brand";
-	if (!path.model) return "model";
+export function pathDepth(path: HierarchyPath): number {
+	let d = 0;
+	for (const lvl of HIERARCHY_ORDER) {
+		if (path[lvl]) d++;
+	}
+	return d;
+}
+
+/**
+ * Find the next hierarchy level worth showing for the current path, considering auto-skip:
+ * a level that yields a single group is silently skipped (its only value is implicit) so the
+ * user goes straight to the next meaningful choice.
+ *
+ * Returns null when there's no further navigation — either every remaining level was
+ * auto-skipped or the user has set them all (i.e. we're at a leaf).
+ */
+export function resolveDisplayLevel(films: Film[], path: HierarchyPath): HierarchyLevel | null {
+	const filtered = filterByPath(films, path);
+	if (filtered.length === 0) return null;
+
+	for (const level of HIERARCHY_ORDER) {
+		if (path[level] != null) continue;
+		const distinct = new Set<string>();
+		for (const f of filtered) {
+			distinct.add(getValueAtLevel(f, level));
+			if (distinct.size > 1) break;
+		}
+		if (distinct.size > 1) return level;
+	}
 	return null;
 }
 
-export function isLeaf(path: HierarchyPath): boolean {
-	return Boolean(path.format && path.type && path.brand && path.model);
-}
-
-export function pathDepth(path: HierarchyPath): number {
-	let d = 0;
-	if (path.format) d++;
-	if (path.type) d++;
-	if (path.brand) d++;
-	if (path.model) d++;
-	return d;
+export function isLeaf(films: Film[], path: HierarchyPath): boolean {
+	return resolveDisplayLevel(films, path) === null;
 }
 
 export function setPathLevel(path: HierarchyPath, level: HierarchyLevel, value: string): HierarchyPath {
@@ -109,7 +128,7 @@ interface ChildAggregate {
 }
 
 export function buildHierarchy(films: Film[], path: HierarchyPath): HierarchyNode[] {
-	const level = currentLevel(path);
+	const level = resolveDisplayLevel(films, path);
 	if (level === null) return [];
 
 	const filtered = filterByPath(films, path);

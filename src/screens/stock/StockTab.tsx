@@ -10,6 +10,7 @@ import {
 	type HierarchyLevel,
 	type HierarchyPath,
 	isLeaf,
+	STOCK_FLAT_THRESHOLD,
 	setPathLevel,
 	truncatePath,
 } from "@/utils/stock-hierarchy";
@@ -41,21 +42,25 @@ export function StockTab({
 	const { t } = useTranslation();
 	const locale = t("dateLocale");
 
+	// Small inventories collapse to a flat expiration-grouped list — the multi-level navigation
+	// adds friction without value when there are only a handful of films.
+	const flatMode = !searchActive && films.length < STOCK_FLAT_THRESHOLD;
+
 	const flatGroups = useMemo(
-		() => (searchActive ? groupByExpiration(filteredFilms, locale) : []),
-		[filteredFilms, searchActive, locale],
+		() => (searchActive || flatMode ? groupByExpiration(filteredFilms, locale) : []),
+		[filteredFilms, searchActive, flatMode, locale],
 	);
 
-	const reachedLeaf = isLeaf(path);
+	const reachedLeaf = !searchActive && !flatMode && isLeaf(films, path);
 
 	const nodes = useMemo(
-		() => (!searchActive && !reachedLeaf ? buildHierarchy(films, path) : []),
-		[films, path, searchActive, reachedLeaf],
+		() => (!searchActive && !flatMode && !reachedLeaf ? buildHierarchy(films, path) : []),
+		[films, path, searchActive, flatMode, reachedLeaf],
 	);
 
 	const leafGroups = useMemo(
-		() => (!searchActive && reachedLeaf ? groupByExpiration(filterByPath(films, path), locale) : []),
-		[films, path, locale, searchActive, reachedLeaf],
+		() => (reachedLeaf ? groupByExpiration(filterByPath(films, path), locale) : []),
+		[films, path, locale, reachedLeaf],
 	);
 
 	const handleBreadcrumb = (lvl: HierarchyLevel | null) => {
@@ -70,11 +75,13 @@ export function StockTab({
 		return <EmptyState icon={Package} title={t("stock.emptyStock")} subtitle={t("stock.emptyStockSubtitle")} />;
 	}
 
+	const showBreadcrumb = !flatMode;
+
 	return (
 		<div className="flex flex-col gap-3" data-tour="stock-list">
-			<StockBreadcrumb path={path} onNavigate={handleBreadcrumb} disabled={searchActive} />
+			{showBreadcrumb && <StockBreadcrumb path={path} onNavigate={handleBreadcrumb} disabled={searchActive} />}
 
-			{searchActive ? (
+			{searchActive || flatMode ? (
 				flatGroups.length === 0 ? (
 					<EmptyState icon={Package} title={t("stock.nothingFound")} subtitle={t("stock.noMatch")} />
 				) : (
