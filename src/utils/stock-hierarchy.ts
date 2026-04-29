@@ -6,6 +6,10 @@ export type HierarchyLevel = "format" | "type" | "brand" | "model";
 
 export const HIERARCHY_ORDER: HierarchyLevel[] = ["format", "type", "brand", "model"];
 
+// Below this number of stock films, the stock view collapses to a flat list grouped by expiration
+// instead of the multi-level navigation — fewer clicks for small inventories.
+export const STOCK_FLAT_THRESHOLD = 20;
+
 export interface HierarchyPath {
 	format?: string;
 	type?: string;
@@ -51,25 +55,55 @@ export function nextLevel(level: HierarchyLevel | null): HierarchyLevel | null {
 	return HIERARCHY_ORDER[idx + 1] ?? null;
 }
 
-export function currentLevel(path: HierarchyPath): HierarchyLevel | null {
-	if (!path.format) return "format";
-	if (!path.type) return "type";
-	if (!path.brand) return "brand";
-	if (!path.model) return "model";
-	return null;
-}
-
-export function isLeaf(path: HierarchyPath): boolean {
-	return Boolean(path.format && path.type && path.brand && path.model);
-}
-
 export function pathDepth(path: HierarchyPath): number {
 	let d = 0;
-	if (path.format) d++;
-	if (path.type) d++;
-	if (path.brand) d++;
-	if (path.model) d++;
+	for (const lvl of HIERARCHY_ORDER) {
+		if (path[lvl]) d++;
+	}
 	return d;
+}
+
+/**
+ * Result of resolving the next hierarchy level worth showing for a path.
+ * `filtered` is always returned so callers don't have to recompute it.
+ */
+export interface DisplayResolution {
+	/** Next level to display, or null when there is no further navigation. */
+	level: HierarchyLevel | null;
+	/** Films matching the current path. Empty means the path is stale. */
+	filtered: Film[];
+}
+
+/**
+ * Find the next hierarchy level worth showing for the current path, considering auto-skip:
+ * a level that yields a single group is silently skipped (its only value is implicit) so the
+ * user goes straight to the next meaningful choice.
+ *
+ * `level` is null when there's no further navigation. Combined with `filtered.length` callers
+ * can distinguish three cases:
+ *  - `level !== null` → render the hierarchy nodes for that level
+ *  - `level === null && filtered.length > 0` → leaf reached
+ *  - `level === null && filtered.length === 0` → stale path (e.g. films were deleted)
+ */
+export function resolveDisplayLevel(films: Film[], path: HierarchyPath): DisplayResolution {
+	const filtered = filterByPath(films, path);
+	if (filtered.length === 0) return { level: null, filtered };
+
+	for (const level of HIERARCHY_ORDER) {
+		if (path[level] != null) continue;
+		const distinct = new Set<string>();
+		for (const f of filtered) {
+			distinct.add(getValueAtLevel(f, level));
+			if (distinct.size > 1) break;
+		}
+		if (distinct.size > 1) return { level, filtered };
+	}
+	return { level: null, filtered };
+}
+
+export function isLeaf(films: Film[], path: HierarchyPath): boolean {
+	const { level, filtered } = resolveDisplayLevel(films, path);
+	return level === null && filtered.length > 0;
 }
 
 export function setPathLevel(path: HierarchyPath, level: HierarchyLevel, value: string): HierarchyPath {
@@ -108,11 +142,7 @@ interface ChildAggregate {
 	grandChildren: Set<string>;
 }
 
-export function buildHierarchy(films: Film[], path: HierarchyPath): HierarchyNode[] {
-	const level = currentLevel(path);
-	if (level === null) return [];
-
-	const filtered = filterByPath(films, path);
+export function buildHierarchyNodes(level: HierarchyLevel, filtered: Film[]): HierarchyNode[] {
 	const grandLevel = nextLevel(level);
 	const map = new Map<string, ChildAggregate>();
 
@@ -148,6 +178,12 @@ export function buildHierarchy(films: Film[], path: HierarchyPath): HierarchyNod
 		return a.label.localeCompare(b.label);
 	});
 	return nodes;
+}
+
+export function buildHierarchy(films: Film[], path: HierarchyPath): HierarchyNode[] {
+	const { level, filtered } = resolveDisplayLevel(films, path);
+	if (level === null) return [];
+	return buildHierarchyNodes(level, filtered);
 }
 
 /**

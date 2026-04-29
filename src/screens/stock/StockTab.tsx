@@ -1,15 +1,15 @@
 import { Package } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import type { Back, Camera, Film } from "@/types";
 import {
-	buildHierarchy,
-	filterByPath,
+	buildHierarchyNodes,
 	groupByExpiration,
 	type HierarchyLevel,
 	type HierarchyPath,
-	isLeaf,
+	resolveDisplayLevel,
+	STOCK_FLAT_THRESHOLD,
 	setPathLevel,
 	truncatePath,
 } from "@/utils/stock-hierarchy";
@@ -41,21 +41,39 @@ export function StockTab({
 	const { t } = useTranslation();
 	const locale = t("dateLocale");
 
+	// Small inventories collapse to a flat expiration-grouped list — the multi-level navigation
+	// adds friction without value when there are only a handful of films.
+	const flatMode = !searchActive && films.length < STOCK_FLAT_THRESHOLD;
+
+	// Single resolution shared by leaf detection, hierarchy nodes and leaf grouping —
+	// avoids re-filtering the film list multiple times per render.
+	const resolution = useMemo(() => resolveDisplayLevel(films, path), [films, path]);
+
+	const reachedLeaf = !searchActive && !flatMode && resolution.level === null && resolution.filtered.length > 0;
+
+	// Stale path: persisted from localStorage but no film matches anymore (e.g. last matching
+	// film was deleted). Reset to root so the user lands on a valid view.
+	const stalePath = !searchActive && !flatMode && resolution.filtered.length === 0 && films.length > 0;
+	useEffect(() => {
+		if (stalePath) onPathChange({});
+	}, [stalePath, onPathChange]);
+
 	const flatGroups = useMemo(
-		() => (searchActive ? groupByExpiration(filteredFilms, locale) : []),
-		[filteredFilms, searchActive, locale],
+		() => (searchActive || flatMode ? groupByExpiration(filteredFilms, locale) : []),
+		[filteredFilms, searchActive, flatMode, locale],
 	);
 
-	const reachedLeaf = isLeaf(path);
-
 	const nodes = useMemo(
-		() => (!searchActive && !reachedLeaf ? buildHierarchy(films, path) : []),
-		[films, path, searchActive, reachedLeaf],
+		() =>
+			!searchActive && !flatMode && resolution.level !== null
+				? buildHierarchyNodes(resolution.level, resolution.filtered)
+				: [],
+		[searchActive, flatMode, resolution.level, resolution.filtered],
 	);
 
 	const leafGroups = useMemo(
-		() => (!searchActive && reachedLeaf ? groupByExpiration(filterByPath(films, path), locale) : []),
-		[films, path, locale, searchActive, reachedLeaf],
+		() => (reachedLeaf ? groupByExpiration(resolution.filtered, locale) : []),
+		[reachedLeaf, resolution.filtered, locale],
 	);
 
 	const handleBreadcrumb = (lvl: HierarchyLevel | null) => {
@@ -70,11 +88,13 @@ export function StockTab({
 		return <EmptyState icon={Package} title={t("stock.emptyStock")} subtitle={t("stock.emptyStockSubtitle")} />;
 	}
 
+	const showBreadcrumb = !flatMode;
+
 	return (
 		<div className="flex flex-col gap-3" data-tour="stock-list">
-			<StockBreadcrumb path={path} onNavigate={handleBreadcrumb} disabled={searchActive} />
+			{showBreadcrumb && <StockBreadcrumb path={path} onNavigate={handleBreadcrumb} disabled={searchActive} />}
 
-			{searchActive ? (
+			{searchActive || flatMode ? (
 				flatGroups.length === 0 ? (
 					<EmptyState icon={Package} title={t("stock.nothingFound")} subtitle={t("stock.noMatch")} />
 				) : (
