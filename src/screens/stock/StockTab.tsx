@@ -1,15 +1,14 @@
 import { Package } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import type { Back, Camera, Film } from "@/types";
 import {
-	buildHierarchy,
-	filterByPath,
+	buildHierarchyNodes,
 	groupByExpiration,
 	type HierarchyLevel,
 	type HierarchyPath,
-	isLeaf,
+	resolveDisplayLevel,
 	STOCK_FLAT_THRESHOLD,
 	setPathLevel,
 	truncatePath,
@@ -46,21 +45,35 @@ export function StockTab({
 	// adds friction without value when there are only a handful of films.
 	const flatMode = !searchActive && films.length < STOCK_FLAT_THRESHOLD;
 
+	// Single resolution shared by leaf detection, hierarchy nodes and leaf grouping —
+	// avoids re-filtering the film list multiple times per render.
+	const resolution = useMemo(() => resolveDisplayLevel(films, path), [films, path]);
+
+	const reachedLeaf = !searchActive && !flatMode && resolution.level === null && resolution.filtered.length > 0;
+
+	// Stale path: persisted from localStorage but no film matches anymore (e.g. last matching
+	// film was deleted). Reset to root so the user lands on a valid view.
+	const stalePath = !searchActive && !flatMode && resolution.filtered.length === 0 && films.length > 0;
+	useEffect(() => {
+		if (stalePath) onPathChange({});
+	}, [stalePath, onPathChange]);
+
 	const flatGroups = useMemo(
 		() => (searchActive || flatMode ? groupByExpiration(filteredFilms, locale) : []),
 		[filteredFilms, searchActive, flatMode, locale],
 	);
 
-	const reachedLeaf = !searchActive && !flatMode && isLeaf(films, path);
-
 	const nodes = useMemo(
-		() => (!searchActive && !flatMode && !reachedLeaf ? buildHierarchy(films, path) : []),
-		[films, path, searchActive, flatMode, reachedLeaf],
+		() =>
+			!searchActive && !flatMode && resolution.level !== null
+				? buildHierarchyNodes(resolution.level, resolution.filtered)
+				: [],
+		[searchActive, flatMode, resolution.level, resolution.filtered],
 	);
 
 	const leafGroups = useMemo(
-		() => (reachedLeaf ? groupByExpiration(filterByPath(films, path), locale) : []),
-		[films, path, locale, reachedLeaf],
+		() => (reachedLeaf ? groupByExpiration(resolution.filtered, locale) : []),
+		[reachedLeaf, resolution.filtered, locale],
 	);
 
 	const handleBreadcrumb = (lvl: HierarchyLevel | null) => {

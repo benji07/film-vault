@@ -64,16 +64,30 @@ export function pathDepth(path: HierarchyPath): number {
 }
 
 /**
+ * Result of resolving the next hierarchy level worth showing for a path.
+ * `filtered` is always returned so callers don't have to recompute it.
+ */
+export interface DisplayResolution {
+	/** Next level to display, or null when there is no further navigation. */
+	level: HierarchyLevel | null;
+	/** Films matching the current path. Empty means the path is stale. */
+	filtered: Film[];
+}
+
+/**
  * Find the next hierarchy level worth showing for the current path, considering auto-skip:
  * a level that yields a single group is silently skipped (its only value is implicit) so the
  * user goes straight to the next meaningful choice.
  *
- * Returns null when there's no further navigation — either every remaining level was
- * auto-skipped or the user has set them all (i.e. we're at a leaf).
+ * `level` is null when there's no further navigation. Combined with `filtered.length` callers
+ * can distinguish three cases:
+ *  - `level !== null` → render the hierarchy nodes for that level
+ *  - `level === null && filtered.length > 0` → leaf reached
+ *  - `level === null && filtered.length === 0` → stale path (e.g. films were deleted)
  */
-export function resolveDisplayLevel(films: Film[], path: HierarchyPath): HierarchyLevel | null {
+export function resolveDisplayLevel(films: Film[], path: HierarchyPath): DisplayResolution {
 	const filtered = filterByPath(films, path);
-	if (filtered.length === 0) return null;
+	if (filtered.length === 0) return { level: null, filtered };
 
 	for (const level of HIERARCHY_ORDER) {
 		if (path[level] != null) continue;
@@ -82,13 +96,14 @@ export function resolveDisplayLevel(films: Film[], path: HierarchyPath): Hierarc
 			distinct.add(getValueAtLevel(f, level));
 			if (distinct.size > 1) break;
 		}
-		if (distinct.size > 1) return level;
+		if (distinct.size > 1) return { level, filtered };
 	}
-	return null;
+	return { level: null, filtered };
 }
 
 export function isLeaf(films: Film[], path: HierarchyPath): boolean {
-	return resolveDisplayLevel(films, path) === null;
+	const { level, filtered } = resolveDisplayLevel(films, path);
+	return level === null && filtered.length > 0;
 }
 
 export function setPathLevel(path: HierarchyPath, level: HierarchyLevel, value: string): HierarchyPath {
@@ -127,11 +142,7 @@ interface ChildAggregate {
 	grandChildren: Set<string>;
 }
 
-export function buildHierarchy(films: Film[], path: HierarchyPath): HierarchyNode[] {
-	const level = resolveDisplayLevel(films, path);
-	if (level === null) return [];
-
-	const filtered = filterByPath(films, path);
+export function buildHierarchyNodes(level: HierarchyLevel, filtered: Film[]): HierarchyNode[] {
 	const grandLevel = nextLevel(level);
 	const map = new Map<string, ChildAggregate>();
 
@@ -167,6 +178,12 @@ export function buildHierarchy(films: Film[], path: HierarchyPath): HierarchyNod
 		return a.label.localeCompare(b.label);
 	});
 	return nodes;
+}
+
+export function buildHierarchy(films: Film[], path: HierarchyPath): HierarchyNode[] {
+	const { level, filtered } = resolveDisplayLevel(films, path);
+	if (level === null) return [];
+	return buildHierarchyNodes(level, filtered);
 }
 
 /**
