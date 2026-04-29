@@ -166,7 +166,8 @@ export type ScreenName =
 	| "stats"
 	| "settings"
 	| "legal"
-	| "map";
+	| "map"
+	| "welcome";
 
 export interface NavigationEntry {
 	screen: ScreenName;

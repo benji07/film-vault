@@ -3,11 +3,11 @@ import { applyMigrations, CURRENT_VERSION, validateAppData } from "@/utils/migra
 import { clearUrlCache, extractAndUploadPhotos, hasBase64Photos } from "@/utils/photo-sync";
 import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 
-const RECOVERY_CODE_KEY = "filmvault-recovery-code";
+const LEGACY_RECOVERY_CODE_KEY = "filmvault-recovery-code";
 const LAST_SYNC_KEY = "filmvault-last-sync";
 const LAST_MODIFIED_KEY = "filmvault-last-modified";
 
-// --- Recovery code management ---
+// --- Legacy recovery code (read-only, for migration) ---
 
 export function generateRecoveryCode(): string {
 	const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no I/O/0/1 to avoid confusion
@@ -16,21 +16,33 @@ export function generateRecoveryCode(): string {
 	return `FILM-${code.slice(0, 4)}-${code.slice(4)}`;
 }
 
-export function getRecoveryCode(): string | null {
+export function getLegacyRecoveryCode(): string | null {
 	try {
-		return localStorage.getItem(RECOVERY_CODE_KEY);
+		return localStorage.getItem(LEGACY_RECOVERY_CODE_KEY);
 	} catch {
 		return null;
 	}
 }
 
-export function setRecoveryCode(code: string): void {
-	localStorage.setItem(RECOVERY_CODE_KEY, code);
+export function clearLegacyRecoveryCode(): void {
+	try {
+		localStorage.removeItem(LEGACY_RECOVERY_CODE_KEY);
+	} catch {
+		// ignore
+	}
 }
 
-export function clearRecoveryCode(): void {
-	localStorage.removeItem(RECOVERY_CODE_KEY);
-	localStorage.removeItem(LAST_SYNC_KEY);
+/**
+ * Clear all local sync-related state (legacy code, last-sync timestamp, URL cache).
+ * Called on sign-out.
+ */
+export function clearLocalSyncState(): void {
+	clearLegacyRecoveryCode();
+	try {
+		localStorage.removeItem(LAST_SYNC_KEY);
+	} catch {
+		// ignore
+	}
 	clearUrlCache();
 }
 
@@ -60,34 +72,46 @@ function setLastSync(): void {
 	localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
 }
 
-// --- Cloud activation / restore ---
+// --- Profile bootstrap ---
 
 /**
- * Activate cloud sync: creates a user profile linked to the current anonymous session.
- * Returns the profile UUID on success, or null on failure.
+ * Ensure a user_profiles row exists for the current authenticated session.
+ * Idempotent. Returns the profile UUID on success, or null on failure.
  */
-export async function activateCloud(recoveryCode: string): Promise<string | null> {
+export async function ensureProfile(): Promise<string | null> {
 	if (!supabase) return null;
 	try {
-		const { data, error } = await supabase.rpc("activate_cloud", {
-			p_recovery_code: recoveryCode,
-		});
+		const { data, error } = await supabase.rpc("ensure_profile");
 		if (error) {
-			console.error("activate_cloud failed:", error.message);
+			console.error("ensure_profile failed:", error.message);
 			return null;
 		}
-		// Reset caches so subsequent operations use the new profile
 		clearUrlCache();
 		return data as string;
 	} catch (e) {
-		console.error("activate_cloud failed:", e);
+		console.error("ensure_profile failed:", e);
 		return null;
 	}
 }
 
 /**
- * Link an existing recovery code to the current anonymous session (for restore).
- * Returns the profile UUID on success, or null on failure.
+ * Fetch the recovery code (export/secours token) for the current authenticated user.
+ * Returns null if no profile is linked yet.
+ */
+export async function fetchRecoveryCode(): Promise<string | null> {
+	if (!supabase) return null;
+	try {
+		const { data, error } = await supabase.rpc("get_recovery_code");
+		if (error) return null;
+		return (data as string) ?? null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Link a legacy recovery code to the current authenticated session (one-shot migration).
+ * Re-points the existing profile from any previous auth.uid() to the new one.
  */
 export async function linkRecoveryCode(recoveryCode: string): Promise<string | null> {
 	if (!supabase) return null;
@@ -99,7 +123,6 @@ export async function linkRecoveryCode(recoveryCode: string): Promise<string | n
 			console.error("link_recovery_code failed:", error.message);
 			return null;
 		}
-		// Reset caches so subsequent operations use the new profile
 		clearUrlCache();
 		return data as string;
 	} catch (e) {
@@ -108,9 +131,9 @@ export async function linkRecoveryCode(recoveryCode: string): Promise<string | n
 	}
 }
 
-// --- Cloud operations (v3: auth.uid() based) ---
+// --- Cloud operations (auth.uid()-based; no recovery code argument) ---
 
-export async function pushToCloud(_code: string, data: AppData): Promise<boolean> {
+export async function pushToCloud(data: AppData): Promise<boolean> {
 	if (!supabase) return false;
 	try {
 		// Upload photos to Storage, replace base64 with paths in the cloud copy
@@ -136,7 +159,7 @@ export async function pushToCloud(_code: string, data: AppData): Promise<boolean
 export type PullError = "supabase_not_configured" | "not_found" | "network_error" | "invalid_data";
 export type PullResult = { data: AppData } | { error: PullError };
 
-export async function pullFromCloud(_code: string): Promise<PullResult> {
+export async function pullFromCloud(): Promise<PullResult> {
 	if (!supabase) return { error: "supabase_not_configured" };
 	try {
 		const { data: rows, error } = await supabase.rpc("get_user_data_v3");
@@ -173,38 +196,24 @@ export async function pullFromCloud(_code: string): Promise<PullResult> {
  * - If local is newer → pushes to cloud, returns local data
  * - If no cloud data → pushes local to cloud, returns local data
  */
-export async function syncData(
-	code: string,
-	localData: AppData,
-): Promise<{ data: AppData; source: "local" | "cloud" }> {
+export async function syncData(localData: AppData): Promise<{ data: AppData; source: "local" | "cloud" }> {
 	if (!isSupabaseConfigured || !supabase) {
 		return { data: localData, source: "local" };
 	}
 
 	try {
-		let { data: rows, error } = await supabase.rpc("get_user_data_v3");
+		const { data: rows, error } = await supabase.rpc("get_user_data_v3");
 
-		// If no data found, the profile may exist but auth_uid is not linked yet
-		// (existing user upgrading from v2). Try to link automatically.
-		if (!error && (!rows || rows.length === 0)) {
-			const linked = await linkRecoveryCode(code);
-			if (linked) {
-				const retry = await supabase.rpc("get_user_data_v3");
-				rows = retry.data;
-				error = retry.error;
-			}
-		}
-
-		// No cloud data yet or error → push local
+		// Push local on any error
 		if (error) {
 			console.error("Sync check failed:", error.message);
-			await pushToCloud(code, localData);
+			await pushToCloud(localData);
 			return { data: localData, source: "local" };
 		}
 
 		const row = rows?.[0];
 		if (!row) {
-			await pushToCloud(code, localData);
+			await pushToCloud(localData);
 			return { data: localData, source: "local" };
 		}
 
@@ -222,14 +231,14 @@ export async function syncData(
 				setLastSync();
 				// If cloud data has base64 photos, push to migrate them to Storage
 				if (hasBase64Photos(migrated)) {
-					void pushToCloud(code, migrated);
+					void pushToCloud(migrated);
 				}
 				return { data: migrated, source: "cloud" };
 			}
 		}
 
 		// Local is newer or same → push to cloud
-		await pushToCloud(code, localData);
+		await pushToCloud(localData);
 		return { data: localData, source: "local" };
 	} catch (e) {
 		console.error("Sync failed:", e);

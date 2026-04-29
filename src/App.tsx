@@ -1,3 +1,4 @@
+import type { Session } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -21,13 +22,22 @@ import { LegalScreen } from "@/screens/LegalScreen";
 import { SettingsScreen } from "@/screens/SettingsScreen";
 import { StatsScreen } from "@/screens/StatsScreen";
 import { StockScreen } from "@/screens/StockScreen";
+import { WelcomeScreen } from "@/screens/WelcomeScreen";
 import { TourOverlay } from "@/tour/TourOverlay";
 import { hasCompletedTour, TourProvider, useTour } from "@/tour/TourProvider";
 import type { AppData, ScreenName } from "@/types";
 import { refreshCatalogs } from "@/utils/catalog";
 import { checkStorage, getInitialData, isStorageAvailable, loadData, saveData } from "@/utils/storage";
-import { ensureAnonSession, isSupabaseConfigured } from "@/utils/supabase";
-import { getRecoveryCode, pushToCloud, syncData } from "@/utils/sync";
+import { isLocalOnly, isSupabaseConfigured, setLocalOnly, signOut, supabase } from "@/utils/supabase";
+import {
+	clearLegacyRecoveryCode,
+	clearLocalSyncState,
+	ensureProfile,
+	getLegacyRecoveryCode,
+	linkRecoveryCode,
+	pushToCloud,
+	syncData,
+} from "@/utils/sync";
 import { useNavigationStack } from "@/utils/use-navigation-stack";
 
 const MapScreen = lazy(() => import("@/screens/MapScreen").then((m) => ({ default: m.MapScreen })));
@@ -38,6 +48,8 @@ const SUB_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetai
 function FilmVaultInner() {
 	const [data, setData] = useState<AppData | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [showWelcome, setShowWelcome] = useState(false);
+	const [session, setSession] = useState<Session | null>(null);
 	const nav = useNavigationStack({ screen: "home" });
 	const [autoOpenShotNote, setAutoOpenShotNote] = useState(false);
 	const [showAddFilm, setShowAddFilm] = useState(false);
@@ -47,7 +59,6 @@ function FilmVaultInner() {
 	const [showQuickShot, setShowQuickShot] = useState(false);
 	const [persistent, setPersistent] = useState(false);
 	const [syncing, setSyncing] = useState(false);
-	const [recoveryCode, setRecoveryCodeState] = useState<string | null>(null);
 	const { toast } = useToast();
 	const { t } = useTranslation();
 	const dataRef = useRef<AppData | null>(null);
@@ -60,22 +71,20 @@ function FilmVaultInner() {
 				const ok = await saveData(newData);
 				if (!ok) toast(t("app.saveError"), "error");
 			}
-			// Background push to cloud
-			const code = getRecoveryCode();
-			if (code && isSupabaseConfigured) {
-				pushToCloud(code, newData).catch(() => {});
+			// Background push to cloud (only when signed in)
+			if (session && isSupabaseConfigured) {
+				pushToCloud(newData).catch(() => {});
 			}
 		},
-		[toast, t],
+		[toast, t, session],
 	);
 
 	const triggerSync = useCallback(async () => {
-		const code = getRecoveryCode();
 		const currentData = dataRef.current;
-		if (!code || !currentData || !isSupabaseConfigured) return;
+		if (!session || !currentData || !isSupabaseConfigured) return;
 		setSyncing(true);
 		try {
-			const result = await syncData(code, currentData);
+			const result = await syncData(currentData);
 			if (result.source === "cloud") {
 				setData(result.data);
 				dataRef.current = result.data;
@@ -87,16 +96,12 @@ function FilmVaultInner() {
 		} finally {
 			setSyncing(false);
 		}
-	}, [toast, t]);
+	}, [toast, t, session]);
 
+	// Bootstrap: load local data, decide whether to show welcome screen
 	useEffect(() => {
 		let cancelled = false;
 		(async () => {
-			// Ensure anonymous auth session before any cloud operations
-			if (isSupabaseConfigured && navigator.onLine) {
-				await ensureAnonSession();
-			}
-
 			const hasStorage = await checkStorage();
 			if (cancelled) return;
 			setPersistent(hasStorage);
@@ -109,30 +114,28 @@ function FilmVaultInner() {
 				appData = getInitialData();
 			}
 
-			// Sync with cloud on startup
-			const code = getRecoveryCode();
-			setRecoveryCodeState(code);
-			if (code && isSupabaseConfigured && navigator.onLine) {
-				try {
-					const result = await syncData(code, appData);
-					appData = result.data;
-					if (result.source === "cloud" && hasStorage) {
-						await saveData(appData);
-					}
-				} catch {
-					// Sync failed silently, use local data
-				}
-			}
-
-			// Refresh catalogs in background (non-blocking)
-			if (isSupabaseConfigured && navigator.onLine) {
-				refreshCatalogs().catch(() => {});
+			// Read current session (if any). supabase-js auto-detects the URL hash
+			// after a Magic Link redirect and persists the session in localStorage.
+			let currentSession: Session | null = null;
+			if (isSupabaseConfigured && supabase) {
+				const { data: sessionData } = await supabase.auth.getSession();
+				currentSession = sessionData.session;
 			}
 
 			if (!cancelled) {
+				setSession(currentSession);
 				setData(appData);
 				dataRef.current = appData;
 				setLoading(false);
+
+				// Decide if we should display the welcome screen.
+				// First-time visitors with no session and no local-only flag see it,
+				// unless they already have legacy data (recovery code) — those
+				// should land on the app and migrate from Settings.
+				const hasLegacy = !!getLegacyRecoveryCode();
+				if (!currentSession && !isLocalOnly() && !hasLegacy && isSupabaseConfigured) {
+					setShowWelcome(true);
+				}
 			}
 		})();
 		return () => {
@@ -140,15 +143,81 @@ function FilmVaultInner() {
 		};
 	}, []);
 
-	// Sync when coming back online (ensure auth session first)
+	// Subscribe to auth state changes (Magic Link callback, sign out from another tab, etc.)
 	useEffect(() => {
-		const handleOnline = async () => {
-			await ensureAnonSession();
+		if (!supabase) return;
+		const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+			setSession(newSession);
+			if (newSession) setShowWelcome(false);
+		});
+		return () => sub.subscription.unsubscribe();
+	}, []);
+
+	// On sign-in: bootstrap profile, migrate legacy recovery code if any, then sync.
+	useEffect(() => {
+		if (!session || !isSupabaseConfigured) return;
+		let cancelled = false;
+		(async () => {
+			// 1. If we have a legacy recovery code in localStorage, link it first
+			//    so ensure_profile finds the existing profile (instead of creating a new one).
+			const legacy = getLegacyRecoveryCode();
+			if (legacy) {
+				const linked = await linkRecoveryCode(legacy);
+				clearLegacyRecoveryCode();
+				if (linked) {
+					toast(t("account.migrated"), "success");
+				}
+			}
+
+			// 2. Ensure a profile exists for this session (idempotent).
+			await ensureProfile();
+
+			if (cancelled) return;
+
+			// 3. Sync local ↔ cloud.
+			const currentData = dataRef.current;
+			if (!currentData) return;
+			setSyncing(true);
+			try {
+				const result = await syncData(currentData);
+				if (result.source === "cloud") {
+					setData(result.data);
+					dataRef.current = result.data;
+					if (isStorageAvailable()) await saveData(result.data);
+				}
+			} catch {
+				// silent
+			} finally {
+				if (!cancelled) setSyncing(false);
+			}
+
+			// 4. Refresh catalogs (non-blocking).
+			refreshCatalogs().catch(() => {});
+		})();
+		return () => {
+			cancelled = true;
+		};
+	}, [session, toast, t]);
+
+	// Sync when coming back online
+	useEffect(() => {
+		const handleOnline = () => {
 			triggerSync();
 		};
 		window.addEventListener("online", handleOnline);
 		return () => window.removeEventListener("online", handleOnline);
 	}, [triggerSync]);
+
+	const handleSignOut = useCallback(async () => {
+		await signOut();
+		clearLocalSyncState();
+		setSession(null);
+	}, []);
+
+	const handleContinueLocal = useCallback(() => {
+		setLocalOnly(true);
+		setShowWelcome(false);
+	}, []);
 
 	const { resetTo: navResetTo, replace: navReplace, current: navCurrent } = nav;
 
@@ -176,6 +245,10 @@ function FilmVaultInner() {
 		);
 	}
 
+	if (showWelcome) {
+		return <WelcomeScreen onContinueLocal={handleContinueLocal} />;
+	}
+
 	return (
 		<TourProvider setScreen={resetScreen} setSelectedFilm={tourSetSelectedFilm}>
 			<AppContent
@@ -196,8 +269,8 @@ function FilmVaultInner() {
 				showQuickShot={showQuickShot}
 				setShowQuickShot={setShowQuickShot}
 				syncing={syncing}
-				recoveryCode={recoveryCode}
-				setRecoveryCodeState={setRecoveryCodeState}
+				session={session}
+				onSignOut={handleSignOut}
 				triggerSync={triggerSync}
 				persistent={persistent}
 			/>
@@ -223,8 +296,8 @@ interface AppContentProps {
 	showQuickShot: boolean;
 	setShowQuickShot: (open: boolean) => void;
 	syncing: boolean;
-	recoveryCode: string | null;
-	setRecoveryCodeState: (code: string | null) => void;
+	session: Session | null;
+	onSignOut: () => Promise<void>;
 	triggerSync: () => Promise<void>;
 	persistent: boolean;
 }
@@ -247,8 +320,8 @@ function AppContent({
 	showQuickShot,
 	setShowQuickShot,
 	syncing,
-	recoveryCode,
-	setRecoveryCodeState,
+	session,
+	onSignOut,
 	triggerSync,
 	persistent,
 }: AppContentProps) {
@@ -379,8 +452,8 @@ function AppContent({
 						data={effectiveData}
 						setData={effectiveUpdateData}
 						syncing={syncing}
-						recoveryCode={recoveryCode}
-						onRecoveryCodeChange={setRecoveryCodeState}
+						session={session}
+						onSignOut={onSignOut}
 						onSyncNow={triggerSync}
 						persistent={persistent}
 						onOpenLegal={openLegal}
