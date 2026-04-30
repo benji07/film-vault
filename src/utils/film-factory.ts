@@ -1,4 +1,4 @@
-import type { Film } from "@/types";
+import type { Film, FilmState, HistoryEntry } from "@/types";
 import { today, uid } from "@/utils/helpers";
 
 const DEFAULT_POSES: Record<string, number> = {
@@ -25,9 +25,99 @@ interface NewFilmParams {
 	posesTotal?: number;
 	storageLocation?: string | null;
 	tags?: string[];
+	state?: FilmState;
+	cameraId?: string | null;
+	backId?: string | null;
+	lens?: string | null;
+	lensId?: string | null;
+	startDate?: string | null;
+	endDate?: string | null;
+	shootIso?: number | null;
+	posesShot?: number | null;
+	lab?: string | null;
+	labRef?: string | null;
+	devDate?: string | null;
+	devCost?: number | null;
+	scanRef?: string | null;
+	scanCost?: number | null;
+	devScanPackage?: boolean;
+	cameraDisplayName?: string | null;
+}
+
+const STATE_RANK: Record<FilmState, number> = {
+	stock: 0,
+	loaded: 1,
+	partial: 2,
+	exposed: 3,
+	developed: 4,
+	scanned: 5,
+};
+
+function reachedStock(target: FilmState, threshold: FilmState): boolean {
+	return STATE_RANK[target] >= STATE_RANK[threshold];
+}
+
+function buildHistory(params: NewFilmParams, addedDate: string, posesTotal: number): HistoryEntry[] {
+	const state = params.state ?? "stock";
+	const history: HistoryEntry[] = [{ date: addedDate, action: "", actionCode: "added" }];
+
+	if (state === "stock") return history;
+
+	const loadDate = params.startDate || addedDate;
+	const cameraLabel = params.cameraDisplayName ?? "?";
+	history.push({
+		date: loadDate,
+		action: "",
+		actionCode: "loaded",
+		params: { camera: cameraLabel },
+	});
+
+	if (state === "partial") {
+		history.push({
+			date: loadDate,
+			action: "",
+			actionCode: "removed_partial",
+			params: {
+				posesShot: params.posesShot ?? 0,
+				posesTotal,
+			},
+		});
+		return history;
+	}
+
+	if (reachedStock(state, "exposed")) {
+		const exposedDate = params.endDate || loadDate;
+		history.push({ date: exposedDate, action: "", actionCode: "exposed" });
+	}
+
+	if (reachedStock(state, "developed")) {
+		const devDate = params.devDate || params.endDate || loadDate;
+		history.push({
+			date: devDate,
+			action: "",
+			actionCode: "developed",
+			params: { lab: params.lab ?? null },
+		});
+	}
+
+	if (reachedStock(state, "scanned")) {
+		history.push({
+			date: params.devDate || params.endDate || loadDate,
+			action: "",
+			actionCode: "scanned",
+			params: { ref: params.scanRef ?? null },
+		});
+	}
+
+	return history;
 }
 
 export function createNewFilm(params: NewFilmParams): Film {
+	const state = params.state ?? "stock";
+	const addedDate = today();
+	const posesTotal = params.posesTotal ?? DEFAULT_POSES[params.format] ?? 36;
+	const isAfterStock = state !== "stock";
+
 	return {
 		id: uid(),
 		brand: params.brand,
@@ -35,24 +125,29 @@ export function createNewFilm(params: NewFilmParams): Film {
 		iso: params.iso,
 		type: params.type,
 		format: params.format,
-		state: "stock",
+		state,
 		expDate: params.expDate,
 		comment: params.comment,
 		price: params.price ?? null,
-		addedDate: today(),
-		shootIso: null,
-		cameraId: null,
-		backId: null,
-		lens: null,
-		startDate: null,
-		endDate: null,
-		posesShot: null,
-		posesTotal: params.posesTotal ?? DEFAULT_POSES[params.format] ?? 36,
-		lab: null,
-		labRef: null,
-		devDate: null,
+		addedDate,
+		shootIso: params.shootIso ?? (isAfterStock ? params.iso : null),
+		cameraId: params.cameraId ?? null,
+		backId: params.backId ?? null,
+		lens: params.lens ?? null,
+		lensId: params.lensId ?? null,
+		startDate: isAfterStock ? (params.startDate ?? addedDate) : null,
+		endDate: reachedStock(state, "exposed") ? (params.endDate ?? params.startDate ?? addedDate) : null,
+		posesShot: state === "partial" ? (params.posesShot ?? 0) : reachedStock(state, "exposed") ? posesTotal : null,
+		posesTotal,
+		lab: params.lab ?? null,
+		labRef: params.labRef ?? null,
+		devDate: reachedStock(state, "developed") ? (params.devDate ?? params.endDate ?? addedDate) : null,
+		devCost: params.devCost ?? null,
+		scanRef: params.scanRef ?? null,
+		scanCost: params.scanCost ?? null,
+		devScanPackage: params.devScanPackage || undefined,
 		storageLocation: params.storageLocation ?? null,
-		history: [{ date: today(), action: "", actionCode: "added" }],
+		history: buildHistory(params, addedDate, posesTotal),
 		tags: params.tags && params.tags.length > 0 ? [...params.tags] : undefined,
 	};
 }
