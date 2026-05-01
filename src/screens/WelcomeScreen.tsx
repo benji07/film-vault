@@ -135,7 +135,7 @@ export function WelcomeScreen({ onContinueLocal }: WelcomeScreenProps) {
 								inputMode="numeric"
 								autoComplete="one-time-code"
 								pattern="[0-9]*"
-								maxLength={6}
+								maxLength={8}
 								value={code}
 								onChange={(e) => {
 									setCode(e.target.value.replace(/\D/g, ""));
@@ -143,7 +143,7 @@ export function WelcomeScreen({ onContinueLocal }: WelcomeScreenProps) {
 								}}
 								placeholder={t("account.codePlaceholder")}
 								disabled={verifying}
-								className="text-center text-lg font-mono tracking-[0.5em]"
+								className="text-center text-lg font-mono tracking-[0.4em]"
 								onKeyDown={(e) => {
 									if (e.key === "Enter") handleVerifyCode();
 								}}
@@ -151,7 +151,7 @@ export function WelcomeScreen({ onContinueLocal }: WelcomeScreenProps) {
 							{error && <span className="text-xs text-accent font-body">{error}</span>}
 							<Button
 								onClick={handleVerifyCode}
-								disabled={verifying || code.length < 6}
+								disabled={verifying || code.length < 8}
 								className="w-full justify-center"
 							>
 								{verifying ? <Loader2 size={16} className="animate-spin" /> : <KeyRound size={16} />}
