@@ -20,6 +20,17 @@ interface MapFilterBarProps {
 
 const FILM_TYPES: FilmType[] = ["Couleur", "N&B", "Diapo", "ECN-2"];
 
+// On the map, chips need maximum readability over the tiles. Inactive
+// chips sit on opaque paper-card, active chips are inverted (ink bg +
+// yellow text) for a strong active/inactive distinction. tailwind-merge
+// inside Chip lets the classes here override the defaults.
+function mapChipCls(active: boolean, extra = ""): string {
+	const base = active
+		? "shrink-0 text-xs bg-ink text-kodak-yellow border-ink"
+		: "shrink-0 text-xs bg-paper-card text-ink";
+	return extra ? `${base} ${extra}` : base;
+}
+
 export function MapFilterBar({
 	films,
 	filterFilmId,
@@ -42,38 +53,52 @@ export function MapFilterBar({
 		<div className="absolute top-3 left-3 right-3 z-10 flex flex-col gap-2">
 			{/* Film type filter */}
 			<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-				<Chip active={filterType == null} onClick={() => onFilterType(null)} className="shrink-0 text-xs shadow-md">
+				<Chip
+					active={filterType == null}
+					onClick={() => onFilterType(null)}
+					className={mapChipCls(filterType == null)}
+				>
 					{t("map.allTypes")}
 				</Chip>
-				{FILM_TYPES.map((type) => (
-					<Chip
-						key={type}
-						active={filterType === type}
-						onClick={() => onFilterType(filterType === type ? null : type)}
-						className="shrink-0 text-xs shadow-md"
-					>
-						<div className="w-2 h-2 rounded-full" style={{ backgroundColor: MARKER_COLORS[type] }} />
-						{t(`filmTypes.${type}`, type)}
-					</Chip>
-				))}
+				{FILM_TYPES.map((type) => {
+					const active = filterType === type;
+					return (
+						<Chip
+							key={type}
+							active={active}
+							onClick={() => onFilterType(active ? null : type)}
+							className={mapChipCls(active)}
+						>
+							<div className="w-2 h-2 rounded-full" style={{ backgroundColor: MARKER_COLORS[type] }} />
+							{t(`filmTypes.${type}`, type)}
+						</Chip>
+					);
+				})}
 			</div>
 
 			{/* Tag filter */}
 			{availableTags.length > 0 && (
 				<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-					<Chip active={filterTag == null} onClick={() => onFilterTag(null)} className="shrink-0 text-xs shadow-md">
+					<Chip
+						active={filterTag == null}
+						onClick={() => onFilterTag(null)}
+						className={mapChipCls(filterTag == null)}
+					>
 						{t("map.allTags")}
 					</Chip>
-					{availableTags.map((tag) => (
-						<Chip
-							key={tag}
-							active={filterTag === tag}
-							onClick={() => onFilterTag(filterTag === tag ? null : tag)}
-							className="shrink-0 text-xs shadow-md"
-						>
-							{tag}
-						</Chip>
-					))}
+					{availableTags.map((tag) => {
+						const active = filterTag === tag;
+						return (
+							<Chip
+								key={tag}
+								active={active}
+								onClick={() => onFilterTag(active ? null : tag)}
+								className={mapChipCls(active)}
+							>
+								{tag}
+							</Chip>
+						);
+					})}
 				</div>
 			)}
 
@@ -86,23 +111,26 @@ export function MapFilterBar({
 							onFilterFilm(null);
 							onClearFilter();
 						}}
-						className="shrink-0 text-xs shadow-md"
+						className={mapChipCls(filterFilmId == null)}
 					>
 						{t("map.allFilms")}
 					</Chip>
-					{filmsWithGeo.map((film) => (
-						<Chip
-							key={film.id}
-							active={filterFilmId === film.id}
-							onClick={() => {
-								onFilterFilm(filterFilmId === film.id ? null : film.id);
-								onClearFilter();
-							}}
-							className="shrink-0 text-xs shadow-md max-w-[160px] truncate"
-						>
-							{filmName(film)}
-						</Chip>
-					))}
+					{filmsWithGeo.map((film) => {
+						const active = filterFilmId === film.id;
+						return (
+							<Chip
+								key={film.id}
+								active={active}
+								onClick={() => {
+									onFilterFilm(active ? null : film.id);
+									onClearFilter();
+								}}
+								className={mapChipCls(active, "max-w-[160px] truncate")}
+							>
+								{filmName(film)}
+							</Chip>
+						);
+					})}
 				</div>
 			)}
 
@@ -113,7 +141,7 @@ export function MapFilterBar({
 						onFilterFilm(null);
 						onClearFilter();
 					}}
-					className="self-start flex items-center gap-1 text-xs text-accent bg-card/90 backdrop-blur rounded-full px-2.5 py-1 shadow-md border border-border"
+					className="self-start flex items-center gap-1 font-archivo font-extrabold text-[10px] uppercase tracking-[0.12em] text-kodak-red bg-paper-card border-2 border-ink shadow-[2px_2px_0_var(--color-ink)] px-2.5 py-1.5"
 				>
 					<X size={12} />
 					{t("map.allFilms")}
