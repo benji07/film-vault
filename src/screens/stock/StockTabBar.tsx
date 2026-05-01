@@ -1,35 +1,45 @@
 import { useTranslation } from "react-i18next";
-import { Chip } from "@/components/ui/chip";
+import { cn } from "@/lib/utils";
 
-export type StockTab = "active" | "stock" | "archive";
+export type StockTab = "stock" | "archive";
 
 interface StockTabBarProps {
 	tab: StockTab;
 	onChange: (tab: StockTab) => void;
-	counts: { active: number; stock: number; archive: number };
+	counts: { stock: number; archive: number };
 }
 
 export function StockTabBar({ tab, onChange, counts }: StockTabBarProps) {
 	const { t } = useTranslation();
 	const items: { key: StockTab; label: string; count: number }[] = [
-		{ key: "active", label: t("stock.tabs.active"), count: counts.active },
 		{ key: "stock", label: t("stock.tabs.stock"), count: counts.stock },
 		{ key: "archive", label: t("stock.tabs.archive"), count: counts.archive },
 	];
 
 	return (
-		<div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
-			{items.map((item) => (
-				<Chip
-					key={item.key}
-					active={tab === item.key}
-					onClick={() => onChange(item.key)}
-					className="text-[12px] py-2 px-3.5 min-h-[36px]"
-				>
-					{item.label}
-					<span className="opacity-60 ml-1 font-mono text-[10px]">{item.count}</span>
-				</Chip>
-			))}
-		</div>
+		<nav className="grid grid-cols-2 mx-[18px] border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card">
+			{items.map((item, i) => {
+				const active = tab === item.key;
+				return (
+					<button
+						type="button"
+						key={item.key}
+						onClick={() => onChange(item.key)}
+						aria-pressed={active}
+						className={cn(
+							"font-archivo-black text-[10px] uppercase tracking-[0.15em] py-2 px-2 cursor-pointer leading-none",
+							"flex items-center justify-center gap-1.5",
+							active ? "bg-kodak-yellow text-ink" : "bg-transparent text-ink-faded hover:bg-paper-dark/30",
+							i === 0 && "border-r-2 border-ink",
+						)}
+					>
+						{item.label}
+						<span className="font-archivo font-bold text-[9px] tracking-[0.15em] opacity-70">
+							{String(item.count).padStart(2, "0")}
+						</span>
+					</button>
+				);
+			})}
+		</nav>
 	);
 }

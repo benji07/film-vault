@@ -1,12 +1,12 @@
-import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
-import { getStates } from "@/constants/films";
-import { alpha, FILM_TYPE_COLORS, T } from "@/constants/theme";
+import { FilmLabel } from "@/components/ui/film-label";
+import { filmTypeToVariant } from "@/constants/theme";
+import { cn } from "@/lib/utils";
 import type { Back, Camera, Film } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
-import { filmIso, filmName, filmType } from "@/utils/film-helpers";
+import { filmName, filmType } from "@/utils/film-helpers";
 
 interface FilmRowProps {
 	film: Film;
@@ -16,67 +16,92 @@ interface FilmRowProps {
 	groupCount?: number;
 }
 
+const STATE_VARIANT: Record<Film["state"], "default" | "ink" | "red" | "teal" | "gold" | "outline"> = {
+	stock: "outline",
+	loaded: "red",
+	partial: "default",
+	exposed: "ink",
+	developed: "gold",
+	scanned: "teal",
+};
+
 export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowProps) {
 	const { t } = useTranslation();
-	const STATES = getStates(t);
-	const st = STATES[film.state];
-	const StIcon = st.icon;
-	const typeColor = FILM_TYPE_COLORS[filmType(film)] || T.textMuted;
+	const variant = filmTypeToVariant(filmType(film));
 	const cam = film.cameraId ? cameras.find((c) => c.id === film.cameraId) : null;
 	const back = film.backId ? backs.find((b) => b.id === film.backId) : null;
 	const expInfo = getExpirationStatus(film.expDate, t);
+	const isExpiring = expInfo && expInfo.status !== "ok";
+	const stateLabel = t(`states.${film.state}`);
+	const sub = film.type ? `${film.type.toLowerCase()}` : "";
 
 	return (
 		<button
 			type="button"
 			onClick={onClick}
-			className="flex items-center gap-3 py-3.5 pr-4 pl-0 bg-card border border-border rounded-[14px] cursor-pointer transition-all overflow-hidden text-left w-full"
+			className={cn(
+				"relative grid bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)]",
+				"grid-cols-[64px_1fr_auto] items-stretch overflow-hidden text-left w-full cursor-pointer",
+				"transition-transform active:scale-[.99]",
+			)}
 		>
-			<div className="w-[3px] self-stretch shrink-0 rounded-r-full" style={{ backgroundColor: typeColor }} />
-			<div
-				className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0"
-				style={{ background: `linear-gradient(135deg, ${alpha(st.color, 0.13)}, ${alpha(st.color, 0.03)})` }}
-			>
-				<StIcon size={18} color={st.color} />
-			</div>
-			<div className="flex-1 min-w-0">
-				<div className="text-sm font-semibold text-text-primary font-body overflow-hidden text-ellipsis whitespace-nowrap">
+			<FilmLabel
+				iso={film.iso ?? "—"}
+				format={film.format ?? ""}
+				variant={variant}
+				size="sm"
+			/>
+			<div className="px-3 py-2.5 min-w-0">
+				<div className="font-cormorant text-[16px] font-semibold text-ink leading-[1.1]">
 					{filmName(film)}
+					{sub && <em className="font-normal italic text-[13px] text-ink-faded ml-1">{sub}</em>}
 					{groupCount && groupCount > 1 && (
-						<span className="ml-1.5 text-[11px] font-semibold font-body" style={{ color: T.accent }}>
-							&times;&nbsp;{groupCount}
-						</span>
+						<span className="ml-1.5 font-archivo-black text-[11px] text-kodak-red">×{groupCount}</span>
 					)}
 				</div>
-				<div className="flex gap-1.5 mt-1 flex-wrap">
-					<Badge style={{ color: st.color, background: alpha(st.color, 0.09) }}>{st.label}</Badge>
-					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{film.format}</Badge>
-					{film.shootIso && film.shootIso !== filmIso(film) && (
-						<Badge style={{ color: T.amber, background: alpha(T.amber, 0.09) }}>Push {film.shootIso}</Badge>
-					)}
+				<div className="font-typewriter text-[9px] tracking-[0.1em] uppercase text-ink-faded mt-1.5 flex flex-wrap gap-x-2 gap-y-0.5">
+					{film.format && <span>{film.format}</span>}
+					{film.expDate && <span>périme {fmtExpDate(film.expDate, t("dateLocale"))}</span>}
+					{film.price != null && <span>{film.price.toFixed(2)} €</span>}
 					{cam && (
-						<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
+						<span>
 							{cameraDisplayName(cam)}
 							{back ? ` · ${backDisplayName(back)}` : ""}
-						</Badge>
+						</span>
 					)}
-					{film.labRef && <Badge style={{ color: T.accent, background: alpha(T.accent, 0.09) }}>{film.labRef}</Badge>}
-					{film.expDate && (
-						<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
-							{fmtExpDate(film.expDate, t("dateLocale"))}
-						</Badge>
-					)}
-					{expInfo && expInfo.status !== "ok" && (
-						<Badge style={{ color: expInfo.color, background: expInfo.bgColor }}>{expInfo.label}</Badge>
-					)}
-					{film.tags?.map((tag) => (
-						<Badge key={tag} style={{ color: T.accent, background: alpha(T.accent, 0.12) }}>
-							{tag}
-						</Badge>
-					))}
+					{film.labRef && <span>ref {film.labRef}</span>}
 				</div>
+				{(film.tags?.length || isExpiring) && (
+					<div className="flex flex-wrap gap-1 mt-2">
+						{isExpiring && expInfo && (
+							<Badge variant="default" className="-rotate-3">
+								{expInfo.label}
+							</Badge>
+						)}
+						{film.tags?.map((tag) => (
+							<Badge key={tag} variant="outline">
+								{tag}
+							</Badge>
+						))}
+					</div>
+				)}
 			</div>
-			<ChevronRight size={16} className="text-text-muted" />
+			<div
+				className={cn(
+					"px-3 py-2 border-l border-dashed border-ink-faded/40",
+					"flex flex-col items-end justify-between bg-white/15",
+				)}
+			>
+				<div className="font-archivo-black text-[24px] text-ink leading-none tracking-[-0.5px] text-right">
+					{film.quantity ?? 1}
+					<span className="block font-archivo font-bold text-[8px] text-ink-faded mt-0.5 tracking-[0.18em] uppercase text-right">
+						{t(`states.${film.state}`).toLowerCase()}
+					</span>
+				</div>
+				<Badge variant={STATE_VARIANT[film.state]} className="text-[8px] mt-2">
+					{stateLabel}
+				</Badge>
+			</div>
 		</button>
 	);
 }
