@@ -30,6 +30,16 @@ export const fr = {
 		scanned: "Scannée",
 	},
 
+	// Film lifecycle steps (FilmDetail stepper)
+	lifecycle: {
+		stock: "Stock",
+		loaded: "Chargée",
+		exposed: "Exposée",
+		lab: "Labo",
+		developed: "Dévelop.",
+		scanned: "Scannée",
+	},
+
 	// Expiration
 	expiration: {
 		expired: "Périmée",
