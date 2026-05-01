@@ -71,21 +71,10 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 			className={cn(
 				"shrink-0 relative w-full bg-ink flex justify-around items-stretch",
 				"pt-3 pb-[max(0.625rem,env(safe-area-inset-bottom))]",
-				"border-t-4 border-kodak-yellow",
+				"border-t-2 border-kodak-yellow",
 				className,
 			)}
 		>
-			{/* Perforations 35mm sur le rebord supérieur */}
-			<div
-				aria-hidden="true"
-				className="absolute -top-2 left-0 right-0 h-2 bg-kodak-yellow pointer-events-none"
-				style={{
-					backgroundImage: "radial-gradient(circle at center, var(--color-ink) 0 3px, transparent 3.5px)",
-					backgroundSize: "18px 8px",
-					backgroundRepeat: "repeat-x",
-					backgroundColor: "var(--color-kodak-yellow)",
-				}}
-			/>
 			{tabs.map((tab) => {
 				const active = screen === tab.key;
 				return (
