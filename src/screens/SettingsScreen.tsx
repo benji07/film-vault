@@ -1,10 +1,10 @@
+import type { Session } from "@supabase/supabase-js";
 import {
 	AlertTriangle,
 	BookOpen,
 	Camera as CameraIcon,
 	Check,
 	Cloud,
-	CloudOff,
 	Copy,
 	Database,
 	Download,
@@ -12,12 +12,14 @@ import {
 	Focus,
 	Globe,
 	Loader2,
+	LogOut,
+	Mail,
 	Package,
 	Play,
 	RefreshCw,
 	Upload,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -30,24 +32,15 @@ import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 import { exportData, parseImportFile } from "@/utils/storage";
-import { isSupabaseConfigured } from "@/utils/supabase";
-import {
-	activateCloud,
-	clearRecoveryCode,
-	generateRecoveryCode,
-	getLastSync,
-	linkRecoveryCode,
-	pullFromCloud,
-	pushToCloud,
-	setRecoveryCode,
-} from "@/utils/sync";
+import { isSupabaseConfigured, signInWithEmail } from "@/utils/supabase";
+import { fetchRecoveryCode, getLastSync, linkRecoveryCode, pullFromCloud } from "@/utils/sync";
 
 interface SettingsScreenProps {
 	data: AppData;
 	setData: (data: AppData) => void;
 	syncing: boolean;
-	recoveryCode: string | null;
-	onRecoveryCodeChange: (code: string | null) => void;
+	session: Session | null;
+	onSignOut: () => Promise<void>;
 	onSyncNow: () => void;
 	persistent: boolean;
 	onOpenLegal: () => void;
@@ -57,8 +50,8 @@ export function SettingsScreen({
 	data,
 	setData,
 	syncing,
-	recoveryCode,
-	onRecoveryCodeChange,
+	session,
+	onSignOut,
 	onSyncNow,
 	persistent,
 	onOpenLegal,
@@ -67,9 +60,28 @@ export function SettingsScreen({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [importPreview, setImportPreview] = useState<AppData | null>(null);
 	const [importError, setImportError] = useState<string | null>(null);
+	const [signInEmail, setSignInEmail] = useState("");
+	const [signInSubmitting, setSignInSubmitting] = useState(false);
+	const [signInSent, setSignInSent] = useState(false);
 	const [restoreCode, setRestoreCode] = useState("");
 	const [restoring, setRestoring] = useState(false);
+	const [exportCode, setExportCode] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
+
+	// Fetch the export/secours recovery code once signed in.
+	useEffect(() => {
+		if (!session) {
+			setExportCode(null);
+			return;
+		}
+		let cancelled = false;
+		fetchRecoveryCode().then((code) => {
+			if (!cancelled) setExportCode(code);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [session]);
 
 	const handleImportClick = () => {
 		fileInputRef.current?.click();
@@ -98,20 +110,17 @@ export function SettingsScreen({
 		}
 	};
 
-	const handleActivateCloud = async () => {
-		const code = generateRecoveryCode();
-		try {
-			const profileId = await activateCloud(code);
-			if (!profileId) {
-				setImportError(t("settings.pushFailed"));
-				return;
-			}
-			await pushToCloud(code, data);
-			setRecoveryCode(code);
-			onRecoveryCodeChange(code);
-		} catch {
-			setImportError(t("settings.pushFailed"));
+	const handleSendMagicLink = async () => {
+		const trimmed = signInEmail.trim();
+		if (!trimmed) return;
+		setSignInSubmitting(true);
+		const { error } = await signInWithEmail(trimmed);
+		setSignInSubmitting(false);
+		if (error) {
+			setImportError(t("account.sendError"));
+			return;
 		}
+		setSignInSent(true);
 	};
 
 	const pullErrorKey: Record<string, string> = {
@@ -121,24 +130,28 @@ export function SettingsScreen({
 		supabase_not_configured: "settings.cloudNotConfigured",
 	};
 
-	const handleRestore = async () => {
+	// Import a legacy recovery code into the currently signed-in account.
+	const handleRestoreLegacy = async () => {
 		const code = restoreCode.trim().toUpperCase();
 		if (!code) return;
 		setRestoring(true);
 		try {
-			// Link the recovery code to the current anonymous session
+			// linkRecoveryCode returns null both for invalid codes and for
+			// network/server failures, so surface a generic error rather than
+			// claiming the code was wrong.
 			const profileId = await linkRecoveryCode(code);
 			if (!profileId) {
-				setImportError(t("settings.noDataFound"));
+				setImportError(t("settings.restoreError"));
 				return;
 			}
 
-			const result = await pullFromCloud(code);
+			const result = await pullFromCloud();
 			if ("data" in result) {
-				setRecoveryCode(code);
-				onRecoveryCodeChange(code);
 				setData(result.data);
 				setRestoreCode("");
+				// Refresh the export code now that the profile changed.
+				const newCode = await fetchRecoveryCode();
+				setExportCode(newCode);
 			} else {
 				setImportError(t(pullErrorKey[result.error] ?? "settings.restoreError"));
 			}
@@ -149,15 +162,10 @@ export function SettingsScreen({
 		}
 	};
 
-	const handleDisconnect = () => {
-		clearRecoveryCode();
-		onRecoveryCodeChange(null);
-	};
-
 	const handleCopyCode = async () => {
-		if (!recoveryCode) return;
+		if (!exportCode) return;
 		try {
-			await navigator.clipboard.writeText(recoveryCode);
+			await navigator.clipboard.writeText(exportCode);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch {
@@ -168,6 +176,7 @@ export function SettingsScreen({
 	const { startTour } = useTour();
 	const lastSync = getLastSync();
 	const currentLang = i18n.language;
+	const userEmail = session?.user.email;
 
 	return (
 		<div className="flex flex-col gap-5">
@@ -207,36 +216,21 @@ export function SettingsScreen({
 				</Button>
 			</Card>
 
-			{/* Cloud backup section */}
+			{/* Account section */}
 			{isSupabaseConfigured && (
 				<Card>
 					<div className="flex items-center gap-3 mb-4">
 						<Cloud size={18} className="text-accent" />
-						<span className="text-sm font-bold text-text-primary font-body">{t("settings.cloudBackup")}</span>
+						<span className="text-sm font-bold text-text-primary font-body">{t("account.title")}</span>
 					</div>
 
-					{recoveryCode ? (
+					{session ? (
 						<div className="flex flex-col gap-3">
-							<div className="flex flex-col gap-1.5">
+							<div className="flex flex-col gap-1">
 								<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide">
-									{t("settings.recoveryCode")}
+									{t("account.signedInAsLabel")}
 								</span>
-								<div className="flex items-center gap-2">
-									<span className="text-sm font-mono text-accent tracking-wider">{recoveryCode}</span>
-									<Button
-										variant="ghost"
-										onClick={handleCopyCode}
-										className="!p-1 !min-h-0"
-										aria-label={t("aria.copyRecoveryCode")}
-									>
-										{copied ? (
-											<Check size={14} className="text-green" />
-										) : (
-											<Copy size={14} className="text-text-muted" />
-										)}
-									</Button>
-								</div>
-								<span className="text-[11px] text-text-muted font-body">{t("settings.recoveryCodeHelp")}</span>
+								<span className="text-sm text-text-primary font-body break-all">{userEmail}</span>
 							</div>
 
 							{lastSync && (
@@ -259,22 +253,41 @@ export function SettingsScreen({
 									{syncing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
 									{syncing ? t("settings.syncing") : t("settings.sync")}
 								</Button>
-								<Button variant="outline" onClick={handleDisconnect} className="w-full justify-center">
-									<CloudOff size={16} /> {t("settings.disconnect")}
+								<Button variant="outline" onClick={onSignOut} className="w-full justify-center">
+									<LogOut size={16} /> {t("account.signOut")}
 								</Button>
 							</div>
-						</div>
-					) : (
-						<div className="flex flex-col gap-3">
-							<span className="text-xs text-text-sec font-body">{t("settings.cloudInfo")}</span>
 
-							<Button variant="outline" onClick={handleActivateCloud} className="w-full justify-center">
-								<Cloud size={16} /> {t("settings.enableCloud")}
-							</Button>
+							{exportCode && (
+								<div className="border-t border-border pt-3 mt-1 flex flex-col gap-1.5">
+									<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide">
+										{t("account.exportCode")}
+									</span>
+									<div className="flex items-center gap-2">
+										<span className="text-sm font-mono text-accent tracking-wider">{exportCode}</span>
+										<Button
+											variant="ghost"
+											onClick={handleCopyCode}
+											className="!p-1 !min-h-0"
+											aria-label={t("aria.copyRecoveryCode")}
+										>
+											{copied ? (
+												<Check size={14} className="text-green" />
+											) : (
+												<Copy size={14} className="text-text-muted" />
+											)}
+										</Button>
+									</div>
+									<span className="text-[11px] text-text-muted font-body">{t("account.exportCodeHelp")}</span>
+								</div>
+							)}
 
-							<div className="border-t border-border pt-3">
+							<div className="border-t border-border pt-3 mt-1">
 								<span className="text-[10px] font-bold text-text-muted font-body uppercase tracking-wide block mb-2">
-									{t("settings.haveCode")}
+									{t("account.legacyMigrationLabel")}
+								</span>
+								<span className="text-[11px] text-text-muted font-body block mb-2">
+									{t("account.legacyMigrationHelp")}
 								</span>
 								<div className="flex gap-2">
 									<Input
@@ -285,7 +298,7 @@ export function SettingsScreen({
 									/>
 									<Button
 										variant="outline"
-										onClick={handleRestore}
+										onClick={handleRestoreLegacy}
 										disabled={restoring || !restoreCode.trim()}
 										className="shrink-0"
 									>
@@ -293,6 +306,46 @@ export function SettingsScreen({
 									</Button>
 								</div>
 							</div>
+						</div>
+					) : signInSent ? (
+						<div className="flex flex-col gap-3">
+							<span className="text-xs text-text-sec font-body">
+								{t("account.checkInboxHelp", { email: signInEmail.trim() })}
+							</span>
+							<Button
+								variant="outline"
+								onClick={() => {
+									setSignInSent(false);
+									setSignInEmail("");
+								}}
+								className="w-full justify-center"
+							>
+								{t("account.useDifferentEmail")}
+							</Button>
+						</div>
+					) : (
+						<div className="flex flex-col gap-3">
+							<span className="text-xs text-text-sec font-body">{t("account.signInHelp")}</span>
+							<Input
+								type="email"
+								autoComplete="email"
+								inputMode="email"
+								value={signInEmail}
+								onChange={(e) => setSignInEmail(e.target.value)}
+								placeholder={t("account.emailPlaceholder")}
+								disabled={signInSubmitting}
+								onKeyDown={(e) => {
+									if (e.key === "Enter") handleSendMagicLink();
+								}}
+							/>
+							<Button
+								onClick={handleSendMagicLink}
+								disabled={signInSubmitting || !signInEmail.trim()}
+								className="w-full justify-center"
+							>
+								{signInSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+								{t("account.sendMagicLink")}
+							</Button>
 						</div>
 					)}
 				</Card>

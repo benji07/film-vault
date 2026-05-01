@@ -473,6 +473,33 @@ export const fr = {
 		hardDeleteBackConfirm: "Cette action supprimera toutes les références à ce dos sur vos pellicules. Continuer ?",
 	},
 
+	// Account / authentication
+	account: {
+		title: "Compte",
+		welcomeTitle: "Bienvenue sur FilmVault",
+		welcomeSubtitle: "Synchronise tes pellicules sur tous tes appareils.",
+		welcomeFooter: "Tes données restent sur ton appareil tant que tu n'actives pas la synchro.",
+		signInWithEmail: "Se connecter par email",
+		signInHelp: "Connecte-toi pour synchroniser tes données sur tous tes appareils.",
+		continueWithoutAccount: "Continuer sans compte",
+		emailHelp: "Reçois un lien magique pour te connecter sans mot de passe.",
+		emailPlaceholder: "ton@email.com",
+		sendMagicLink: "Recevoir le lien",
+		sendError: "Impossible d'envoyer le lien. Vérifie l'adresse et ta connexion.",
+		checkInbox: "Vérifie ta boîte mail",
+		checkInboxHelp: "Clique sur le lien que nous venons d'envoyer à {{email}}.",
+		useDifferentEmail: "Utiliser une autre adresse",
+		back: "Retour",
+		signOut: "Se déconnecter",
+		signedInAsLabel: "Connecté en tant que",
+		exportCode: "Code d'export (secours)",
+		exportCodeHelp: "Garde ce code pour récupérer tes données si tu perds l'accès à ton email.",
+		legacyMigrationLabel: "Importer un ancien code",
+		legacyMigrationHelp:
+			"Tu utilisais FilmVault avec un code de récupération ? Colle-le ici pour rapatrier tes données dans ce compte.",
+		migrated: "Données importées depuis ton ancien code",
+	},
+
 	// Settings screen
 	settings: {
 		cloudBackup: "Sauvegarde cloud",
