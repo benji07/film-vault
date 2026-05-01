@@ -642,11 +642,12 @@ export const fr = {
 	fab: {
 		openMenu: "Menu d'ajout rapide",
 		title: "Ajouter",
-		film: "Ajouter une pellicule",
-		camera: "Ajouter un appareil",
-		lens: "Ajouter un objectif",
-		back: "Ajouter un dos",
-		quickShot: "Noter une prise",
+		add: "Ajouter",
+		film: "Pellicule",
+		camera: "Boîtier",
+		lens: "Objectif",
+		back: "Dos",
+		quickShot: "Prise de vue",
 	},
 
 	// Quick shot dialog

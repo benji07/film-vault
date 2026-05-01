@@ -564,6 +564,17 @@ function AppContent({
 			/>
 			<FloatingActionMenu
 				visible={showTabBar && !isTourActive}
+				context={
+					screen === "stock"
+						? "stock"
+						: screen === "stats"
+							? "stats"
+							: screen === "cameras"
+								? "gear_cameras"
+								: screen === "home"
+									? "dashboard"
+									: "default"
+				}
 				onAddFilm={() => setShowAddFilm(true)}
 				onAddCamera={() => setShowAddCamera(true)}
 				onAddLens={() => setShowAddLens(true)}
