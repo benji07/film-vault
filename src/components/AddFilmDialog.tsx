@@ -6,11 +6,13 @@ import { useToast } from "@/components/Toast";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FilmPackagingHeader } from "@/components/ui/film-packaging-header";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TagInput } from "@/components/ui/tag-input";
+import { filmTypeToVariant } from "@/constants/theme";
 import { type AppData, type FilmState, isInstantFormat } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { createNewFilm } from "@/utils/film-factory";
@@ -141,6 +143,10 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 	};
 
 	const qty = advanced ? 1 : Number.parseInt(quantity, 10) || 1;
+	const previewVariant = filmTypeToVariant(type);
+	const previewIso = iso.trim() ? iso : "—";
+	const previewBrand = brand.trim() || "Kodak";
+	const previewModel = model.trim() || t("addFilm.title");
 
 	return (
 		<Dialog open={open} onOpenChange={(v) => !v && onOpenChange(false)}>
@@ -149,6 +155,19 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 					<DialogTitle>{t("addFilm.title")}</DialogTitle>
 					<DialogCloseButton />
 				</DialogHeader>
+
+				{/* Live preview — packaging Kodak */}
+				<div className="-mx-1 mb-4">
+					<FilmPackagingHeader
+						brand={previewBrand}
+						model={previewModel}
+						iso={previewIso}
+						format={format}
+						type={type}
+						variant={previewVariant}
+						rotate={-0.5}
+					/>
+				</div>
 
 				<div className="flex flex-col gap-4">
 					<AutocompleteInput
