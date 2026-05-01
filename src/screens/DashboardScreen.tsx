@@ -1,259 +1,136 @@
-import { Archive, Camera, Clock, Eye, Film, ListTodo, ScanLine, Snowflake } from "lucide-react";
+import { Film as FilmIcon } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActiveRollCard } from "@/components/ActiveRollCard";
+import { CarnetFilmCard } from "@/components/CarnetFilmCard";
 import { EmptyState } from "@/components/EmptyState";
-import { EquipmentCard } from "@/components/EquipmentCard";
-import { StatChip } from "@/components/StatChip";
-import { TodoItem } from "@/components/TodoItem";
-import { Card } from "@/components/ui/card";
-import { alpha, T } from "@/constants/theme";
-import type { AppData, Back, Camera as CameraType, Film as FilmType } from "@/types";
-import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
+import { Chip } from "@/components/ui/chip";
+import { PageHeader } from "@/components/ui/page-header";
+import { cn } from "@/lib/utils";
+import type { AppData, Film as FilmType } from "@/types";
 
 interface DashboardScreenProps {
 	data: AppData;
 	onOpenFilm: (id: string) => void;
-	onOpenCameras: () => void;
+	onOpenCameras?: () => void;
 	setAutoOpenShotNote?: (open: boolean) => void;
-	onNavigateToStock: (stateFilter: string) => void;
+	onNavigateToStock?: (stateFilter: string) => void;
 }
 
-interface EquipmentItem {
-	key: string;
-	label: string;
-	sublabel?: string;
-	icon: "camera" | "back";
-	loadedFilm: FilmType | null;
+type CarnetFilter = "all" | "loaded" | "toDev" | "toScan";
+
+const MOVING_STATES: ReadonlySet<FilmType["state"]> = new Set(["loaded", "partial", "exposed", "developed"]);
+
+function matchesFilter(state: FilmType["state"], filter: CarnetFilter): boolean {
+	if (filter === "all") return MOVING_STATES.has(state);
+	if (filter === "loaded") return state === "loaded" || state === "partial";
+	if (filter === "toDev") return state === "exposed";
+	return state === "developed";
 }
 
-function buildEquipmentItems(cameras: CameraType[], backs: Back[], activeFilms: FilmType[]): EquipmentItem[] {
-	const items: EquipmentItem[] = [];
-
-	for (const cam of cameras) {
-		if (!cam.hasInterchangeableBack) {
-			const film = activeFilms.find((f) => f.state === "loaded" && f.cameraId === cam.id) || null;
-			items.push({
-				key: `cam-${cam.id}`,
-				label: cameraDisplayName(cam),
-				icon: "camera",
-				loadedFilm: film,
-			});
-		}
-	}
-
-	for (const back of backs) {
-		const film = activeFilms.find((f) => f.state === "loaded" && f.backId === back.id) || null;
-		const cam = film?.cameraId ? cameras.find((c) => c.id === film.cameraId) : null;
-		items.push({
-			key: `back-${back.id}`,
-			label: backDisplayName(back),
-			sublabel: cam ? cameraDisplayName(cam) : undefined,
-			icon: "back",
-			loadedFilm: film,
-		});
-	}
-
-	for (const cam of cameras) {
-		if (cam.hasInterchangeableBack) {
-			const compatibleBacks = backs.filter((b) => b.compatibleCameraIds.includes(cam.id));
-			const hasLoadedBack = activeFilms.some(
-				(f) => f.state === "loaded" && f.cameraId === cam.id && compatibleBacks.some((b) => b.id === f.backId),
-			);
-			if (!hasLoadedBack) {
-				items.push({
-					key: `cam-${cam.id}`,
-					label: cameraDisplayName(cam),
-					icon: "camera",
-					loadedFilm: null,
-				});
-			}
-		}
-	}
-
-	items.sort((a, b) => {
-		if (a.loadedFilm && !b.loadedFilm) return -1;
-		if (!a.loadedFilm && b.loadedFilm) return 1;
-		if (a.loadedFilm && b.loadedFilm) {
-			const dateA = a.loadedFilm.startDate || "";
-			const dateB = b.loadedFilm.startDate || "";
-			return dateB.localeCompare(dateA);
-		}
-		return 0;
-	});
-
-	return items;
-}
-
-export function DashboardScreen({
-	data,
-	onOpenFilm,
-	onOpenCameras,
-	setAutoOpenShotNote,
-	onNavigateToStock,
-}: DashboardScreenProps) {
+export function DashboardScreen({ data, onOpenFilm }: DashboardScreenProps) {
 	const { t } = useTranslation();
-	const { films, cameras, backs } = data;
+	const { films, cameras } = data;
+	const [filter, setFilter] = useState<CarnetFilter>("all");
 
-	const counts: Record<string, number> = {};
-	const activeFilms: FilmType[] = [];
+	const moving = films.filter((f) => MOVING_STATES.has(f.state));
+	const counts = {
+		all: moving.length,
+		loaded: moving.filter((f) => f.state === "loaded" || f.state === "partial").length,
+		toDev: moving.filter((f) => f.state === "exposed").length,
+		toScan: moving.filter((f) => f.state === "developed").length,
+	};
 
-	for (const f of films) {
-		counts[f.state] = (counts[f.state] || 0) + 1;
-		if (f.state === "loaded" || f.state === "partial") {
-			activeFilms.push(f);
-		}
-	}
+	const visible = moving.filter((f) => matchesFilter(f.state, filter));
 
-	const stockCount = counts.stock || 0;
-	const loadedCount = counts.loaded || 0;
-	const exposedCount = counts.exposed || 0;
-	const developedCount = counts.developed || 0;
-	const partialCount = counts.partial || 0;
-	const scannedCount = counts.scanned || 0;
+	const filterDefs: { id: CarnetFilter; label: string; count: number }[] = [
+		{ id: "all", label: t("dashboard.filter.all"), count: counts.all },
+		{ id: "loaded", label: t("dashboard.filter.loaded"), count: counts.loaded },
+		{ id: "toDev", label: t("dashboard.filter.toDev"), count: counts.toDev },
+		{ id: "toScan", label: t("dashboard.filter.toScan"), count: counts.toScan },
+	];
 
-	const equipmentItems = buildEquipmentItems(cameras, backs, activeFilms);
-	const hasEquipment = equipmentItems.length > 0;
-
-	const hasTodos = exposedCount > 0 || developedCount > 0;
+	const stats = [
+		{ value: counts.loaded, label: t("dashboard.stats.loaded"), color: "text-kodak-red" },
+		{ value: counts.toDev, label: t("dashboard.stats.toDev"), color: "text-kodak-yellow" },
+		{ value: counts.toScan, label: t("dashboard.stats.toScan"), color: "text-kodak-gold" },
+	];
 
 	return (
-		<div className="flex flex-col gap-6">
-			{/* Barre de stats compacte */}
-			<div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" data-tour="stat-cards">
-				<StatChip
-					icon={Snowflake}
-					label={t("dashboard.inStock")}
-					value={stockCount}
-					color={T.blue}
-					onClick={() => onNavigateToStock("stock")}
-				/>
-				<StatChip
-					icon={Camera}
-					label={t("dashboard.loaded")}
-					value={loadedCount}
-					color={T.green}
-					onClick={() => onNavigateToStock("loaded")}
-				/>
-				<StatChip
-					icon={Eye}
-					label={t("dashboard.exposed")}
-					value={exposedCount}
-					color={T.accent}
-					onClick={() => onNavigateToStock("exposed")}
-				/>
-				<StatChip
-					icon={Archive}
-					label={t("dashboard.developed")}
-					value={developedCount}
-					color={T.textSec}
-					onClick={() => onNavigateToStock("developed")}
-				/>
-				{scannedCount > 0 && (
-					<StatChip
-						icon={ScanLine}
-						label={t("dashboard.scanned")}
-						value={scannedCount}
-						color={T.orange}
-						onClick={() => onNavigateToStock("scanned")}
+		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
+			<PageHeader title={t("dashboard.title")} count={counts.all}>
+				{/* Stats strip — 3 actions concrètes */}
+				<section
+					className="relative grid grid-cols-3 overflow-hidden bg-ink text-paper mx-[18px] mt-1 mb-2.5 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.4)]"
+					data-tour="stat-cards"
+				>
+					<div className="absolute top-0 left-0 right-0 h-1 bg-kodak-yellow" />
+					{stats.map((s, i) => (
+						<div
+							key={s.label}
+							className={cn(
+								"text-center py-2.5 px-2",
+								i < 2 && "border-r border-paper/10",
+							)}
+						>
+							<div className={cn("font-archivo-black text-[22px] leading-none tracking-[-0.5px]", s.color)}>
+								{String(s.value).padStart(2, "0")}
+							</div>
+							<div className="font-typewriter text-[8px] tracking-[0.18em] uppercase text-paper/55 mt-1">
+								{s.label}
+							</div>
+						</div>
+					))}
+				</section>
+
+				{/* Chips filtres logiques — axe unique : étape du workflow */}
+				<nav
+					className="flex gap-2 overflow-x-auto px-[18px] pb-2.5 fv-noscroll"
+					aria-label={t("dashboard.title")}
+				>
+					{filterDefs.map((f) => (
+						<Chip
+							key={f.id}
+							active={filter === f.id}
+							onClick={() => setFilter(f.id)}
+							className="flex-none"
+						>
+							{f.label}
+							<span
+								className={cn(
+									"font-archivo-black text-[9px] px-1.5 py-px",
+									filter === f.id ? "bg-ink/20 text-ink" : "bg-ink/10 text-ink",
+								)}
+							>
+								{f.count}
+							</span>
+						</Chip>
+					))}
+				</nav>
+			</PageHeader>
+
+			{/* Feed des pellicules en mouvement */}
+			<main className="px-[18px] pt-3.5 pb-32 flex flex-col gap-[18px]">
+				{visible.length === 0 ? (
+					<EmptyState
+						icon={FilmIcon}
+						title={t("dashboard.emptyMoving")}
+						subtitle={t("dashboard.emptyMovingSubtitle")}
 					/>
+				) : (
+					visible.map((f, idx) => {
+						const cam = f.cameraId ? cameras.find((c) => c.id === f.cameraId) : null;
+						return (
+							<CarnetFilmCard
+								key={f.id}
+								film={f}
+								camera={cam}
+								index={idx}
+								onClick={() => onOpenFilm(f.id)}
+							/>
+						);
+					})
 				)}
-			</div>
-
-			{partialCount > 0 && (
-				<Card style={{ borderColor: alpha(T.amber, 0.27) }}>
-					<div className="flex items-center gap-2.5">
-						<Clock size={16} color={T.amber} />
-						<span className="text-[13px] font-body font-semibold" style={{ color: T.amber }}>
-							{t("dashboard.partiallyExposed", { count: partialCount })}
-						</span>
-					</div>
-				</Card>
-			)}
-
-			{/* Pellicules actives en PREMIER */}
-			{activeFilms.length > 0 && (
-				<div data-tour="active-rolls">
-					<div className="flex items-center gap-2 mb-3">
-						<Film size={14} color={T.textSec} />
-						<span className="text-[13px] font-bold text-text-sec font-body">{t("dashboard.activeRolls")}</span>
-					</div>
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-						{activeFilms.map((f, i) => {
-							const cam = f.cameraId ? cameras.find((c) => c.id === f.cameraId) : null;
-							const back = f.backId ? backs.find((b) => b.id === f.backId) : null;
-							return (
-								<div key={f.id} className="animate-stagger-item" style={{ animationDelay: `${i * 60}ms` }}>
-									<ActiveRollCard
-										film={f}
-										camera={cam}
-										back={back}
-										onShotClick={() => {
-											setAutoOpenShotNote?.(true);
-											onOpenFilm(f.id);
-										}}
-										onClick={() => onOpenFilm(f.id)}
-									/>
-								</div>
-							);
-						})}
-					</div>
-				</div>
-			)}
-
-			{/* Section "A faire" */}
-			{hasTodos && (
-				<div>
-					<div className="flex items-center gap-2 mb-3">
-						<ListTodo size={14} color={T.textSec} />
-						<span className="text-[13px] font-bold text-text-sec font-body">{t("dashboard.todoSection")}</span>
-					</div>
-					<div className="flex flex-col gap-2">
-						{exposedCount > 0 && (
-							<TodoItem
-								icon={Eye}
-								label={t("dashboard.awaitingDev", { count: exposedCount })}
-								color={T.accent}
-								onClick={() => onNavigateToStock("exposed")}
-							/>
-						)}
-						{developedCount > 0 && (
-							<TodoItem
-								icon={Archive}
-								label={t("dashboard.awaitingScan", { count: developedCount })}
-								color={T.textSec}
-								onClick={() => onNavigateToStock("developed")}
-							/>
-						)}
-					</div>
-				</div>
-			)}
-
-			{/* Equipement en grille compacte */}
-			{hasEquipment && (
-				<div data-tour="equipment-section">
-					<div className="flex items-center gap-2 mb-3">
-						<Camera size={14} color={T.textSec} />
-						<span className="text-[13px] font-bold text-text-sec font-body">{t("dashboard.myEquipment")}</span>
-					</div>
-					<div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
-						{equipmentItems.map((item) => (
-							<EquipmentCard
-								key={item.key}
-								label={item.label}
-								sublabel={item.sublabel}
-								loadedFilm={item.loadedFilm}
-								icon={item.icon}
-								onClick={onOpenCameras}
-								className="w-full"
-							/>
-						))}
-					</div>
-				</div>
-			)}
-
-			{films.length === 0 && (
-				<EmptyState icon={Film} title={t("dashboard.noFilms")} subtitle={t("dashboard.noFilmsSubtitle")} />
-			)}
+			</main>
 		</div>
 	);
 }

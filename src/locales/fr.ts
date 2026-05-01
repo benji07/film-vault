@@ -25,6 +25,7 @@ export const fr = {
 		loaded: "Chargée",
 		partial: "Partielle",
 		exposed: "Exposée",
+		atLab: "Au labo",
 		developed: "Développée",
 		scanned: "Scannée",
 	},
@@ -35,8 +36,30 @@ export const fr = {
 		expiringSoon: "Expire bientôt",
 	},
 
-	// Dashboard
+	// Dashboard / Carnet
 	dashboard: {
+		title: "Carnet",
+		filter: {
+			all: "Toutes",
+			loaded: "Chargées",
+			toDev: "À développer",
+			toScan: "À scanner",
+		},
+		stats: {
+			loaded: "chargées",
+			toDev: "à développer",
+			toScan: "à scanner",
+		},
+		emptyMoving: "Le carnet est vide",
+		emptyMovingSubtitle: "Charge une pellicule pour qu'elle apparaisse ici",
+		state: {
+			loadedIn: "Chargée dans le {{camera}}",
+			partial: "Partielle — déchargée du {{camera}}",
+			exposed: "Exposée — terminée",
+			atLab: "Au labo — {{lab}}",
+			toScan: "Développée — à scanner",
+			noCamera: "Chargée",
+		},
 		inStock: "En stock",
 		loaded: "Chargées",
 		exposed: "Exposées",

@@ -73,7 +73,7 @@ export function FilmLabel({ iso, format, variant = "color", size = "md", typeLab
 			{/* Format separator + label */}
 			<div
 				className={cn(
-					"font-archivo font-extrabold tracking-[0.15em] border-t-[1.5px] border-current",
+					"font-archivo font-extrabold tracking-[0.15em] uppercase border-t-[1.5px] border-current",
 					isSm ? "text-[9px] mt-1.5 pt-[3px]" : "text-[11px] mt-2 pt-1.5",
 				)}
 			>

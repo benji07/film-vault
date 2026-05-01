@@ -25,6 +25,7 @@ export const en = {
 		loaded: "Loaded",
 		partial: "Partial",
 		exposed: "Exposed",
+		atLab: "At the lab",
 		developed: "Developed",
 		scanned: "Scanned",
 	},
@@ -35,8 +36,30 @@ export const en = {
 		expiringSoon: "Expiring soon",
 	},
 
-	// Dashboard
+	// Dashboard / Carnet
 	dashboard: {
+		title: "Notebook",
+		filter: {
+			all: "All",
+			loaded: "Loaded",
+			toDev: "To develop",
+			toScan: "To scan",
+		},
+		stats: {
+			loaded: "loaded",
+			toDev: "to develop",
+			toScan: "to scan",
+		},
+		emptyMoving: "Your notebook is empty",
+		emptyMovingSubtitle: "Load a film to see it appear here",
+		state: {
+			loadedIn: "Loaded in the {{camera}}",
+			partial: "Partial — unloaded from the {{camera}}",
+			exposed: "Exposed — finished",
+			atLab: "At the lab — {{lab}}",
+			toScan: "Developed — to scan",
+			noCamera: "Loaded",
+		},
 		inStock: "In stock",
 		loaded: "Loaded",
 		exposed: "Exposed",
