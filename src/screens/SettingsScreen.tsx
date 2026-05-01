@@ -344,7 +344,7 @@ export function SettingsScreen({
 								inputMode="numeric"
 								autoComplete="one-time-code"
 								pattern="[0-9]*"
-								maxLength={6}
+								maxLength={8}
 								value={signInCode}
 								onChange={(e) => {
 									setSignInCode(e.target.value.replace(/\D/g, ""));
@@ -352,7 +352,7 @@ export function SettingsScreen({
 								}}
 								placeholder={t("account.codePlaceholder")}
 								disabled={signInVerifying}
-								className="text-center text-base font-mono tracking-[0.5em]"
+								className="text-center text-base font-mono tracking-[0.4em]"
 								onKeyDown={(e) => {
 									if (e.key === "Enter") handleVerifyCode();
 								}}
@@ -360,7 +360,7 @@ export function SettingsScreen({
 							{signInError && <span className="text-xs text-accent font-body">{signInError}</span>}
 							<Button
 								onClick={handleVerifyCode}
-								disabled={signInVerifying || signInCode.length < 6}
+								disabled={signInVerifying || signInCode.length < 8}
 								className="w-full justify-center"
 							>
 								{signInVerifying ? <Loader2 size={16} className="animate-spin" /> : <KeyRound size={16} />}
