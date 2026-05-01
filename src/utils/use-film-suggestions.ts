@@ -6,7 +6,7 @@ import { normalizeBrand } from "@/utils/film-helpers";
 interface FilmData {
 	iso: number;
 	type: string;
-	format: string;
+	format: string | null;
 }
 
 export function useFilmSuggestions(films: Film[]) {
@@ -44,27 +44,37 @@ export function useFilmSuggestions(films: Film[]) {
 			const lowerBrand = brand.trim().toLowerCase();
 			const lowerModel = model.trim().toLowerCase();
 
-			// Search user stock first (priority)
-			const fromStock = films.find(
+			const stockMatches = films.filter(
 				(f) => f.brand?.toLowerCase() === lowerBrand && f.model?.toLowerCase() === lowerModel,
 			);
+			const catalogMatches = getFilmCatalog().filter(
+				(c) => c.brand.toLowerCase() === lowerBrand && c.model.toLowerCase() === lowerModel,
+			);
+
+			const formats = new Set<string>();
+			for (const f of stockMatches) {
+				if (f.format) formats.add(f.format);
+			}
+			for (const c of catalogMatches) {
+				formats.add(c.format);
+			}
+
+			// Prefer stock data for iso/type (user's recorded values), fallback to catalog
+			const fromStock = stockMatches.find((f) => f.iso);
 			if (fromStock?.iso) {
 				return {
 					iso: fromStock.iso,
 					type: fromStock.type || "Couleur",
-					format: fromStock.format || "35mm",
+					format: formats.size === 1 ? fromStock.format || [...formats][0] || null : null,
 				};
 			}
 
-			// Fallback to catalog
-			const fromCatalog = getFilmCatalog().find(
-				(c) => c.brand.toLowerCase() === lowerBrand && c.model.toLowerCase() === lowerModel,
-			);
+			const fromCatalog = catalogMatches[0];
 			if (fromCatalog) {
 				return {
 					iso: fromCatalog.iso,
 					type: fromCatalog.type,
-					format: fromCatalog.format,
+					format: formats.size === 1 ? fromCatalog.format : null,
 				};
 			}
 

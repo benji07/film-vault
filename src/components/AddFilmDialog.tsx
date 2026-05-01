@@ -97,7 +97,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 		if (info) {
 			setIso(String(info.iso));
 			setType(info.type);
-			setFormat(info.format);
+			if (info.format !== null) setFormat(info.format);
 		}
 	};
 

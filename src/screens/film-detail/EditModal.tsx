@@ -36,7 +36,7 @@ interface EditModalProps {
 	showScan: boolean;
 	brands: string[];
 	modelsForBrand: (brand: string) => string[];
-	filmDataFor: (brand: string, model: string) => { iso: number; type: string; format: string } | undefined;
+	filmDataFor: (brand: string, model: string) => { iso: number; type: string; format: string | null } | undefined;
 }
 
 export function EditModal({
@@ -98,7 +98,7 @@ export function EditModal({
 									model: selectedModel,
 									iso: String(fd.iso),
 									type: fd.type,
-									format: fd.format,
+									format: fd.format !== null ? fd.format : prev.format,
 								}));
 							}
 						}}
