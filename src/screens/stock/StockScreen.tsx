@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { AppData, Film } from "@/types";
-import type { HierarchyPath } from "@/utils/stock-hierarchy";
 import { usePersistedState } from "@/utils/use-persisted-state";
 import { type SortOption, useStockFilters } from "@/utils/use-stock-filters";
 import { ArchiveTab } from "./ArchiveTab";
@@ -16,7 +15,6 @@ import { StockTab } from "./StockTab";
 import { StockTabBar, type StockTab as StockTabKey } from "./StockTabBar";
 
 const TAB_STORAGE_KEY = "filmvault-stock-tab";
-const PATH_STORAGE_KEY = "filmvault-stock-path";
 
 const SORT_OPTIONS: { value: SortOption; labelKey: string }[] = [
 	{ value: "name-asc", labelKey: "stock.nameAsc" },
@@ -49,7 +47,6 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 	const { films, cameras, backs } = data;
 
 	const [tab, setTab] = usePersistedState<StockTabKey>(TAB_STORAGE_KEY, "stock");
-	const [path, setPath] = usePersistedState<HierarchyPath>(PATH_STORAGE_KEY, {});
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
 	useEffect(() => {
@@ -57,8 +54,7 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 		const target = mapStateToTab(initialStateFilter);
 		if (!target) return;
 		setTab(target);
-		if (target === "stock") setPath({});
-	}, [initialStateFilter, setTab, setPath]);
+	}, [initialStateFilter, setTab]);
 
 	const handleTabChange = useCallback((next: StockTabKey) => setTab(next), [setTab]);
 
@@ -144,8 +140,6 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 						filteredFilms={filteredByTab.stock}
 						cameras={cameras}
 						backs={backs}
-						path={path}
-						onPathChange={setPath}
 						onOpenFilm={onOpenFilm}
 						searchActive={searchActive}
 					/>

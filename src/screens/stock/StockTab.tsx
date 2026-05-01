@@ -1,122 +1,76 @@
 import { Package } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
+import { FilmRow } from "@/components/FilmRow";
 import type { Back, Camera, Film } from "@/types";
-import {
-	buildHierarchyNodes,
-	groupByExpiration,
-	type HierarchyLevel,
-	type HierarchyPath,
-	resolveDisplayLevel,
-	STOCK_FLAT_THRESHOLD,
-	setPathLevel,
-	truncatePath,
-} from "@/utils/stock-hierarchy";
-import { InventoryGroup } from "./InventoryGroup";
-import { StockBreadcrumb } from "./StockBreadcrumb";
-import { StockHierarchyCard } from "./StockHierarchyCard";
+import { filmBrand } from "@/utils/film-helpers";
 
 interface StockTabProps {
 	films: Film[];
 	filteredFilms: Film[];
 	cameras: Camera[];
 	backs: Back[];
-	path: HierarchyPath;
-	onPathChange: (path: HierarchyPath) => void;
 	onOpenFilm: (id: string) => void;
 	searchActive: boolean;
 }
 
-export function StockTab({
-	films,
-	filteredFilms,
-	cameras,
-	backs,
-	path,
-	onPathChange,
-	onOpenFilm,
-	searchActive,
-}: StockTabProps) {
+interface BrandGroup {
+	brand: string;
+	films: Film[];
+	totalCost: number;
+	totalQty: number;
+}
+
+function groupByBrand(films: Film[]): BrandGroup[] {
+	const map = new Map<string, BrandGroup>();
+	for (const film of films) {
+		const brand = filmBrand(film) || "—";
+		const existing = map.get(brand);
+		const qty = film.quantity ?? 1;
+		const cost = (film.price ?? 0) * qty;
+		if (existing) {
+			existing.films.push(film);
+			existing.totalQty += qty;
+			existing.totalCost += cost;
+		} else {
+			map.set(brand, { brand, films: [film], totalQty: qty, totalCost: cost });
+		}
+	}
+	return Array.from(map.values()).sort((a, b) => b.totalQty - a.totalQty);
+}
+
+export function StockTab({ films, filteredFilms, cameras, backs, onOpenFilm, searchActive }: StockTabProps) {
 	const { t } = useTranslation();
-	const locale = t("dateLocale");
-
-	// Small inventories collapse to a flat expiration-grouped list — the multi-level navigation
-	// adds friction without value when there are only a handful of films.
-	const flatMode = !searchActive && films.length < STOCK_FLAT_THRESHOLD;
-
-	// Single resolution shared by leaf detection, hierarchy nodes and leaf grouping —
-	// avoids re-filtering the film list multiple times per render.
-	const resolution = useMemo(() => resolveDisplayLevel(films, path), [films, path]);
-
-	const reachedLeaf = !searchActive && !flatMode && resolution.level === null && resolution.filtered.length > 0;
-
-	// Stale path: persisted from localStorage but no film matches anymore (e.g. last matching
-	// film was deleted). Reset to root so the user lands on a valid view.
-	const stalePath = !searchActive && !flatMode && resolution.filtered.length === 0 && films.length > 0;
-	useEffect(() => {
-		if (stalePath) onPathChange({});
-	}, [stalePath, onPathChange]);
-
-	const flatGroups = useMemo(
-		() => (searchActive || flatMode ? groupByExpiration(filteredFilms, locale) : []),
-		[filteredFilms, searchActive, flatMode, locale],
-	);
-
-	const nodes = useMemo(
-		() =>
-			!searchActive && !flatMode && resolution.level !== null
-				? buildHierarchyNodes(resolution.level, resolution.filtered)
-				: [],
-		[searchActive, flatMode, resolution.level, resolution.filtered],
-	);
-
-	const leafGroups = useMemo(
-		() => (reachedLeaf ? groupByExpiration(resolution.filtered, locale) : []),
-		[reachedLeaf, resolution.filtered, locale],
-	);
-
-	const handleBreadcrumb = (lvl: HierarchyLevel | null) => {
-		onPathChange(truncatePath(path, lvl));
-	};
-
-	const handleNodeClick = (lvl: HierarchyLevel, value: string) => {
-		onPathChange(setPathLevel(path, lvl, value));
-	};
+	const list = searchActive ? filteredFilms : films;
+	const groups = useMemo(() => groupByBrand(list), [list]);
 
 	if (films.length === 0) {
 		return <EmptyState icon={Package} title={t("stock.emptyStock")} subtitle={t("stock.emptyStockSubtitle")} />;
 	}
 
-	const showBreadcrumb = !flatMode;
+	if (groups.length === 0) {
+		return <EmptyState icon={Package} title={t("stock.nothingFound")} subtitle={t("stock.noMatch")} />;
+	}
 
 	return (
-		<div className="flex flex-col gap-3" data-tour="stock-list">
-			{showBreadcrumb && <StockBreadcrumb path={path} onNavigate={handleBreadcrumb} disabled={searchActive} />}
-
-			{searchActive || flatMode ? (
-				flatGroups.length === 0 ? (
-					<EmptyState icon={Package} title={t("stock.nothingFound")} subtitle={t("stock.noMatch")} />
-				) : (
-					<InventoryGroup groups={flatGroups} cameras={cameras} backs={backs} onOpenFilm={onOpenFilm} />
-				)
-			) : reachedLeaf ? (
-				<InventoryGroup groups={leafGroups} cameras={cameras} backs={backs} onOpenFilm={onOpenFilm} />
-			) : (
-				<div className="flex flex-col gap-2">
-					{nodes.map((node) => (
-						<StockHierarchyCard
-							key={node.key}
-							level={node.level}
-							value={node.value}
-							label={node.label}
-							count={node.count}
-							childCount={node.childCount}
-							onClick={() => handleNodeClick(node.level, node.value)}
-						/>
+		<div className="flex flex-col gap-2" data-tour="stock-list">
+			{groups.map((group) => (
+				<section key={group.brand} className="flex flex-col gap-2">
+					<header className="flex items-center justify-between border-b-2 border-ink pt-3 pb-1.5">
+						<span className="font-archivo-black text-[13px] tracking-[0.15em] uppercase text-ink">
+							★ {group.brand}
+						</span>
+						<em className="not-italic font-typewriter text-[10px] tracking-[0.12em] text-ink-faded">
+							{t("stock.resultCount", { count: group.totalQty })}
+							{group.totalCost > 0 && ` · ${group.totalCost.toFixed(0)} €`}
+						</em>
+					</header>
+					{group.films.map((f) => (
+						<FilmRow key={f.id} film={f} cameras={cameras} backs={backs} onClick={() => onOpenFilm(f.id)} />
 					))}
-				</div>
-			)}
+				</section>
+			))}
 		</div>
 	);
 }
