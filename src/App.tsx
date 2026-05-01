@@ -494,7 +494,7 @@ function AppContent({
 			{/* Sidebar — desktop only, always visible */}
 			<TabBar screen={screen} setScreen={resetScreen} variant="sidebar" className="hidden md:flex" />
 
-			<main className="flex-1 flex flex-col min-h-0 min-w-0">
+			<main className="relative flex-1 flex flex-col min-h-0 min-w-0">
 				<AppHeader
 					screen={screen}
 					goBack={goBack}
