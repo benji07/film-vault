@@ -1,197 +1,93 @@
-# UI system
+# UI system — direction « Carnet + Kodak Gold vintage »
 
-Design tokens, Tailwind 4, composants UI réutilisables. Source de vérité : `src/index.css`, `src/constants/theme.ts`, `src/components/ui/`.
+L'app FilmVault utilise un thème unique inspiré d'un carnet de photographe argentique et des packagings Kodak Gold des années 80. Pas de mode dark, pas de toggle thème : la palette papier crème est la signature identitaire.
 
-## Tailwind 4 via `@theme`
+Source de vérité : `src/index.css`, `src/constants/theme.ts`, `src/components/ui/`.
 
-Configuration déclarative dans `src/index.css` (il n'y a **pas** de `tailwind.config.js` — tout passe par Vite via `@tailwindcss/vite`).
+## Tokens couleur
 
-Les tokens sont définis dans un bloc `@theme { … }` et générés automatiquement par Tailwind en tant qu'utilitaires (`bg-bg`, `text-text-primary`, etc.).
+Définis dans `src/index.css` via le bloc `@theme` de Tailwind 4 et exposés en JS via `T` dans `src/constants/theme.ts`.
 
-### Couleurs (dark — défaut)
+### Surfaces (papier ivoire chaud)
+- `--color-paper` (`#f1e8d4`) — fond principal de l'app
+- `--color-paper-card` (`#fbf3df`) — surfaces surélevées (cartes)
+- `--color-paper-dark` (`#e6dbc1`) — surfaces enfoncées, séparations
 
-| Variable CSS | Valeur | Usage |
-| --- | --- | --- |
-| `--color-bg` | `#0d0d0d` | Fond principal |
-| `--color-surface` | `#1a1a1a` | Surfaces surélevées |
-| `--color-surface-alt` | `#242424` | Surfaces alternatives |
-| `--color-card` | `#1e1e1e` | Cartes |
-| `--color-card-hover` | `#252525` | Hover carte |
-| `--color-border` | `#2a2a2a` | Bordure standard |
-| `--color-border-light` | `#333333` | Bordure claire |
-| `--color-text-primary` | `#e8e4df` | Texte principal |
-| `--color-text-sec` | `#a09a92` | Texte secondaire |
-| `--color-text-muted` | `#827d75` | Texte discret |
-| `--color-accent` | `#c4392d` | Rouge safelight (CTA) |
-| `--color-accent-hover` | `#d44435` | Hover accent |
-| `--color-accent-soft` | `rgba(196,57,45,0.12)` | Accent translucide |
-| `--color-orange` | `#e07940` | Scanned |
-| `--color-amber` | `#d4a858` | Couleur/Partial |
-| `--color-green` | `#4a8c5c` | Loaded |
-| `--color-blue` | `#5b7fa5` | Stock/Diapo |
+### Encres (brun chocolat — le "noir" est volontairement chaud)
+- `--color-ink` (`#1f1410`) — texte principal et bordures
+- `--color-ink-soft` (`#3a2a1c`) — texte secondaire
+- `--color-ink-faded` (`#6b5d44`) — labels, métadonnées en typewriter
 
-Chaque couleur avec variante `-soft` pour badges/backgrounds translucides.
+### Couleurs Kodak vintage 80s
+- `--color-kodak-yellow` (`#e8a818`) — accent principal, fond de packaging "couleur"
+- `--color-kodak-yellow-deep` (`#c8861a`) — état "partielle"
+- `--color-kodak-gold` (`#a8843a`) — état "développée"
+- `--color-kodak-red` (`#b8362a`) — accent rouge, état "chargée"
+- `--color-kodak-teal` (`#2d4a32`) — diapositives, état "au labo"
 
-### Thème light (« Chambre claire »)
+### Washi (rubans décoratifs)
+- `--color-washi-1` (`#d4a574`) — ocre
+- `--color-washi-2` (`#a8c4a2`) — sauge
+- `--color-washi-3` (`#d97a6c`) — corail
+- `--color-washi-4` (`#9bb5c8`) — bleu
 
-Activé via `html.light` : un override complet de toutes les variables dans `src/index.css`. Géré par `ThemeProvider` (`src/components/ThemeProvider.tsx`).
+Les anciens tokens (`--color-bg`, `--color-text-primary`, `--color-accent`, etc.) sont conservés en alias et pointent vers la nouvelle palette. Les écrans qui n'ont pas encore migré vers les classes spécifiques (`bg-paper`, `text-ink`) restent cohérents avec la palette.
 
-### Typographies
+## Typographie
 
-| Variable | Famille |
-| --- | --- |
-| `--font-display` | `Instrument Serif`, italique pour titres |
-| `--font-body` | `DM Sans`, corps UI |
-| `--font-mono` | `DM Mono`, chiffres et stats |
+Quatre familles chargées via Google Fonts (`display=swap`) :
 
-Utilitaires Tailwind : `font-display`, `font-body`, `font-mono`. Les fonts sont chargées depuis Google Fonts via `@import` en tête de `index.css` et cachées par Workbox.
+| Famille | Token Tailwind | Usage |
+|---|---|---|
+| Caveat (manuscrit) | `font-caveat` | Titres principaux, valeurs de fiche, descriptions caveat |
+| Cormorant Garamond (serif) | `font-cormorant` | Sous-titres, noms de pellicules, body par défaut |
+| Special Elite (typewriter) | `font-typewriter` | Métadonnées, dates, codes série |
+| Archivo / Archivo Black | `font-archivo` / `font-archivo-black` | Labels UI, états, chiffres, typo Kodak |
 
-### Rayon et spacing
+Les anciennes classes `font-display` / `font-body` / `font-mono` sont conservées en alias.
 
-- `--radius: 14px` (utilisé via `rounded-[14px]` — le thème shadcn/ui expose aussi `rounded-md/lg`).
-- Classes utilisées régulièrement : `rounded-[10px]`, `rounded-[14px]`, `min-h-[44px]` (cibles tactiles), `px-4.5`, `py-2.5`.
+## Patterns visuels
 
-### Animations
+- **Bande Kodak rouge verticale** — utility `.fv-redstripe`, posée au niveau du `#root` (rendue dans `App.tsx`). 4px collés au bord gauche du viewport, signature présente sur tous les écrans.
+- **Ombres dures décalées** — `shadow-[3px_3px_0_var(--color-ink)]` ou `4px 4px` sur les cartes, boutons, badges. Pas de blur, façon impression sérigraphique.
+- **Bandeaux rayés** — `repeating-linear-gradient` jaune/noir sur top/bot des packagings.
+- **Washi tape** — composant `<WashiTape>` avec mask gradient (`.fv-washi-mask`) pour effet déchiré sur les bords. Légère rotation -2° à +3°.
+- **Texture papier** — SVG noise inline en `background-image` sur le `body`, fixé au scroll.
+- **Légères rotations** — `-rotate-[0.3deg]` ou `rotate-[0.25deg]` alternées sur les cartes pour casser la rigidité grille.
+- **Perforations 35mm** — sur la TabBar, `radial-gradient` qui imite les trous d'entraînement d'une pellicule.
 
-Keyframes et utilitaires custom définis dans `src/index.css` :
+## Composants nouveaux
 
-- `animate-fade-in`, `animate-spin`
-- `animate-screen-enter`, `animate-screen-forward`, `animate-screen-back`
-- `animate-stagger-item`, `animate-slide-up`
-- `animate-backdrop-fade-in`
-- `animate-toast-enter`, `animate-toast-exit`
-- `animate-timeline-pulse`
-- `animate-tour-tooltip-enter`, `animate-banner-enter`
+Tous dans `src/components/ui/` sauf indication :
 
-## Objet `T` : design tokens côté JS
+- **`<FilmLabel>`** — étiquette de pellicule façon packaging Kodak. Props : `iso`, `format`, `variant` (`color | bw | slide | tungsten`), `size` (`sm | md`), `typeLabel?`. Mapping variant : `color=yellow / bw=paper / slide=teal / tungsten=red`.
+- **`<FilmPackagingHeader>`** — bandeau d'en-tête réutilisable (FilmDetail + AddFilm preview). Bandes rayées, code marque (KodakBadge), ISO en très grand, bandeau de format/EXP, frise barcode jaune.
+- **`<PageHeader>`** — header sticky standard à 2 niveaux : titre Caveat 28px + badge compteur Archivo Black rouge collé, slot droit (`right`), slot enfants pour ligne contextuelle (chips, tabs, switch).
+- **`<KodakBadge>`** — petit badge rectangulaire `bg-ink text-kodak-yellow` Archivo Black. Pour les codes (formats, REF, EXP, marques abrégées).
+- **`<WashiTape>`** — ruban décoratif. Props : `color` (`w1..w4` ou `yellow`), `rotate`, `width`. Position via className (top/left/right) ou style.
+- **`<CarnetFilmCard>`** (dans `src/components/`) — carte pellicule du Carnet : FilmLabel à gauche, métadonnées à droite avec description Caveat contextuelle selon état + barre de progression hachurée.
 
-Pour les styles dynamiques où Tailwind ne peut pas être utilisé (ex. `style={{ color: T.accent }}`), `src/constants/theme.ts` expose :
+## Composants refondus (API préservée)
 
-```ts
-export const T = {
-  bg, surface, surfaceAlt, card, cardHover,
-  border, borderLight,
-  text, textSec, textMuted,
-  accent, accentHover, accentSoft,
-  orange, orangeSoft, amber, amberSoft, green, greenSoft, blue, blueSoft,
-} as const;
-```
+- **`<Button>`** — variants `default`/`primary` (rouge brique), `secondary`/`outline` (papier crème), `kodak` (jaune doré), `ghost`. Bordure 2px ink, ombre dure 3px, pas de radius. Texte Archivo Black uppercase.
+- **`<Card>`** — fond paperCard, bordure 2px ink, ombre dure 3px, pas de radius.
+- **`<Chip>`** — bordure 1.5px ink, ombre dure 2px, fond transparent ou jaune Kodak actif, micro-translate sur actif.
+- **`<Input>` / `<Textarea>`** — bordure 1.5px ink, ombre dure 2px, focus jaune Kodak. Police Cormorant pour la valeur saisie.
+- **`<Badge>`** — étiquette rectangulaire bordure 1.5px, variants `default` (yellow), `ink`, `red`, `teal`, `gold`, `outline`. Archivo uppercase.
+- **`<Dialog>`** — overlay `bg-ink/55 backdrop-blur-sm`, content papier bordure 2px ink ombre dure 5px, titre Caveat 26px.
+- **`<Select>` / `<AutocompleteInput>` / `<TagInput>`** — bordure ink + ombre dure + popovers paperCard, items Cormorant.
+- **`<Switch>`** — rocker rectangulaire (pas de radius), checked rouge Kodak, unchecked paper-dark.
+- **`<TabBar>`** — fond ink, top border 4px jaune, perforations 35mm. 5 onglets (carnet, stock, carte, boîtiers, stats). L'onglet actif a un carré jaune sur l'icône.
+- **`<FloatingActionMenu>`** — FAB carré 64×64 ombre dure + soft drop. Speed-dial 4 actions (`shot`, `roll`, `camera`, `lens` — plus `back` quand on est sur l'onglet dos). Priorité contextuelle calculée dans `App.tsx` selon `screen`. L'action principale est plus grande (56×56) avec son label en couleur saturée.
+- **`<FilmLifecycleStepper>`** — 6 étapes (Stock → Chargée → Exposée → Labo → Dévelop. → Scannée). Le passage par le labo est détecté via `actionCode === "sent_dev"` dans l'historique pour ne pas modifier le modèle.
+- **`<StatCard>`** — panneau ink avec top stripe coloré, ombre dure colorée, big number Archivo Black tabular-nums.
+- **`<BarChart>`** — barres ink hachurées remplies en jaune/coloré, valeurs Archivo Black.
+- **`<Toast>`** — notifications rectangulaires Archivo Black uppercase, palette ink/teal/yellow/red selon `type`.
+- **`<EmptyState>`** — icône dans un panneau papier bordure ink légèrement tournée + titre Caveat + sous-titre Cormorant italic.
 
-Chaque valeur est `"var(--color-…)"`. Helpers :
+## Sémantique
 
-- `alpha(cssVar, opacity)` — retourne `color-mix(in srgb, ${cssVar} ${opacity*100}%, transparent)` pour moduler la transparence d'une variable CSS dynamiquement.
-- `FILM_TYPE_COLORS: Record<FilmType, string>` — mapping Couleur→amber, N&B→textSec, Diapo→blue, ECN-2→accent.
-- `FONT = { display, body, mono }` — pour `style={{ fontFamily: FONT.display }}`.
-
-**Règle** : privilégier les classes Tailwind (`bg-accent`, `text-text-primary`) ; réserver `T` aux cas où la valeur est interpolée en JS (props de lib tierce, animations avec Motion, SVG…).
-
-## Utilitaire `cn()`
-
-`src/lib/utils.ts` :
-
-```ts
-export function cn(...inputs: ClassValue[]): string {
-  return twMerge(clsx(inputs));
-}
-```
-
-Combine `clsx` (gestion conditionnelle) et `tailwind-merge` (déduplication/écrasement des classes Tailwind conflictuelles).
-
-**À utiliser systématiquement** dans chaque composant pour merger `className` (passé par le parent) avec les classes internes :
-
-```tsx
-<div className={cn("p-4 bg-card", className)}>…</div>
-```
-
-## Composants UI (`src/components/ui/`)
-
-17 primitives. Tous acceptent `className` et exportent en named export.
-
-| Fichier | Rôle | Particularité |
-| --- | --- | --- |
-| `button.tsx` | Bouton standard | CVA variants `default` \| `outline` \| `ghost` \| `destructive`, tailles `default` \| `sm` \| `icon` \| `icon-sm`, `asChild` via Radix `Slot` |
-| `dialog.tsx` | Dialog modal | Wrap `@radix-ui/react-dialog` : `Dialog`, `DialogTrigger`, `DialogContent`, `DialogHeader`, `DialogTitle`, `DialogDescription`, `DialogFooter`, `DialogCloseButton` |
-| `select.tsx` | Select | Wrap `@radix-ui/react-select` : `Select`, `SelectTrigger`, `SelectContent`, `SelectItem` |
-| `switch.tsx` | Toggle | Wrap `@radix-ui/react-switch` |
-| `input.tsx`, `textarea.tsx` | Champs | Wrappers stylisés des éléments natifs |
-| `badge.tsx` | Badge | Variantes via CVA |
-| `chip.tsx` | Chip sélectionnable | Bouton avec state `active` |
-| `card.tsx` | Carte | `Card`, `CardHeader`, `CardTitle`, `CardContent`, `CardFooter` |
-| `alert.tsx` | Alerte | Variante `default` / `destructive` |
-| `form-field.tsx` | Wrapper label + champ | Layout flex, gère l'id d'association |
-| `list-button.tsx` | Item de liste cliquable | Gère state `selected` |
-| `autocomplete-input.tsx` | Input + suggestions | Couple avec `useFilmSuggestions` |
-| `month-year-picker.tsx` | Picker `YYYY-MM` | Pour `Film.expDate` |
-| `collapsible-section.tsx` | Section repliable | Avec icône, titre, compteur |
-| `confirm-dialog.tsx` | Confirmation | Wrap `Dialog`, variante `destructive` |
-| `photo-img.tsx` | `<img>` résolvant les chemins Storage | Utilise `resolvePhotoSrc` |
-
-### Conventions de composant
-
-1. **Interface props nommée** `{ComponentName}Props`, déclarée au-dessus du composant.
-2. **Named export** uniquement (pas de `export default`).
-3. **`className` toujours accepté** et mergé via `cn()`.
-4. **CVA** pour les variants stylistiques (cf. `button.tsx`).
-5. **Radix** pour toute primitive nécessitant de l'accessibilité (dialog, select, switch, popover, slot).
-6. **Tailwind tokens custom prioritaires** sur les couleurs hex. Pour un style dynamique, `T` depuis `@/constants/theme`.
-
-Exemple minimal (règle `.claude/rules/components.md`) :
-
-```tsx
-import { cn } from "@/lib/utils";
-
-interface MyComponentProps {
-  className?: string;
-  label: string;
-  active?: boolean;
-}
-
-export function MyComponent({ className, label, active }: MyComponentProps) {
-  return (
-    <div className={cn("p-3 rounded-[14px] bg-card text-text-primary", active && "bg-accent-soft", className)}>
-      {label}
-    </div>
-  );
-}
-```
-
-## Composants métier (`src/components/`)
-
-24 composants au premier niveau, plus trois sous-dossiers (`equipment/`, `map/`, pas `ui/`). Liste complète :
-
-```
-ActiveFilterChips, ActiveRollCard, AddFilmDialog, AppHeader, BarChart,
-EmptyState, EquipmentCard, FilmLifecycleStepper, FilmRow, FilmTypeFormatFields,
-InfoLine, PhotoPicker, PhotoViewer, PwaInstallBanner, PwaUpdateBanner,
-ShotNotesSection, StatCard, StatChip, StockFilterDialog, TabBar,
-ThemeProvider, Timeline, Toast, TodoItem
-```
-
-- `equipment/` : `CamerasTab`, `LensesTab`, `BacksTab` — onglets d'`EquipmentScreen`.
-- `map/` : `MapFilterBar`, `ClusterSheet`, `NoteSheet`, `NoteMarker` — helpers pour `MapScreen`.
-
-## Icônes
-
-`lucide-react` — import nominatif (`import { Camera, Film } from "lucide-react"`). Props usuelles : `size`, `color`, `className`, `strokeWidth`. Le type `LucideIcon` est exporté depuis `src/types.ts`.
-
-## Toasts
-
-`useToast()` depuis `@/components/Toast` (`src/components/Toast.tsx`) :
-
-```tsx
-const { toast } = useToast();
-toast("Film ajouté", "success"); // "success" | "error"
-```
-
-## Haptiques
-
-`src/utils/haptics.ts` expose `hapticLight()`, `hapticSuccess()`, `hapticWarning()` (utilisent `navigator.vibrate` avec fallback silencieux). À appeler pour feedbacks tactiles sur actions importantes.
-
-## Ce qu'il **ne faut pas** faire
-
-- Pas d'imports `../../…` — toujours `@/…`.
-- Pas de couleurs hex en dur dans les composants — utiliser les classes Tailwind ou `T`.
-- Pas de `export default`.
-- Pas de texte français codé en dur dans un composant — passer par `t()` (voir `docs/i18n.md`).
-- Pas de mutations de props/state (utiliser le spread immuable).
-- Pas de `style={{ color: "#c4392d" }}` — préférer `className="text-accent"` ou `style={{ color: T.accent }}`.
+- **Carnet (Dashboard)** = écran du présent. Affiche uniquement les pellicules en mouvement (`loaded`, `partial`, `exposed`, `developed`). Filtres workflow (axe unique) : Toutes / Chargées / À développer / À scanner. Stats strip 3 colonnes (chargées · à développer · à scanner).
+- **Stock** = 2 onglets (Stock + Archive). L'onglet "Active" a été retiré, le Carnet le remplace. Le stock proprement dit (`state=stock`) et l'archive (`state=scanned`).
+- **FilmState** : `stock | loaded | partial | exposed | developed | scanned`. L'état "au labo" n'est pas un FilmState distinct — il se déduit de `state=exposed` + `actionCode=sent_dev` dans l'historique.
+- **Big stats (StatsScreen)** : 4 métriques fiables et actionnables (rolls collectés / à développer / en stock / marques essayées). Aucune métrique ne dépend de la saisie de chaque vue.
