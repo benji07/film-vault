@@ -32,7 +32,7 @@ import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 import { exportData, parseImportFile } from "@/utils/storage";
-import { isSupabaseConfigured, signInWithEmail } from "@/utils/supabase";
+import { isSupabaseConfigured, signInErrorMessage, signInWithEmail } from "@/utils/supabase";
 import { fetchRecoveryCode, getLastSync, linkRecoveryCode, pullFromCloud } from "@/utils/sync";
 
 interface SettingsScreenProps {
@@ -117,7 +117,7 @@ export function SettingsScreen({
 		const { error } = await signInWithEmail(trimmed);
 		setSignInSubmitting(false);
 		if (error) {
-			setImportError(t("account.sendError"));
+			setImportError(signInErrorMessage(t, error));
 			return;
 		}
 		setSignInSent(true);

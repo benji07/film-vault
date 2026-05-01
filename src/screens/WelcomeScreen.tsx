@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signInWithEmail } from "@/utils/supabase";
+import { signInErrorMessage, signInWithEmail } from "@/utils/supabase";
 
 interface WelcomeScreenProps {
 	onContinueLocal: () => void;
@@ -26,7 +26,7 @@ export function WelcomeScreen({ onContinueLocal }: WelcomeScreenProps) {
 		const { error: err } = await signInWithEmail(trimmed);
 		setSubmitting(false);
 		if (err) {
-			setError(t("account.sendError"));
+			setError(signInErrorMessage(t, err));
 			return;
 		}
 		setStep("sent");
