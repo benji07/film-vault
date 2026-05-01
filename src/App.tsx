@@ -12,7 +12,6 @@ import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
 import { QuickShotDialog } from "@/components/QuickShotDialog";
 import { TabBar } from "@/components/TabBar";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { CameraDetailScreen } from "@/screens/CameraDetailScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
@@ -581,10 +580,9 @@ function AppContent({
 
 export default function FilmVaultApp() {
 	return (
-		<ThemeProvider>
-			<ToastProvider>
-				<FilmVaultInner />
-			</ToastProvider>
-		</ThemeProvider>
+		<ToastProvider>
+			<div className="fv-redstripe" aria-hidden="true" />
+			<FilmVaultInner />
+		</ToastProvider>
 	);
 }

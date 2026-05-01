@@ -9,12 +9,11 @@ import { ClusterSheet } from "@/components/map/ClusterSheet";
 import { MapFilterBar } from "@/components/map/MapFilterBar";
 import { NoteMarker } from "@/components/map/NoteMarker";
 import { NoteSheet } from "@/components/map/NoteSheet";
-import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import type { AppData, FilmType } from "@/types";
 import { collectAllTags } from "@/utils/film-helpers";
 import type { Cluster, GeoNote } from "@/utils/map-helpers";
-import { clusterNotes, collectGeoNotes, DARK_STYLE, fitMapToBounds, LIGHT_STYLE } from "@/utils/map-helpers";
+import { clusterNotes, collectGeoNotes, fitMapToBounds, LIGHT_STYLE } from "@/utils/map-helpers";
 
 interface MapScreenProps {
 	data: AppData;
@@ -26,7 +25,6 @@ interface MapScreenProps {
 
 export function MapScreen({ data, onOpenFilm, onOpenStock, filterFilmId, onClearFilter }: MapScreenProps) {
 	const { t } = useTranslation();
-	const { theme } = useTheme();
 	const mapRef = useRef<maplibregl.Map | null>(null);
 
 	const [zoom, setZoom] = useState(3);
@@ -130,7 +128,7 @@ export function MapScreen({ data, onOpenFilm, onOpenStock, filterFilmId, onClear
 		<div className="relative w-full h-full">
 			<MapGL
 				mapLib={maplibregl}
-				mapStyle={theme === "dark" ? DARK_STYLE : LIGHT_STYLE}
+				mapStyle={LIGHT_STYLE}
 				initialViewState={{ longitude: 2.35, latitude: 46.85, zoom: 5 }}
 				style={{ width: "100%", height: "100%" }}
 				onLoad={(e) => {

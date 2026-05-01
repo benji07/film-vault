@@ -1,6 +1,5 @@
-import { ArrowLeft, Moon, Settings, Sun } from "lucide-react";
+import { ArrowLeft, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ScreenName } from "@/types";
@@ -20,7 +19,6 @@ const DETAIL_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDe
 
 export function AppHeader({ screen, goBack, onOpenSettings, filmTitle, cameraTitle, className }: AppHeaderProps) {
 	const { t } = useTranslation();
-	const { theme, setTheme } = useTheme();
 	const isSubScreen = DETAIL_SCREENS.has(screen);
 
 	const subScreenTitles: Partial<Record<ScreenName, string>> = {
@@ -32,7 +30,7 @@ export function AppHeader({ screen, goBack, onOpenSettings, filmTitle, cameraTit
 	return (
 		<div
 			className={cn(
-				"shrink-0 flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 bg-bg border-b border-border",
+				"shrink-0 flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 bg-paper border-b border-ink-faded/40",
 				className,
 			)}
 		>
@@ -40,12 +38,12 @@ export function AppHeader({ screen, goBack, onOpenSettings, filmTitle, cameraTit
 				{isSubScreen ? (
 					<>
 						<Button variant="ghost" size="icon" onClick={goBack} className="-ml-2" aria-label={t("aria.back")}>
-							<ArrowLeft size={20} className="text-text-sec" />
+							<ArrowLeft size={20} className="text-ink-soft" />
 						</Button>
-						<h1 className="font-display text-lg text-text-primary m-0 italic truncate">{subScreenTitles[screen]}</h1>
+						<h1 className="font-caveat text-2xl text-ink m-0 truncate">{subScreenTitles[screen]}</h1>
 					</>
 				) : (
-					<h1 className="font-display text-xl text-text-primary m-0 italic">My Film Vault</h1>
+					<h1 className="font-caveat text-2xl text-ink m-0">My Film Vault</h1>
 				)}
 			</div>
 
@@ -54,24 +52,11 @@ export function AppHeader({ screen, goBack, onOpenSettings, filmTitle, cameraTit
 					<Button
 						variant="outline"
 						size="icon"
-						onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-						className="shrink-0"
-						aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
-					>
-						{theme === "dark" ? (
-							<Sun size={15} className="text-text-muted" />
-						) : (
-							<Moon size={15} className="text-text-muted" />
-						)}
-					</Button>
-					<Button
-						variant="outline"
-						size="icon"
 						onClick={onOpenSettings}
 						className="shrink-0"
 						aria-label={t("nav.settings")}
 					>
-						<Settings size={15} className="text-text-muted" />
+						<Settings size={15} className="text-ink-faded" />
 					</Button>
 				</div>
 			)}
