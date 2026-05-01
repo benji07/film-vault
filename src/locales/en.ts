@@ -174,6 +174,9 @@ export const en = {
 		tags: "Tags",
 		tagsPlaceholder: "E.g. Japan trip 2025, Portrait…",
 		createTag: 'Create "{{value}}"',
+		initialState: "Initial state",
+		contextualSection: "Details (optional)",
+		noInfo: "No info",
 	},
 
 	// Film types (display labels)
@@ -675,6 +678,7 @@ export const en = {
 		openPhoto: "Open photo {{index}}",
 		copyRecoveryCode: "Copy recovery code",
 		dismissBanner: "Dismiss banner",
+		clearDate: "Clear date",
 	},
 
 	// Map screen

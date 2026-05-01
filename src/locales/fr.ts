@@ -174,6 +174,9 @@ export const fr = {
 		tags: "Tags",
 		tagsPlaceholder: "Ex : Voyage Japon 2025, Portrait…",
 		createTag: 'Créer "{{value}}"',
+		initialState: "État initial",
+		contextualSection: "Détails (optionnels)",
+		noInfo: "Pas d'info",
 	},
 
 	// Film types (display labels)
@@ -675,6 +678,7 @@ export const fr = {
 		openPhoto: "Ouvrir la photo {{index}}",
 		copyRecoveryCode: "Copier le code de récupération",
 		dismissBanner: "Fermer la bannière",
+		clearDate: "Effacer la date",
 	},
 
 	// Map screen
