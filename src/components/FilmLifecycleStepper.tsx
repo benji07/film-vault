@@ -48,8 +48,7 @@ export function FilmLifecycleStepper({ currentState, history, className }: FilmL
 			<div
 				className="absolute left-4 right-4 top-3.5 h-[2px] z-0"
 				style={{
-					backgroundImage:
-						"repeating-linear-gradient(90deg, var(--color-ink-faded) 0 4px, transparent 4px 8px)",
+					backgroundImage: "repeating-linear-gradient(90deg, var(--color-ink-faded) 0 4px, transparent 4px 8px)",
 				}}
 			/>
 			{STEPS.map((step, i) => {
@@ -71,7 +70,11 @@ export function FilmLifecycleStepper({ currentState, history, className }: FilmL
 						<div
 							className={cn(
 								"font-archivo text-[9px] tracking-[0.12em] uppercase text-center leading-none whitespace-nowrap",
-								current ? "font-black text-kodak-red" : done ? "font-extrabold text-ink-soft" : "font-bold text-ink-faded",
+								current
+									? "font-black text-kodak-red"
+									: done
+										? "font-extrabold text-ink-soft"
+										: "font-bold text-ink-faded",
 							)}
 						>
 							{label}

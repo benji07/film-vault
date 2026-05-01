@@ -31,8 +31,7 @@ export function BarChart({ data: chartData, color = T.yellow, sort = true, forma
 							<div
 								className="absolute inset-0"
 								style={{
-									backgroundImage:
-										"repeating-linear-gradient(90deg, transparent 0 6px, rgba(0,0,0,0.2) 6px 7px)",
+									backgroundImage: "repeating-linear-gradient(90deg, transparent 0 6px, rgba(0,0,0,0.2) 6px 7px)",
 								}}
 							/>
 						</div>

@@ -14,7 +14,7 @@ import { FilmPackagingHeader } from "@/components/ui/film-packaging-header";
 import { WashiTape } from "@/components/ui/washi-tape";
 import { filmTypeToVariant, T } from "@/constants/theme";
 import { cn } from "@/lib/utils";
-import type { AppData, Film as FilmType, FilmState } from "@/types";
+import type { AppData, FilmState, Film as FilmType } from "@/types";
 import { createNewFilm } from "@/utils/film-factory";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { today } from "@/utils/helpers";
@@ -250,7 +250,7 @@ export function FilmDetailScreen({
 				</div>
 				<div className="text-right font-archivo-black">
 					<div className="text-[28px] leading-[0.85] tracking-[-1px]">
-						{film.posesShot && film.posesShot > 0 ? film.posesShot : film.posesTotal ?? "—"}
+						{film.posesShot && film.posesShot > 0 ? film.posesShot : (film.posesTotal ?? "—")}
 						{film.posesShot && film.posesShot > 0 && film.posesTotal && (
 							<span className="text-[16px] opacity-55">/{film.posesTotal}</span>
 						)}

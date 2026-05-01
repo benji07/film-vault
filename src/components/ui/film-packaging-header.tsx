@@ -1,5 +1,5 @@
-import { KodakBadge } from "@/components/ui/kodak-badge";
 import type { FilmLabelVariant } from "@/components/ui/film-label";
+import { KodakBadge } from "@/components/ui/kodak-badge";
 import { cn } from "@/lib/utils";
 
 interface FilmPackagingHeaderProps {

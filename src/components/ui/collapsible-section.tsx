@@ -24,7 +24,9 @@ export function CollapsibleSection({
 	const panelId = useId();
 
 	return (
-		<div className={cn("border-2 border-ink bg-paper-card overflow-hidden shadow-[3px_3px_0_var(--color-ink)]", className)}>
+		<div
+			className={cn("border-2 border-ink bg-paper-card overflow-hidden shadow-[3px_3px_0_var(--color-ink)]", className)}
+		>
 			<button
 				type="button"
 				onClick={() => setOpen((prev) => !prev)}

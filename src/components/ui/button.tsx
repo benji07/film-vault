@@ -22,7 +22,8 @@ const buttonVariants = cva(
 				secondary: "bg-paper-card text-ink",
 				kodak: "bg-kodak-yellow text-ink",
 				outline: "bg-paper-card text-ink",
-				ghost: "bg-transparent text-ink border-transparent shadow-none hover:translate-x-0 hover:translate-y-0 hover:shadow-none hover:bg-paper-dark/60",
+				ghost:
+					"bg-transparent text-ink border-transparent shadow-none hover:translate-x-0 hover:translate-y-0 hover:shadow-none hover:bg-paper-dark/60",
 				destructive: "bg-kodak-red text-paper",
 			},
 			size: {

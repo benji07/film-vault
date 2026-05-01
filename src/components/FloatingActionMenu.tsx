@@ -110,6 +110,7 @@ export function FloatingActionMenu({
 		return () => window.removeEventListener("keydown", onKey);
 	}, [open]);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: intentionally close menu on context change
 	useEffect(() => {
 		setOpen(false);
 	}, [context]);
@@ -176,9 +177,7 @@ export function FloatingActionMenu({
 					"fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 md:bottom-6 md:right-6 z-40",
 					"w-16 h-16 border-[3px] border-ink flex flex-col items-center justify-center cursor-pointer",
 					"shadow-[4px_4px_0_var(--color-ink),0_8px_20px_rgba(0,0,0,0.3)] transition-transform duration-200 ease-out",
-					open
-						? `bg-ink text-kodak-yellow rotate-45`
-						: cn(primary.bg, primary.dark ? "text-paper" : "text-ink"),
+					open ? `bg-ink text-kodak-yellow rotate-45` : cn(primary.bg, primary.dark ? "text-paper" : "text-ink"),
 				)}
 			>
 				<Plus size={open ? 30 : 26} strokeWidth={2.6} />
@@ -219,7 +218,12 @@ function SpeedDialItem({ action, label, onClick, primary, delayMs, extraMargin }
 				className={cn(
 					"font-archivo-black uppercase tracking-[0.12em] leading-none text-right border-2 border-ink",
 					primary
-						? cn("px-3 py-2 text-[12px]", action.bg, action.dark ? "text-paper" : "text-ink", "shadow-[3px_3px_0_var(--color-ink)]")
+						? cn(
+								"px-3 py-2 text-[12px]",
+								action.bg,
+								action.dark ? "text-paper" : "text-ink",
+								"shadow-[3px_3px_0_var(--color-ink)]",
+							)
 						: "px-2.5 py-1.5 text-[10px] bg-paper-card text-ink shadow-[2px_2px_0_var(--color-ink)]",
 				)}
 			>

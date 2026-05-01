@@ -15,7 +15,14 @@ interface StatCardProps {
  * Big stat tile : ink panel with a colored top stripe and shadow,
  * archivo-black big number, archivo uppercase label, caveat hint.
  */
-export function StatCard({ icon: Icon, label, value, hint, color = "var(--color-kodak-yellow)", className }: StatCardProps) {
+export function StatCard({
+	icon: Icon,
+	label,
+	value,
+	hint,
+	color = "var(--color-kodak-yellow)",
+	className,
+}: StatCardProps) {
 	const numericValue = typeof value === "number" ? value : Number.parseInt(String(value), 10);
 	const isNumeric = !Number.isNaN(numericValue) && /^\d/.test(String(value));
 	const animated = useCountUp(isNumeric ? numericValue : 0);
@@ -23,10 +30,7 @@ export function StatCard({ icon: Icon, label, value, hint, color = "var(--color-
 
 	return (
 		<div
-			className={cn(
-				"relative bg-ink text-paper border-2 border-ink overflow-hidden px-3.5 py-3",
-				className,
-			)}
+			className={cn("relative bg-ink text-paper border-2 border-ink overflow-hidden px-3.5 py-3", className)}
 			style={{ boxShadow: `4px 4px 0 ${color}` }}
 		>
 			<div className="absolute top-0 left-0 right-0 h-1" style={{ background: color }} />
@@ -37,7 +41,11 @@ export function StatCard({ icon: Icon, label, value, hint, color = "var(--color-
 			<div className="font-archivo-black text-[28px] leading-none tracking-[-0.5px] tabular-nums" style={{ color }}>
 				{isNumeric ? `${animated}${suffix}` : value}
 			</div>
-			{hint && <div className="font-caveat text-[14px] mt-1.5 leading-tight" style={{ color }}>{hint}</div>}
+			{hint && (
+				<div className="font-caveat text-[14px] mt-1.5 leading-tight" style={{ color }}>
+					{hint}
+				</div>
+			)}
 		</div>
 	);
 }

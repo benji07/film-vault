@@ -45,12 +45,7 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowPr
 				"transition-transform active:scale-[.99]",
 			)}
 		>
-			<FilmLabel
-				iso={film.iso ?? "—"}
-				format={film.format ?? ""}
-				variant={variant}
-				size="sm"
-			/>
+			<FilmLabel iso={film.iso ?? "—"} format={film.format ?? ""} variant={variant} size="sm" />
 			<div className="px-3 py-2.5 min-w-0">
 				<div className="font-cormorant text-[16px] font-semibold text-ink leading-[1.1]">
 					{filmName(film)}

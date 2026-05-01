@@ -32,10 +32,7 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 	if (variant === "sidebar") {
 		return (
 			<nav
-				className={cn(
-					"w-[220px] shrink-0 bg-ink text-paper border-r-2 border-ink flex flex-col pt-8 pb-6",
-					className,
-				)}
+				className={cn("w-[220px] shrink-0 bg-ink text-paper border-r-2 border-ink flex flex-col pt-8 pb-6", className)}
 			>
 				<div className="px-6 mb-8">
 					<h1 className="font-caveat text-2xl text-kodak-yellow m-0">My Film Vault</h1>
@@ -83,8 +80,7 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 				aria-hidden="true"
 				className="absolute -top-2 left-0 right-0 h-2 bg-kodak-yellow pointer-events-none"
 				style={{
-					backgroundImage:
-						"radial-gradient(circle at center, var(--color-ink) 0 3px, transparent 3.5px)",
+					backgroundImage: "radial-gradient(circle at center, var(--color-ink) 0 3px, transparent 3.5px)",
 					backgroundSize: "18px 8px",
 					backgroundRepeat: "repeat-x",
 					backgroundColor: "var(--color-kodak-yellow)",

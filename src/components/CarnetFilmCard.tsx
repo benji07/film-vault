@@ -51,13 +51,7 @@ function describeState(
 	if (film.state === "loaded") {
 		return {
 			state: { key: "loaded", label: t("states.loaded") || "chargée" },
-			description: camName ? (
-				<>
-					{t("dashboard.state.loadedIn", { camera: camName })}
-				</>
-			) : (
-				t("dashboard.state.noCamera")
-			),
+			description: camName ? t("dashboard.state.loadedIn", { camera: camName }) : t("dashboard.state.noCamera"),
 		};
 	}
 	if (film.state === "partial") {
@@ -111,18 +105,11 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 	const sub = film.type ? `${film.type.toLowerCase()}` : "";
 
 	return (
-		<article
+		<button
+			type="button"
 			onClick={onClick}
-			onKeyDown={(e) => {
-				if (e.key === "Enter" || e.key === " ") {
-					e.preventDefault();
-					onClick();
-				}
-			}}
-			role="button"
-			tabIndex={0}
 			className={cn(
-				"relative grid bg-paper-card overflow-hidden cursor-pointer transition-transform",
+				"relative grid bg-paper-card overflow-hidden cursor-pointer transition-transform text-left w-full",
 				"shadow-[0_1px_0_rgba(60,40,20,0.05),0_8px_16px_-8px_rgba(50,35,15,0.18),0_2px_4px_-2px_rgba(50,35,15,0.18)]",
 				"min-h-[128px]",
 				"grid-cols-[88px_1fr]",
@@ -144,9 +131,7 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 				<div className="flex items-start justify-between gap-2.5">
 					<div className="font-cormorant text-[20px] font-semibold leading-[1.05] text-ink tracking-[-0.2px] min-w-0">
 						{displayName}
-						{sub && (
-							<em className="block italic font-normal text-[13px] text-ink-faded mt-0.5">{sub} · neg</em>
-						)}
+						{sub && <em className="block italic font-normal text-[13px] text-ink-faded mt-0.5">{sub} · neg</em>}
 					</div>
 					<div className="font-typewriter text-[9px] tracking-[0.12em] text-ink-faded text-right leading-tight flex-shrink-0">
 						REF
@@ -156,9 +141,7 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 					</div>
 				</div>
 
-				{description && (
-					<div className="font-caveat text-[17px] leading-[1.3] text-ink-soft mt-2">{description}</div>
-				)}
+				{description && <div className="font-caveat text-[17px] leading-[1.3] text-ink-soft mt-2">{description}</div>}
 
 				<div className="flex items-center gap-2.5 mt-2.5 pt-2.5 border-t border-dashed border-ink-faded/35">
 					<span
@@ -171,15 +154,11 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 					</span>
 					<div className="flex-1 h-2 bg-ink relative overflow-hidden">
 						{shot > 0 && (
-							<div
-								className="absolute left-0 top-0 bottom-0 bg-kodak-yellow"
-								style={{ width: `${pct}%` }}
-							>
+							<div className="absolute left-0 top-0 bottom-0 bg-kodak-yellow" style={{ width: `${pct}%` }}>
 								<div
 									className="absolute inset-0"
 									style={{
-										backgroundImage:
-											"repeating-linear-gradient(90deg, transparent 0 8px, rgba(0,0,0,0.18) 8px 9px)",
+										backgroundImage: "repeating-linear-gradient(90deg, transparent 0 8px, rgba(0,0,0,0.18) 8px 9px)",
 									}}
 								/>
 							</div>
@@ -193,6 +172,6 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 					</span>
 				</div>
 			</div>
-		</article>
+		</button>
 	);
 }

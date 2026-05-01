@@ -161,9 +161,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 					<WashiTape color="w1" rotate={-2} width={60} className="-top-[8px] left-10" />
 					<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
 						{t("stats.byBrand")}
-						<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
-							— top
-						</span>
+						<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">— top</span>
 					</h2>
 					<BarChart data={byBrand} color={T.yellow} />
 				</section>
@@ -229,7 +227,10 @@ export function StatsScreen({ data }: StatsScreenProps) {
 						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.favoriteFilms")}</h2>
 						<div className="flex flex-col gap-2">
 							{topFilmsSorted.map(([name, count], i) => (
-								<div key={name} className="flex items-center gap-3 py-1 border-b border-dashed border-ink-faded/30 last:border-0">
+								<div
+									key={name}
+									className="flex items-center gap-3 py-1 border-b border-dashed border-ink-faded/30 last:border-0"
+								>
 									<span
 										className={`font-archivo-black text-[16px] min-w-[28px] ${i === 0 ? "text-kodak-red" : "text-ink-faded"}`}
 									>
@@ -245,9 +246,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 
 				{totalSpent > 0 && (
 					<>
-						<h3 className="font-caveat text-[26px] font-bold text-ink leading-none mt-2">
-							{t("stats.expenses")}
-						</h3>
+						<h3 className="font-caveat text-[26px] font-bold text-ink leading-none mt-2">{t("stats.expenses")}</h3>
 						<div className="grid grid-cols-3 gap-2.5">
 							<StatCard icon={Coins} label={t("stats.totalSpent")} value={fmtPrice(totalSpent)} color={T.yellow} />
 							<StatCard icon={Coins} label={t("stats.avgPerFilm")} value={fmtPrice(avgPerFilm)} color={T.red} />

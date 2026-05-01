@@ -101,7 +101,10 @@
 			radial-gradient(ellipse at 20% 10%, rgba(255, 240, 200, 0.5), transparent 50%),
 			radial-gradient(ellipse at 80% 90%, rgba(140, 100, 50, 0.18), transparent 60%),
 			url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.15  0 0 0 0 0.08  0 0 0 0.18 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
-		background-size: auto, auto, 200px 200px;
+		background-size:
+			auto,
+			auto,
+			200px 200px;
 		background-attachment: fixed, fixed, fixed;
 		color: var(--color-ink);
 		overflow-x: hidden;

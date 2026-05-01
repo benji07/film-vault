@@ -65,35 +65,19 @@ export function DashboardScreen({ data, onOpenFilm }: DashboardScreenProps) {
 				>
 					<div className="absolute top-0 left-0 right-0 h-1 bg-kodak-yellow" />
 					{stats.map((s, i) => (
-						<div
-							key={s.label}
-							className={cn(
-								"text-center py-2.5 px-2",
-								i < 2 && "border-r border-paper/10",
-							)}
-						>
+						<div key={s.label} className={cn("text-center py-2.5 px-2", i < 2 && "border-r border-paper/10")}>
 							<div className={cn("font-archivo-black text-[22px] leading-none tracking-[-0.5px]", s.color)}>
 								{String(s.value).padStart(2, "0")}
 							</div>
-							<div className="font-typewriter text-[8px] tracking-[0.18em] uppercase text-paper/55 mt-1">
-								{s.label}
-							</div>
+							<div className="font-typewriter text-[8px] tracking-[0.18em] uppercase text-paper/55 mt-1">{s.label}</div>
 						</div>
 					))}
 				</section>
 
 				{/* Chips filtres logiques — axe unique : étape du workflow */}
-				<nav
-					className="flex gap-2 overflow-x-auto px-[18px] pb-2.5 fv-noscroll"
-					aria-label={t("dashboard.title")}
-				>
+				<nav className="flex gap-2 overflow-x-auto px-[18px] pb-2.5 fv-noscroll" aria-label={t("dashboard.title")}>
 					{filterDefs.map((f) => (
-						<Chip
-							key={f.id}
-							active={filter === f.id}
-							onClick={() => setFilter(f.id)}
-							className="flex-none"
-						>
+						<Chip key={f.id} active={filter === f.id} onClick={() => setFilter(f.id)} className="flex-none">
 							{f.label}
 							<span
 								className={cn(
@@ -119,15 +103,7 @@ export function DashboardScreen({ data, onOpenFilm }: DashboardScreenProps) {
 				) : (
 					visible.map((f, idx) => {
 						const cam = f.cameraId ? cameras.find((c) => c.id === f.cameraId) : null;
-						return (
-							<CarnetFilmCard
-								key={f.id}
-								film={f}
-								camera={cam}
-								index={idx}
-								onClick={() => onOpenFilm(f.id)}
-							/>
-						);
+						return <CarnetFilmCard key={f.id} film={f} camera={cam} index={idx} onClick={() => onOpenFilm(f.id)} />;
 					})
 				)}
 			</main>

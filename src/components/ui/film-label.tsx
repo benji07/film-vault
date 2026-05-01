@@ -56,19 +56,12 @@ export function FilmLabel({ iso, format, variant = "color", size = "md", typeLab
 			<div className={cn("absolute left-0 right-0 bottom-0 h-2", VARIANT_STRIPE[variant])} />
 
 			{/* ISO */}
-			<div
-				className={cn(
-					"font-archivo-black leading-[0.9] tracking-tight",
-					isSm ? "text-[22px]" : "text-[32px] mt-1",
-				)}
-			>
+			<div className={cn("font-archivo-black leading-[0.9] tracking-tight", isSm ? "text-[22px]" : "text-[32px] mt-1")}>
 				{iso}
 			</div>
 
 			{/* ISO suffix */}
-			{!isSm && (
-				<div className="font-archivo text-[10px] font-extrabold tracking-[0.15em] mt-0.5">ISO</div>
-			)}
+			{!isSm && <div className="font-archivo text-[10px] font-extrabold tracking-[0.15em] mt-0.5">ISO</div>}
 
 			{/* Format separator + label */}
 			<div
