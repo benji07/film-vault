@@ -40,6 +40,52 @@ export interface SignInError {
 	retryAfterSeconds?: number;
 }
 
+export type VerifyOtpErrorCode = "invalid_code" | "expired" | "rate_limit" | "not_configured" | "unknown";
+
+export interface VerifyOtpError {
+	code: VerifyOtpErrorCode;
+	retryAfterSeconds?: number;
+}
+
+/**
+ * Verify a 6-digit OTP code (the token Supabase sends alongside the Magic Link).
+ * Used so installed PWAs can sign in even though the email link opens in the
+ * default browser (a separate auth context that wouldn't reach the PWA).
+ */
+export async function verifyEmailOtp(email: string, token: string): Promise<{ error: VerifyOtpError | null }> {
+	if (!supabase) return { error: { code: "not_configured" } };
+	const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+	if (!error) return { error: null };
+
+	const code = error.code ?? "";
+	if (code === "otp_expired") return { error: { code: "expired" } };
+	if (code === "over_request_rate_limit") {
+		const match = error.message.match(/(\d+)\s*second/i);
+		const retryAfterSeconds = match?.[1] ? Number.parseInt(match[1], 10) : undefined;
+		return { error: { code: "rate_limit", retryAfterSeconds } };
+	}
+	// Wrong code or any other validation failure: treat as invalid code.
+	return { error: { code: "invalid_code" } };
+}
+
+export function verifyOtpErrorMessage(
+	t: (key: string, options?: Record<string, unknown>) => string,
+	error: VerifyOtpError,
+): string {
+	switch (error.code) {
+		case "expired":
+			return t("account.codeErrorExpired");
+		case "invalid_code":
+			return t("account.codeErrorInvalid");
+		case "rate_limit":
+			return error.retryAfterSeconds != null
+				? t("account.sendErrorRateLimit", { seconds: error.retryAfterSeconds })
+				: t("account.sendErrorRateLimitGeneric");
+		default:
+			return t("account.codeErrorGeneric");
+	}
+}
+
 /**
  * Map a SignInError to a localized message via the i18next `t` function.
  * Kept here so callers can stay simple — they pass `t` and the error.

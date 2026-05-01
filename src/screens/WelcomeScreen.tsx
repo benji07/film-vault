@@ -1,21 +1,23 @@
-import { ArrowRight, CheckCircle2, Cloud, Loader2, Mail } from "lucide-react";
+import { ArrowRight, Cloud, KeyRound, Loader2, Mail } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signInErrorMessage, signInWithEmail } from "@/utils/supabase";
+import { signInErrorMessage, signInWithEmail, verifyEmailOtp, verifyOtpErrorMessage } from "@/utils/supabase";
 
 interface WelcomeScreenProps {
 	onContinueLocal: () => void;
 }
 
-type Step = "intro" | "email" | "sent";
+type Step = "intro" | "email" | "code";
 
 export function WelcomeScreen({ onContinueLocal }: WelcomeScreenProps) {
 	const { t } = useTranslation();
 	const [step, setStep] = useState<Step>("intro");
 	const [email, setEmail] = useState("");
+	const [code, setCode] = useState("");
 	const [submitting, setSubmitting] = useState(false);
+	const [verifying, setVerifying] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	const handleSendLink = async () => {
@@ -29,7 +31,23 @@ export function WelcomeScreen({ onContinueLocal }: WelcomeScreenProps) {
 			setError(signInErrorMessage(t, err));
 			return;
 		}
-		setStep("sent");
+		setCode("");
+		setStep("code");
+	};
+
+	const handleVerifyCode = async () => {
+		const trimmedCode = code.replace(/\s+/g, "");
+		const trimmedEmail = email.trim();
+		if (!trimmedCode || !trimmedEmail) return;
+		setVerifying(true);
+		setError(null);
+		const { error: err } = await verifyEmailOtp(trimmedEmail, trimmedCode);
+		setVerifying(false);
+		if (err) {
+			setError(verifyOtpErrorMessage(t, err));
+			return;
+		}
+		// Success: App.tsx subscribes to onAuthStateChange and will hide the WelcomeScreen.
 	};
 
 	return (
@@ -87,7 +105,7 @@ export function WelcomeScreen({ onContinueLocal }: WelcomeScreenProps) {
 							{error && <span className="text-xs text-accent font-body">{error}</span>}
 							<Button onClick={handleSendLink} disabled={submitting || !email.trim()} className="w-full justify-center">
 								{submitting ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
-								{t("account.sendMagicLink")}
+								{t("account.sendCode")}
 							</Button>
 							<Button
 								variant="ghost"
@@ -101,22 +119,52 @@ export function WelcomeScreen({ onContinueLocal }: WelcomeScreenProps) {
 					</>
 				)}
 
-				{step === "sent" && (
+				{step === "code" && (
 					<>
 						<div className="flex flex-col items-center gap-3 text-center">
 							<div className="w-16 h-16 rounded-2xl bg-accent-soft flex items-center justify-center">
-								<CheckCircle2 size={28} className="text-accent" />
+								<KeyRound size={28} className="text-accent" />
 							</div>
-							<h1 className="text-xl font-bold font-body">{t("account.checkInbox")}</h1>
-							<p className="text-sm text-text-sec font-body">{t("account.checkInboxHelp", { email: email.trim() })}</p>
+							<h1 className="text-xl font-bold font-body">{t("account.codeStepTitle")}</h1>
+							<p className="text-sm text-text-sec font-body">{t("account.codeStepHelp", { email: email.trim() })}</p>
 						</div>
 
-						<div className="flex flex-col gap-2.5">
+						<div className="flex flex-col gap-3">
+							<Input
+								type="text"
+								inputMode="numeric"
+								autoComplete="one-time-code"
+								pattern="[0-9]*"
+								maxLength={6}
+								value={code}
+								onChange={(e) => {
+									setCode(e.target.value.replace(/\D/g, ""));
+									setError(null);
+								}}
+								placeholder={t("account.codePlaceholder")}
+								disabled={verifying}
+								className="text-center text-lg font-mono tracking-[0.5em]"
+								onKeyDown={(e) => {
+									if (e.key === "Enter") handleVerifyCode();
+								}}
+							/>
+							{error && <span className="text-xs text-accent font-body">{error}</span>}
 							<Button
-								variant="outline"
+								onClick={handleVerifyCode}
+								disabled={verifying || code.length < 6}
+								className="w-full justify-center"
+							>
+								{verifying ? <Loader2 size={16} className="animate-spin" /> : <KeyRound size={16} />}
+								{t("account.verifyCode")}
+							</Button>
+							<Button
+								variant="ghost"
 								onClick={() => {
 									setStep("email");
+									setCode("");
+									setError(null);
 								}}
+								disabled={verifying}
 								className="w-full justify-center"
 							>
 								{t("account.useDifferentEmail")}

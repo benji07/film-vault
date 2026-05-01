@@ -11,6 +11,7 @@ import {
 	Film,
 	Focus,
 	Globe,
+	KeyRound,
 	Loader2,
 	LogOut,
 	Mail,
@@ -32,7 +33,13 @@ import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { lensDisplayName } from "@/utils/lens-helpers";
 import { exportData, parseImportFile } from "@/utils/storage";
-import { isSupabaseConfigured, signInErrorMessage, signInWithEmail } from "@/utils/supabase";
+import {
+	isSupabaseConfigured,
+	signInErrorMessage,
+	signInWithEmail,
+	verifyEmailOtp,
+	verifyOtpErrorMessage,
+} from "@/utils/supabase";
 import { fetchRecoveryCode, getLastSync, linkRecoveryCode, pullFromCloud } from "@/utils/sync";
 
 interface SettingsScreenProps {
@@ -63,6 +70,9 @@ export function SettingsScreen({
 	const [signInEmail, setSignInEmail] = useState("");
 	const [signInSubmitting, setSignInSubmitting] = useState(false);
 	const [signInSent, setSignInSent] = useState(false);
+	const [signInCode, setSignInCode] = useState("");
+	const [signInVerifying, setSignInVerifying] = useState(false);
+	const [signInError, setSignInError] = useState<string | null>(null);
 	const [restoreCode, setRestoreCode] = useState("");
 	const [restoring, setRestoring] = useState(false);
 	const [exportCode, setExportCode] = useState<string | null>(null);
@@ -114,13 +124,30 @@ export function SettingsScreen({
 		const trimmed = signInEmail.trim();
 		if (!trimmed) return;
 		setSignInSubmitting(true);
+		setSignInError(null);
 		const { error } = await signInWithEmail(trimmed);
 		setSignInSubmitting(false);
 		if (error) {
-			setImportError(signInErrorMessage(t, error));
+			setSignInError(signInErrorMessage(t, error));
 			return;
 		}
+		setSignInCode("");
 		setSignInSent(true);
+	};
+
+	const handleVerifyCode = async () => {
+		const trimmedCode = signInCode.replace(/\s+/g, "");
+		const trimmedEmail = signInEmail.trim();
+		if (!trimmedCode || !trimmedEmail) return;
+		setSignInVerifying(true);
+		setSignInError(null);
+		const { error } = await verifyEmailOtp(trimmedEmail, trimmedCode);
+		setSignInVerifying(false);
+		if (error) {
+			setSignInError(verifyOtpErrorMessage(t, error));
+			return;
+		}
+		// Success: App.tsx subscribes to onAuthStateChange and will refresh the screen.
 	};
 
 	const pullErrorKey: Record<string, string> = {
@@ -310,14 +337,43 @@ export function SettingsScreen({
 					) : signInSent ? (
 						<div className="flex flex-col gap-3">
 							<span className="text-xs text-text-sec font-body">
-								{t("account.checkInboxHelp", { email: signInEmail.trim() })}
+								{t("account.codeStepHelp", { email: signInEmail.trim() })}
 							</span>
+							<Input
+								type="text"
+								inputMode="numeric"
+								autoComplete="one-time-code"
+								pattern="[0-9]*"
+								maxLength={6}
+								value={signInCode}
+								onChange={(e) => {
+									setSignInCode(e.target.value.replace(/\D/g, ""));
+									setSignInError(null);
+								}}
+								placeholder={t("account.codePlaceholder")}
+								disabled={signInVerifying}
+								className="text-center text-base font-mono tracking-[0.5em]"
+								onKeyDown={(e) => {
+									if (e.key === "Enter") handleVerifyCode();
+								}}
+							/>
+							{signInError && <span className="text-xs text-accent font-body">{signInError}</span>}
 							<Button
-								variant="outline"
+								onClick={handleVerifyCode}
+								disabled={signInVerifying || signInCode.length < 6}
+								className="w-full justify-center"
+							>
+								{signInVerifying ? <Loader2 size={16} className="animate-spin" /> : <KeyRound size={16} />}
+								{t("account.verifyCode")}
+							</Button>
+							<Button
+								variant="ghost"
 								onClick={() => {
 									setSignInSent(false);
-									setSignInEmail("");
+									setSignInCode("");
+									setSignInError(null);
 								}}
+								disabled={signInVerifying}
 								className="w-full justify-center"
 							>
 								{t("account.useDifferentEmail")}
@@ -331,20 +387,24 @@ export function SettingsScreen({
 								autoComplete="email"
 								inputMode="email"
 								value={signInEmail}
-								onChange={(e) => setSignInEmail(e.target.value)}
+								onChange={(e) => {
+									setSignInEmail(e.target.value);
+									setSignInError(null);
+								}}
 								placeholder={t("account.emailPlaceholder")}
 								disabled={signInSubmitting}
 								onKeyDown={(e) => {
 									if (e.key === "Enter") handleSendMagicLink();
 								}}
 							/>
+							{signInError && <span className="text-xs text-accent font-body">{signInError}</span>}
 							<Button
 								onClick={handleSendMagicLink}
 								disabled={signInSubmitting || !signInEmail.trim()}
 								className="w-full justify-center"
 							>
 								{signInSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
-								{t("account.sendMagicLink")}
+								{t("account.sendCode")}
 							</Button>
 						</div>
 					)}

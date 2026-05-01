@@ -1,8 +1,12 @@
 <!--
-  Magic Link email — French
+  Magic Link / OTP email — French
   Place this HTML in: Supabase Dashboard → Authentication → Email Templates → Magic Link → Message body (HTML)
-  Subject suggested: "Ton lien de connexion FilmVault"
-  Variables provided by Supabase: {{ .ConfirmationURL }}, {{ .Email }}, {{ .SiteURL }}, {{ .Token }}
+  Subject suggested: "Ton code de connexion FilmVault"
+  Variables provided by Supabase: {{ .ConfirmationURL }}, {{ .Token }}, {{ .Email }}, {{ .SiteURL }}
+
+  Note: the 6-digit Token is the primary sign-in method, especially for
+  installed PWAs where the link opens in the default browser instead of
+  the app. The link is kept as a fallback for desktop browser users.
 -->
 <!DOCTYPE html>
 <html lang="fr">
@@ -26,36 +30,40 @@
 						<tr>
 							<td style="padding-bottom:24px;">
 								<p style="margin:0;font-size:14px;line-height:1.5;color:#a3a3a3;text-align:center;">
-									Clique sur le bouton ci-dessous pour te connecter sur cet appareil.
+									Saisis ce code à 6 chiffres dans l'application :
 								</p>
 							</td>
 						</tr>
 						<tr>
 							<td align="center" style="padding-bottom:24px;">
-								<a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 28px;background-color:#c4392d;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;border-radius:12px;">
-									Me connecter
+								<div style="display:inline-block;padding:18px 28px;background-color:#242424;border:1px solid #2f2f2f;border-radius:12px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:32px;font-weight:700;letter-spacing:0.5em;color:#f5f5f5;">
+									{{ .Token }}
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td style="padding-bottom:20px;">
+								<p style="margin:0;font-size:11px;line-height:1.5;color:#737373;text-align:center;">
+									Ce code expire dans 1 heure et ne peut être utilisé qu'une seule fois.
+								</p>
+							</td>
+						</tr>
+						<tr>
+							<td style="border-top:1px solid #242424;padding-top:20px;padding-bottom:12px;">
+								<p style="margin:0;font-size:12px;line-height:1.5;color:#a3a3a3;text-align:center;">
+									Tu peux aussi cliquer ce lien pour te connecter dans ton navigateur :
+								</p>
+							</td>
+						</tr>
+						<tr>
+							<td align="center" style="padding-bottom:20px;">
+								<a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:10px 20px;background-color:transparent;color:#c4392d;font-size:13px;font-weight:600;text-decoration:none;border:1px solid #c4392d;border-radius:10px;">
+									Me connecter dans le navigateur
 								</a>
 							</td>
 						</tr>
 						<tr>
-							<td style="padding-bottom:16px;">
-								<p style="margin:0;font-size:12px;line-height:1.5;color:#737373;text-align:center;">
-									Si le bouton ne fonctionne pas, copie-colle ce lien dans ton navigateur :
-								</p>
-							</td>
-						</tr>
-						<tr>
-							<td style="padding-bottom:24px;">
-								<p style="margin:0;font-size:11px;line-height:1.5;color:#a3a3a3;text-align:center;word-break:break-all;">
-									<a href="{{ .ConfirmationURL }}" style="color:#c4392d;text-decoration:none;">{{ .ConfirmationURL }}</a>
-								</p>
-							</td>
-						</tr>
-						<tr>
 							<td style="border-top:1px solid #242424;padding-top:20px;">
-								<p style="margin:0 0 8px 0;font-size:11px;line-height:1.5;color:#737373;text-align:center;">
-									Ce lien expire dans 1 heure et ne peut être utilisé qu'une seule fois.
-								</p>
 								<p style="margin:0;font-size:11px;line-height:1.5;color:#737373;text-align:center;">
 									Si tu n'as pas demandé cette connexion, ignore simplement ce message.
 								</p>
