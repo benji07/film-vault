@@ -1,9 +1,11 @@
-import { Archive, BarChart3, Coins, Eye, Film } from "lucide-react";
+import { Archive, BarChart3, Coins, Film, Snowflake, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { BarChart } from "@/components/BarChart";
 import { EmptyState } from "@/components/EmptyState";
 import { StatCard } from "@/components/StatCard";
 import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { WashiTape } from "@/components/ui/washi-tape";
 import { T } from "@/constants/theme";
 import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
@@ -31,20 +33,23 @@ export function StatsScreen({ data }: StatsScreenProps) {
 	const byTag: Record<string, number> = {};
 	const topFilms: Record<string, number> = {};
 	const byYearMonth: Record<string, number> = {};
-	let shotCount = 0;
-	let developedCount = 0;
+	let stockCount = 0;
+	let exposedCount = 0;
+	const uniqueBrands = new Set<string>();
 
 	for (const f of films) {
 		byType[filmType(f)] = (byType[filmType(f)] || 0) + 1;
-		byBrand[filmBrand(f)] = (byBrand[filmBrand(f)] || 0) + 1;
+		const brand = filmBrand(f);
+		byBrand[brand] = (byBrand[brand] || 0) + 1;
+		uniqueBrands.add(brand);
 		const ff = f.format || "?";
 		byFormat[ff] = (byFormat[ff] || 0) + 1;
 
-		if (f.state === "developed") developedCount++;
+		if (f.state === "stock") stockCount++;
+		if (f.state === "exposed") exposedCount++;
 
 		const isShot = shotStates.has(f.state);
 		if (isShot) {
-			shotCount++;
 			const name = filmName(f);
 			topFilms[name] = (topFilms[name] || 0) + 1;
 			if (f.cameraId) {
@@ -120,100 +125,145 @@ export function StatsScreen({ data }: StatsScreenProps) {
 	}
 
 	return (
-		<div className="flex flex-col gap-5">
-			<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("stats.title")}</h2>
+		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
+			<PageHeader title={t("stats.title")} count={films.length} />
 
-			<div className="grid grid-cols-3 gap-2.5" data-tour="stats-overview">
-				<StatCard icon={Film} label={t("stats.totalFilms")} value={films.length} color={T.blue} />
-				<StatCard icon={Eye} label={t("stats.shot")} value={shotCount} color={T.green} />
-				<StatCard icon={Archive} label={t("stats.developed")} value={developedCount} color={T.textSec} />
-			</div>
+			<div className="px-[18px] pt-3 pb-32 flex flex-col gap-6">
+				{/* 4 big stats — métriques fiables et actionnables */}
+				<section className="grid grid-cols-2 gap-2.5" data-tour="stats-overview">
+					<StatCard
+						icon={Film}
+						label={t("stats.bigStats.collected", { defaultValue: "Rolls collectés" })}
+						value={films.length}
+						color={T.yellow}
+					/>
+					<StatCard
+						icon={Archive}
+						label={t("stats.bigStats.toDev", { defaultValue: "À développer" })}
+						value={exposedCount}
+						color={T.red}
+					/>
+					<StatCard
+						icon={Snowflake}
+						label={t("stats.bigStats.inStock", { defaultValue: "En stock" })}
+						value={stockCount}
+						color={T.teal}
+					/>
+					<StatCard
+						icon={Sparkles}
+						label={t("stats.bigStats.brands", { defaultValue: "Marques essayées" })}
+						value={uniqueBrands.size}
+						color={T.gold}
+					/>
+				</section>
 
-			<Card>
-				<span className="text-sm font-bold text-text-primary font-body mb-3 block">
-					{t("stats.monthlyConsumption")}
-				</span>
-				<BarChart data={byMonth} color={T.accent} sort={false} />
-				<div className="text-xs text-text-muted font-body mt-2 text-center">
-					{t("stats.annualTotal", { count: annualTotal })}
-				</div>
-			</Card>
+				<section className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 py-4 -rotate-[0.2deg]">
+					<WashiTape color="w1" rotate={-2} width={60} className="-top-[8px] left-10" />
+					<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
+						{t("stats.byBrand")}
+						<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
+							— top
+						</span>
+					</h2>
+					<BarChart data={byBrand} color={T.yellow} />
+				</section>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-				<Card>
-					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.byType")}</span>
-					<BarChart data={byType} color={T.accent} />
-				</Card>
+				<section className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 py-4 rotate-[0.2deg]">
+					<WashiTape color="w3" rotate={2} width={60} className="-top-[8px] right-10" />
+					<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
+						{t("stats.byFormat")}
+						<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
+							— stack
+						</span>
+					</h2>
+					<BarChart data={byFormat} color={T.red} />
+				</section>
 
-				<Card>
-					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.byBrand")}</span>
-					<BarChart data={byBrand} color={T.blue} />
-				</Card>
+				<section className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 py-4">
+					<WashiTape color="w2" rotate={-2} width={60} className="-top-[8px] left-10" />
+					<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
+						{t("stats.byType")}
+						<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
+							— rolls par type
+						</span>
+					</h2>
+					<BarChart data={byType} color={T.teal} />
+				</section>
 
-				<Card>
-					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.byFormat")}</span>
-					<BarChart data={byFormat} color={T.green} />
-				</Card>
-			</div>
-
-			{Object.keys(byCamera).length > 0 && (
-				<Card>
-					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.byCamera")}</span>
-					<BarChart data={byCamera} color={T.amber} />
-				</Card>
-			)}
-
-			{Object.keys(byLens).length > 0 && (
-				<Card>
-					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.byLens")}</span>
-					<BarChart data={byLens} color={T.blue} />
-				</Card>
-			)}
-
-			{Object.keys(byTag).length > 0 && (
-				<Card>
-					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.byTag")}</span>
-					<BarChart data={byTag} color={T.accent} />
-				</Card>
-			)}
-
-			{topFilmsSorted.length > 0 && (
-				<Card>
-					<span className="text-sm font-bold text-text-primary font-body mb-3 block">{t("stats.favoriteFilms")}</span>
-					<div className="flex flex-col gap-2">
-						{topFilmsSorted.map(([name, count], i) => (
-							<div key={name} className="flex items-center gap-3">
-								<span
-									className={`text-lg font-mono font-bold min-w-[28px] ${i === 0 ? "text-accent" : "text-text-muted"}`}
-								>
-									#{i + 1}
-								</span>
-								<span className="text-[13px] text-text-primary font-body flex-1">{name}</span>
-								<span className="text-sm font-mono font-semibold text-text-sec">{count}</span>
-							</div>
-						))}
+				<section className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 py-4 -rotate-[0.2deg]">
+					<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
+						{t("stats.monthlyConsumption")}
+						<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
+							— 12 derniers mois
+						</span>
+					</h2>
+					<BarChart data={byMonth} color={T.yellow} sort={false} />
+					<div className="font-typewriter text-[10px] tracking-[0.12em] uppercase text-ink-faded mt-3 text-center">
+						{t("stats.annualTotal", { count: annualTotal })}
 					</div>
-				</Card>
-			)}
+				</section>
 
-			{totalSpent > 0 && (
-				<>
-					<h3 className="font-display text-xl text-text-primary m-0 italic mt-2">{t("stats.expenses")}</h3>
-					<div className="grid grid-cols-3 gap-2.5">
-						<StatCard icon={Coins} label={t("stats.totalSpent")} value={fmtPrice(totalSpent)} color={T.orange} />
-						<StatCard icon={Coins} label={t("stats.avgPerFilm")} value={fmtPrice(avgPerFilm)} color={T.amber} />
-						<StatCard icon={Coins} label={t("stats.avgPerFrame")} value={fmtPrice(avgPerFrame)} color={T.green} />
-					</div>
-					{Object.keys(costByCategory).length > 1 && (
-						<Card>
-							<span className="text-sm font-bold text-text-primary font-body mb-3 block">
-								{t("stats.costByCategory")}
-							</span>
-							<BarChart data={costByCategory} color={T.orange} formatValue={(v) => fmtPrice(v)} />
-						</Card>
-					)}
-				</>
-			)}
+				{Object.keys(byCamera).length > 0 && (
+					<Card className="-rotate-[0.15deg]">
+						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.byCamera")}</h2>
+						<BarChart data={byCamera} color={T.gold} />
+					</Card>
+				)}
+
+				{Object.keys(byLens).length > 0 && (
+					<Card>
+						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.byLens")}</h2>
+						<BarChart data={byLens} color={T.teal} />
+					</Card>
+				)}
+
+				{Object.keys(byTag).length > 0 && (
+					<Card>
+						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.byTag")}</h2>
+						<BarChart data={byTag} color={T.red} />
+					</Card>
+				)}
+
+				{topFilmsSorted.length > 0 && (
+					<Card className="rotate-[0.15deg]">
+						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.favoriteFilms")}</h2>
+						<div className="flex flex-col gap-2">
+							{topFilmsSorted.map(([name, count], i) => (
+								<div key={name} className="flex items-center gap-3 py-1 border-b border-dashed border-ink-faded/30 last:border-0">
+									<span
+										className={`font-archivo-black text-[16px] min-w-[28px] ${i === 0 ? "text-kodak-red" : "text-ink-faded"}`}
+									>
+										#{i + 1}
+									</span>
+									<span className="font-cormorant text-[15px] text-ink flex-1">{name}</span>
+									<span className="font-archivo-black text-[14px] text-ink">{count}</span>
+								</div>
+							))}
+						</div>
+					</Card>
+				)}
+
+				{totalSpent > 0 && (
+					<>
+						<h3 className="font-caveat text-[26px] font-bold text-ink leading-none mt-2">
+							{t("stats.expenses")}
+						</h3>
+						<div className="grid grid-cols-3 gap-2.5">
+							<StatCard icon={Coins} label={t("stats.totalSpent")} value={fmtPrice(totalSpent)} color={T.yellow} />
+							<StatCard icon={Coins} label={t("stats.avgPerFilm")} value={fmtPrice(avgPerFilm)} color={T.red} />
+							<StatCard icon={Coins} label={t("stats.avgPerFrame")} value={fmtPrice(avgPerFrame)} color={T.teal} />
+						</div>
+						{Object.keys(costByCategory).length > 1 && (
+							<Card>
+								<h2 className="font-caveat text-[22px] font-bold text-ink leading-none mb-3">
+									{t("stats.costByCategory")}
+								</h2>
+								<BarChart data={costByCategory} color={T.gold} formatValue={(v) => fmtPrice(v)} />
+							</Card>
+						)}
+					</>
+				)}
+			</div>
 		</div>
 	);
 }

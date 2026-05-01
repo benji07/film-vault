@@ -1,31 +1,43 @@
-import { alpha } from "@/constants/theme";
+import { cn } from "@/lib/utils";
 import type { LucideIcon } from "@/types";
 import { useCountUp } from "@/utils/useCountUp";
 
 interface StatCardProps {
-	icon: LucideIcon;
+	icon?: LucideIcon;
 	label: string;
 	value: string | number;
+	hint?: string;
 	color?: string;
+	className?: string;
 }
 
-export function StatCard({ icon: Icon, label, value, color = "var(--color-accent)" }: StatCardProps) {
+/**
+ * Big stat tile : ink panel with a colored top stripe and shadow,
+ * archivo-black big number, archivo uppercase label, caveat hint.
+ */
+export function StatCard({ icon: Icon, label, value, hint, color = "var(--color-kodak-yellow)", className }: StatCardProps) {
 	const numericValue = typeof value === "number" ? value : Number.parseInt(String(value), 10);
-	const isNumeric = !Number.isNaN(numericValue);
+	const isNumeric = !Number.isNaN(numericValue) && /^\d/.test(String(value));
 	const animated = useCountUp(isNumeric ? numericValue : 0);
-	const suffix = isNumeric && typeof value === "string" ? value.replace(/[\d]+/, "") : "";
+	const suffix = isNumeric && typeof value === "string" ? value.replace(/^\d+/, "") : "";
 
 	return (
-		<div className="bg-card border border-border rounded-[14px] py-3.5 px-4 flex-1 min-w-0">
-			<div className="flex items-center gap-2 mb-1.5">
-				<div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: alpha(color, 0.09) }}>
-					<Icon size={14} color={color} />
-				</div>
-				<span className="text-[11px] text-text-muted font-body font-semibold">{label}</span>
+		<div
+			className={cn(
+				"relative bg-ink text-paper border-2 border-ink overflow-hidden px-3.5 py-3",
+				className,
+			)}
+			style={{ boxShadow: `4px 4px 0 ${color}` }}
+		>
+			<div className="absolute top-0 left-0 right-0 h-1" style={{ background: color }} />
+			<div className="flex items-center gap-2 mb-1">
+				{Icon && <Icon size={12} color={color} className="opacity-70" />}
+				<div className="font-archivo font-extrabold text-[9px] uppercase tracking-[0.18em] text-paper/65">{label}</div>
 			</div>
-			<span className="text-[26px] font-bold font-mono text-text-primary tabular-nums">
+			<div className="font-archivo-black text-[28px] leading-none tracking-[-0.5px] tabular-nums" style={{ color }}>
 				{isNumeric ? `${animated}${suffix}` : value}
-			</span>
+			</div>
+			{hint && <div className="font-caveat text-[14px] mt-1.5 leading-tight" style={{ color }}>{hint}</div>}
 		</div>
 	);
 }
