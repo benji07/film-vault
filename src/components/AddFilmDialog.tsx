@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FilmFormatSelect, FilmTypeSelect } from "@/components/FilmTypeFormatFields";
 import { useToast } from "@/components/Toast";
@@ -64,7 +64,8 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 	const [devDate, setDevDate] = useState("");
 	const [scanRef, setScanRef] = useState("");
 
-	const availableCameras = useMemo(() => data.cameras.filter((c) => !c.soldAt), [data.cameras]);
+	const advanced = isAfterStock(state);
+	const availableCameras = data.cameras.filter((c) => !c.soldAt);
 
 	useEffect(() => {
 		if (!open) {
@@ -106,9 +107,8 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 	};
 
 	const handleSave = () => {
-		const advanced = isAfterStock(state);
 		const qty = advanced ? 1 : Number.parseInt(quantity, 10) || 1;
-		const camera = cameraId ? data.cameras.find((c) => c.id === cameraId) : null;
+		const camera = cameraId ? (data.cameras.find((c) => c.id === cameraId) ?? null) : null;
 		const isoValue = Number.parseInt(iso, 10) || 0;
 		const shootIsoValue = shootIso.trim() ? Number.parseInt(shootIso, 10) || isoValue : null;
 		const params = {
@@ -131,7 +131,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 			lab: advanced && hasDevFields(state) ? lab.trim() || null : null,
 			devDate: advanced && hasDevFields(state) ? devDate || endDate || today() : null,
 			scanRef: state === "scanned" ? scanRef.trim() || null : null,
-			cameraDisplayName: camera ? cameraDisplayName(camera) : null,
+			camera,
 		};
 		const newFilms = Array.from({ length: qty }, () => createNewFilm(params));
 		const updated = { ...data, films: [...data.films, ...newFilms] };
@@ -140,7 +140,6 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 		onOpenChange(false);
 	};
 
-	const advanced = isAfterStock(state);
 	const qty = advanced ? 1 : Number.parseInt(quantity, 10) || 1;
 
 	return (

@@ -33,8 +33,6 @@ export function MonthYearPicker({ value, onChange, className }: MonthYearPickerP
 		}
 	};
 
-	const showClear = Boolean(value);
-
 	return (
 		<div className={cn("flex items-center gap-2", className)}>
 			<div className="grid grid-cols-2 gap-2 flex-1">
@@ -66,7 +64,7 @@ export function MonthYearPicker({ value, onChange, className }: MonthYearPickerP
 					</SelectContent>
 				</Select>
 			</div>
-			{showClear && (
+			{value && (
 				<button
 					type="button"
 					onClick={() => onChange("")}

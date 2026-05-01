@@ -1,4 +1,5 @@
-import type { Film, FilmState, HistoryEntry } from "@/types";
+import type { Camera, Film, FilmState, HistoryEntry } from "@/types";
+import { cameraDisplayName } from "@/utils/camera-helpers";
 import { today, uid } from "@/utils/helpers";
 
 const DEFAULT_POSES: Record<string, number> = {
@@ -41,7 +42,7 @@ interface NewFilmParams {
 	scanRef?: string | null;
 	scanCost?: number | null;
 	devScanPackage?: boolean;
-	cameraDisplayName?: string | null;
+	camera?: Camera | null;
 }
 
 const STATE_RANK: Record<FilmState, number> = {
@@ -57,6 +58,12 @@ function reachedStock(target: FilmState, threshold: FilmState): boolean {
 	return STATE_RANK[target] >= STATE_RANK[threshold];
 }
 
+function derivePosesShot(state: FilmState, posesShot: number | null | undefined, posesTotal: number): number | null {
+	if (state === "partial") return posesShot ?? 0;
+	if (reachedStock(state, "exposed")) return posesTotal;
+	return null;
+}
+
 function buildHistory(params: NewFilmParams, addedDate: string, posesTotal: number): HistoryEntry[] {
 	const state = params.state ?? "stock";
 	const history: HistoryEntry[] = [{ date: addedDate, action: "", actionCode: "added" }];
@@ -64,7 +71,7 @@ function buildHistory(params: NewFilmParams, addedDate: string, posesTotal: numb
 	if (state === "stock") return history;
 
 	const loadDate = params.startDate || addedDate;
-	const cameraLabel = params.cameraDisplayName ?? "?";
+	const cameraLabel = params.camera ? cameraDisplayName(params.camera) : "?";
 	history.push({
 		date: loadDate,
 		action: "",
@@ -137,7 +144,7 @@ export function createNewFilm(params: NewFilmParams): Film {
 		lensId: params.lensId ?? null,
 		startDate: isAfterStock ? (params.startDate ?? addedDate) : null,
 		endDate: reachedStock(state, "exposed") ? (params.endDate ?? params.startDate ?? addedDate) : null,
-		posesShot: state === "partial" ? (params.posesShot ?? 0) : reachedStock(state, "exposed") ? posesTotal : null,
+		posesShot: derivePosesShot(state, params.posesShot, posesTotal),
 		posesTotal,
 		lab: params.lab ?? null,
 		labRef: params.labRef ?? null,
@@ -145,7 +152,7 @@ export function createNewFilm(params: NewFilmParams): Film {
 		devCost: params.devCost ?? null,
 		scanRef: params.scanRef ?? null,
 		scanCost: params.scanCost ?? null,
-		devScanPackage: params.devScanPackage || undefined,
+		devScanPackage: params.devScanPackage,
 		storageLocation: params.storageLocation ?? null,
 		history: buildHistory(params, addedDate, posesTotal),
 		tags: params.tags && params.tags.length > 0 ? [...params.tags] : undefined,
