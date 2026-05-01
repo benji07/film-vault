@@ -35,7 +35,15 @@ export async function getCurrentUser(): Promise<User | null> {
  */
 export async function signInWithEmail(email: string): Promise<{ error: string | null }> {
 	if (!supabase) return { error: "supabase_not_configured" };
-	const redirectTo = window.location.origin + import.meta.env.BASE_URL;
+	// Redirect back to the exact app URL (origin + current pathname) so the
+	// Magic Link works on GitHub Pages where the app is served under a
+	// sub-path (e.g. /film-vault/). import.meta.env.BASE_URL is unreliable
+	// here because vite's `base: './'` resolves it to a relative value that
+	// doesn't combine cleanly with origin.
+	const path = window.location.pathname.endsWith("/")
+		? window.location.pathname
+		: window.location.pathname.replace(/\/[^/]*$/, "/");
+	const redirectTo = `${window.location.origin}${path}`;
 	const { error } = await supabase.auth.signInWithOtp({
 		email,
 		options: { emailRedirectTo: redirectTo },
