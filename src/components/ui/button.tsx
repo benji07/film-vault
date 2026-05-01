@@ -4,20 +4,32 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-	"inline-flex items-center gap-1.5 border-none cursor-pointer font-body font-semibold rounded-xl transition-all justify-center whitespace-nowrap",
+	[
+		"inline-flex items-center gap-1.5 cursor-pointer justify-center whitespace-nowrap",
+		"font-archivo font-extrabold uppercase tracking-[0.12em]",
+		"border-2 border-ink rounded-none",
+		"shadow-[3px_3px_0_var(--color-ink)]",
+		"transition-all duration-150",
+		"hover:-translate-x-px hover:-translate-y-px hover:shadow-[4px_4px_0_var(--color-ink)]",
+		"active:translate-x-px active:translate-y-px active:shadow-[2px_2px_0_var(--color-ink)]",
+		"disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0",
+	].join(" "),
 	{
 		variants: {
 			variant: {
-				default: "bg-accent text-white hover:bg-accent-hover",
-				outline: "bg-surface-alt text-text-primary border border-border",
-				ghost: "bg-transparent text-text-sec",
-				destructive: "bg-accent-soft text-accent",
+				default: "bg-kodak-red text-paper",
+				primary: "bg-kodak-red text-paper",
+				secondary: "bg-paper-card text-ink",
+				kodak: "bg-kodak-yellow text-ink",
+				outline: "bg-paper-card text-ink",
+				ghost: "bg-transparent text-ink border-transparent shadow-none hover:translate-x-0 hover:translate-y-0 hover:shadow-none hover:bg-paper-dark/60",
+				destructive: "bg-kodak-red text-paper",
 			},
 			size: {
-				default: "py-2.5 px-4.5 text-[13px] min-h-[44px]",
-				sm: "py-2 px-3 text-xs min-h-[44px]",
-				icon: "p-0 w-11 h-11 min-w-[44px] min-h-[44px]",
-				"icon-sm": "p-0 w-11 h-11 min-w-[44px] min-h-[44px]",
+				default: "py-2.5 px-4 text-[11px] min-h-[42px]",
+				sm: "py-2 px-3 text-[10px] min-h-[36px]",
+				icon: "p-0 w-11 h-11 min-w-[44px] min-h-[44px] text-base",
+				"icon-sm": "p-0 w-9 h-9 min-w-[36px] min-h-[36px] text-sm",
 			},
 		},
 		defaultVariants: {

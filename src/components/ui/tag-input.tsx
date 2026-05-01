@@ -58,22 +58,25 @@ function TagInput({ label, value, onChange, suggestions, placeholder, className 
 	return (
 		<div className={cn("flex flex-col gap-1.5", className)}>
 			{label && (
-				<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">{label}</label>
+				<label className="text-[9px] font-extrabold text-ink-faded font-archivo uppercase tracking-[0.18em]">
+					{label}
+				</label>
 			)}
 			<PopoverPrimitive.Root open={popoverOpen} onOpenChange={setIsOpen}>
 				<PopoverPrimitive.Anchor asChild>
 					{/* biome-ignore lint/a11y/useKeyWithClickEvents: inner input handles keyboard interaction */}
 					<div
 						className={cn(
-							"bg-surface-alt border border-border rounded-[10px] px-2 py-1.5",
-							"focus-within:border-accent transition-colors flex flex-wrap items-center gap-1.5",
+							"bg-paper-card/60 border-[1.5px] border-ink shadow-[2px_2px_0_var(--color-ink)] px-2 py-1.5",
+							"focus-within:border-kodak-yellow focus-within:shadow-[2px_2px_0_var(--color-kodak-yellow)] transition-colors",
+							"flex flex-wrap items-center gap-1.5",
 						)}
 						onClick={() => inputRef.current?.focus()}
 					>
 						{value.map((tag) => (
 							<span
 								key={tag}
-								className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold font-body bg-accent/15 text-accent"
+								className="inline-flex items-center gap-1 px-2 py-0.5 font-archivo font-extrabold text-[10px] uppercase tracking-[0.12em] bg-kodak-yellow text-ink border-[1.5px] border-ink"
 							>
 								{tag}
 								<button
@@ -101,13 +104,13 @@ function TagInput({ label, value, onChange, suggestions, placeholder, className 
 							onKeyDown={handleKeyDown}
 							placeholder={value.length === 0 ? placeholder : ""}
 							autoComplete="off"
-							className="flex-1 min-w-[80px] bg-transparent outline-none text-text-primary text-sm font-body placeholder:text-text-muted py-1"
+							className="flex-1 min-w-[80px] bg-transparent outline-none text-ink font-cormorant text-[15px] placeholder:text-ink-faded placeholder:italic py-1"
 						/>
 					</div>
 				</PopoverPrimitive.Anchor>
 				<PopoverPrimitive.Portal>
 					<PopoverPrimitive.Content
-						className="z-[1001] w-[var(--radix-popover-trigger-width)] bg-surface-alt border border-border rounded-[10px] overflow-hidden shadow-lg max-h-[220px] overflow-y-auto"
+						className="z-[1001] w-[var(--radix-popover-trigger-width)] bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] overflow-hidden max-h-[220px] overflow-y-auto"
 						sideOffset={4}
 						onOpenAutoFocus={(e) => e.preventDefault()}
 						onInteractOutside={() => setIsOpen(false)}
@@ -117,7 +120,7 @@ function TagInput({ label, value, onChange, suggestions, placeholder, className 
 								<li key={item}>
 									<button
 										type="button"
-										className="w-full text-left px-3.5 py-2.5 text-sm text-text-primary font-body hover:bg-surface cursor-pointer border-none bg-transparent"
+										className="w-full text-left px-3 py-2 font-cormorant text-[15px] text-ink hover:bg-kodak-yellow/30 cursor-pointer border-none bg-transparent"
 										onMouseDown={(e) => {
 											e.preventDefault();
 											addTag(item);
@@ -131,7 +134,7 @@ function TagInput({ label, value, onChange, suggestions, placeholder, className 
 								<li>
 									<button
 										type="button"
-										className="w-full text-left px-3.5 py-2.5 text-sm text-accent font-body hover:bg-surface cursor-pointer border-none bg-transparent flex items-center gap-1.5"
+										className="w-full text-left px-3 py-2 font-cormorant text-[15px] text-kodak-red hover:bg-kodak-yellow/30 cursor-pointer border-none bg-transparent flex items-center gap-1.5"
 										onMouseDown={(e) => {
 											e.preventDefault();
 											addTag(trimmed);

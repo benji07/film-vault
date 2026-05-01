@@ -24,24 +24,24 @@ export function CollapsibleSection({
 	const panelId = useId();
 
 	return (
-		<div className={cn("border border-border rounded-[14px] overflow-hidden", className)}>
+		<div className={cn("border-2 border-ink bg-paper-card overflow-hidden shadow-[3px_3px_0_var(--color-ink)]", className)}>
 			<button
 				type="button"
 				onClick={() => setOpen((prev) => !prev)}
 				aria-expanded={open}
 				aria-controls={panelId}
-				className="flex items-center gap-2.5 w-full px-4 py-3 bg-card hover:bg-card-hover transition-colors cursor-pointer text-left"
+				className="flex items-center gap-2.5 w-full px-4 py-3 hover:bg-paper-dark/40 transition-colors cursor-pointer text-left"
 			>
-				{Icon && <Icon size={16} className="text-text-sec shrink-0" />}
-				<span className="text-[13px] font-semibold text-text-primary font-body flex-1">{title}</span>
+				{Icon && <Icon size={16} className="text-ink-soft shrink-0" />}
+				<span className="font-archivo-black text-[12px] uppercase tracking-[0.12em] text-ink flex-1">{title}</span>
 				{count != null && count > 0 && (
-					<span className="text-[11px] font-mono font-bold text-text-muted bg-surface-alt rounded-full px-2 py-0.5">
+					<span className="font-archivo-black text-[10px] text-ink bg-kodak-yellow px-1.5 py-0.5 border-[1.5px] border-ink">
 						{count}
 					</span>
 				)}
 				<ChevronDown
 					size={16}
-					className={cn("text-text-muted shrink-0 transition-transform duration-200", open && "rotate-180")}
+					className={cn("text-ink-soft shrink-0 transition-transform duration-200", open && "rotate-180")}
 				/>
 			</button>
 			<section
@@ -52,7 +52,7 @@ export function CollapsibleSection({
 				)}
 			>
 				<div className="overflow-hidden">
-					<div className="px-4 pb-4 pt-2">{children}</div>
+					<div className="px-4 pb-4 pt-2 border-t border-dashed border-ink-faded/40">{children}</div>
 				</div>
 			</section>
 		</div>

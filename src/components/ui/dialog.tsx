@@ -22,7 +22,7 @@ function DialogClose(props: ComponentProps<typeof DialogPrimitive.Close>) {
 function DialogOverlay({ className, ...props }: ComponentProps<typeof DialogPrimitive.Overlay>) {
 	return (
 		<DialogPrimitive.Overlay
-			className={cn("fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm animate-backdrop-fade-in", className)}
+			className={cn("fixed inset-0 z-[1000] bg-ink/55 backdrop-blur-sm animate-backdrop-fade-in", className)}
 			{...props}
 		/>
 	);
@@ -35,8 +35,8 @@ function DialogContent({ className, children, ...props }: ComponentProps<typeof 
 			<DialogPrimitive.Content
 				className={cn(
 					"fixed z-[1000] w-full max-w-[480px] md:max-w-lg max-h-[85vh] overflow-auto",
-					"bg-surface rounded-t-[20px] md:rounded-[20px] px-5 pt-6 pb-[max(2rem,env(safe-area-inset-bottom))]",
-					"border border-border border-b-0 md:border-b",
+					"bg-paper px-5 pt-6 pb-[max(2rem,env(safe-area-inset-bottom))]",
+					"border-2 border-ink shadow-[5px_5px_0_var(--color-ink)]",
 					"bottom-0 left-1/2 -translate-x-1/2 md:bottom-auto md:top-1/2 md:-translate-y-1/2",
 					"animate-slide-up md:animate-backdrop-fade-in",
 					"outline-none",
@@ -56,12 +56,20 @@ function DialogHeader({ className, ...props }: ComponentProps<"div">) {
 
 function DialogTitle({ className, ...props }: ComponentProps<typeof DialogPrimitive.Title>) {
 	return (
-		<DialogPrimitive.Title className={cn("font-display text-[22px] text-text-primary italic", className)} {...props} />
+		<DialogPrimitive.Title
+			className={cn("font-caveat text-[26px] font-bold text-ink leading-none tracking-[-0.5px]", className)}
+			{...props}
+		/>
 	);
 }
 
 function DialogDescription({ className, ...props }: ComponentProps<typeof DialogPrimitive.Description>) {
-	return <DialogPrimitive.Description className={cn("text-sm text-text-muted", className)} {...props} />;
+	return (
+		<DialogPrimitive.Description
+			className={cn("font-typewriter text-[10px] tracking-[0.12em] text-ink-faded uppercase", className)}
+			{...props}
+		/>
+	);
 }
 
 function DialogCloseButton() {
@@ -69,9 +77,9 @@ function DialogCloseButton() {
 		<DialogPrimitive.Close asChild>
 			<button
 				type="button"
-				className="bg-surface-alt border-none rounded-[10px] w-11 h-11 flex items-center justify-center cursor-pointer"
+				className="bg-paper-card border-[1.5px] border-ink shadow-[2px_2px_0_var(--color-ink)] w-9 h-9 flex items-center justify-center cursor-pointer hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_var(--color-ink)] transition-all"
 			>
-				<X size={16} className="text-text-muted" />
+				<X size={16} className="text-ink" />
 			</button>
 		</DialogPrimitive.Close>
 	);

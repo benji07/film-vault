@@ -6,11 +6,12 @@ function Input({ className, type, ...props }: ComponentProps<"input">) {
 		<input
 			type={type}
 			className={cn(
-				"bg-surface-alt border border-border rounded-[10px] py-2.5 px-3.5",
-				"text-text-primary text-sm outline-none transition-colors font-body",
-				"focus:border-accent",
+				"bg-paper-card/60 border-[1.5px] border-ink rounded-none px-3 py-2",
+				"shadow-[2px_2px_0_var(--color-ink)]",
+				"font-cormorant text-[16px] text-ink outline-none transition-colors",
+				"focus:border-kodak-yellow focus:shadow-[2px_2px_0_var(--color-kodak-yellow)]",
 				"disabled:cursor-not-allowed disabled:opacity-50",
-				"placeholder:text-text-muted",
+				"placeholder:text-ink-faded placeholder:italic",
 				className,
 			)}
 			{...props}
