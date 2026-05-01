@@ -2,6 +2,7 @@ import { Camera, Check, Edit3, PackageX, RotateCcw, Trash2 } from "lucide-react"
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
+import { EquipmentItemCard } from "@/components/equipment/EquipmentItemCard";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { Badge } from "@/components/ui/badge";
@@ -72,79 +73,48 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.backsSection")}</h2>
-
-				<div className="flex flex-col gap-2.5">
-					{activeBacks.map((b) => {
+				<div className="flex flex-col gap-4">
+					{activeBacks.map((b, idx) => {
 						const backFilm = data.films.find((f) => f.state === "loaded" && f.backId === b.id);
 						const compatCams = data.cameras.filter((c) => !c.soldAt && b.compatibleCameraIds.includes(c.id));
+						const totalUses = data.films.filter((f) => f.backId === b.id).length;
 						return (
-							<Card key={b.id}>
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-3 flex-1 min-w-0">
-										{b.photo ? (
-											<button
-												type="button"
-												onClick={(e) => {
-													e.stopPropagation();
-													setViewerPhoto(b.photo!);
-												}}
-												aria-label={t("aria.openPhoto", { index: 1 })}
-												className="w-10 h-10 rounded-lg overflow-hidden shrink-0"
-											>
-												<PhotoImg
-													src={b.photo}
-													alt=""
-													aria-hidden="true"
-													className="w-full h-full object-cover border border-border cursor-pointer"
-												/>
-											</button>
-										) : (
-											<div className="w-10 h-10 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
-												<Camera size={16} className="text-text-muted opacity-40" />
-											</div>
-										)}
-										<div className="min-w-0">
-											<div className="text-[14px] font-semibold text-text-primary font-body">
-												{b.nickname ? `${b.nickname} (${b.name})` : b.name}
-											</div>
-											<div className="flex gap-1.5 mt-1 flex-wrap">
-												<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{b.format}</Badge>
-												{compatCams.map((c) => (
-													<Badge key={c.id} style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
-														{cameraDisplayName(c)}
-													</Badge>
-												))}
-												{backFilm && (
-													<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
-														{filmName(backFilm)}
-													</Badge>
-												)}
-											</div>
-										</div>
-									</div>
-									<div className="flex gap-1.5">
+							<EquipmentItemCard
+								key={b.id}
+								name={b.nickname ? `${b.nickname} (${b.name})` : b.name}
+								year={compatCams.map((c) => cameraDisplayName(c)).join(" · ") || undefined}
+								formatLabel={b.format}
+								photo={b.photo}
+								vignette="back"
+								index={idx}
+								washi={(["w3", "w1", "w4", "w2"][idx % 4] as "w1" | "w2" | "w3" | "w4") ?? "w3"}
+								stats={[
+									{ value: compatCams.length, label: t("cameras.cameras", { defaultValue: "boitiers" }) },
+									{ value: totalUses, label: t("cameras.usesLabel", { defaultValue: "rolls" }) },
+									{ value: b.format, label: t("cameras.formatLabel", { defaultValue: "format" }) },
+								]}
+								loadedSummary={backFilm ? filmName(backFilm) : null}
+								actions={
+									<>
 										<Button
-											variant="outline"
-											size="icon"
+											variant="secondary"
+											size="icon-sm"
 											onClick={() => setEditBack({ ...b })}
-											className="w-11 h-11 rounded-lg"
 											aria-label={t("aria.editBack")}
 										>
-											<Edit3 size={14} className="text-text-sec" />
+											<Edit3 size={14} />
 										</Button>
 										<Button
-											variant="destructive"
-											size="icon"
+											variant="ghost"
+											size="icon-sm"
 											onClick={() => sellBack(b.id)}
-											className="w-11 h-11 rounded-lg"
 											aria-label={t("aria.sellBack")}
 										>
-											<PackageX size={14} className="text-accent" />
+											<PackageX size={14} className="text-kodak-red" />
 										</Button>
-									</div>
-								</div>
-							</Card>
+									</>
+								}
+							/>
 						);
 					})}
 					{activeBacks.length === 0 && (

@@ -1,7 +1,8 @@
-import { Camera, Check, Edit3, Eye, PackageX, RotateCcw, Trash2 } from "lucide-react";
+import { Camera, Check, Edit3, PackageX, RotateCcw, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
+import { EquipmentItemCard } from "@/components/equipment/EquipmentItemCard";
 import { PhotoPicker } from "@/components/PhotoPicker";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { AutocompleteInput } from "@/components/ui/autocomplete-input";
@@ -20,7 +21,7 @@ import { SHUTTER_SPEEDS } from "@/constants/photography";
 import { alpha, T } from "@/constants/theme";
 import { type AppData, type Camera as CameraType, INSTANT_FORMATS } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
-import { filmName } from "@/utils/film-helpers";
+import { filmIso, filmName } from "@/utils/film-helpers";
 import { collectMounts } from "@/utils/lens-helpers";
 
 interface CamerasTabProps {
@@ -90,128 +91,63 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.title")}</h2>
-
-				<div className="flex flex-col gap-2.5">
-					{activeCameras.map((cam) => {
+				<div className="flex flex-col gap-4">
+					{activeCameras.map((cam, idx) => {
 						const loadedFilms = data.films.filter((f) => f.state === "loaded" && f.cameraId === cam.id);
 						const camBacks = data.backs.filter((b) => !b.soldAt && b.compatibleCameraIds.includes(cam.id));
-						const handleCardClick = () => onCameraClick?.(cam.id);
 						const canArchive = loadedFilms.length === 0;
+						const totalRolls = data.films.filter((f) => f.cameraId === cam.id).length;
+						const totalShots = data.films
+							.filter((f) => f.cameraId === cam.id)
+							.reduce((sum, f) => sum + (f.posesShot ?? 0), 0);
+						const loadedSummary = loadedFilms[0]
+							? `${filmName(loadedFilms[0])} — ${filmIso(loadedFilms[0])} ISO`
+							: null;
 						return (
-							<Card
+							<EquipmentItemCard
 								key={cam.id}
-								onClick={onCameraClick ? handleCardClick : undefined}
-								role={onCameraClick ? "button" : undefined}
-								tabIndex={onCameraClick ? 0 : undefined}
-								onKeyDown={
-									onCameraClick
-										? (e) => {
-												if (e.key === "Enter" || e.key === " ") {
-													e.preventDefault();
-													handleCardClick();
-												}
-											}
-										: undefined
-								}
-								className={onCameraClick ? "cursor-pointer hover:bg-card-hover" : undefined}
-							>
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-3">
-										{cam.photo ? (
-											<button
-												type="button"
-												onClick={(e) => {
-													e.stopPropagation();
-													setViewerPhoto(cam.photo!);
-												}}
-												aria-label={t("aria.openPhoto", { index: 1 })}
-												className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
-											>
-												<PhotoImg
-													src={cam.photo}
-													alt=""
-													aria-hidden="true"
-													className="w-full h-full object-cover border border-border cursor-pointer"
-												/>
-											</button>
-										) : (
-											<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
-												<Camera size={20} className="text-text-muted opacity-40" />
-											</div>
-										)}
-										<div>
-											<div className="text-[15px] font-semibold text-text-primary font-body">
-												{cameraDisplayName(cam)}
-											</div>
-											<div className="flex gap-1.5 mt-1.5">
-												<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{cam.format}</Badge>
-												{camBacks.length > 0 && (
-													<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
-														{camBacks.length} {t("cameras.backs")}
-													</Badge>
-												)}
-												{loadedFilms.length > 0 && (
-													<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
-														{t("cameras.loaded", { count: loadedFilms.length })}
-													</Badge>
-												)}
-											</div>
-										</div>
-									</div>
-									<div className="flex gap-1.5">
-										{onCameraClick && (
-											<Button
-												variant="outline"
-												size="icon"
-												onClick={(e) => {
-													e.stopPropagation();
-													onCameraClick(cam.id);
-												}}
-												className="w-11 h-11 rounded-lg"
-												aria-label={t("aria.viewCamera")}
-											>
-												<Eye size={14} className="text-text-sec" />
-											</Button>
-										)}
+								name={cameraDisplayName(cam)}
+								year={cam.format}
+								formatLabel={cam.format}
+								photo={cam.photo}
+								index={idx}
+								washi={(["w1", "w2", "w3", "w4"][idx % 4] as "w1" | "w2" | "w3" | "w4") ?? "w1"}
+								onClick={onCameraClick ? () => onCameraClick(cam.id) : undefined}
+								stats={[
+									{ value: totalRolls, label: t("cameras.rolls", { defaultValue: "rolls" }) },
+									{ value: totalShots || "—", label: t("cameras.shots", { defaultValue: "poses" }) },
+									{ value: camBacks.length, label: t("cameras.backsLabel", { defaultValue: "dos" }) },
+								]}
+								loadedSummary={loadedSummary}
+								actions={
+									<>
 										<Button
-											variant="outline"
-											size="icon"
+											variant="secondary"
+											size="icon-sm"
 											onClick={(e) => {
 												e.stopPropagation();
 												setEditCam({ ...cam });
 											}}
-											className="w-11 h-11 rounded-lg"
 											aria-label={t("aria.editCamera")}
 										>
-											<Edit3 size={14} className="text-text-sec" />
+											<Edit3 size={14} />
 										</Button>
 										{canArchive && (
 											<Button
-												variant="destructive"
-												size="icon"
+												variant="ghost"
+												size="icon-sm"
 												onClick={(e) => {
 													e.stopPropagation();
 													sellCamera(cam.id);
 												}}
-												className="w-11 h-11 rounded-lg"
 												aria-label={t("aria.sellCamera")}
 											>
-												<PackageX size={14} className="text-accent" />
+												<PackageX size={14} className="text-kodak-red" />
 											</Button>
 										)}
-									</div>
-								</div>
-								{loadedFilms.length > 0 && (
-									<div className="mt-3 pt-3 border-t border-border">
-										{loadedFilms.map((f) => (
-											<div key={f.id} className="text-[13px] font-body" style={{ color: T.green }}>
-												{filmName(f)} — ISO {f.shootIso}
-											</div>
-										))}
-									</div>
-								)}
-							</Card>
+									</>
+								}
+							/>
 						);
 					})}
 					{activeCameras.length === 0 && (

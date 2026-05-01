@@ -2,6 +2,7 @@ import { Edit3, Focus, PackageX, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
+import { EquipmentItemCard } from "@/components/equipment/EquipmentItemCard";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,85 +76,52 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("lenses.title")}</h2>
-
-				<div className="flex flex-col gap-2.5">
-					{activeLenses.map((lens) => {
+				<div className="flex flex-col gap-4">
+					{activeLenses.map((lens, idx) => {
 						const loadedFilms = data.films.filter((f) => f.state === "loaded" && f.lensId === lens.id);
 						const focal = lensFocalLabel(lens);
 						const aperture = lensApertureLabel(lens);
+						const totalShots = data.films.filter((f) => f.lensId === lens.id).length;
 						return (
-							<Card key={lens.id}>
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-3">
-										{lens.photo ? (
-											<button
-												type="button"
-												onClick={(e) => {
-													e.stopPropagation();
-													setViewerPhoto(lens.photo!);
-												}}
-												aria-label={t("aria.openPhoto", { index: 1 })}
-												className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
-											>
-												<PhotoImg
-													src={lens.photo}
-													alt=""
-													aria-hidden="true"
-													className="w-full h-full object-cover border border-border cursor-pointer"
-												/>
-											</button>
-										) : (
-											<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
-												<Focus size={20} className="text-text-muted opacity-40" />
-											</div>
-										)}
-										<div>
-											<div className="text-[15px] font-semibold text-text-primary font-body">
-												{lensDisplayName(lens)}
-											</div>
-											<div className="flex gap-1.5 mt-1.5 flex-wrap">
-												{focal && (
-													<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{focal}</Badge>
-												)}
-												{aperture && (
-													<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>{aperture}</Badge>
-												)}
-												{lens.mount && (
-													<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
-														{lens.mount}
-													</Badge>
-												)}
-												{loadedFilms.length > 0 && (
-													<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
-														{t("lenses.loaded", { count: loadedFilms.length })}
-													</Badge>
-												)}
-											</div>
-										</div>
-									</div>
-									<div className="flex gap-1.5">
+							<EquipmentItemCard
+								key={lens.id}
+								name={lensDisplayName(lens)}
+								year={lens.mount ? `monture ${lens.mount}` : undefined}
+								photo={lens.photo}
+								vignette="lens"
+								index={idx}
+								washi={(["w2", "w4", "w1", "w3"][idx % 4] as "w1" | "w2" | "w3" | "w4") ?? "w2"}
+								stats={[
+									{ value: focal || "—", label: t("lenses.focalLabel", { defaultValue: "focale" }) },
+									{ value: aperture || "—", label: t("lenses.apertureLabel", { defaultValue: "ouv." }) },
+									{ value: totalShots, label: t("lenses.usesLabel", { defaultValue: "utilis." }) },
+								]}
+								loadedSummary={
+									loadedFilms.length > 0
+										? t("lenses.loaded", { count: loadedFilms.length })
+										: null
+								}
+								actions={
+									<>
 										<Button
-											variant="outline"
-											size="icon"
+											variant="secondary"
+											size="icon-sm"
 											onClick={() => openEdit(lens)}
-											className="w-11 h-11 rounded-lg"
 											aria-label={t("aria.editLens")}
 										>
-											<Edit3 size={14} className="text-text-sec" />
+											<Edit3 size={14} />
 										</Button>
 										<Button
-											variant="destructive"
-											size="icon"
+											variant="ghost"
+											size="icon-sm"
 											onClick={() => sellLens(lens.id)}
-											className="w-11 h-11 rounded-lg"
 											aria-label={t("aria.sellLens")}
 										>
-											<PackageX size={14} className="text-accent" />
+											<PackageX size={14} className="text-kodak-red" />
 										</Button>
-									</div>
-								</div>
-							</Card>
+									</>
+								}
+							/>
 						);
 					})}
 					{activeLenses.length === 0 && (
