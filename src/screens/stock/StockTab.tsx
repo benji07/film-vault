@@ -15,29 +15,50 @@ interface StockTabProps {
 	searchActive: boolean;
 }
 
+interface IdenticalGroup {
+	key: string;
+	representative: Film;
+	count: number;
+}
+
 interface BrandGroup {
 	brand: string;
-	films: Film[];
+	identicals: IdenticalGroup[];
 	totalCost: number;
 	totalQty: number;
 }
 
+function identityKey(f: Film): string {
+	return [
+		(f.brand || "").toLowerCase(),
+		(f.model || "").toLowerCase(),
+		f.format || "",
+		f.iso ?? "",
+		f.expDate ?? "",
+		f.price ?? "",
+	].join("|");
+}
+
 function groupByBrand(films: Film[]): BrandGroup[] {
-	const map = new Map<string, BrandGroup>();
+	const brandMap = new Map<string, BrandGroup>();
 	for (const film of films) {
 		const brand = filmBrand(film) || "—";
-		const existing = map.get(brand);
-		const qty = film.quantity ?? 1;
-		const cost = (film.price ?? 0) * qty;
-		if (existing) {
-			existing.films.push(film);
-			existing.totalQty += qty;
-			existing.totalCost += cost;
-		} else {
-			map.set(brand, { brand, films: [film], totalQty: qty, totalCost: cost });
+		let group = brandMap.get(brand);
+		if (!group) {
+			group = { brand, identicals: [], totalQty: 0, totalCost: 0 };
+			brandMap.set(brand, group);
 		}
+		const key = identityKey(film);
+		const existing = group.identicals.find((g) => g.key === key);
+		if (existing) {
+			existing.count += 1;
+		} else {
+			group.identicals.push({ key, representative: film, count: 1 });
+		}
+		group.totalQty += 1;
+		group.totalCost += film.price ?? 0;
 	}
-	return Array.from(map.values()).sort((a, b) => b.totalQty - a.totalQty);
+	return Array.from(brandMap.values()).sort((a, b) => b.totalQty - a.totalQty);
 }
 
 export function StockTab({ films, filteredFilms, cameras, backs, onOpenFilm, searchActive }: StockTabProps) {
@@ -66,8 +87,16 @@ export function StockTab({ films, filteredFilms, cameras, backs, onOpenFilm, sea
 							{group.totalCost > 0 && ` · ${group.totalCost.toFixed(0)} €`}
 						</em>
 					</header>
-					{group.films.map((f) => (
-						<FilmRow key={f.id} film={f} cameras={cameras} backs={backs} onClick={() => onOpenFilm(f.id)} />
+					{group.identicals.map((g, i) => (
+						<FilmRow
+							key={g.key}
+							film={g.representative}
+							cameras={cameras}
+							backs={backs}
+							groupCount={g.count}
+							index={i}
+							onClick={() => onOpenFilm(g.representative.id)}
+						/>
 					))}
 				</section>
 			))}
