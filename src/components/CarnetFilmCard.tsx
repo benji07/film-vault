@@ -101,7 +101,7 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 	const pct = total > 0 ? Math.min(100, (shot / total) * 100) : 0;
 
 	const displayName = film.customName || `${film.brand ?? ""} ${film.model ?? ""}`.trim() || "—";
-	const ref = film.id.slice(-4).toUpperCase();
+	const labRef = film.labRef?.trim() || null;
 	const sub = film.type ? `${film.type.toLowerCase()}` : "";
 
 	return (
@@ -133,12 +133,14 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 						{displayName}
 						{sub && <em className="block italic font-normal text-[13px] text-ink-faded mt-0.5">{sub} · neg</em>}
 					</div>
-					<div className="font-typewriter text-[9px] tracking-[0.12em] text-ink-faded text-right leading-tight flex-shrink-0">
-						REF
-						<KodakBadge size="xs" className="block mt-0.5">
-							{ref}
-						</KodakBadge>
-					</div>
+					{labRef && (
+						<div className="font-typewriter text-[9px] tracking-[0.12em] text-ink-faded text-right leading-tight flex-shrink-0">
+							REF
+							<KodakBadge size="xs" className="block mt-0.5">
+								{labRef}
+							</KodakBadge>
+						</div>
+					)}
 				</div>
 
 				{description && <div className="font-caveat text-[17px] leading-[1.3] text-ink-soft mt-2">{description}</div>}

@@ -230,7 +230,7 @@ export function FilmDetailScreen({
 				format={film.format ?? ""}
 				type={filmType(film)}
 				variant={variant}
-				ref={film.id.slice(-4).toUpperCase()}
+				ref={film.labRef?.trim() || undefined}
 				exposures={film.posesTotal ?? undefined}
 			/>
 
