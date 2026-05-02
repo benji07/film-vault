@@ -6,7 +6,6 @@ import { StockFilterDialog } from "@/components/StockFilterDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { AppData, Film } from "@/types";
 import { usePersistedState } from "@/utils/use-persisted-state";
 import { type SortOption, useStockFilters } from "@/utils/use-stock-filters";
@@ -78,7 +77,6 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 	};
 
 	const searchActive = stockFilters.search.trim() !== "" || stockFilters.hasActiveFilters;
-	const currentResultCount = tab === "stock" ? tabCounts.stock : tabCounts.archive;
 	const totalCount = tab === "stock" ? rawStockFilms.length : films.filter((f) => f.state === "scanned").length;
 
 	return (
@@ -122,24 +120,6 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 					/>
 				)}
 
-				<div className="flex justify-between items-center">
-					<span className="font-typewriter text-[10px] tracking-[0.15em] uppercase text-ink-faded">
-						{t("stock.resultCount", { count: currentResultCount })}
-					</span>
-					<Select value={stockFilters.sortOption} onValueChange={(v) => stockFilters.setSortOption(v as SortOption)}>
-						<SelectTrigger className="w-auto min-w-[140px]">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							{SORT_OPTIONS.map((opt) => (
-								<SelectItem key={opt.value} value={opt.value}>
-									{t(opt.labelKey)}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
-
 				{tab === "stock" && (
 					<StockTab
 						films={rawStockFilms}
@@ -165,6 +145,9 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 				availableBrands={stockFilters.availableBrands}
 				availableIsoValues={stockFilters.availableIsoValues}
 				availableTags={stockFilters.availableTags}
+				sortOption={stockFilters.sortOption}
+				sortOptions={SORT_OPTIONS}
+				onSortChange={(v) => stockFilters.setSortOption(v as SortOption)}
 				onSetFormat={stockFilters.setFormat}
 				onSetType={stockFilters.setType}
 				onToggleBrand={stockFilters.toggleBrand}

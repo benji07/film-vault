@@ -3,7 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
-import type { StockFilters } from "@/utils/use-stock-filters";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { SortOption, StockFilters } from "@/utils/use-stock-filters";
+
+interface SortDef {
+	value: SortOption;
+	labelKey: string;
+}
 
 interface StockFilterDialogProps {
 	open: boolean;
@@ -14,6 +20,9 @@ interface StockFilterDialogProps {
 	availableBrands: string[];
 	availableIsoValues: number[];
 	availableTags: string[];
+	sortOption: SortOption;
+	sortOptions: SortDef[];
+	onSortChange: (value: SortOption) => void;
 	onSetFormat: (v: string) => void;
 	onSetType: (v: string) => void;
 	onToggleBrand: (brand: string) => void;
@@ -31,6 +40,9 @@ export function StockFilterDialog({
 	availableBrands,
 	availableIsoValues,
 	availableTags,
+	sortOption,
+	sortOptions,
+	onSortChange,
 	onSetFormat,
 	onSetType,
 	onToggleBrand,
@@ -49,6 +61,21 @@ export function StockFilterDialog({
 				</DialogHeader>
 
 				<div className="flex flex-col gap-5">
+					<FormField label={t("stock.sort")}>
+						<Select value={sortOption} onValueChange={(v) => onSortChange(v as SortOption)}>
+							<SelectTrigger>
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{sortOptions.map((opt) => (
+									<SelectItem key={opt.value} value={opt.value}>
+										{t(opt.labelKey)}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</FormField>
+
 					{availableFormats.length > 0 && (
 						<FormField label={t("addFilm.format")}>
 							<div className="flex flex-wrap gap-1.5">

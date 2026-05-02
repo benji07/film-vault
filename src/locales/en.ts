@@ -108,6 +108,7 @@ export const en = {
 		stateLabel: "Status",
 		brand: "Brand",
 		iso: "ISO",
+		sort: "Sort",
 		nameAsc: "Name A→Z",
 		nameDesc: "Name Z→A",
 		addedDate: "Date added ↓",
