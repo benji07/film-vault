@@ -1,4 +1,4 @@
-import { Film as FilmIcon } from "lucide-react";
+import { Film as FilmIcon, Settings } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CarnetFilmCard } from "@/components/CarnetFilmCard";
@@ -12,6 +12,7 @@ interface DashboardScreenProps {
 	data: AppData;
 	onOpenFilm: (id: string) => void;
 	onOpenCameras?: () => void;
+	onOpenSettings?: () => void;
 	setAutoOpenShotNote?: (open: boolean) => void;
 	onNavigateToStock?: (stateFilter: string) => void;
 }
@@ -27,7 +28,7 @@ function matchesFilter(state: FilmType["state"], filter: CarnetFilter): boolean 
 	return state === "developed";
 }
 
-export function DashboardScreen({ data, onOpenFilm }: DashboardScreenProps) {
+export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardScreenProps) {
 	const { t } = useTranslation();
 	const { films, cameras } = data;
 	const [filter, setFilter] = useState<CarnetFilter>("all");
@@ -49,32 +50,24 @@ export function DashboardScreen({ data, onOpenFilm }: DashboardScreenProps) {
 		{ id: "toScan", label: t("dashboard.filter.toScan"), count: counts.toScan },
 	];
 
-	const stats = [
-		{ value: counts.loaded, label: t("dashboard.stats.loaded"), color: "text-kodak-red" },
-		{ value: counts.toDev, label: t("dashboard.stats.toDev"), color: "text-kodak-yellow" },
-		{ value: counts.toScan, label: t("dashboard.stats.toScan"), color: "text-kodak-gold" },
-	];
-
 	return (
 		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
-			<PageHeader title={t("dashboard.title")} count={counts.all}>
-				{/* Stats strip — 3 actions concrètes */}
-				<section
-					className="relative grid grid-cols-3 overflow-hidden bg-ink text-paper mx-[18px] mt-1 mb-2.5 shadow-[0_4px_12px_-4px_rgba(0,0,0,0.4)]"
-					data-tour="stat-cards"
-				>
-					<div className="absolute top-0 left-0 right-0 h-1 bg-kodak-yellow" />
-					{stats.map((s, i) => (
-						<div key={s.label} className={cn("text-center py-2.5 px-2", i < 2 && "border-r border-paper/10")}>
-							<div className={cn("font-archivo-black text-[22px] leading-none tracking-[-0.5px]", s.color)}>
-								{String(s.value).padStart(2, "0")}
-							</div>
-							<div className="font-typewriter text-[8px] tracking-[0.18em] uppercase text-paper/55 mt-1">{s.label}</div>
-						</div>
-					))}
-				</section>
-
-				{/* Chips filtres logiques — axe unique : étape du workflow */}
+			<PageHeader
+				title={t("dashboard.title")}
+				count={counts.all}
+				right={
+					onOpenSettings ? (
+						<button
+							type="button"
+							onClick={onOpenSettings}
+							aria-label={t("nav.settings")}
+							className="flex items-center justify-center bg-paper-card border-2 border-ink shadow-[2px_2px_0_var(--color-ink)] w-9 h-9 cursor-pointer hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_var(--color-ink)] transition-all"
+						>
+							<Settings size={15} className="text-ink-faded" />
+						</button>
+					) : undefined
+				}
+			>
 				<nav className="flex gap-2 overflow-x-auto px-[18px] pb-2.5 fv-noscroll" aria-label={t("dashboard.title")}>
 					{filterDefs.map((f) => (
 						<Chip key={f.id} active={filter === f.id} onClick={() => setFilter(f.id)} className="flex-none">
@@ -92,7 +85,6 @@ export function DashboardScreen({ data, onOpenFilm }: DashboardScreenProps) {
 				</nav>
 			</PageHeader>
 
-			{/* Feed des pellicules en mouvement */}
 			<main className="px-[18px] pt-3.5 pb-32 flex flex-col gap-[18px]">
 				{visible.length === 0 ? (
 					<EmptyState

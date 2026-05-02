@@ -1,4 +1,4 @@
-import { ArrowLeft, Settings } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ interface AppHeaderProps {
 
 const DETAIL_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetail", "settings"]);
 
-export function AppHeader({ screen, goBack, onOpenSettings, filmTitle, cameraTitle, className }: AppHeaderProps) {
+export function AppHeader({ screen, goBack, filmTitle, cameraTitle, className }: AppHeaderProps) {
 	const { t } = useTranslation();
 	const isSubScreen = DETAIL_SCREENS.has(screen);
 
@@ -46,29 +46,7 @@ export function AppHeader({ screen, goBack, onOpenSettings, filmTitle, cameraTit
 		);
 	}
 
-	// Settings is reachable only from the Carnet (home) — the prototype keeps
-	// the rest of the screens completely free of chrome other than the page
-	// title. Other root screens (stock, cameras, stats, map, legal) render
-	// nothing here.
-	if (screen !== "home") {
-		return null;
-	}
-
-	return (
-		<div className={cn("absolute top-0 right-0 z-20", className)}>
-			<button
-				type="button"
-				onClick={onOpenSettings}
-				aria-label={t("nav.settings")}
-				className={cn(
-					"flex items-center justify-center bg-paper-card border-2 border-ink shadow-[2px_2px_0_var(--color-ink)]",
-					"w-10 h-10 cursor-pointer",
-					"mt-[max(0.75rem,env(safe-area-inset-top))] mr-3",
-					"hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_var(--color-ink)] transition-all",
-				)}
-			>
-				<Settings size={16} className="text-ink-faded" />
-			</button>
-		</div>
-	);
+	// Root screens render their own header (PageHeader) with their settings/
+	// action buttons in the right slot. Nothing to render here for them.
+	return null;
 }

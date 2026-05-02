@@ -396,6 +396,7 @@ function AppContent({
 						data={effectiveData}
 						onOpenFilm={openFilm}
 						onOpenCameras={openCamerasList}
+						onOpenSettings={openSettings}
 						setAutoOpenShotNote={setAutoOpenShotNote}
 						onNavigateToStock={openStockFiltered}
 					/>
@@ -468,6 +469,7 @@ function AppContent({
 						data={effectiveData}
 						onOpenFilm={openFilm}
 						onOpenCameras={openCamerasList}
+						onOpenSettings={openSettings}
 						setAutoOpenShotNote={setAutoOpenShotNote}
 						onNavigateToStock={openStockFiltered}
 					/>
