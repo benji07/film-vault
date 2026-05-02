@@ -1,4 +1,4 @@
-import { Edit3, Focus, PackageX, RotateCcw, Trash2 } from "lucide-react";
+import { Focus, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -91,32 +91,13 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 								vignette="lens"
 								index={idx}
 								washi={(["w2", "w4", "w1", "w3"][idx % 4] as "w1" | "w2" | "w3" | "w4") ?? "w2"}
+								onClick={() => openEdit(lens)}
 								stats={[
 									{ value: focal || "—", label: t("lenses.focalLabel", { defaultValue: "focale" }) },
 									{ value: aperture || "—", label: t("lenses.apertureLabel", { defaultValue: "ouv." }) },
 									{ value: totalShots, label: t("lenses.usesLabel", { defaultValue: "utilis." }) },
 								]}
 								loadedSummary={loadedFilms.length > 0 ? t("lenses.loaded", { count: loadedFilms.length }) : null}
-								actions={
-									<>
-										<Button
-											variant="secondary"
-											size="icon-sm"
-											onClick={() => openEdit(lens)}
-											aria-label={t("aria.editLens")}
-										>
-											<Edit3 size={14} />
-										</Button>
-										<Button
-											variant="ghost"
-											size="icon-sm"
-											onClick={() => sellLens(lens.id)}
-											aria-label={t("aria.sellLens")}
-										>
-											<PackageX size={14} className="text-kodak-red" />
-										</Button>
-									</>
-								}
 							/>
 						);
 					})}

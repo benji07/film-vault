@@ -1,4 +1,4 @@
-import { Camera, Check, Edit3, PackageX, RotateCcw, Trash2 } from "lucide-react";
+import { Camera, Check, PackageX, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
@@ -94,26 +94,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 									{ value: b.format, label: t("cameras.formatLabel", { defaultValue: "format" }) },
 								]}
 								loadedSummary={backFilm ? filmName(backFilm) : null}
-								actions={
-									<>
-										<Button
-											variant="secondary"
-											size="icon-sm"
-											onClick={() => setEditBack({ ...b })}
-											aria-label={t("aria.editBack")}
-										>
-											<Edit3 size={14} />
-										</Button>
-										<Button
-											variant="ghost"
-											size="icon-sm"
-											onClick={() => sellBack(b.id)}
-											aria-label={t("aria.sellBack")}
-										>
-											<PackageX size={14} className="text-kodak-red" />
-										</Button>
-									</>
-								}
+								onClick={() => setEditBack({ ...b })}
 							/>
 						);
 					})}

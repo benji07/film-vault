@@ -424,6 +424,7 @@ function AppContent({
 				return (
 					<CameraDetailScreen
 						data={effectiveData}
+						setData={effectiveUpdateData}
 						cameraId={selectedCamera ?? null}
 						onExit={exitToCameras}
 						onFilmClick={openFilm}
