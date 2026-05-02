@@ -97,7 +97,31 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 
 	return (
 		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
-			<PageHeader title={t("stock.title")} count={totalCount}>
+			<PageHeader
+				title={t("stock.title")}
+				count={totalCount}
+				right={
+					<>
+						<div className="relative flex-1 min-w-0">
+							<Search size={14} className="text-ink-faded absolute left-2.5 top-1/2 -translate-y-1/2" />
+							<Input
+								value={stockFilters.search}
+								onChange={(e) => stockFilters.setSearch(e.target.value)}
+								placeholder={t("stock.search")}
+								className="w-full pl-8 py-1.5 text-[14px]"
+							/>
+						</div>
+						<Button
+							variant={stockFilters.hasActiveFilters ? "default" : "outline"}
+							size="icon-sm"
+							aria-label={t("stock.filters")}
+							onClick={() => setFilterDialogOpen(true)}
+						>
+							<SlidersHorizontal size={14} />
+						</Button>
+					</>
+				}
+			>
 				<div className="px-[18px] pb-2">
 					<StockTabBar tab={tab} onChange={handleTabChange} counts={tabCounts} />
 				</div>
@@ -132,26 +156,6 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 			</PageHeader>
 
 			<div className="px-[18px] pt-3 pb-32 flex flex-col gap-3">
-				<div className="flex gap-2">
-					<div className="relative flex-1">
-						<Search size={16} className="text-ink-faded absolute left-3 top-3" />
-						<Input
-							value={stockFilters.search}
-							onChange={(e) => stockFilters.setSearch(e.target.value)}
-							placeholder={t("stock.search")}
-							className="w-full pl-9"
-						/>
-					</div>
-					<Button
-						variant={stockFilters.hasActiveFilters ? "default" : "outline"}
-						size="icon"
-						aria-label={t("stock.filters")}
-						onClick={() => setFilterDialogOpen(true)}
-					>
-						<SlidersHorizontal size={16} />
-					</Button>
-				</div>
-
 				<ActiveFilterChips
 					filters={stockFilters.activeFilterDescriptions}
 					onRemove={stockFilters.removeFilter}

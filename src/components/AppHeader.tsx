@@ -46,7 +46,11 @@ export function AppHeader({ screen, goBack, onOpenSettings, filmTitle, cameraTit
 		);
 	}
 
-	if (screen === "legal") {
+	// Settings is reachable only from the Carnet (home) — the prototype keeps
+	// the rest of the screens completely free of chrome other than the page
+	// title. Other root screens (stock, cameras, stats, map, legal) render
+	// nothing here.
+	if (screen !== "home") {
 		return null;
 	}
 
