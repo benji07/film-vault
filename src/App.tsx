@@ -568,7 +568,7 @@ function AppContent({
 				}}
 			/>
 			<FloatingActionMenu
-				visible={showTabBar && !isTourActive}
+				visible={showTabBar && !isTourActive && screen !== "map"}
 				context={
 					screen === "stock"
 						? "stock"
