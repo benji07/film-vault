@@ -87,7 +87,7 @@ export function BacksTab({ data, setData }: BacksTabProps) {
 								photo={b.photo}
 								vignette="back"
 								index={idx}
-								washi={(["w3", "w1", "w4", "w2"][idx % 4] as "w1" | "w2" | "w3" | "w4") ?? "w3"}
+								washiOffset={2}
 								stats={[
 									{ value: compatCams.length, label: t("cameras.cameras", { defaultValue: "boitiers" }) },
 									{ value: totalUses, label: t("cameras.usesLabel", { defaultValue: "rolls" }) },

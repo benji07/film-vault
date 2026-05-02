@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { PhotoImg } from "@/components/ui/photo-img";
 import { WashiTape } from "@/components/ui/washi-tape";
 import { cn } from "@/lib/utils";
+import { pickRotation, pickWashiColor, pickWashiPosition, type WashiColor } from "@/utils/card-decorations";
 
 export type EquipmentVignette = "default" | "silver" | "red" | "lens" | "back";
 
@@ -13,42 +14,43 @@ interface EquipmentItemCardProps {
 	loadedSummary?: string | null;
 	photo?: string | null;
 	vignette?: EquipmentVignette;
-	washi?: "w1" | "w2" | "w3" | "w4";
+	washi?: WashiColor;
+	washiOffset?: number;
 	index?: number;
 	actions?: ReactNode;
 	onClick?: () => void;
 	className?: string;
 }
 
-const VIGNETTE_BG: Record<EquipmentVignette, string> = {
-	default: "linear-gradient(180deg, #4a3f30 0%, #2a221a 100%)",
-	silver: "linear-gradient(180deg, #c4b8a0 0%, #8a7e6a 100%)",
-	red: "linear-gradient(180deg, #8a3024 0%, #5a1810 100%)",
-	lens: "linear-gradient(180deg, #2d3a44 0%, #16202a 100%)",
-	back: "linear-gradient(180deg, #5e4e3a 0%, #312618 100%)",
-};
+type VignetteStyle = { background: string; boxShadow: string };
 
-const VIGNETTE_RING: Record<EquipmentVignette, string> = {
-	default: "#2a2520",
-	silver: "#1a1612",
-	red: "#1a1612",
-	lens: "#0a0a12",
-	back: "#1a1410",
-};
+const VIGNETTE_STYLES: Record<EquipmentVignette, VignetteStyle> = (() => {
+	const bg: Record<EquipmentVignette, string> = {
+		default: "linear-gradient(180deg, #4a3f30 0%, #2a221a 100%)",
+		silver: "linear-gradient(180deg, #c4b8a0 0%, #8a7e6a 100%)",
+		red: "linear-gradient(180deg, #8a3024 0%, #5a1810 100%)",
+		lens: "linear-gradient(180deg, #2d3a44 0%, #16202a 100%)",
+		back: "linear-gradient(180deg, #5e4e3a 0%, #312618 100%)",
+	};
+	const ring: Record<EquipmentVignette, string> = {
+		default: "#2a2520",
+		silver: "#1a1612",
+		red: "#1a1612",
+		lens: "#0a0a12",
+		back: "#1a1410",
+	};
+	const boxShadow = "inset 0 -8px 12px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,200,100,0.15)";
+	return Object.fromEntries(
+		(Object.keys(bg) as EquipmentVignette[]).map((k) => [
+			k,
+			{
+				background: `radial-gradient(circle at 50% 60%, ${ring[k]} 0 16px, var(--color-ink) 16px 18px, transparent 18px), ${bg[k]}`,
+				boxShadow,
+			},
+		]),
+	) as Record<EquipmentVignette, VignetteStyle>;
+})();
 
-const ROTATIONS = ["-rotate-[0.3deg]", "rotate-[0.2deg]", "rotate-[0.4deg]", "-rotate-[0.25deg]"];
-const WASHI_POS = [
-	{ left: "left-[30px]", rotate: -2 },
-	{ left: "right-[30px]", rotate: 2 },
-	{ left: "left-[60%]", rotate: -1 },
-	{ left: "left-6", rotate: 3 },
-];
-
-/**
- * Carte équipement façon prototype : 110px gauche pour la vignette /
- * photo, 1fr droite pour le nom + année + grille de stats + bandeau
- * "chargée" si film actif. Rotation légère + washi tape déco.
- */
 export function EquipmentItemCard({
 	name,
 	year,
@@ -57,14 +59,16 @@ export function EquipmentItemCard({
 	loadedSummary,
 	photo,
 	vignette = "default",
-	washi = "w1",
+	washi,
+	washiOffset = 0,
 	index = 0,
 	actions,
 	onClick,
 	className,
 }: EquipmentItemCardProps) {
-	const rotation = ROTATIONS[index % ROTATIONS.length] ?? "";
-	const washiPos = WASHI_POS[index % WASHI_POS.length] ?? WASHI_POS[0]!;
+	const rotation = pickRotation(index);
+	const washiPos = pickWashiPosition(index);
+	const washiColor = washi ?? pickWashiColor(index, washiOffset);
 
 	const innerClasses = cn(
 		"grid w-full text-left grid-cols-[110px_1fr] overflow-hidden",
@@ -78,13 +82,7 @@ export function EquipmentItemCard({
 				{photo ? (
 					<PhotoImg src={photo} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
 				) : (
-					<div
-						className="w-[70px] h-[50px] rounded-[4px] relative"
-						style={{
-							background: `radial-gradient(circle at 50% 60%, ${VIGNETTE_RING[vignette]} 0 16px, var(--color-ink) 16px 18px, transparent 18px), ${VIGNETTE_BG[vignette]}`,
-							boxShadow: "inset 0 -8px 12px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,200,100,0.15)",
-						}}
-					>
+					<div className="w-[70px] h-[50px] rounded-[4px] relative" style={VIGNETTE_STYLES[vignette]}>
 						<span
 							className="absolute top-1.5 left-1/2 w-6 h-1.5 bg-ink rounded-sm"
 							style={{ transform: "translateX(-50%)" }}
@@ -151,7 +149,7 @@ export function EquipmentItemCard({
 			)}
 		>
 			<WashiTape
-				color={washi}
+				color={washiColor}
 				rotate={washiPos.rotate}
 				width={54}
 				className={cn("-top-[7px]", washiPos.left)}

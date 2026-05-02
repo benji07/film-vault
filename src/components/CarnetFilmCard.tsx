@@ -7,6 +7,7 @@ import { filmTypeToVariant } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 import type { Camera, Film } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
+import { pickRotation, pickWashiColor, pickWashiPosition } from "@/utils/card-decorations";
 
 interface CarnetFilmCardProps {
 	film: Film;
@@ -15,15 +16,6 @@ interface CarnetFilmCardProps {
 	index?: number;
 	className?: string;
 }
-
-const ROTATIONS = ["-rotate-[0.3deg]", "rotate-[0.25deg]", "rotate-[0.5deg]", "-rotate-[0.4deg]", "rotate-[0.3deg]"];
-const WASHI_VARIANTS: Array<{ color: "w1" | "w2" | "w3" | "w4"; left: string; rotate: number }> = [
-	{ color: "w1", left: "left-[30px]", rotate: -2 },
-	{ color: "w3", left: "right-[30px]", rotate: 2 },
-	{ color: "w2", left: "left-1/2", rotate: -1 },
-	{ color: "w4", left: "left-[60px]", rotate: 3 },
-	{ color: "w1", left: "left-[30px]", rotate: -2 },
-];
 
 const STATE_BG: Record<string, string> = {
 	loaded: "bg-kodak-red text-paper",
@@ -92,8 +84,9 @@ function describeState(
 export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: CarnetFilmCardProps) {
 	const { t } = useTranslation();
 	const variant = filmTypeToVariant(film.type);
-	const rotation = ROTATIONS[index % ROTATIONS.length] ?? "";
-	const washi = WASHI_VARIANTS[index % WASHI_VARIANTS.length] ?? WASHI_VARIANTS[0]!;
+	const rotation = pickRotation(index);
+	const washiPos = pickWashiPosition(index);
+	const washiColor = pickWashiColor(index);
 	const { state, description } = describeState(film, camera, t);
 
 	const total = film.posesTotal ?? 36;
@@ -119,11 +112,11 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 			)}
 		>
 			<WashiTape
-				color={washi.color}
-				rotate={washi.rotate}
+				color={washiColor}
+				rotate={washiPos.rotate}
 				width={64}
-				className={cn("-top-[7px]", washi.left)}
-				style={washi.left.includes("right") ? { right: 30, left: "auto" } : undefined}
+				className={cn("-top-[7px]", washiPos.left)}
+				style={washiPos.left.includes("right") ? { right: 30, left: "auto" } : undefined}
 			/>
 			<FilmLabel iso={film.iso ?? "—"} format={film.format ?? ""} variant={variant} typeLabel={sub} />
 

@@ -90,7 +90,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 								photo={lens.photo}
 								vignette="lens"
 								index={idx}
-								washi={(["w2", "w4", "w1", "w3"][idx % 4] as "w1" | "w2" | "w3" | "w4") ?? "w2"}
+								washiOffset={1}
 								onClick={() => openEdit(lens)}
 								stats={[
 									{ value: focal || "—", label: t("lenses.focalLabel", { defaultValue: "focale" }) },

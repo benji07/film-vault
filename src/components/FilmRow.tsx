@@ -4,6 +4,7 @@ import { filmTypeToVariant } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 import type { Back, Camera, Film } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
+import { pickRotation } from "@/utils/card-decorations";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { filmName, filmType } from "@/utils/film-helpers";
 
@@ -15,8 +16,6 @@ interface FilmRowProps {
 	groupCount?: number;
 	index?: number;
 }
-
-const ROTATIONS = ["-rotate-[0.2deg]", "rotate-[0.15deg]", "rotate-[0.3deg]", "-rotate-[0.25deg]"];
 
 const STATE_TONE: Record<Film["state"], { bg: string; fg: string }> = {
 	stock: { bg: "bg-transparent border-ink-faded", fg: "text-ink-faded" },
@@ -35,7 +34,7 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount, index = 0 }
 	const expInfo = getExpirationStatus(film.expDate, t);
 	const isExpiring = expInfo && (expInfo.status === "expiring" || expInfo.status === "expired");
 	const stateLabel = t(`states.${film.state}`);
-	const rotation = ROTATIONS[index % ROTATIONS.length] ?? "";
+	const rotation = pickRotation(index, "subtle");
 	const tone = STATE_TONE[film.state];
 
 	const sub = film.type ? film.type.toLowerCase() : "";

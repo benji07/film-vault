@@ -96,7 +96,6 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 								formatLabel={cam.format}
 								photo={cam.photo}
 								index={idx}
-								washi={(["w1", "w2", "w3", "w4"][idx % 4] as "w1" | "w2" | "w3" | "w4") ?? "w1"}
 								onClick={onCameraClick ? () => onCameraClick(cam.id) : undefined}
 								stats={[
 									{ value: totalRolls, label: t("cameras.rolls", { defaultValue: "rolls" }) },
