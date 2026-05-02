@@ -38,7 +38,8 @@ export function EquipmentScreen({ data, setData, onCameraClick }: EquipmentScree
 	return (
 		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]" data-tour="cameras-tab">
 			<PageHeader title={headerTitle} count={counts[activeTab]}>
-				<nav className="grid grid-cols-3 mx-[18px] mb-2.5 border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card">
+				<div className="px-[18px] pb-3">
+					<nav className="grid grid-cols-3 border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card">
 					{tabs.map((tab, i) => {
 						const active = activeTab === tab.key;
 						return (
@@ -61,7 +62,8 @@ export function EquipmentScreen({ data, setData, onCameraClick }: EquipmentScree
 							</button>
 						);
 					})}
-				</nav>
+					</nav>
+				</div>
 			</PageHeader>
 
 			<div className="px-[18px] pt-6 pb-32 flex flex-col gap-4">
