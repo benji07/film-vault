@@ -352,6 +352,7 @@
 	animation: tourBackdropFadeIn 0.25s ease-out;
 }
 
+/* biome-ignore-start lint/complexity/noImportantStyles: intentional override of any inline transition or animation when the user opts into reduced motion. */
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,
@@ -362,3 +363,4 @@
 		scroll-behavior: auto !important;
 	}
 }
+/* biome-ignore-end lint/complexity/noImportantStyles: see above */

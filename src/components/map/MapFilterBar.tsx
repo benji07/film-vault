@@ -48,12 +48,7 @@ export function MapFilterBar({
 				{FILM_TYPES.map((type) => {
 					const active = filterType === type;
 					return (
-						<Chip
-							key={type}
-							active={active}
-							onClick={() => onFilterType(active ? null : type)}
-							className="flex-none"
-						>
+						<Chip key={type} active={active} onClick={() => onFilterType(active ? null : type)} className="flex-none">
 							<div className="w-2 h-2 rounded-full" style={{ backgroundColor: MARKER_COLORS[type] }} />
 							{t(`filmTypes.${type}`, type)}
 						</Chip>
@@ -70,12 +65,7 @@ export function MapFilterBar({
 					{availableTags.map((tag) => {
 						const active = filterTag === tag;
 						return (
-							<Chip
-								key={tag}
-								active={active}
-								onClick={() => onFilterTag(active ? null : tag)}
-								className="flex-none"
-							>
+							<Chip key={tag} active={active} onClick={() => onFilterTag(active ? null : tag)} className="flex-none">
 								{tag}
 							</Chip>
 						);

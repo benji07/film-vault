@@ -1,8 +1,8 @@
 import { Archive, Camera as CameraIcon, Edit3, Film as FilmIcon, History, Info } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { EditCameraDialog, type EditableCamera } from "@/components/equipment/EditCameraDialog";
 import { EmptyState } from "@/components/EmptyState";
+import { type EditableCamera, EditCameraDialog } from "@/components/equipment/EditCameraDialog";
 import { PhotoViewer } from "@/components/PhotoViewer";
 import { useToast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
@@ -185,7 +185,8 @@ export function CameraDetailScreen({ data, setData, cameraId, onExit, onFilmClic
 				onOpenChange={setArchiveOpen}
 				title={t("cameras.archive", { defaultValue: "Archiver le boitier" })}
 				description={t("cameras.archiveConfirm", {
-					defaultValue: "Le boitier sera déplacé dans la section archivée et ne sera plus utilisable pour de nouveaux rolls.",
+					defaultValue:
+						"Le boitier sera déplacé dans la section archivée et ne sera plus utilisable pour de nouveaux rolls.",
 				})}
 				confirmLabel={t("cameras.archive", { defaultValue: "Archiver" })}
 				destructive
