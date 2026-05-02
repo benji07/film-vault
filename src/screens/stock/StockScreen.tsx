@@ -53,24 +53,6 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 
 	const stockFilters = useStockFilters(films, scope);
 
-	// Counts for the scope toggle inside the dialog. They reflect the
-	// other-than-scope filters so the user knows how many are on each side
-	// before flipping.
-	const scopeCounts = useMemo(() => {
-		const lowerSearch = stockFilters.search.trim().toLowerCase();
-		let stock = 0;
-		let scanned = 0;
-		for (const f of films) {
-			if (lowerSearch) {
-				const name = `${f.brand ?? ""} ${f.model ?? f.customName ?? ""}`.toLowerCase();
-				if (!name.includes(lowerSearch)) continue;
-			}
-			if (f.state === "stock") stock++;
-			else if (f.state === "scanned") scanned++;
-		}
-		return { stock, scanned };
-	}, [films, stockFilters.search]);
-
 	const rawScopeFilms = useMemo(() => films.filter((f) => f.state === scope), [films, scope]);
 	const totalCount = rawScopeFilms.length;
 	const searchActive = stockFilters.search.trim() !== "" || stockFilters.hasActiveFilters;
@@ -138,7 +120,7 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 				sortOption={stockFilters.sortOption}
 				sortOptions={SORT_OPTIONS}
 				scope={scope}
-				scopeCounts={scopeCounts}
+				scopeCounts={stockFilters.scopeCounts}
 				onScopeChange={setScope}
 				onSortChange={(v) => stockFilters.setSortOption(v as SortOption)}
 				onSetFormat={stockFilters.setFormat}

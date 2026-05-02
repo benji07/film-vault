@@ -193,6 +193,19 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 		return result;
 	}, [films, stateFilter, filters, search, sortOption]);
 
+	// Counts on each side of the Stock/Archive toggle in the filter dialog,
+	// already narrowed by search + every active dimension filter so the user
+	// can see "if I flip the scope, this is what I'd land on".
+	const scopeCounts = useMemo(() => {
+		let stock = 0;
+		let scanned = 0;
+		for (const f of applyFiltersExcept(films, "all", filters, search, null)) {
+			if (f.state === "stock") stock++;
+			else if (f.state === "scanned") scanned++;
+		}
+		return { stock, scanned };
+	}, [films, filters, search]);
+
 	const hasActiveFilters = useMemo(
 		() =>
 			filters.format !== "all" ||
@@ -280,6 +293,7 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 		availableBrands,
 		availableIsoValues,
 		availableTags,
+		scopeCounts,
 		hasActiveFilters,
 		activeFilterDescriptions,
 		setFormat,
