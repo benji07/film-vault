@@ -779,6 +779,27 @@ export const fr = {
 			"Pour toute question relative à vos données ou pour exercer vos droits, vous pouvez contacter l'éditeur via GitHub : github.com/benji07/film-vault/issues.",
 	},
 
+	// Feedback module
+	feedback: {
+		entryTitle: "Envoyer un feedback",
+		title: "Ton retour",
+		subtitle: "Bug, suggestion ou simple retour — tout est lu, promis.",
+		categoryLabel: "Type",
+		categoryBug: "Signaler un bug",
+		categorySuggestion: "Proposer une fonctionnalité",
+		categoryOther: "Autre",
+		messageLabel: "Message",
+		messagePlaceholder: "Décris ce qui ne va pas, ou ce que tu aimerais voir…",
+		emailLabel: "Email (optionnel)",
+		emailPlaceholder: "ton@email.com",
+		emailHelper: "Pour qu'on puisse te répondre.",
+		emailInvalid: "Format d'email invalide.",
+		sendButton: "Envoyer",
+		sending: "Envoi…",
+		submissionSuccess: "Merci pour ton retour !",
+		submissionError: "L'envoi a échoué. Réessaye plus tard.",
+	},
+
 	// Tour / Guide
 	tour: {
 		welcome: {

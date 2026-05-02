@@ -15,6 +15,7 @@ import {
 	Loader2,
 	LogOut,
 	Mail,
+	MessageCircle,
 	Package,
 	Play,
 	RefreshCw,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FeedbackModal } from "@/components/FeedbackModal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -77,6 +79,7 @@ export function SettingsScreen({
 	const [restoring, setRestoring] = useState(false);
 	const [exportCode, setExportCode] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
+	const [feedbackOpen, setFeedbackOpen] = useState(false);
 
 	// Fetch the export/secours recovery code once signed in.
 	useEffect(() => {
@@ -539,9 +542,19 @@ export function SettingsScreen({
 				</Card>
 			)}
 
+			<Button
+				variant="ghost"
+				onClick={() => setFeedbackOpen(true)}
+				className="w-full justify-center text-text-muted text-xs"
+			>
+				<MessageCircle size={14} /> {t("feedback.entryTitle")}
+			</Button>
+
 			<Button variant="ghost" onClick={onOpenLegal} className="w-full justify-center text-text-muted text-xs">
 				{t("settings.legalNotices")}
 			</Button>
+
+			<FeedbackModal open={feedbackOpen} onOpenChange={setFeedbackOpen} />
 
 			<div className="flex flex-col gap-2.5">
 				<Button variant="outline" onClick={() => exportData(data)} className="w-full justify-center">
