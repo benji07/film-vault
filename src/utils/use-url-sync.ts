@@ -2,7 +2,15 @@ import { useEffect, useRef } from "react";
 import type { NavigationEntry, ScreenName } from "@/types";
 import type { NavigationStack } from "./use-navigation-stack";
 
-const ROOT_SCREENS: ReadonlySet<ScreenName> = new Set(["home", "stock", "cameras", "stats", "map", "settings", "legal"]);
+const ROOT_SCREENS: ReadonlySet<ScreenName> = new Set([
+	"home",
+	"stock",
+	"cameras",
+	"stats",
+	"map",
+	"settings",
+	"legal",
+]);
 
 /**
  * Build a hash fragment (without the leading "#") from a navigation entry.

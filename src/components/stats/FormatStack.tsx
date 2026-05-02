@@ -45,9 +45,7 @@ export function FormatStack({ data, className }: FormatStackProps) {
 						)}
 						style={{ width: `${s.pct}%`, background: s.color }}
 					>
-						{s.pct > 8 && (
-							<span className={cn("font-archivo-black text-[14px]", s.fg)}>{Math.round(s.pct)}%</span>
-						)}
+						{s.pct > 8 && <span className={cn("font-archivo-black text-[14px]", s.fg)}>{Math.round(s.pct)}%</span>}
 					</div>
 				))}
 			</div>
@@ -58,10 +56,7 @@ export function FormatStack({ data, className }: FormatStackProps) {
 						key={s.key}
 						className="flex items-center gap-2 font-archivo font-bold text-[10px] uppercase tracking-[0.1em] text-ink-soft"
 					>
-						<span
-							className="w-2.5 h-2.5 border-[1.5px] border-ink shrink-0"
-							style={{ background: s.color }}
-						/>
+						<span className="w-2.5 h-2.5 border-[1.5px] border-ink shrink-0" style={{ background: s.color }} />
 						<span className="truncate">{s.key}</span>
 						<span className="font-archivo-black text-[11px] text-ink ml-auto">{s.value}</span>
 					</div>

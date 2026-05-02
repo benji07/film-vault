@@ -1,19 +1,18 @@
 import { Search, SlidersHorizontal } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
-import { StockFilterDialog } from "@/components/StockFilterDialog";
+import { StockFilterDialog, type StockScope } from "@/components/StockFilterDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
-import type { AppData, Film } from "@/types";
+import type { AppData } from "@/types";
 import { usePersistedState } from "@/utils/use-persisted-state";
 import { type SortOption, useStockFilters } from "@/utils/use-stock-filters";
 import { ArchiveTab } from "./ArchiveTab";
 import { StockTab } from "./StockTab";
-import { StockTabBar, type StockTab as StockTabKey } from "./StockTabBar";
 
-const TAB_STORAGE_KEY = "filmvault-stock-tab";
+const SCOPE_STORAGE_KEY = "filmvault-stock-scope";
 
 const SORT_OPTIONS: { value: SortOption; labelKey: string }[] = [
 	{ value: "name-asc", labelKey: "stock.nameAsc" },
@@ -34,10 +33,9 @@ interface StockScreenProps {
 	initialStateFilter?: string | null;
 }
 
-function mapStateToTab(state: string | null | undefined): StockTabKey | null {
-	if (!state) return null;
+function mapStateToScope(state: string | null | undefined): StockScope | null {
 	if (state === "stock") return "stock";
-	if (state === "scanned") return "archive";
+	if (state === "scanned") return "scanned";
 	return null;
 }
 
@@ -45,39 +43,37 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 	const { t } = useTranslation();
 	const { films, cameras, backs } = data;
 
-	const [tab, setTab] = usePersistedState<StockTabKey>(TAB_STORAGE_KEY, "stock");
+	const [scope, setScope] = usePersistedState<StockScope>(SCOPE_STORAGE_KEY, "stock");
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
 	useEffect(() => {
-		if (!initialStateFilter) return;
-		const target = mapStateToTab(initialStateFilter);
-		if (!target) return;
-		setTab(target);
-	}, [initialStateFilter, setTab]);
+		const target = mapStateToScope(initialStateFilter);
+		if (target) setScope(target);
+	}, [initialStateFilter, setScope]);
 
-	const handleTabChange = useCallback((next: StockTabKey) => setTab(next), [setTab]);
+	const stockFilters = useStockFilters(films, scope);
 
-	const stockFilters = useStockFilters(films);
-
-	const filteredByTab = useMemo(() => {
-		const stock: Film[] = [];
-		const archive: Film[] = [];
-		for (const f of stockFilters.filteredFilms) {
-			if (f.state === "stock") stock.push(f);
-			else if (f.state === "scanned") archive.push(f);
+	// Counts for the scope toggle inside the dialog. They reflect the
+	// other-than-scope filters so the user knows how many are on each side
+	// before flipping.
+	const scopeCounts = useMemo(() => {
+		const lowerSearch = stockFilters.search.trim().toLowerCase();
+		let stock = 0;
+		let scanned = 0;
+		for (const f of films) {
+			if (lowerSearch) {
+				const name = `${f.brand ?? ""} ${f.model ?? f.customName ?? ""}`.toLowerCase();
+				if (!name.includes(lowerSearch)) continue;
+			}
+			if (f.state === "stock") stock++;
+			else if (f.state === "scanned") scanned++;
 		}
-		return { stock, archive };
-	}, [stockFilters.filteredFilms]);
+		return { stock, scanned };
+	}, [films, stockFilters.search]);
 
-	const rawStockFilms = useMemo(() => films.filter((f) => f.state === "stock"), [films]);
-
-	const tabCounts = {
-		stock: filteredByTab.stock.length,
-		archive: filteredByTab.archive.length,
-	};
-
+	const rawScopeFilms = useMemo(() => films.filter((f) => f.state === scope), [films, scope]);
+	const totalCount = rawScopeFilms.length;
 	const searchActive = stockFilters.search.trim() !== "" || stockFilters.hasActiveFilters;
-	const totalCount = tab === "stock" ? rawStockFilms.length : films.filter((f) => f.state === "scanned").length;
 
 	return (
 		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
@@ -105,11 +101,7 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 						</Button>
 					</>
 				}
-			>
-				<div className="px-[18px] pb-2.5">
-					<StockTabBar tab={tab} onChange={handleTabChange} counts={tabCounts} />
-				</div>
-			</PageHeader>
+			/>
 
 			<div className="px-[18px] pt-6 pb-32 flex flex-col gap-3">
 				{stockFilters.activeFilterDescriptions.length > 0 && (
@@ -120,19 +112,17 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 					/>
 				)}
 
-				{tab === "stock" && (
+				{scope === "stock" ? (
 					<StockTab
-						films={rawStockFilms}
-						filteredFilms={filteredByTab.stock}
+						films={rawScopeFilms}
+						filteredFilms={stockFilters.filteredFilms}
 						cameras={cameras}
 						backs={backs}
 						onOpenFilm={onOpenFilm}
 						searchActive={searchActive}
 					/>
-				)}
-
-				{tab === "archive" && (
-					<ArchiveTab films={filteredByTab.archive} cameras={cameras} backs={backs} onOpenFilm={onOpenFilm} />
+				) : (
+					<ArchiveTab films={stockFilters.filteredFilms} cameras={cameras} backs={backs} onOpenFilm={onOpenFilm} />
 				)}
 			</div>
 
@@ -147,6 +137,9 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 				availableTags={stockFilters.availableTags}
 				sortOption={stockFilters.sortOption}
 				sortOptions={SORT_OPTIONS}
+				scope={scope}
+				scopeCounts={scopeCounts}
+				onScopeChange={setScope}
 				onSortChange={(v) => stockFilters.setSortOption(v as SortOption)}
 				onSetFormat={stockFilters.setFormat}
 				onSetType={stockFilters.setType}

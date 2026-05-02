@@ -53,11 +53,7 @@ export function MapFilterBar({
 		<div className="absolute top-3 left-3 right-3 z-10 flex flex-col gap-2">
 			{/* Film type filter */}
 			<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-				<Chip
-					active={filterType == null}
-					onClick={() => onFilterType(null)}
-					className={mapChipCls(filterType == null)}
-				>
+				<Chip active={filterType == null} onClick={() => onFilterType(null)} className={mapChipCls(filterType == null)}>
 					{t("map.allTypes")}
 				</Chip>
 				{FILM_TYPES.map((type) => {
@@ -79,11 +75,7 @@ export function MapFilterBar({
 			{/* Tag filter */}
 			{availableTags.length > 0 && (
 				<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-					<Chip
-						active={filterTag == null}
-						onClick={() => onFilterTag(null)}
-						className={mapChipCls(filterTag == null)}
-					>
+					<Chip active={filterTag == null} onClick={() => onFilterTag(null)} className={mapChipCls(filterTag == null)}>
 						{t("map.allTags")}
 					</Chip>
 					{availableTags.map((tag) => {

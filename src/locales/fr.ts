@@ -109,6 +109,7 @@ export const fr = {
 		brand: "Marque",
 		iso: "ISO",
 		sort: "Tri",
+		scope: "Lot",
 		nameAsc: "Nom A→Z",
 		nameDesc: "Nom Z→A",
 		addedDate: "Date d'ajout ↓",

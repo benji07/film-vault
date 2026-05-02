@@ -19,13 +19,7 @@ interface PageHeaderProps {
  */
 export function PageHeader({ title, count, right, children, className }: PageHeaderProps) {
 	return (
-		<header
-			className={cn(
-				"sticky top-0 z-30 bg-paper",
-				"shadow-[0_2px_0_var(--color-ink-faded)]",
-				className,
-			)}
-		>
+		<header className={cn("sticky top-0 z-30 bg-paper", "shadow-[0_2px_0_var(--color-ink-faded)]", className)}>
 			<div className="flex items-center gap-2.5 px-4 pt-4 pb-2.5 pl-[18px] pr-3.5">
 				<h1 className="font-caveat font-bold text-[28px] leading-none text-ink tracking-[-0.5px] flex-shrink-0">
 					{title}

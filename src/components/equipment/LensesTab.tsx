@@ -96,11 +96,7 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 									{ value: aperture || "—", label: t("lenses.apertureLabel", { defaultValue: "ouv." }) },
 									{ value: totalShots, label: t("lenses.usesLabel", { defaultValue: "utilis." }) },
 								]}
-								loadedSummary={
-									loadedFilms.length > 0
-										? t("lenses.loaded", { count: loadedFilms.length })
-										: null
-								}
+								loadedSummary={loadedFilms.length > 0 ? t("lenses.loaded", { count: loadedFilms.length }) : null}
 								actions={
 									<>
 										<Button

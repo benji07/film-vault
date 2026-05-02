@@ -27,6 +27,8 @@ interface ActiveFilter {
 	label: string;
 }
 
+type FilterDimension = "format" | "type" | "brand" | "iso" | "tag";
+
 function lastModifiedDate(film: Film): string {
 	if (film.history.length > 0) {
 		return film.history[film.history.length - 1]!.date;
@@ -85,6 +87,43 @@ function getSortComparator(option: SortOption): (a: Film, b: Film) => number {
 	}
 }
 
+/**
+ * Apply all filters except the one for `exclude` dimension.
+ * Used to compute the available options for a given dimension based on
+ * the *other* selected filters (facetted search behaviour).
+ */
+function applyFiltersExcept(
+	films: Film[],
+	stateFilter: string,
+	filters: StockFilters,
+	search: string,
+	exclude: FilterDimension | null,
+): Film[] {
+	const lowerSearch = search.trim().toLowerCase();
+	return films.filter((f) => {
+		if (stateFilter !== "all" && f.state !== stateFilter) return false;
+		if (exclude !== "format" && filters.format !== "all" && f.format !== filters.format) return false;
+		if (exclude !== "type" && filters.type !== "all" && f.type !== filters.type) return false;
+		if (exclude !== "brand" && filters.brands.length > 0) {
+			const brand = f.brand ? normalizeBrand(f.brand) : "";
+			if (!filters.brands.includes(brand)) return false;
+		}
+		if (exclude !== "iso" && filters.isoValues.length > 0) {
+			if (!f.iso || !filters.isoValues.includes(f.iso)) return false;
+		}
+		if (exclude !== "tag" && filters.tags.length > 0) {
+			const filmTags = f.tags ?? [];
+			const selected = filters.tags.map((t) => t.toLowerCase());
+			if (!filmTags.some((t) => selected.includes(t.toLowerCase()))) return false;
+		}
+		if (lowerSearch) {
+			const name = filmName(f);
+			if (!name.toLowerCase().includes(lowerSearch)) return false;
+		}
+		return true;
+	});
+}
+
 export function useStockFilters(films: Film[], initialStateFilter?: string | null) {
 	const [search, setSearch] = useState("");
 	const [stateFilter, setStateFilter] = useState(initialStateFilter || "all");
@@ -103,64 +142,52 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 		}
 	}, [initialStateFilter]);
 
+	// Available options per dimension. Each is computed from films filtered
+	// by every OTHER active filter, so:
+	//  - selecting Format=120 narrows the brand/iso/tag lists to those that
+	//    still have a 120 match,
+	//  - the dimension's own current selections stay in their list (so the
+	//    user can untoggle them),
+	//  - dimensions with zero matches in the current narrowed set disappear.
 	const availableFormats = useMemo(() => {
-		const formats = new Set<string>();
-		for (const f of films) {
-			if (f.format) formats.add(f.format);
+		const set = new Set<string>();
+		for (const f of applyFiltersExcept(films, stateFilter, filters, search, "format")) {
+			if (f.format) set.add(f.format);
 		}
-		return Array.from(formats).sort((a, b) => a.localeCompare(b));
-	}, [films]);
+		return Array.from(set).sort((a, b) => a.localeCompare(b));
+	}, [films, stateFilter, filters, search]);
 
 	const availableTypes = useMemo(() => {
-		const types = new Set<string>();
-		for (const f of films) {
-			if (f.type) types.add(f.type);
+		const set = new Set<string>();
+		for (const f of applyFiltersExcept(films, stateFilter, filters, search, "type")) {
+			if (f.type) set.add(f.type);
 		}
-		return Array.from(types).sort((a, b) => a.localeCompare(b));
-	}, [films]);
+		return Array.from(set).sort((a, b) => a.localeCompare(b));
+	}, [films, stateFilter, filters, search]);
 
 	const availableBrands = useMemo(() => {
-		const brands = new Set<string>();
-		for (const f of films) {
-			if (f.brand) brands.add(normalizeBrand(f.brand));
+		const set = new Set<string>();
+		for (const f of applyFiltersExcept(films, stateFilter, filters, search, "brand")) {
+			if (f.brand) set.add(normalizeBrand(f.brand));
 		}
-		return Array.from(brands).sort((a, b) => a.localeCompare(b));
-	}, [films]);
+		return Array.from(set).sort((a, b) => a.localeCompare(b));
+	}, [films, stateFilter, filters, search]);
 
 	const availableIsoValues = useMemo(() => {
-		const isos = new Set<number>();
-		for (const f of films) {
-			if (f.iso) isos.add(f.iso);
+		const set = new Set<number>();
+		for (const f of applyFiltersExcept(films, stateFilter, filters, search, "iso")) {
+			if (f.iso) set.add(f.iso);
 		}
-		return Array.from(isos).sort((a, b) => a - b);
-	}, [films]);
+		return Array.from(set).sort((a, b) => a - b);
+	}, [films, stateFilter, filters, search]);
 
-	const availableTags = useMemo(() => collectAllTags(films), [films]);
+	const availableTags = useMemo(
+		() => collectAllTags(applyFiltersExcept(films, stateFilter, filters, search, "tag")),
+		[films, stateFilter, filters, search],
+	);
 
 	const filteredFilms = useMemo(() => {
-		const result = films.filter((f) => {
-			if (stateFilter !== "all" && f.state !== stateFilter) return false;
-			if (filters.format !== "all" && f.format !== filters.format) return false;
-			if (filters.type !== "all" && f.type !== filters.type) return false;
-			if (filters.brands.length > 0) {
-				const brand = f.brand ? normalizeBrand(f.brand) : "";
-				if (!filters.brands.includes(brand)) return false;
-			}
-			if (filters.isoValues.length > 0) {
-				if (!f.iso || !filters.isoValues.includes(f.iso)) return false;
-			}
-			if (filters.tags.length > 0) {
-				const filmTags = f.tags ?? [];
-				const selected = filters.tags.map((t) => t.toLowerCase());
-				if (!filmTags.some((t) => selected.includes(t.toLowerCase()))) return false;
-			}
-			if (search) {
-				const name = filmName(f);
-				if (!name.toLowerCase().includes(search.toLowerCase())) return false;
-			}
-			return true;
-		});
-
+		const result = applyFiltersExcept(films, stateFilter, filters, search, null);
 		const comparator = getSortComparator(sortOption);
 		result.sort(comparator);
 		return result;
@@ -235,7 +262,6 @@ export function useStockFilters(films: Film[], initialStateFilter?: string | nul
 	};
 
 	const resetFilters = () => {
-		setStateFilter("all");
 		setFilters({ format: "all", type: "all", brands: [], isoValues: [], tags: [] });
 	};
 

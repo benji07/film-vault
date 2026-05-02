@@ -4,7 +4,10 @@ import { Chip } from "@/components/ui/chip";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import type { SortOption, StockFilters } from "@/utils/use-stock-filters";
+
+export type StockScope = "stock" | "scanned";
 
 interface SortDef {
 	value: SortOption;
@@ -22,6 +25,9 @@ interface StockFilterDialogProps {
 	availableTags: string[];
 	sortOption: SortOption;
 	sortOptions: SortDef[];
+	scope: StockScope;
+	scopeCounts: { stock: number; scanned: number };
+	onScopeChange: (scope: StockScope) => void;
 	onSortChange: (value: SortOption) => void;
 	onSetFormat: (v: string) => void;
 	onSetType: (v: string) => void;
@@ -42,6 +48,9 @@ export function StockFilterDialog({
 	availableTags,
 	sortOption,
 	sortOptions,
+	scope,
+	scopeCounts,
+	onScopeChange,
 	onSortChange,
 	onSetFormat,
 	onSetType,
@@ -52,6 +61,11 @@ export function StockFilterDialog({
 }: StockFilterDialogProps) {
 	const { t } = useTranslation();
 
+	const scopeItems: { key: StockScope; label: string; count: number }[] = [
+		{ key: "stock", label: t("stock.tabs.stock"), count: scopeCounts.stock },
+		{ key: "scanned", label: t("stock.tabs.archive"), count: scopeCounts.scanned },
+	];
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent>
@@ -61,6 +75,33 @@ export function StockFilterDialog({
 				</DialogHeader>
 
 				<div className="flex flex-col gap-5">
+					<FormField label={t("stock.scope", { defaultValue: "Lot" })}>
+						<nav className="grid grid-cols-2 border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card">
+							{scopeItems.map((item, i) => {
+								const active = scope === item.key;
+								return (
+									<button
+										type="button"
+										key={item.key}
+										onClick={() => onScopeChange(item.key)}
+										aria-pressed={active}
+										className={cn(
+											"font-archivo-black text-[10px] uppercase tracking-[0.15em] py-2 px-2 cursor-pointer leading-none",
+											"flex items-center justify-center gap-1.5",
+											active ? "bg-kodak-yellow text-ink" : "bg-transparent text-ink-faded hover:bg-paper-dark/30",
+											i === 0 && "border-r-2 border-ink",
+										)}
+									>
+										{item.label}
+										<span className="font-archivo font-bold text-[9px] tracking-[0.15em] opacity-70">
+											{String(item.count).padStart(2, "0")}
+										</span>
+									</button>
+								);
+							})}
+						</nav>
+					</FormField>
+
 					<FormField label={t("stock.sort")}>
 						<Select value={sortOption} onValueChange={(v) => onSortChange(v as SortOption)}>
 							<SelectTrigger>

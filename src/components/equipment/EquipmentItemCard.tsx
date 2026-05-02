@@ -134,10 +134,7 @@ export function EquipmentItemCard({
 							{stats.map((s, i) => (
 								<div
 									key={s.label}
-									className={cn(
-										"flex-1 px-1.5 py-1 text-center",
-										i < stats.length - 1 && "border-r border-ink-faded",
-									)}
+									className={cn("flex-1 px-1.5 py-1 text-center", i < stats.length - 1 && "border-r border-ink-faded")}
 								>
 									<div className="font-archivo-black text-[13px] text-ink leading-none">{s.value}</div>
 									<div className="font-archivo font-bold text-[8px] tracking-[0.15em] uppercase text-ink-faded mt-1">
@@ -150,7 +147,9 @@ export function EquipmentItemCard({
 
 					{loadedSummary ? (
 						<div className="flex items-center gap-2 mt-1.5 px-2 py-1.5 bg-kodak-red border-[1.5px] border-ink text-paper">
-							<span className="font-archivo-black text-[9px] tracking-[0.15em] bg-paper text-kodak-red px-1.5 py-0.5">●</span>
+							<span className="font-archivo-black text-[9px] tracking-[0.15em] bg-paper text-kodak-red px-1.5 py-0.5">
+								●
+							</span>
 							<span className="font-caveat text-[15px] leading-none flex-1 truncate">{loadedSummary}</span>
 						</div>
 					) : (

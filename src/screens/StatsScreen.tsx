@@ -210,7 +210,9 @@ export function StatsScreen({ data }: StatsScreenProps) {
 						<WashiTape color="w1" rotate={-2} width={60} className="-top-[8px] left-10" />
 						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
 							{t("stats.byBrand")}
-							<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">— top</span>
+							<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
+								— top
+							</span>
 						</h2>
 						<BarChart data={aggregates.byBrand} color={T.yellow} />
 					</section>
@@ -221,7 +223,9 @@ export function StatsScreen({ data }: StatsScreenProps) {
 						<WashiTape color="w3" rotate={2} width={60} className="-top-[8px] right-10" />
 						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
 							{t("stats.byFormat")}
-							<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">— stack</span>
+							<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
+								— stack
+							</span>
 						</h2>
 						<FormatStack data={aggregates.byFormat} />
 					</section>
@@ -232,7 +236,9 @@ export function StatsScreen({ data }: StatsScreenProps) {
 						<WashiTape color="w2" rotate={-2} width={60} className="-top-[8px] left-10" />
 						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
 							{t("stats.byType")}
-							<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">— rolls par type</span>
+							<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
+								— rolls par type
+							</span>
 						</h2>
 						<BarChart data={aggregates.byType} color={T.teal} />
 					</section>
@@ -243,7 +249,9 @@ export function StatsScreen({ data }: StatsScreenProps) {
 					<WashiTape color="w1" rotate={-2} width={60} className="-top-[8px] left-10" />
 					<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-1">
 						{t("stats.monthlyConsumption")}
-						<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">— rolls par mois</span>
+						<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
+							— rolls par mois
+						</span>
 					</h2>
 					<div className="font-archivo flex justify-between font-extrabold text-[8px] tracking-[0.18em] uppercase text-ink-faded mb-1.5 mt-2">
 						<span>nb. rolls</span>
@@ -315,9 +323,19 @@ export function StatsScreen({ data }: StatsScreenProps) {
 					<>
 						<h3 className="font-caveat text-[26px] font-bold text-ink leading-none mt-2">{t("stats.expenses")}</h3>
 						<div className="grid grid-cols-3 gap-2.5">
-							<StatCard icon={Coins} label={t("stats.totalSpent")} value={fmtPrice(costs.totalSpent)} color={T.yellow} />
+							<StatCard
+								icon={Coins}
+								label={t("stats.totalSpent")}
+								value={fmtPrice(costs.totalSpent)}
+								color={T.yellow}
+							/>
 							<StatCard icon={Coins} label={t("stats.avgPerFilm")} value={fmtPrice(costs.avgPerFilm)} color={T.red} />
-							<StatCard icon={Coins} label={t("stats.avgPerFrame")} value={fmtPrice(costs.avgPerFrame)} color={T.teal} />
+							<StatCard
+								icon={Coins}
+								label={t("stats.avgPerFrame")}
+								value={fmtPrice(costs.avgPerFrame)}
+								color={T.teal}
+							/>
 						</div>
 						{Object.keys(costs.costByCategory).length > 1 && (
 							<Card>

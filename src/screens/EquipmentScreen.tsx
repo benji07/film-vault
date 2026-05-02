@@ -40,28 +40,28 @@ export function EquipmentScreen({ data, setData, onCameraClick }: EquipmentScree
 			<PageHeader title={headerTitle} count={counts[activeTab]}>
 				<div className="px-[18px] pb-3">
 					<nav className="grid grid-cols-3 border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card">
-					{tabs.map((tab, i) => {
-						const active = activeTab === tab.key;
-						return (
-							<button
-								type="button"
-								key={tab.key}
-								onClick={() => setActiveTab(tab.key)}
-								aria-pressed={active}
-								className={cn(
-									"font-archivo-black text-[10px] uppercase tracking-[0.15em] py-2 px-2 cursor-pointer leading-none",
-									"flex items-center justify-center gap-1.5",
-									active ? "bg-kodak-yellow text-ink" : "bg-transparent text-ink-faded hover:bg-paper-dark/30",
-									i < 2 && "border-r-2 border-ink",
-								)}
-							>
-								{tab.label}
-								<span className="font-archivo font-bold text-[9px] tracking-[0.15em] opacity-70">
-									{String(tab.count).padStart(2, "0")}
-								</span>
-							</button>
-						);
-					})}
+						{tabs.map((tab, i) => {
+							const active = activeTab === tab.key;
+							return (
+								<button
+									type="button"
+									key={tab.key}
+									onClick={() => setActiveTab(tab.key)}
+									aria-pressed={active}
+									className={cn(
+										"font-archivo-black text-[10px] uppercase tracking-[0.15em] py-2 px-2 cursor-pointer leading-none",
+										"flex items-center justify-center gap-1.5",
+										active ? "bg-kodak-yellow text-ink" : "bg-transparent text-ink-faded hover:bg-paper-dark/30",
+										i < 2 && "border-r-2 border-ink",
+									)}
+								>
+									{tab.label}
+									<span className="font-archivo font-bold text-[9px] tracking-[0.15em] opacity-70">
+										{String(tab.count).padStart(2, "0")}
+									</span>
+								</button>
+							);
+						})}
 					</nav>
 				</div>
 			</PageHeader>

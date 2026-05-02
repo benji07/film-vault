@@ -109,6 +109,7 @@ export const en = {
 		brand: "Brand",
 		iso: "ISO",
 		sort: "Sort",
+		scope: "Scope",
 		nameAsc: "Name A→Z",
 		nameDesc: "Name Z→A",
 		addedDate: "Date added ↓",

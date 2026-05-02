@@ -79,9 +79,7 @@ export function StockTab({ films, filteredFilms, cameras, backs, onOpenFilm, sea
 			{groups.map((group) => (
 				<section key={group.brand} className="flex flex-col gap-2">
 					<header className="flex items-center justify-between border-b-2 border-ink pt-3 pb-1.5">
-						<span className="font-archivo-black text-[13px] tracking-[0.15em] uppercase text-ink">
-							★ {group.brand}
-						</span>
+						<span className="font-archivo-black text-[13px] tracking-[0.15em] uppercase text-ink">★ {group.brand}</span>
 						<em className="not-italic font-typewriter text-[10px] tracking-[0.12em] text-ink-faded">
 							{t("stock.resultCount", { count: group.totalQty })}
 							{group.totalCost > 0 && ` · ${group.totalCost.toFixed(0)} €`}

@@ -163,24 +163,24 @@ export function MapScreen({ data, onOpenFilm, onOpenStock, filterFilmId, onClear
 					onClearFilter={onClearFilter}
 				/>
 
-			<Button
-				variant="outline"
-				size="icon"
-				onClick={handleLocateMe}
-				disabled={locating}
-				className="absolute bottom-3 left-3 z-10 shadow-lg bg-card/90 backdrop-blur"
-				aria-label={t("map.locateMe")}
-			>
-				{locating ? (
-					<Loader2 size={18} className="text-accent animate-spin" />
-				) : (
-					<LocateFixed size={18} className="text-text-sec" />
-				)}
-			</Button>
+				<Button
+					variant="outline"
+					size="icon"
+					onClick={handleLocateMe}
+					disabled={locating}
+					className="absolute bottom-3 left-3 z-10 shadow-lg bg-card/90 backdrop-blur"
+					aria-label={t("map.locateMe")}
+				>
+					{locating ? (
+						<Loader2 size={18} className="text-accent animate-spin" />
+					) : (
+						<LocateFixed size={18} className="text-text-sec" />
+					)}
+				</Button>
 
-			{selectedNote && (
-				<NoteSheet geoNote={selectedNote} onClose={() => setSelectedNote(null)} onViewFilm={handleViewFilm} />
-			)}
+				{selectedNote && (
+					<NoteSheet geoNote={selectedNote} onClose={() => setSelectedNote(null)} onViewFilm={handleViewFilm} />
+				)}
 
 				{selectedCluster && !selectedNote && (
 					<ClusterSheet

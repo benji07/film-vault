@@ -18,12 +18,7 @@ const ITEMS: { id: StatsPeriod; label: (year: string) => string }[] = [
 
 export function PeriodSwitch({ value, onChange, yearLabel, className }: PeriodSwitchProps) {
 	return (
-		<nav
-			className={cn(
-				"flex border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card",
-				className,
-			)}
-		>
+		<nav className={cn("flex border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card", className)}>
 			{ITEMS.map((item, i) => {
 				const active = value === item.id;
 				return (
