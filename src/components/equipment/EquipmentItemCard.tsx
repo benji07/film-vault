@@ -66,8 +66,81 @@ export function EquipmentItemCard({
 	const rotation = ROTATIONS[index % ROTATIONS.length] ?? "";
 	const washiPos = WASHI_POS[index % WASHI_POS.length] ?? WASHI_POS[0]!;
 
-	const Wrapper = onClick ? "button" : "div";
-	const wrapperProps = onClick ? { type: "button" as const, onClick } : {};
+	const innerClasses = cn(
+		"grid w-full text-left grid-cols-[110px_1fr]",
+		onClick && "cursor-pointer transition-transform active:scale-[.99]",
+	);
+
+	const inner = (
+		<>
+			{/* Vignette / photo */}
+			<div className="bg-ink relative overflow-hidden flex items-center justify-center min-h-[124px]">
+				{photo ? (
+					<PhotoImg src={photo} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
+				) : (
+					<div
+						className="w-[70px] h-[50px] rounded-[4px] relative"
+						style={{
+							background: `radial-gradient(circle at 50% 60%, ${VIGNETTE_RING[vignette]} 0 16px, var(--color-ink) 16px 18px, transparent 18px), ${VIGNETTE_BG[vignette]}`,
+							boxShadow: "inset 0 -8px 12px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,200,100,0.15)",
+						}}
+					>
+						<span
+							className="absolute top-1.5 left-1/2 w-6 h-1.5 bg-ink rounded-sm"
+							style={{ transform: "translateX(-50%)" }}
+						/>
+					</div>
+				)}
+				{formatLabel && (
+					<div className="absolute bottom-2 left-2 right-2 bg-kodak-yellow border border-ink text-ink font-archivo-black text-[9px] tracking-[0.15em] text-center px-1 py-0.5 uppercase">
+						{formatLabel}
+					</div>
+				)}
+			</div>
+
+			{/* Body */}
+			<div className="px-3.5 py-3 flex flex-col gap-1.5 min-w-0">
+				<div className="font-archivo-black text-[16px] tracking-[-0.3px] uppercase leading-[0.95] text-ink">
+					{name}
+					{year && (
+						<em className="block font-cormorant not-italic-fix italic text-[12px] text-ink-faded mt-1 font-normal normal-case tracking-normal">
+							{year}
+						</em>
+					)}
+				</div>
+
+				{stats.length > 0 && (
+					<div className="flex border border-ink-faded mt-1.5">
+						{stats.map((s, i) => (
+							<div
+								key={s.label}
+								className={cn("flex-1 px-1.5 py-1 text-center", i < stats.length - 1 && "border-r border-ink-faded")}
+							>
+								<div className="font-archivo-black text-[13px] text-ink leading-none">{s.value}</div>
+								<div className="font-archivo font-bold text-[8px] tracking-[0.15em] uppercase text-ink-faded mt-1">
+									{s.label}
+								</div>
+							</div>
+						))}
+					</div>
+				)}
+
+				{loadedSummary ? (
+					<div className="flex items-center gap-2 mt-1.5 px-2 py-1.5 bg-kodak-red border-[1.5px] border-ink text-paper">
+						<span className="font-archivo-black text-[9px] tracking-[0.15em] bg-paper text-kodak-red px-1.5 py-0.5">
+							●
+						</span>
+						<span className="font-caveat text-[15px] leading-none flex-1 truncate">{loadedSummary}</span>
+					</div>
+				) : (
+					<div className="flex items-center gap-1.5 mt-1.5 font-caveat text-[14px] text-ink-faded italic">
+						<span className="w-2 h-2 bg-ink-faded inline-block" />
+						<span>—</span>
+					</div>
+				)}
+			</div>
+		</>
+	);
 
 	return (
 		<article
@@ -85,84 +158,16 @@ export function EquipmentItemCard({
 				style={washiPos.left.includes("right") ? { right: 30, left: "auto" } : undefined}
 			/>
 
-			<Wrapper
-				{...wrapperProps}
-				className={cn(
-					"grid w-full text-left",
-					"grid-cols-[110px_1fr]",
-					onClick && "cursor-pointer transition-transform active:scale-[.99]",
-				)}
-			>
-				{/* Vignette / photo */}
-				<div className="bg-ink relative overflow-hidden flex items-center justify-center min-h-[124px]">
-					{photo ? (
-						<PhotoImg src={photo} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
-					) : (
-						<div
-							className="w-[70px] h-[50px] rounded-[4px] relative"
-							style={{
-								background: `radial-gradient(circle at 50% 60%, ${VIGNETTE_RING[vignette]} 0 16px, var(--color-ink) 16px 18px, transparent 18px), ${VIGNETTE_BG[vignette]}`,
-								boxShadow: "inset 0 -8px 12px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,200,100,0.15)",
-							}}
-						>
-							<span
-								className="absolute top-1.5 left-1/2 w-6 h-1.5 bg-ink rounded-sm"
-								style={{ transform: "translateX(-50%)" }}
-							/>
-						</div>
-					)}
-					{formatLabel && (
-						<div className="absolute bottom-2 left-2 right-2 bg-kodak-yellow border border-ink text-ink font-archivo-black text-[9px] tracking-[0.15em] text-center px-1 py-0.5 uppercase">
-							{formatLabel}
-						</div>
-					)}
-				</div>
+			{onClick ? (
+				<button type="button" onClick={onClick} className={innerClasses}>
+					{inner}
+				</button>
+			) : (
+				<div className={innerClasses}>{inner}</div>
+			)}
 
-				{/* Body */}
-				<div className="px-3.5 py-3 flex flex-col gap-1.5 min-w-0">
-					<div className="font-archivo-black text-[16px] tracking-[-0.3px] uppercase leading-[0.95] text-ink">
-						{name}
-						{year && (
-							<em className="block font-cormorant not-italic-fix italic text-[12px] text-ink-faded mt-1 font-normal normal-case tracking-normal">
-								{year}
-							</em>
-						)}
-					</div>
-
-					{stats.length > 0 && (
-						<div className="flex border border-ink-faded mt-1.5">
-							{stats.map((s, i) => (
-								<div
-									key={s.label}
-									className={cn("flex-1 px-1.5 py-1 text-center", i < stats.length - 1 && "border-r border-ink-faded")}
-								>
-									<div className="font-archivo-black text-[13px] text-ink leading-none">{s.value}</div>
-									<div className="font-archivo font-bold text-[8px] tracking-[0.15em] uppercase text-ink-faded mt-1">
-										{s.label}
-									</div>
-								</div>
-							))}
-						</div>
-					)}
-
-					{loadedSummary ? (
-						<div className="flex items-center gap-2 mt-1.5 px-2 py-1.5 bg-kodak-red border-[1.5px] border-ink text-paper">
-							<span className="font-archivo-black text-[9px] tracking-[0.15em] bg-paper text-kodak-red px-1.5 py-0.5">
-								●
-							</span>
-							<span className="font-caveat text-[15px] leading-none flex-1 truncate">{loadedSummary}</span>
-						</div>
-					) : (
-						<div className="flex items-center gap-1.5 mt-1.5 font-caveat text-[14px] text-ink-faded italic">
-							<span className="w-2 h-2 bg-ink-faded inline-block" />
-							{/* Empty state intentionally compact */}
-							<span>—</span>
-						</div>
-					)}
-
-					{actions && <div className="flex gap-1.5 mt-2">{actions}</div>}
-				</div>
-			</Wrapper>
+			{/* Actions floated top-right so they live outside the main button. */}
+			{actions && <div className="absolute top-2 right-2 flex gap-1.5 z-10">{actions}</div>}
 		</article>
 	);
 }
