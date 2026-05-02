@@ -20,17 +20,6 @@ interface MapFilterBarProps {
 
 const FILM_TYPES: FilmType[] = ["Couleur", "N&B", "Diapo", "ECN-2"];
 
-// On the map, chips need maximum readability over the tiles. Inactive
-// chips sit on opaque paper-card, active chips are inverted (ink bg +
-// yellow text) for a strong active/inactive distinction. tailwind-merge
-// inside Chip lets the classes here override the defaults.
-function mapChipCls(active: boolean, extra = ""): string {
-	const base = active
-		? "shrink-0 text-xs bg-ink text-kodak-yellow border-ink"
-		: "shrink-0 text-xs bg-paper-card text-ink";
-	return extra ? `${base} ${extra}` : base;
-}
-
 export function MapFilterBar({
 	films,
 	filterFilmId,
@@ -50,10 +39,10 @@ export function MapFilterBar({
 	);
 
 	return (
-		<div className="absolute top-3 left-3 right-3 z-10 flex flex-col gap-2">
+		<div className="flex flex-col gap-1.5 px-[18px] pb-2.5">
 			{/* Film type filter */}
-			<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-				<Chip active={filterType == null} onClick={() => onFilterType(null)} className={mapChipCls(filterType == null)}>
+			<div className="flex gap-1.5 overflow-x-auto fv-noscroll">
+				<Chip active={filterType == null} onClick={() => onFilterType(null)} className="flex-none">
 					{t("map.allTypes")}
 				</Chip>
 				{FILM_TYPES.map((type) => {
@@ -63,7 +52,7 @@ export function MapFilterBar({
 							key={type}
 							active={active}
 							onClick={() => onFilterType(active ? null : type)}
-							className={mapChipCls(active)}
+							className="flex-none"
 						>
 							<div className="w-2 h-2 rounded-full" style={{ backgroundColor: MARKER_COLORS[type] }} />
 							{t(`filmTypes.${type}`, type)}
@@ -74,8 +63,8 @@ export function MapFilterBar({
 
 			{/* Tag filter */}
 			{availableTags.length > 0 && (
-				<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-					<Chip active={filterTag == null} onClick={() => onFilterTag(null)} className={mapChipCls(filterTag == null)}>
+				<div className="flex gap-1.5 overflow-x-auto fv-noscroll">
+					<Chip active={filterTag == null} onClick={() => onFilterTag(null)} className="flex-none">
 						{t("map.allTags")}
 					</Chip>
 					{availableTags.map((tag) => {
@@ -85,7 +74,7 @@ export function MapFilterBar({
 								key={tag}
 								active={active}
 								onClick={() => onFilterTag(active ? null : tag)}
-								className={mapChipCls(active)}
+								className="flex-none"
 							>
 								{tag}
 							</Chip>
@@ -96,14 +85,14 @@ export function MapFilterBar({
 
 			{/* Film filter */}
 			{filmsWithGeo.length > 1 && (
-				<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+				<div className="flex gap-1.5 overflow-x-auto fv-noscroll">
 					<Chip
 						active={filterFilmId == null}
 						onClick={() => {
 							onFilterFilm(null);
 							onClearFilter();
 						}}
-						className={mapChipCls(filterFilmId == null)}
+						className="flex-none"
 					>
 						{t("map.allFilms")}
 					</Chip>
@@ -117,7 +106,7 @@ export function MapFilterBar({
 									onFilterFilm(active ? null : film.id);
 									onClearFilter();
 								}}
-								className={mapChipCls(active, "max-w-[160px] truncate")}
+								className="flex-none max-w-[160px] truncate"
 							>
 								{filmName(film)}
 							</Chip>
@@ -133,7 +122,7 @@ export function MapFilterBar({
 						onFilterFilm(null);
 						onClearFilter();
 					}}
-					className="self-start flex items-center gap-1 font-archivo font-extrabold text-[10px] uppercase tracking-[0.12em] text-kodak-red bg-paper-card border-2 border-ink shadow-[2px_2px_0_var(--color-ink)] px-2.5 py-1.5"
+					className="self-start flex items-center gap-1 font-archivo font-extrabold text-[10px] uppercase tracking-[0.12em] text-kodak-red bg-paper-card border-2 border-ink shadow-[2px_2px_0_var(--color-ink)] px-2.5 py-1.5 mt-1"
 				>
 					<X size={12} />
 					{t("map.allFilms")}

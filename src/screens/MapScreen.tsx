@@ -127,7 +127,19 @@ export function MapScreen({ data, onOpenFilm, onOpenStock, filterFilmId, onClear
 
 	return (
 		<div className="relative w-full h-full flex flex-col">
-			<PageHeader title={t("nav.map")} count={allGeoNotes.length} className="shrink-0" />
+			<PageHeader title={t("nav.map")} count={allGeoNotes.length} className="shrink-0">
+				<MapFilterBar
+					films={data.films}
+					filterFilmId={localFilterFilmId}
+					filterType={filterType}
+					filterTag={filterTag}
+					availableTags={availableTags}
+					onFilterFilm={setLocalFilterFilmId}
+					onFilterType={setFilterType}
+					onFilterTag={setFilterTag}
+					onClearFilter={onClearFilter}
+				/>
+			</PageHeader>
 
 			<div className="relative flex-1 min-h-0">
 				<MapGL
@@ -150,18 +162,6 @@ export function MapScreen({ data, onOpenFilm, onOpenStock, filterFilmId, onClear
 						<NoteMarker key={cluster.id} cluster={cluster} onClick={handleClusterClick} />
 					))}
 				</MapGL>
-
-				<MapFilterBar
-					films={data.films}
-					filterFilmId={localFilterFilmId}
-					filterType={filterType}
-					filterTag={filterTag}
-					availableTags={availableTags}
-					onFilterFilm={setLocalFilterFilmId}
-					onFilterType={setFilterType}
-					onFilterTag={setFilterTag}
-					onClearFilter={onClearFilter}
-				/>
 
 				<Button
 					variant="outline"
