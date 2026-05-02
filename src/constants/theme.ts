@@ -23,29 +23,16 @@ export const T = {
 	w3: "var(--color-washi-3)",
 	w4: "var(--color-washi-4)",
 
-	// Legacy aliases — kept so non-refonted screens keep compiling.
-	// These map onto the closest vintage equivalent.
-	bg: "var(--color-paper)",
-	surface: "var(--color-paper-card)",
-	surfaceAlt: "var(--color-paper-dark)",
-	card: "var(--color-paper-card)",
-	cardHover: "var(--color-paper-dark)",
-	border: "var(--color-ink-faded)",
-	borderLight: "var(--color-paper-dark)",
-	text: "var(--color-ink)",
+	// Legacy aliases still used by a handful of CSS-in-JS spots
+	// (CameraDetail/ActiveRoll/StockHierarchy badges, EditModal warnings,
+	// expiration helpers). Kept until those callers migrate to Tailwind.
 	textSec: "var(--color-ink-soft)",
 	textMuted: "var(--color-ink-faded)",
 	accent: "var(--color-kodak-red)",
-	accentHover: "#a02e23",
-	accentSoft: "rgba(184, 54, 42, 0.12)",
 	orange: "var(--color-washi-1)",
-	orangeSoft: "rgba(212, 165, 116, 0.18)",
 	amber: "var(--color-kodak-yellow)",
-	amberSoft: "rgba(232, 168, 24, 0.14)",
 	green: "var(--color-kodak-teal)",
-	greenSoft: "rgba(45, 74, 50, 0.14)",
 	blue: "var(--color-washi-4)",
-	blueSoft: "rgba(155, 181, 200, 0.18)",
 } as const;
 
 /** Returns a CSS color-mix() expression for a CSS variable with the given opacity (0–1). */
@@ -82,8 +69,4 @@ export const FONT = {
 	typewriter: "var(--font-typewriter)",
 	archivo: "var(--font-archivo)",
 	archivoBlack: "var(--font-archivo-black)",
-	// Legacy aliases
-	display: "var(--font-caveat)",
-	body: "var(--font-cormorant)",
-	mono: "var(--font-typewriter)",
 } as const;

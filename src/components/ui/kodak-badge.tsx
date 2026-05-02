@@ -5,10 +5,6 @@ interface KodakBadgeProps extends HTMLAttributes<HTMLSpanElement> {
 	size?: "xs" | "sm";
 }
 
-/**
- * Petit badge rectangulaire en font Archivo Black, fond ink + texte jaune
- * Kodak. Utilisé pour les codes (formats, REF, EXP, marques abrégées).
- */
 export function KodakBadge({ children, size = "sm", className, ...props }: KodakBadgeProps) {
 	return (
 		<span
