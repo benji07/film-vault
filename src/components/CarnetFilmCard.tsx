@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import type { Camera, Film } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
 import { pickRotation, pickWashiColor, pickWashiPosition } from "@/utils/card-decorations";
+import { filmLastActionDate } from "@/utils/film-helpers";
 
 interface CarnetFilmCardProps {
 	film: Film;
@@ -23,6 +24,7 @@ const STATE_BG: Record<string, string> = {
 	exposed: "bg-ink text-kodak-yellow",
 	atLab: "bg-kodak-teal text-paper",
 	developed: "bg-kodak-gold text-ink",
+	scanned: "bg-paper-dark text-ink-soft border border-ink-faded/60",
 };
 
 interface StateInfo {
@@ -75,6 +77,12 @@ function describeState(
 			description: t("dashboard.state.toScan"),
 		};
 	}
+	if (film.state === "scanned") {
+		return {
+			state: { key: "scanned", label: t("states.scanned") || "scannée" },
+			description: t("dashboard.state.scanned"),
+		};
+	}
 	return {
 		state: { key: "exposed", label: film.state },
 		description: "",
@@ -82,7 +90,7 @@ function describeState(
 }
 
 export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: CarnetFilmCardProps) {
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const variant = filmTypeToVariant(film.type);
 	const rotation = pickRotation(index);
 	const washiPos = pickWashiPosition(index);
@@ -96,6 +104,14 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 	const displayName = film.customName || `${film.brand ?? ""} ${film.model ?? ""}`.trim() || "—";
 	const labRef = film.labRef?.trim() || null;
 	const sub = film.type ? `${film.type.toLowerCase()}` : "";
+
+	const lastActionISO = filmLastActionDate(film);
+	const lastActionLabel = lastActionISO
+		? new Date(lastActionISO).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", {
+				day: "numeric",
+				month: "short",
+			})
+		: null;
 
 	return (
 		<button
@@ -140,7 +156,16 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 					)}
 				</div>
 
-				{description && <div className="font-caveat text-[17px] leading-[1.3] text-ink-soft mt-2">{description}</div>}
+				{(description || lastActionLabel) && (
+					<div className="mt-2">
+						{description && <div className="font-caveat text-[17px] leading-[1.3] text-ink-soft">{description}</div>}
+						{lastActionLabel && (
+							<div className="font-typewriter text-[9px] tracking-[0.12em] uppercase text-ink-faded mt-1">
+								{lastActionLabel}
+							</div>
+						)}
+					</div>
+				)}
 
 				<div className="flex items-center gap-2.5 mt-2.5 pt-2.5 border-t border-dashed border-ink-faded/35">
 					<span
