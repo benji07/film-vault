@@ -67,7 +67,7 @@ export function EquipmentItemCard({
 	const washiPos = WASHI_POS[index % WASHI_POS.length] ?? WASHI_POS[0]!;
 
 	const innerClasses = cn(
-		"grid w-full text-left grid-cols-[110px_1fr]",
+		"grid w-full text-left grid-cols-[110px_1fr] overflow-hidden",
 		onClick && "cursor-pointer transition-transform active:scale-[.99]",
 	);
 
@@ -145,7 +145,7 @@ export function EquipmentItemCard({
 	return (
 		<article
 			className={cn(
-				"relative bg-paper-card border-2 border-ink shadow-[4px_4px_0_var(--color-ink)] overflow-hidden",
+				"relative bg-paper-card border-2 border-ink shadow-[4px_4px_0_var(--color-ink)]",
 				rotation,
 				className,
 			)}
