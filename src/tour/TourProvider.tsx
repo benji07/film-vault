@@ -26,11 +26,10 @@ function markTourComplete(): void {
 
 interface TourProviderProps {
 	children: React.ReactNode;
-	setScreen: (screen: ScreenName) => void;
-	setSelectedFilm: (id: string | null) => void;
+	goTo: (target: { screen: ScreenName; selectedFilm: string | null }) => void;
 }
 
-export function TourProvider({ children, setScreen, setSelectedFilm }: TourProviderProps) {
+export function TourProvider({ children, goTo }: TourProviderProps) {
 	const [tourState, setTourState] = useState<TourState>({
 		active: false,
 		currentStep: 0,
@@ -44,10 +43,9 @@ export function TourProvider({ children, setScreen, setSelectedFilm }: TourProvi
 		(stepIndex: number) => {
 			const step = TOUR_STEPS[stepIndex];
 			if (!step) return;
-			setScreen(step.screen);
-			setSelectedFilm(step.selectedFilmId ?? null);
+			goTo({ screen: step.screen, selectedFilm: step.selectedFilmId ?? null });
 		},
-		[setScreen, setSelectedFilm],
+		[goTo],
 	);
 
 	const startTour = useCallback(() => {
@@ -64,10 +62,9 @@ export function TourProvider({ children, setScreen, setSelectedFilm }: TourProvi
 			if (completed) markTourComplete();
 			setTourState({ active: false, currentStep: 0, totalSteps: TOUR_STEPS.length });
 			setTourData(null);
-			setScreen("home");
-			setSelectedFilm(null);
+			goTo({ screen: "home", selectedFilm: null });
 		},
-		[setScreen, setSelectedFilm],
+		[goTo],
 	);
 
 	const nextStep = useCallback(() => {

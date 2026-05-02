@@ -221,7 +221,7 @@ function FilmVaultInner() {
 		setShowWelcome(false);
 	}, []);
 
-	const { resetTo: navResetTo, replace: navReplace, current: navCurrent } = nav;
+	const { resetTo: navResetTo } = nav;
 
 	// Both the TabBar (top-level tabs) and the Tour (scripted jumps) want to
 	// move without pushing onto the history stack.
@@ -231,11 +231,13 @@ function FilmVaultInner() {
 		},
 		[navResetTo],
 	);
-	const tourSetSelectedFilm = useCallback(
-		(id: string | null) => {
-			navReplace({ ...navCurrent, selectedFilm: id });
+	// The Tour also needs to set selectedFilm in the same dispatch so the
+	// reducer doesn't see two separate updates and overwrite the screen.
+	const tourGoTo = useCallback(
+		(target: { screen: ScreenName; selectedFilm: string | null }) => {
+			navResetTo({ screen: target.screen, selectedFilm: target.selectedFilm });
 		},
-		[navReplace, navCurrent],
+		[navResetTo],
 	);
 
 	if (loading || !data) {
@@ -252,7 +254,7 @@ function FilmVaultInner() {
 	}
 
 	return (
-		<TourProvider setScreen={resetScreen} setSelectedFilm={tourSetSelectedFilm}>
+		<TourProvider goTo={tourGoTo}>
 			<AppContent
 				data={data}
 				updateData={updateData}
