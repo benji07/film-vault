@@ -148,7 +148,7 @@ export function FloatingActionMenu({
 			)}
 
 			{open && (
-				<div className="fixed z-40 right-4 md:right-6 bottom-[calc(5rem+env(safe-area-inset-bottom)+4.5rem)] md:bottom-[6.5rem] flex flex-col gap-3 items-end">
+				<div className="fixed z-40 right-5 md:right-8 bottom-[calc(7rem+env(safe-area-inset-bottom)+4.5rem)] md:bottom-[8.5rem] flex flex-col gap-3 items-end">
 					{order.map((id, i) => {
 						const action = ACTION_DEFS[id];
 						const isPrimary = i === 0;
@@ -174,7 +174,7 @@ export function FloatingActionMenu({
 				aria-label={open ? t("aria.close") : t("fab.openMenu")}
 				aria-expanded={open}
 				className={cn(
-					"fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 md:bottom-6 md:right-6 z-40",
+					"fixed bottom-[calc(7rem+env(safe-area-inset-bottom))] right-5 md:bottom-8 md:right-8 z-40",
 					"w-16 h-16 border-[3px] border-ink flex flex-col items-center justify-center cursor-pointer",
 					"shadow-[4px_4px_0_var(--color-ink),0_8px_20px_rgba(0,0,0,0.3)] transition-transform duration-200 ease-out",
 					open ? `bg-ink text-kodak-yellow rotate-45` : cn(primary.bg, primary.dark ? "text-paper" : "text-ink"),

@@ -113,12 +113,14 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 				</div>
 			</PageHeader>
 
-			<div className="px-[18px] pt-3 pb-32 flex flex-col gap-3">
-				<ActiveFilterChips
-					filters={stockFilters.activeFilterDescriptions}
-					onRemove={stockFilters.removeFilter}
-					onReset={stockFilters.resetFilters}
-				/>
+			<div className="px-[18px] pt-4 pb-32 flex flex-col gap-3">
+				{stockFilters.activeFilterDescriptions.length > 0 && (
+					<ActiveFilterChips
+						filters={stockFilters.activeFilterDescriptions}
+						onRemove={stockFilters.removeFilter}
+						onReset={stockFilters.resetFilters}
+					/>
+				)}
 
 				<div className="flex justify-between items-center">
 					<span className="font-typewriter text-[10px] tracking-[0.15em] uppercase text-ink-faded">

@@ -21,8 +21,8 @@ export function PageHeader({ title, count, right, children, className }: PageHea
 	return (
 		<header
 			className={cn(
-				"sticky top-0 z-10",
-				"bg-[linear-gradient(to_bottom,var(--color-paper)_95%,rgba(241,232,212,0.92))]",
+				"sticky top-0 z-30 bg-paper",
+				"shadow-[0_2px_0_var(--color-ink-faded)]",
 				className,
 			)}
 		>
