@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { ActiveFilterChips } from "@/components/ActiveFilterChips";
 import { StockFilterDialog } from "@/components/StockFilterDialog";
 import { Button } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -82,19 +81,6 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 	const currentResultCount = tab === "stock" ? tabCounts.stock : tabCounts.archive;
 	const totalCount = tab === "stock" ? rawStockFilms.length : films.filter((f) => f.state === "scanned").length;
 
-	// Quick filter chips — "Toutes" + types + formats. Independent toggles
-	// (type and format are separate filters). Mirrors the prototype where
-	// the user can quickly narrow the inventory by category in one tap.
-	const quickFilterActive = stockFilters.filters.type !== "all" || stockFilters.filters.format !== "all";
-	const handleResetQuickFilters = () => {
-		stockFilters.setType("all");
-		stockFilters.setFormat("all");
-	};
-	const toggleType = (type: string) =>
-		stockFilters.setType(stockFilters.filters.type === type ? "all" : type);
-	const toggleFormat = (format: string) =>
-		stockFilters.setFormat(stockFilters.filters.format === format ? "all" : format);
-
 	return (
 		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
 			<PageHeader
@@ -122,37 +108,9 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 					</>
 				}
 			>
-				<div className="px-[18px] pb-2">
+				<div className="px-[18px] pb-2.5">
 					<StockTabBar tab={tab} onChange={handleTabChange} counts={tabCounts} />
 				</div>
-				<nav
-					className="flex gap-1.5 overflow-x-auto px-[18px] pb-2.5 fv-noscroll"
-					aria-label={t("stock.filters")}
-				>
-					<Chip active={!quickFilterActive} onClick={handleResetQuickFilters} className="flex-none">
-						{t("stock.all")}
-					</Chip>
-					{stockFilters.availableTypes.map((type) => (
-						<Chip
-							key={`type-${type}`}
-							active={stockFilters.filters.type === type}
-							onClick={() => toggleType(type)}
-							className="flex-none"
-						>
-							{type}
-						</Chip>
-					))}
-					{stockFilters.availableFormats.map((format) => (
-						<Chip
-							key={`format-${format}`}
-							active={stockFilters.filters.format === format}
-							onClick={() => toggleFormat(format)}
-							className="flex-none"
-						>
-							{format}
-						</Chip>
-					))}
-				</nav>
 			</PageHeader>
 
 			<div className="px-[18px] pt-3 pb-32 flex flex-col gap-3">
