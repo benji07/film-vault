@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,7 @@ interface AppHeaderProps {
 	screen: ScreenName;
 	goBack: () => void;
 	onOpenSettings: () => void;
+	onEditFilm?: () => void;
 	filmTitle?: string;
 	cameraTitle?: string;
 	className?: string;
@@ -15,7 +16,7 @@ interface AppHeaderProps {
 
 const DETAIL_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetail", "settings"]);
 
-export function AppHeader({ screen, goBack, filmTitle, cameraTitle, className }: AppHeaderProps) {
+export function AppHeader({ screen, goBack, onEditFilm, filmTitle, cameraTitle, className }: AppHeaderProps) {
 	const { t } = useTranslation();
 	const isSubScreen = DETAIL_SCREENS.has(screen);
 
@@ -25,28 +26,31 @@ export function AppHeader({ screen, goBack, filmTitle, cameraTitle, className }:
 		settings: t("nav.settings"),
 	};
 
-	// Sub-screens: back button + title (full bar). Root screens: no bar at all,
-	// just a small floating settings button in the top-right corner — this is
-	// the explicit prototype direction (no "My Film Vault" banner per screen).
+	// Sub-screens: back button + title (+ optional contextual action on the
+	// right, e.g. edit on filmDetail). Root screens render their own header
+	// via PageHeader, nothing here.
 	if (isSubScreen) {
 		return (
 			<div
 				className={cn(
-					"shrink-0 flex items-center justify-between px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 bg-paper border-b border-ink-faded/40",
+					"shrink-0 flex items-center justify-between gap-2 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 bg-paper border-b border-ink-faded/40",
 					className,
 				)}
 			>
-				<div className="flex items-center gap-2 min-w-0">
+				<div className="flex items-center gap-2 min-w-0 flex-1">
 					<Button variant="ghost" size="icon" onClick={goBack} className="-ml-2" aria-label={t("aria.back")}>
 						<ArrowLeft size={20} className="text-ink-soft" />
 					</Button>
 					<h1 className="font-caveat text-2xl text-ink m-0 truncate">{subScreenTitles[screen]}</h1>
 				</div>
+				{screen === "filmDetail" && onEditFilm && (
+					<Button variant="ghost" size="icon" onClick={onEditFilm} aria-label={t("aria.editFilm")}>
+						<Pencil size={18} className="text-ink-soft" />
+					</Button>
+				)}
 			</div>
 		);
 	}
 
-	// Root screens render their own header (PageHeader) with their settings/
-	// action buttons in the right slot. Nothing to render here for them.
 	return null;
 }

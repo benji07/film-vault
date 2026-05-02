@@ -334,6 +334,8 @@ function AppContent({
 
 	useUrlSync(nav);
 
+	const [editFilmTrigger, setEditFilmTrigger] = useState(0);
+
 	const { current, navigate, goBack, resetTo, replace } = nav;
 	const { screen, selectedFilm, selectedCamera, mapFilterFilmId, stockStateFilter } = current;
 
@@ -414,6 +416,7 @@ function AppContent({
 						onExit={exitToStock}
 						onFilmDuplicated={replaceSelectedFilm}
 						filmId={selectedFilm ?? null}
+						editTrigger={editFilmTrigger}
 						onNavigateToMap={openMap}
 						onNavigateToCamera={openCamera}
 						autoOpenShotNote={autoOpenShotNote}
@@ -505,6 +508,7 @@ function AppContent({
 					screen={screen}
 					goBack={goBack}
 					onOpenSettings={openSettings}
+					onEditFilm={screen === "filmDetail" ? () => setEditFilmTrigger((n) => n + 1) : undefined}
 					filmTitle={filmTitle}
 					cameraTitle={cameraTitle}
 					className="md:hidden"

@@ -1,5 +1,5 @@
-import { CopyPlus, Film, History, Info, NotebookPen, Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { CopyPlus, Film, History, Info, NotebookPen, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmLifecycleStepper } from "@/components/FilmLifecycleStepper";
@@ -33,6 +33,7 @@ interface FilmDetailScreenProps {
 	onExit: () => void;
 	onFilmDuplicated: (id: string) => void;
 	filmId: string | null;
+	editTrigger?: number;
 	onNavigateToMap?: (filmId: string) => void;
 	onNavigateToCamera?: (camId: string) => void;
 	autoOpenShotNote?: boolean;
@@ -45,6 +46,7 @@ export function FilmDetailScreen({
 	onExit,
 	onFilmDuplicated,
 	filmId,
+	editTrigger = 0,
 	onNavigateToMap,
 	onNavigateToCamera,
 	autoOpenShotNote,
@@ -87,16 +89,8 @@ export function FilmDetailScreen({
 	const [viewerPhotos, setViewerPhotos] = useState<string[] | null>(null);
 	const [viewerIndex, setViewerIndex] = useState(0);
 
-	if (!film)
-		return (
-			<EmptyState
-				icon={Film}
-				title={t("filmDetail.notFound")}
-				action={<Button onClick={onExit}>{t("filmDetail.back")}</Button>}
-			/>
-		);
-
 	const openEdit = () => {
+		if (!film) return;
 		const editCam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
 		const soleLens =
 			!film.lensId && editCam?.hasInterchangeableLens ? pickSoleCompatibleLens(data.lenses, editCam) : null;
@@ -130,6 +124,25 @@ export function FilmDetailScreen({
 		});
 		setShowAction("edit");
 	};
+
+	// Edit requested from the AppHeader (lifted trigger).
+	const lastEditTrigger = useRef(editTrigger);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: openEdit is stable enough; only react to trigger changes
+	useEffect(() => {
+		if (editTrigger !== lastEditTrigger.current) {
+			lastEditTrigger.current = editTrigger;
+			openEdit();
+		}
+	}, [editTrigger]);
+
+	if (!film)
+		return (
+			<EmptyState
+				icon={Film}
+				title={t("filmDetail.notFound")}
+				action={<Button onClick={onExit}>{t("filmDetail.back")}</Button>}
+			/>
+		);
 
 	const fIso = filmIso(film);
 
@@ -215,13 +228,6 @@ export function FilmDetailScreen({
 
 	return (
 		<div className="flex flex-col gap-5 pb-20">
-			{/* Edit action — always visible top-right */}
-			<div className="flex items-center justify-end -mb-2">
-				<Button variant="ghost" size="icon" onClick={openEdit} aria-label={t("aria.editFilm")}>
-					<Pencil size={18} />
-				</Button>
-			</div>
-
 			{/* Packaging Kodak header */}
 			<FilmPackagingHeader
 				brand={film.brand || "—"}
