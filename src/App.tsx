@@ -38,6 +38,7 @@ import {
 	syncData,
 } from "@/utils/sync";
 import { useNavigationStack } from "@/utils/use-navigation-stack";
+import { useUrlSync } from "@/utils/use-url-sync";
 
 const MapScreen = lazy(() => import("@/screens/MapScreen").then((m) => ({ default: m.MapScreen })));
 
@@ -330,6 +331,8 @@ function AppContent({
 	const autoTourTriggered = useRef(false);
 	const navDirection = useRef<"forward" | "back" | "tab">("tab");
 	const prevScreen = useRef<ScreenName>(nav.current.screen);
+
+	useUrlSync(nav);
 
 	const { current, navigate, goBack, resetTo, replace } = nav;
 	const { screen, selectedFilm, selectedCamera, mapFilterFilmId, stockStateFilter } = current;
