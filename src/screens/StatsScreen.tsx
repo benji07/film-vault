@@ -214,7 +214,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 								— top
 							</span>
 						</h2>
-						<BarChart data={aggregates.byBrand} color={T.yellow} />
+						<BarChart data={aggregates.byBrand} color={T.yellow} limit={5} />
 					</section>
 				)}
 
@@ -263,21 +263,21 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				{Object.keys(aggregates.byCamera).length > 0 && (
 					<Card className="-rotate-[0.15deg]">
 						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.byCamera")}</h2>
-						<BarChart data={aggregates.byCamera} color={T.gold} />
+						<BarChart data={aggregates.byCamera} color={T.gold} limit={5} />
 					</Card>
 				)}
 
 				{Object.keys(aggregates.byLens).length > 0 && (
 					<Card>
 						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.byLens")}</h2>
-						<BarChart data={aggregates.byLens} color={T.teal} />
+						<BarChart data={aggregates.byLens} color={T.teal} limit={5} />
 					</Card>
 				)}
 
 				{Object.keys(aggregates.byTag).length > 0 && (
 					<Card>
 						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.byTag")}</h2>
-						<BarChart data={aggregates.byTag} color={T.red} />
+						<BarChart data={aggregates.byTag} color={T.red} limit={5} />
 					</Card>
 				)}
 

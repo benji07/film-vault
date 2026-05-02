@@ -4,22 +4,26 @@ interface BarChartProps {
 	data: Record<string, number>;
 	color?: string;
 	sort?: boolean;
+	limit?: number;
 	formatValue?: (v: number) => string;
 }
 
-export function BarChart({ data: chartData, color = T.yellow, sort = true, formatValue }: BarChartProps) {
+export function BarChart({ data: chartData, color = T.yellow, sort = true, limit, formatValue }: BarChartProps) {
 	const entries = Object.entries(chartData);
 	const sorted = sort ? entries.sort((a, b) => b[1] - a[1]) : entries;
-	const max = Math.max(...Object.values(chartData), 1);
+	const visible = typeof limit === "number" ? sorted.slice(0, limit) : sorted;
+	// Scale bars against the highest value among the visible rows so the
+	// top entry still spans the full track when limit truncates the list.
+	const max = Math.max(...visible.map(([, v]) => v), 1);
 	return (
 		<div className="flex flex-col">
-			{sorted.map(([k, v], i) => (
+			{visible.map(([k, v], i) => (
 				<div
 					key={k}
 					className="grid items-center gap-2.5 py-1.5"
 					style={{
 						gridTemplateColumns: "80px 1fr 36px",
-						borderBottom: i < sorted.length - 1 ? "1px dashed rgba(60,40,20,0.18)" : undefined,
+						borderBottom: i < visible.length - 1 ? "1px dashed rgba(60,40,20,0.18)" : undefined,
 					}}
 				>
 					<span className="font-archivo-black text-[10px] uppercase tracking-[0.05em] text-ink leading-tight">{k}</span>
