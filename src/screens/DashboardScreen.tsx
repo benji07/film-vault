@@ -85,7 +85,7 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 				</nav>
 			</PageHeader>
 
-			<main className="px-[18px] pt-6 pb-32 flex flex-col gap-[18px]">
+			<main className="px-[18px] pt-8 pb-32 flex flex-col gap-[18px]">
 				{visible.length === 0 ? (
 					<EmptyState
 						icon={FilmIcon}

@@ -66,7 +66,7 @@ export function EquipmentScreen({ data, setData, onCameraClick }: EquipmentScree
 				</div>
 			</PageHeader>
 
-			<div className="px-[18px] pt-6 pb-32 flex flex-col gap-4">
+			<div className="px-[18px] pt-8 pb-32 flex flex-col gap-4">
 				{activeTab === "cameras" && <CamerasTab data={data} setData={setData} onCameraClick={onCameraClick} />}
 				{activeTab === "lenses" && <LensesTab data={data} setData={setData} />}
 				{activeTab === "backs" && <BacksTab data={data} setData={setData} />}
