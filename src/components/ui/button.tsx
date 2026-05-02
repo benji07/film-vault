@@ -12,6 +12,7 @@ const buttonVariants = cva(
 		"transition-all duration-150",
 		"hover:-translate-x-px hover:-translate-y-px hover:shadow-[4px_4px_0_var(--color-ink)]",
 		"active:translate-x-px active:translate-y-px active:shadow-[2px_2px_0_var(--color-ink)]",
+		"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kodak-yellow focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
 		"disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0",
 	].join(" "),
 	{

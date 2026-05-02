@@ -77,7 +77,8 @@ function DialogCloseButton() {
 		<DialogPrimitive.Close asChild>
 			<button
 				type="button"
-				className="bg-paper-card border-[1.5px] border-ink shadow-[2px_2px_0_var(--color-ink)] w-9 h-9 flex items-center justify-center cursor-pointer hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_var(--color-ink)] transition-all"
+				aria-label="Close"
+				className="bg-paper-card border-[1.5px] border-ink shadow-[2px_2px_0_var(--color-ink)] w-11 h-11 flex items-center justify-center cursor-pointer hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_var(--color-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kodak-yellow focus-visible:ring-offset-2 focus-visible:ring-offset-paper transition-all"
 			>
 				<X size={16} className="text-ink" />
 			</button>
