@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { T } from "@/constants/theme";
 
 interface BarChartProps {
@@ -9,9 +10,11 @@ interface BarChartProps {
 }
 
 export function BarChart({ data: chartData, color = T.yellow, sort = true, limit, formatValue }: BarChartProps) {
-	const entries = Object.entries(chartData);
-	const sorted = sort ? entries.sort((a, b) => b[1] - a[1]) : entries;
-	const visible = typeof limit === "number" ? sorted.slice(0, limit) : sorted;
+	const visible = useMemo(() => {
+		const entries = Object.entries(chartData);
+		const sorted = sort ? entries.sort((a, b) => b[1] - a[1]) : entries;
+		return typeof limit === "number" ? sorted.slice(0, limit) : sorted;
+	}, [chartData, sort, limit]);
 	// Scale bars against the highest value among the visible rows so the
 	// top entry still spans the full track when limit truncates the list.
 	const max = Math.max(...visible.map(([, v]) => v), 1);

@@ -21,6 +21,9 @@ interface StatsScreenProps {
 	data: AppData;
 }
 
+const SHOT_STATES = new Set(["exposed", "developed", "scanned", "loaded", "partial"]);
+const CONSUMED_STATES = new Set(["exposed", "developed", "scanned"]);
+
 function periodFilter(period: StatsPeriod, now: Date): (f: FilmType) => boolean {
 	if (period === "all") return () => true;
 	if (period === "year") {
@@ -41,13 +44,11 @@ export function StatsScreen({ data }: StatsScreenProps) {
 	const now = useMemo(() => new Date(), []);
 	const yearLabel = String(now.getFullYear());
 
-	const shotStates = new Set(["exposed", "developed", "scanned", "loaded", "partial"]);
-	const consumedStates = new Set(["exposed", "developed", "scanned"]);
-
 	const filtered = useMemo(() => films.filter(periodFilter(period, now)), [films, period, now]);
-	const lensNameMap = new Map(data.lenses.map((l) => [l.id, lensDisplayName(l)]));
 
 	const aggregates = useMemo(() => {
+		const cameraNameMap = new Map(data.cameras.map((c) => [c.id, cameraDisplayName(c)]));
+		const lensNameMap = new Map(data.lenses.map((l) => [l.id, lensDisplayName(l)]));
 		const byType: Record<string, number> = {};
 		const byBrand: Record<string, number> = {};
 		const byFormat: Record<string, number> = {};
@@ -71,12 +72,11 @@ export function StatsScreen({ data }: StatsScreenProps) {
 			if (f.state === "stock") stockCount++;
 			if (f.state === "exposed") exposedCount++;
 
-			if (shotStates.has(f.state)) {
+			if (SHOT_STATES.has(f.state)) {
 				const name = filmName(f);
 				topFilms[name] = (topFilms[name] || 0) + 1;
 				if (f.cameraId) {
-					const cam = data.cameras.find((c) => c.id === f.cameraId);
-					const camName = cam ? cameraDisplayName(cam) : t("stats.unknown");
+					const camName = cameraNameMap.get(f.cameraId) || t("stats.unknown");
 					byCamera[camName] = (byCamera[camName] || 0) + 1;
 				}
 				if (f.lensId) {
@@ -87,7 +87,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				}
 			}
 
-			if (f.endDate && consumedStates.has(f.state)) {
+			if (f.endDate && CONSUMED_STATES.has(f.state)) {
 				const ym = f.endDate.slice(0, 7);
 				byYearMonth[ym] = (byYearMonth[ym] || 0) + 1;
 			}
@@ -99,6 +99,11 @@ export function StatsScreen({ data }: StatsScreenProps) {
 			}
 		}
 
+		const topFilmsSorted = Object.entries(topFilms)
+			.sort((a, b) => b[1] - a[1])
+			.slice(0, 5);
+		const topCamera = Object.entries(byCamera).sort((a, b) => b[1] - a[1])[0];
+
 		return {
 			byType,
 			byBrand,
@@ -107,12 +112,14 @@ export function StatsScreen({ data }: StatsScreenProps) {
 			byLens,
 			byTag,
 			topFilms,
+			topFilmsSorted,
+			topCamera,
 			byYearMonth,
 			stockCount,
 			exposedCount,
 			uniqueBrandsCount: uniqueBrands.size,
 		};
-	}, [filtered, data.cameras, lensNameMap, t, consumedStates, shotStates]);
+	}, [filtered, data.cameras, data.lenses, t]);
 
 	const monthLabels = t("stats.monthLabels", { returnObjects: true }) as string[];
 	const byMonth = useMemo(() => {
@@ -129,7 +136,6 @@ export function StatsScreen({ data }: StatsScreenProps) {
 		return { data: result, total };
 	}, [aggregates.byYearMonth, monthLabels, now]);
 
-	// Coûts (calculés sur tous les films, indépendamment de la période)
 	const costs = useMemo(() => {
 		let totalSpent = 0;
 		let filmsWithCost = 0;
@@ -157,12 +163,8 @@ export function StatsScreen({ data }: StatsScreenProps) {
 		return { totalSpent, avgPerFilm, avgPerFrame, costByCategory };
 	}, [filtered, t]);
 
-	const topFilmsSorted = Object.entries(aggregates.topFilms)
-		.sort((a, b) => b[1] - a[1])
-		.slice(0, 5);
-
-	// Insight : boitier le plus utilisé sur la période
-	const topCamera = Object.entries(aggregates.byCamera).sort((a, b) => b[1] - a[1])[0];
+	const topFilmsSorted = aggregates.topFilmsSorted;
+	const topCamera = aggregates.topCamera;
 
 	if (films.length === 0) {
 		return <EmptyState icon={BarChart3} title={t("stats.noStats")} subtitle={t("stats.noStatsSubtitle")} />;

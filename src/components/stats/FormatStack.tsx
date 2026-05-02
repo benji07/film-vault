@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { T } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 
@@ -6,7 +7,6 @@ interface FormatStackProps {
 	className?: string;
 }
 
-/** Couleurs successives utilisées pour les segments. */
 const SEGMENT_COLORS = [T.yellow, T.red, T.w2, T.ink, T.gold, T.teal] as const;
 const SEGMENT_FG = ["text-ink", "text-paper", "text-ink", "text-paper", "text-ink", "text-paper"] as const;
 
@@ -19,16 +19,17 @@ interface Segment {
 }
 
 export function FormatStack({ data, className }: FormatStackProps) {
-	const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
-	const total = entries.reduce((sum, [, v]) => sum + v, 0) || 1;
-
-	const segments: Segment[] = entries.map(([k, v], i) => ({
-		key: k,
-		value: v,
-		pct: (v / total) * 100,
-		color: SEGMENT_COLORS[i % SEGMENT_COLORS.length] ?? T.yellow,
-		fg: SEGMENT_FG[i % SEGMENT_FG.length] ?? "text-ink",
-	}));
+	const segments = useMemo<Segment[]>(() => {
+		const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+		const total = entries.reduce((sum, [, v]) => sum + v, 0) || 1;
+		return entries.map(([k, v], i) => ({
+			key: k,
+			value: v,
+			pct: (v / total) * 100,
+			color: SEGMENT_COLORS[i % SEGMENT_COLORS.length] ?? T.yellow,
+			fg: SEGMENT_FG[i % SEGMENT_FG.length] ?? "text-ink",
+		}));
+	}, [data]);
 
 	if (segments.length === 0) return null;
 
