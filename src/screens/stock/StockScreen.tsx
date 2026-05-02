@@ -111,7 +111,7 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 				</div>
 			</PageHeader>
 
-			<div className="px-[18px] pt-4 pb-32 flex flex-col gap-3">
+			<div className="px-[18px] pt-6 pb-32 flex flex-col gap-3">
 				{stockFilters.activeFilterDescriptions.length > 0 && (
 					<ActiveFilterChips
 						filters={stockFilters.activeFilterDescriptions}

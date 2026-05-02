@@ -176,7 +176,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				</div>
 			</PageHeader>
 
-			<div className="px-[18px] pt-3 pb-32 flex flex-col gap-6">
+			<div className="px-[18px] pt-6 pb-32 flex flex-col gap-6">
 				{/* 4 big stats — métriques fiables */}
 				<section className="grid grid-cols-2 gap-2.5" data-tour="stats-overview">
 					<StatCard
