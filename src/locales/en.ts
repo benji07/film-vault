@@ -49,17 +49,6 @@ export const en = {
 	// Dashboard / Carnet
 	dashboard: {
 		title: "Notebook",
-		filter: {
-			all: "All",
-			loaded: "Loaded",
-			toDev: "To develop",
-			toScan: "To scan",
-		},
-		stats: {
-			loaded: "loaded",
-			toDev: "to develop",
-			toScan: "to scan",
-		},
 		emptyMoving: "Your notebook is empty",
 		emptyMovingSubtitle: "Load a film to see it appear here",
 		typeSuffix: "neg",
@@ -70,6 +59,7 @@ export const en = {
 			exposed: "Exposed — finished",
 			atLab: "At the lab — {{lab}}",
 			toScan: "Developed — to scan",
+			scanned: "Scanned — archived",
 			noCamera: "Loaded",
 		},
 		inStock: "In stock",
@@ -786,9 +776,9 @@ export const en = {
 			description: "This is your film notebook — a quick tour of the key screens. You can skip at any time.",
 		},
 		carnetFilters: {
-			title: "The Notebook, your daily feed",
+			title: "The Notebook, year by year",
 			description:
-				"The Notebook gathers your in-flight rolls: loaded, ready to develop, ready to scan. Use the filter chips to zoom into one stage.",
+				"The Notebook lists your rolls year by year — in-flight and finished, newest first. Switch years to flip through your history.",
 		},
 		carnetCard: {
 			title: "A roll at a glance",
