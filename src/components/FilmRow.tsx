@@ -71,7 +71,7 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount, index = 0 }
 						{film.tags.map((tag) => (
 							<span
 								key={tag}
-								className="inline-flex items-center font-archivo font-extrabold text-[8px] uppercase tracking-[0.15em] px-1.5 py-px border-[1.5px] border-ink-faded text-ink-faded"
+								className="inline-flex items-center font-archivo font-extrabold text-[9px] uppercase tracking-[0.15em] px-1.5 py-px border-[1.5px] border-ink-faded text-ink-faded"
 							>
 								{tag}
 							</span>
@@ -83,18 +83,18 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount, index = 0 }
 			<div className="flex flex-col items-end justify-between px-3 py-2 border-l border-dashed border-ink-faded/40 bg-white/15 min-w-[64px]">
 				<div className="font-archivo-black text-[26px] text-ink leading-[0.9] tracking-[-0.5px] text-right">
 					{groupCount && groupCount > 1 ? groupCount : (film.quantity ?? 1)}
-					<span className="block font-archivo font-bold text-[8px] text-ink-faded mt-0.5 tracking-[0.18em] uppercase text-right">
+					<span className="block font-archivo font-bold text-[9px] text-ink-faded mt-0.5 tracking-[0.18em] uppercase text-right">
 						{groupCount && groupCount > 1 ? t("stock.resultCount", { count: groupCount }) : stateLabel.toLowerCase()}
 					</span>
 				</div>
 				{isExpiring ? (
-					<span className="inline-flex items-center font-archivo font-extrabold text-[8px] uppercase tracking-[0.15em] px-1.5 py-1 border-[1.5px] border-ink bg-kodak-yellow text-ink leading-none -rotate-3 mt-2">
+					<span className="inline-flex items-center font-archivo font-extrabold text-[9px] uppercase tracking-[0.15em] px-1.5 py-1 border-[1.5px] border-ink bg-kodak-yellow text-ink leading-none -rotate-3 mt-2">
 						{expInfo.label}
 					</span>
 				) : (
 					<span
 						className={cn(
-							"inline-flex items-center font-archivo font-extrabold text-[8px] uppercase tracking-[0.15em] px-1.5 py-1 border-[1.5px] leading-none mt-2",
+							"inline-flex items-center font-archivo font-extrabold text-[9px] uppercase tracking-[0.15em] px-1.5 py-1 border-[1.5px] leading-none mt-2",
 							tone.bg,
 							tone.fg,
 						)}
