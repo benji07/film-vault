@@ -78,6 +78,7 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 							size="icon-sm"
 							aria-label={t("stock.filters")}
 							onClick={() => setFilterDialogOpen(true)}
+							data-tour="stock-filters-button"
 						>
 							<SlidersHorizontal size={14} />
 						</Button>

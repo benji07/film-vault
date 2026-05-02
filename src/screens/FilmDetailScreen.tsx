@@ -268,7 +268,10 @@ export function FilmDetailScreen({
 			</div>
 
 			{/* Lifecycle stepper — 6 étapes */}
-			<section className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 pt-5 pb-4 -rotate-[0.3deg]">
+			<section
+				data-tour="film-lifecycle"
+				className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 pt-5 pb-4 -rotate-[0.3deg]"
+			>
 				<WashiTape color="w2" rotate={-2} width={50} className="-top-[9px] left-6" />
 				<div className="font-archivo-black text-[11px] tracking-[0.2em] uppercase mb-3.5 flex items-center gap-2">
 					<span className="w-2.5 h-2.5 bg-kodak-yellow border-[1.5px] border-ink" />
@@ -330,7 +333,7 @@ export function FilmDetailScreen({
 					count={film.history.length}
 					defaultOpen={false}
 				>
-					<div data-tour="film-timeline">
+					<div>
 						<Timeline
 							entries={film.history}
 							onPhotoClick={(photos, index) => {

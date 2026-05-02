@@ -36,10 +36,13 @@ export function EquipmentScreen({ data, setData, onCameraClick }: EquipmentScree
 	}) as string;
 
 	return (
-		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]" data-tour="cameras-tab">
+		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
 			<PageHeader title={headerTitle} count={counts[activeTab]}>
 				<div className="px-[18px] pb-3">
-					<nav className="grid grid-cols-3 border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card">
+					<nav
+						className="grid grid-cols-3 border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card"
+						data-tour="equipment-tabs"
+					>
 						{tabs.map((tab, i) => {
 							const active = activeTab === tab.key;
 							return (

@@ -68,7 +68,11 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 					) : undefined
 				}
 			>
-				<nav className="flex gap-2 overflow-x-auto px-[18px] pb-2.5 fv-noscroll" aria-label={t("dashboard.title")}>
+				<nav
+					className="flex gap-2 overflow-x-auto px-[18px] pb-2.5 fv-noscroll"
+					aria-label={t("dashboard.title")}
+					data-tour="carnet-filters"
+				>
 					{filterDefs.map((f) => (
 						<Chip key={f.id} active={filter === f.id} onClick={() => setFilter(f.id)} className="flex-none">
 							{f.label}
@@ -95,7 +99,16 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 				) : (
 					visible.map((f, idx) => {
 						const cam = f.cameraId ? cameras.find((c) => c.id === f.cameraId) : null;
-						return <CarnetFilmCard key={f.id} film={f} camera={cam} index={idx} onClick={() => onOpenFilm(f.id)} />;
+						const card = (
+							<CarnetFilmCard key={f.id} film={f} camera={cam} index={idx} onClick={() => onOpenFilm(f.id)} />
+						);
+						return idx === 0 ? (
+							<div key={f.id} data-tour="carnet-card">
+								{card}
+							</div>
+						) : (
+							card
+						);
 					})
 				)}
 			</main>
