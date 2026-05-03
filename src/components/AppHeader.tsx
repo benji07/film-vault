@@ -28,29 +28,29 @@ export function AppHeader({ screen, goBack, onEditFilm, filmTitle, cameraTitle, 
 
 	// Sub-screens: back button + title (+ optional contextual action on the
 	// right, e.g. edit on filmDetail). Root screens render their own header
-	// via PageHeader, nothing here.
-	if (isSubScreen) {
-		return (
-			<div
-				className={cn(
-					"shrink-0 flex items-center justify-between gap-2 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 bg-paper border-b border-ink-faded/40",
-					className,
-				)}
-			>
-				<div className="flex items-center gap-2 min-w-0 flex-1">
-					<Button variant="ghost" size="icon" onClick={goBack} className="-ml-2" aria-label={t("aria.back")}>
-						<ArrowLeft size={20} className="text-ink-soft" />
-					</Button>
-					<h1 className="font-caveat text-2xl text-ink m-0 truncate">{subScreenTitles[screen]}</h1>
-				</div>
-				{screen === "filmDetail" && onEditFilm && (
-					<Button variant="ghost" size="icon" onClick={onEditFilm} aria-label={t("aria.editFilm")}>
-						<Pencil size={18} className="text-ink-soft" />
-					</Button>
-				)}
-			</div>
-		);
-	}
+	// via PageHeader inside the scroll container — nothing to render here.
+	// The safe-area-inset-top is handled by the root container's padding,
+	// so this header just uses a fixed pt-3.
+	if (!isSubScreen) return null;
 
-	return null;
+	return (
+		<div
+			className={cn(
+				"shrink-0 flex items-center justify-between gap-2 px-4 pt-3 pb-2 bg-paper border-b border-ink-faded/40",
+				className,
+			)}
+		>
+			<div className="flex items-center gap-2 min-w-0 flex-1">
+				<Button variant="ghost" size="icon" onClick={goBack} className="-ml-2" aria-label={t("aria.back")}>
+					<ArrowLeft size={20} className="text-ink-soft" />
+				</Button>
+				<h1 className="font-caveat text-2xl text-ink m-0 truncate">{subScreenTitles[screen]}</h1>
+			</div>
+			{screen === "filmDetail" && onEditFilm && (
+				<Button variant="ghost" size="icon" onClick={onEditFilm} aria-label={t("aria.editFilm")}>
+					<Pencil size={18} className="text-ink-soft" />
+				</Button>
+			)}
+		</div>
+	);
 }

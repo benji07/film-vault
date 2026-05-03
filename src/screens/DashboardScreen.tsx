@@ -65,7 +65,7 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 	}, [datedFilms, selectedYear]);
 
 	return (
-		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
+		<div className="-mx-4 md:-mx-8 -mt-5">
 			<PageHeader
 				title={t("dashboard.title")}
 				count={visible.length}
