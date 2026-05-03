@@ -16,11 +16,14 @@ CREATE TABLE public.feedback (
     locale TEXT,
     app_version TEXT,
     user_agent TEXT,
+    -- SHA-256(ip + FEEDBACK_IP_SALT) — used for per-IP rate limiting without storing the raw IP.
+    ip_hash TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX feedback_created_at_idx ON public.feedback (created_at DESC);
 CREATE INDEX feedback_category_idx ON public.feedback (category);
+CREATE INDEX feedback_ip_hash_recent_idx ON public.feedback (ip_hash, created_at DESC) WHERE ip_hash IS NOT NULL;
 
 ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
 

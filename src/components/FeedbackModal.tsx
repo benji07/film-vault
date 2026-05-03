@@ -25,6 +25,7 @@ export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
 	const [category, setCategory] = useState<FeedbackCategory>("bug");
 	const [message, setMessage] = useState("");
 	const [email, setEmail] = useState("");
+	const [honeypot, setHoneypot] = useState("");
 	const [sending, setSending] = useState(false);
 
 	const trimmedMessage = message.trim();
@@ -36,6 +37,7 @@ export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
 		setCategory("bug");
 		setMessage("");
 		setEmail("");
+		setHoneypot("");
 		setSending(false);
 	}
 
@@ -51,6 +53,7 @@ export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
 			category,
 			message: trimmedMessage,
 			contactEmail: trimmedEmail || undefined,
+			honeypot,
 		});
 		setSending(false);
 		if (ok) {
@@ -71,6 +74,21 @@ export function FeedbackModal({ open, onOpenChange }: FeedbackModalProps) {
 				</DialogHeader>
 				<div className="flex flex-col gap-4">
 					<p className="text-xs text-text-muted -mt-2">{t("feedback.subtitle")}</p>
+
+					{/* Honeypot: real users never fill this — bots usually do. */}
+					<div aria-hidden="true" className="absolute -left-[9999px] top-auto h-0 w-0 overflow-hidden">
+						<label>
+							Website
+							<input
+								type="text"
+								name="website"
+								tabIndex={-1}
+								autoComplete="off"
+								value={honeypot}
+								onChange={(e) => setHoneypot(e.target.value)}
+							/>
+						</label>
+					</div>
 
 					<FormField label={t("feedback.categoryLabel")}>
 						<Select value={category} onValueChange={(v) => setCategory(v as FeedbackCategory)}>
