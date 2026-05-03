@@ -1,5 +1,5 @@
 import { Film as FilmIcon, Settings } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CarnetFilmCard } from "@/components/CarnetFilmCard";
 import { EmptyState } from "@/components/EmptyState";
@@ -43,6 +43,16 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 		const currentYear = new Date().getFullYear().toString();
 		return yearBuckets.some(([y]) => y === currentYear) ? currentYear : (yearBuckets[0]?.[0] ?? null);
 	});
+
+	useEffect(() => {
+		if (yearBuckets.length === 0) {
+			if (selectedYear !== null) setSelectedYear(null);
+			return;
+		}
+		if (!selectedYear || !yearBuckets.some(([y]) => y === selectedYear)) {
+			setSelectedYear(yearBuckets[0][0]);
+		}
+	}, [yearBuckets, selectedYear]);
 
 	const visible = useMemo(() => {
 		if (!selectedYear) return [];
