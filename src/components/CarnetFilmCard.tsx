@@ -79,7 +79,7 @@ function describeState(
 	}
 	if (film.state === "scanned") {
 		return {
-			state: { key: "scanned", label: t("states.scanned") || "scannée" },
+			state: { key: "scanned", label: t("states.scanned") },
 			description: t("dashboard.state.scanned"),
 		};
 	}
@@ -107,7 +107,7 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 
 	const lastActionISO = filmLastActionDate(film);
 	const lastActionLabel = lastActionISO
-		? new Date(lastActionISO).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", {
+		? new Date(lastActionISO).toLocaleDateString(i18n.language.startsWith("fr") ? "fr-FR" : "en-US", {
 				day: "numeric",
 				month: "short",
 			})
