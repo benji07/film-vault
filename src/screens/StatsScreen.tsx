@@ -171,7 +171,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 	}
 
 	return (
-		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
+		<div className="-mx-4 md:-mx-8 -mt-5">
 			<PageHeader title={t("stats.title")} count={films.length}>
 				<div className="px-[18px] pb-2.5">
 					<PeriodSwitch value={period} onChange={setPeriod} yearLabel={yearLabel} />

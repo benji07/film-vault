@@ -478,7 +478,7 @@ function AppContent({
 	const showTabBar = !SUB_SCREENS.has(screen);
 
 	return (
-		<div className="h-[100dvh] bg-bg text-text-primary font-body flex flex-col md:flex-row relative">
+		<div className="h-[100dvh] bg-bg text-text-primary font-body flex flex-col md:flex-row relative pt-[env(safe-area-inset-top)]">
 			{/* Sidebar — desktop only, always visible */}
 			<TabBar screen={screen} setScreen={resetScreen} variant="sidebar" className="hidden md:flex" />
 
@@ -495,7 +495,7 @@ function AppContent({
 				{screen === "map" ? (
 					<div className="flex-1 min-h-0">{renderScreen()}</div>
 				) : (
-					<div className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-5 md:pt-[max(1.25rem,env(safe-area-inset-top))]">
+					<div className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-5">
 						<div className="max-w-3xl mx-auto">
 							<div
 								key={`${screen}-${selectedFilm || ""}`}

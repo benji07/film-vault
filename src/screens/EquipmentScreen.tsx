@@ -36,7 +36,7 @@ export function EquipmentScreen({ data, setData, onCameraClick }: EquipmentScree
 	}) as string;
 
 	return (
-		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
+		<div className="-mx-4 md:-mx-8 -mt-5">
 			<PageHeader title={headerTitle} count={counts[activeTab]}>
 				<div className="px-[18px] pb-3">
 					<nav

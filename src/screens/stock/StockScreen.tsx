@@ -58,7 +58,7 @@ export function StockScreen({ data, onOpenFilm, initialStateFilter }: StockScree
 	const searchActive = stockFilters.search.trim() !== "" || stockFilters.hasActiveFilters;
 
 	return (
-		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
+		<div className="-mx-4 md:-mx-8 -mt-5">
 			<PageHeader
 				title={t("stock.title")}
 				count={totalCount}
