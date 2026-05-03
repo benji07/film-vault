@@ -12,12 +12,11 @@ import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
 import { QuickShotDialog } from "@/components/QuickShotDialog";
 import { TabBar } from "@/components/TabBar";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { CameraDetailScreen } from "@/screens/CameraDetailScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { EquipmentScreen } from "@/screens/EquipmentScreen";
-import { FilmDetailScreen } from "@/screens/FilmDetailScreen";
+import { FilmDetailScreen, type FilmDetailScreenHandle } from "@/screens/FilmDetailScreen";
 import { LegalScreen } from "@/screens/LegalScreen";
 import { SettingsScreen } from "@/screens/SettingsScreen";
 import { StatsScreen } from "@/screens/StatsScreen";
@@ -39,6 +38,7 @@ import {
 	syncData,
 } from "@/utils/sync";
 import { useNavigationStack } from "@/utils/use-navigation-stack";
+import { useUrlSync } from "@/utils/use-url-sync";
 
 const MapScreen = lazy(() => import("@/screens/MapScreen").then((m) => ({ default: m.MapScreen })));
 
@@ -221,7 +221,7 @@ function FilmVaultInner() {
 		setShowWelcome(false);
 	}, []);
 
-	const { resetTo: navResetTo, replace: navReplace, current: navCurrent } = nav;
+	const { resetTo: navResetTo } = nav;
 
 	// Both the TabBar (top-level tabs) and the Tour (scripted jumps) want to
 	// move without pushing onto the history stack.
@@ -231,11 +231,13 @@ function FilmVaultInner() {
 		},
 		[navResetTo],
 	);
-	const tourSetSelectedFilm = useCallback(
-		(id: string | null) => {
-			navReplace({ ...navCurrent, selectedFilm: id });
+	// The Tour also needs to set selectedFilm in the same dispatch so the
+	// reducer doesn't see two separate updates and overwrite the screen.
+	const tourGoTo = useCallback(
+		(target: { screen: ScreenName; selectedFilm: string | null }) => {
+			navResetTo({ screen: target.screen, selectedFilm: target.selectedFilm });
 		},
-		[navReplace, navCurrent],
+		[navResetTo],
 	);
 
 	if (loading || !data) {
@@ -252,7 +254,7 @@ function FilmVaultInner() {
 	}
 
 	return (
-		<TourProvider setScreen={resetScreen} setSelectedFilm={tourSetSelectedFilm}>
+		<TourProvider goTo={tourGoTo}>
 			<AppContent
 				data={data}
 				updateData={updateData}
@@ -332,6 +334,10 @@ function AppContent({
 	const navDirection = useRef<"forward" | "back" | "tab">("tab");
 	const prevScreen = useRef<ScreenName>(nav.current.screen);
 
+	useUrlSync(nav);
+
+	const filmDetailRef = useRef<FilmDetailScreenHandle>(null);
+
 	const { current, navigate, goBack, resetTo, replace } = nav;
 	const { screen, selectedFilm, selectedCamera, mapFilterFilmId, stockStateFilter } = current;
 
@@ -397,6 +403,7 @@ function AppContent({
 						data={effectiveData}
 						onOpenFilm={openFilm}
 						onOpenCameras={openCamerasList}
+						onOpenSettings={openSettings}
 						setAutoOpenShotNote={setAutoOpenShotNote}
 						onNavigateToStock={openStockFiltered}
 					/>
@@ -406,6 +413,7 @@ function AppContent({
 			case "filmDetail":
 				return (
 					<FilmDetailScreen
+						ref={filmDetailRef}
 						data={effectiveData}
 						setData={effectiveUpdateData}
 						onExit={exitToStock}
@@ -421,6 +429,7 @@ function AppContent({
 				return (
 					<CameraDetailScreen
 						data={effectiveData}
+						setData={effectiveUpdateData}
 						cameraId={selectedCamera ?? null}
 						onExit={exitToCameras}
 						onFilmClick={openFilm}
@@ -469,6 +478,7 @@ function AppContent({
 						data={effectiveData}
 						onOpenFilm={openFilm}
 						onOpenCameras={openCamerasList}
+						onOpenSettings={openSettings}
 						setAutoOpenShotNote={setAutoOpenShotNote}
 						onNavigateToStock={openStockFiltered}
 					/>
@@ -495,11 +505,12 @@ function AppContent({
 			{/* Sidebar — desktop only, always visible */}
 			<TabBar screen={screen} setScreen={resetScreen} variant="sidebar" className="hidden md:flex" />
 
-			<main className="flex-1 flex flex-col min-h-0 min-w-0">
+			<main className="relative flex-1 flex flex-col min-h-0 min-w-0">
 				<AppHeader
 					screen={screen}
 					goBack={goBack}
 					onOpenSettings={openSettings}
+					onEditFilm={screen === "filmDetail" ? () => filmDetailRef.current?.openEdit() : undefined}
 					filmTitle={filmTitle}
 					cameraTitle={cameraTitle}
 					className="md:hidden"
@@ -564,7 +575,18 @@ function AppContent({
 				}}
 			/>
 			<FloatingActionMenu
-				visible={showTabBar && !isTourActive}
+				visible={showTabBar && !isTourActive && screen !== "map"}
+				context={
+					screen === "stock"
+						? "stock"
+						: screen === "stats"
+							? "stats"
+							: screen === "cameras"
+								? "gear_cameras"
+								: screen === "home"
+									? "dashboard"
+									: "default"
+				}
 				onAddFilm={() => setShowAddFilm(true)}
 				onAddCamera={() => setShowAddCamera(true)}
 				onAddLens={() => setShowAddLens(true)}
@@ -581,10 +603,9 @@ function AppContent({
 
 export default function FilmVaultApp() {
 	return (
-		<ThemeProvider>
-			<ToastProvider>
-				<FilmVaultInner />
-			</ToastProvider>
-		</ThemeProvider>
+		<ToastProvider>
+			<div className="fv-redstripe" aria-hidden="true" />
+			<FilmVaultInner />
+		</ToastProvider>
 	);
 }

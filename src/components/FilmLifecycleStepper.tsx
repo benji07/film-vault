@@ -1,91 +1,83 @@
 import { useTranslation } from "react-i18next";
-import { getStates } from "@/constants/films";
-import { alpha } from "@/constants/theme";
 import { cn } from "@/lib/utils";
-import type { FilmState } from "@/types";
+import type { Film, FilmState } from "@/types";
 
 interface FilmLifecycleStepperProps {
 	currentState: FilmState;
+	history?: Film["history"];
 	className?: string;
 }
 
-const LIFECYCLE_STATES: FilmState[] = ["stock", "loaded", "exposed", "developed", "scanned"];
+/** 6 étapes visuelles du parcours d'une pellicule. */
+const STEPS = [
+	{ key: "stock", labelKey: "lifecycle.stock", fallback: "Stock" },
+	{ key: "loaded", labelKey: "lifecycle.loaded", fallback: "Chargée" },
+	{ key: "exposed", labelKey: "lifecycle.exposed", fallback: "Exposée" },
+	{ key: "lab", labelKey: "lifecycle.lab", fallback: "Labo" },
+	{ key: "developed", labelKey: "lifecycle.developed", fallback: "Dévelop." },
+	{ key: "scanned", labelKey: "lifecycle.scanned", fallback: "Scannée" },
+] as const;
 
-export function FilmLifecycleStepper({ currentState, className }: FilmLifecycleStepperProps) {
+function computeStepIndex(state: FilmState, history: Film["history"] | undefined): number {
+	switch (state) {
+		case "stock":
+			return 0;
+		case "loaded":
+		case "partial":
+			return 1;
+		case "exposed": {
+			const sentDev = history?.some((h) => h.actionCode === "sent_dev");
+			return sentDev ? 3 : 2;
+		}
+		case "developed":
+			return 4;
+		case "scanned":
+			return 5;
+		default:
+			return 0;
+	}
+}
+
+export function FilmLifecycleStepper({ currentState, history, className }: FilmLifecycleStepperProps) {
 	const { t } = useTranslation();
-	const STATES = getStates(t);
-
-	// "partial" maps to the "loaded" position
-	const effectiveState = currentState === "partial" ? "loaded" : currentState;
-	const currentIdx = LIFECYCLE_STATES.indexOf(effectiveState);
+	const currentIdx = computeStepIndex(currentState, history);
 
 	return (
-		<div className={cn("flex items-center gap-1", className)}>
-			{LIFECYCLE_STATES.map((state, i) => {
-				const st = STATES[state];
-				const isPast = i < currentIdx;
-				const isCurrent = i === currentIdx;
-				const isFuture = i > currentIdx;
-
+		<div className={cn("relative flex items-center justify-between px-1", className)}>
+			{/* Ligne de connexion en pointillés */}
+			<div
+				className="absolute left-4 right-4 top-3.5 h-[2px] z-0"
+				style={{
+					backgroundImage: "repeating-linear-gradient(90deg, var(--color-ink-faded) 0 4px, transparent 4px 8px)",
+				}}
+			/>
+			{STEPS.map((step, i) => {
+				const done = i < currentIdx;
+				const current = i === currentIdx;
+				const label = (t(step.labelKey, { defaultValue: step.fallback }) as string) || step.fallback;
 				return (
-					<div key={state} className="flex items-center flex-1 min-w-0">
-						<div className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
-							{/* Dot */}
-							<div className="flex items-center w-full">
-								{/* Line before */}
-								{i > 0 && (
-									<div
-										className="h-[2px] flex-1 rounded-full transition-colors"
-										style={{
-											backgroundColor: isPast || isCurrent ? alpha(st.color, 0.4) : alpha(st.color, 0.1),
-										}}
-									/>
-								)}
-								{/* Circle */}
-								<div
-									className={cn(
-										"shrink-0 rounded-full flex items-center justify-center transition-all",
-										isCurrent && "w-8 h-8 animate-timeline-pulse",
-										isPast && "w-6 h-6",
-										isFuture && "w-6 h-6",
-									)}
-									style={{
-										backgroundColor: isCurrent
-											? alpha(st.color, 0.15)
-											: isPast
-												? alpha(st.color, 0.12)
-												: alpha(st.color, 0.06),
-										border: isCurrent ? `2px solid ${st.color}` : "none",
-									}}
-								>
-									<st.icon size={isCurrent ? 14 : 12} color={isFuture ? alpha(st.color, 0.3) : st.color} />
-								</div>
-								{/* Line after */}
-								{i < LIFECYCLE_STATES.length - 1 && (
-									<div
-										className="h-[2px] flex-1 rounded-full transition-colors"
-										style={{
-											backgroundColor: isPast
-												? alpha(STATES[LIFECYCLE_STATES[i + 1]!].color, 0.4)
-												: alpha(st.color, 0.1),
-										}}
-									/>
-								)}
-							</div>
-							{/* Label */}
-							<span
-								className={cn(
-									"text-[10px] font-body leading-tight text-center truncate w-full",
-									isCurrent && "font-bold",
-									isPast && "font-medium",
-									isFuture && "font-normal",
-								)}
-								style={{
-									color: isFuture ? alpha(st.color, 0.35) : st.color,
-								}}
-							>
-								{st.label}
-							</span>
+					<div key={step.key} className="relative z-10 flex flex-col items-center gap-1.5">
+						<div
+							className={cn(
+								"w-7 h-7 flex items-center justify-center font-archivo-black text-[11px] border-2 transition-all",
+								current && "bg-kodak-red text-paper border-ink scale-[1.15] animate-timeline-pulse",
+								done && "bg-ink text-kodak-yellow border-ink",
+								!current && !done && "bg-paper text-ink-faded border-ink-faded",
+							)}
+						>
+							{done ? "✓" : current ? "●" : "·"}
+						</div>
+						<div
+							className={cn(
+								"font-archivo text-[9px] tracking-[0.12em] uppercase text-center leading-none whitespace-nowrap",
+								current
+									? "font-black text-kodak-red"
+									: done
+										? "font-extrabold text-ink-soft"
+										: "font-bold text-ink-faded",
+							)}
+						>
+							{label}
 						</div>
 					</div>
 				);

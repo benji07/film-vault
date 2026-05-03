@@ -30,7 +30,7 @@ export function ConfirmDialog({
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
-				{description && <p className="text-[13px] text-text-sec font-body mb-5">{description}</p>}
+				{description && <p className="font-cormorant text-[14px] text-ink-soft mb-5 leading-snug">{description}</p>}
 				<div className="flex gap-2 justify-end">
 					<Button variant="outline" onClick={() => onOpenChange(false)}>
 						{cancelLabel ?? t("common.cancel")}

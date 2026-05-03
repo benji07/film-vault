@@ -11,10 +11,10 @@ interface ToastItem {
 }
 
 const TOAST_COLORS: Record<ToastType, string> = {
-	success: "var(--color-green)",
-	info: "var(--color-blue)",
-	warning: "var(--color-amber)",
-	error: "var(--color-accent)",
+	success: "var(--color-kodak-teal)",
+	info: "var(--color-ink)",
+	warning: "var(--color-kodak-yellow-deep)",
+	error: "var(--color-kodak-red)",
 };
 
 interface ToastContextValue {
@@ -56,14 +56,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 						className={t.exiting ? "animate-toast-exit" : "animate-toast-enter"}
 						style={{
 							background: TOAST_COLORS[t.type],
-							color: "white",
-							padding: "6px 16px",
-							borderRadius: "9999px",
-							fontSize: "12px",
-							fontFamily: "var(--font-body)",
-							fontWeight: 600,
+							color: t.type === "warning" ? "var(--color-ink)" : "var(--color-paper)",
+							padding: "8px 16px",
+							fontSize: "11px",
+							fontFamily: "var(--font-archivo-black)",
+							fontWeight: 900,
+							letterSpacing: "0.12em",
+							textTransform: "uppercase",
 							whiteSpace: "nowrap",
-							boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+							border: "2px solid var(--color-ink)",
+							boxShadow: "3px 3px 0 var(--color-ink)",
 						}}
 					>
 						{t.message}

@@ -39,70 +39,69 @@ export function MapFilterBar({
 	);
 
 	return (
-		<div className="absolute top-3 left-3 right-3 z-10 flex flex-col gap-2">
+		<div className="flex flex-col gap-1.5 px-[18px] pb-2.5">
 			{/* Film type filter */}
-			<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-				<Chip active={filterType == null} onClick={() => onFilterType(null)} className="shrink-0 text-xs shadow-md">
+			<div className="flex gap-1.5 overflow-x-auto fv-noscroll">
+				<Chip active={filterType == null} onClick={() => onFilterType(null)} className="flex-none">
 					{t("map.allTypes")}
 				</Chip>
-				{FILM_TYPES.map((type) => (
-					<Chip
-						key={type}
-						active={filterType === type}
-						onClick={() => onFilterType(filterType === type ? null : type)}
-						className="shrink-0 text-xs shadow-md"
-					>
-						<div className="w-2 h-2 rounded-full" style={{ backgroundColor: MARKER_COLORS[type] }} />
-						{t(`filmTypes.${type}`, type)}
-					</Chip>
-				))}
+				{FILM_TYPES.map((type) => {
+					const active = filterType === type;
+					return (
+						<Chip key={type} active={active} onClick={() => onFilterType(active ? null : type)} className="flex-none">
+							<div className="w-2 h-2 rounded-full" style={{ backgroundColor: MARKER_COLORS[type] }} />
+							{t(`filmTypes.${type}`, type)}
+						</Chip>
+					);
+				})}
 			</div>
 
 			{/* Tag filter */}
 			{availableTags.length > 0 && (
-				<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-					<Chip active={filterTag == null} onClick={() => onFilterTag(null)} className="shrink-0 text-xs shadow-md">
+				<div className="flex gap-1.5 overflow-x-auto fv-noscroll">
+					<Chip active={filterTag == null} onClick={() => onFilterTag(null)} className="flex-none">
 						{t("map.allTags")}
 					</Chip>
-					{availableTags.map((tag) => (
-						<Chip
-							key={tag}
-							active={filterTag === tag}
-							onClick={() => onFilterTag(filterTag === tag ? null : tag)}
-							className="shrink-0 text-xs shadow-md"
-						>
-							{tag}
-						</Chip>
-					))}
+					{availableTags.map((tag) => {
+						const active = filterTag === tag;
+						return (
+							<Chip key={tag} active={active} onClick={() => onFilterTag(active ? null : tag)} className="flex-none">
+								{tag}
+							</Chip>
+						);
+					})}
 				</div>
 			)}
 
 			{/* Film filter */}
 			{filmsWithGeo.length > 1 && (
-				<div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+				<div className="flex gap-1.5 overflow-x-auto fv-noscroll">
 					<Chip
 						active={filterFilmId == null}
 						onClick={() => {
 							onFilterFilm(null);
 							onClearFilter();
 						}}
-						className="shrink-0 text-xs shadow-md"
+						className="flex-none"
 					>
 						{t("map.allFilms")}
 					</Chip>
-					{filmsWithGeo.map((film) => (
-						<Chip
-							key={film.id}
-							active={filterFilmId === film.id}
-							onClick={() => {
-								onFilterFilm(filterFilmId === film.id ? null : film.id);
-								onClearFilter();
-							}}
-							className="shrink-0 text-xs shadow-md max-w-[160px] truncate"
-						>
-							{filmName(film)}
-						</Chip>
-					))}
+					{filmsWithGeo.map((film) => {
+						const active = filterFilmId === film.id;
+						return (
+							<Chip
+								key={film.id}
+								active={active}
+								onClick={() => {
+									onFilterFilm(active ? null : film.id);
+									onClearFilter();
+								}}
+								className="flex-none max-w-[160px] truncate"
+							>
+								{filmName(film)}
+							</Chip>
+						);
+					})}
 				</div>
 			)}
 
@@ -113,7 +112,7 @@ export function MapFilterBar({
 						onFilterFilm(null);
 						onClearFilter();
 					}}
-					className="self-start flex items-center gap-1 text-xs text-accent bg-card/90 backdrop-blur rounded-full px-2.5 py-1 shadow-md border border-border"
+					className="self-start flex items-center gap-1 font-archivo font-extrabold text-[10px] uppercase tracking-[0.12em] text-kodak-red bg-paper-card border-2 border-ink shadow-[2px_2px_0_var(--color-ink)] px-2.5 py-1.5 mt-1"
 				>
 					<X size={12} />
 					{t("map.allFilms")}

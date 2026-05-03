@@ -25,7 +25,18 @@ export const fr = {
 		loaded: "Chargée",
 		partial: "Partielle",
 		exposed: "Exposée",
+		atLab: "Au labo",
 		developed: "Développée",
+		scanned: "Scannée",
+	},
+
+	// Film lifecycle steps (FilmDetail stepper)
+	lifecycle: {
+		stock: "Stock",
+		loaded: "Chargée",
+		exposed: "Exposée",
+		lab: "Labo",
+		developed: "Dévelop.",
 		scanned: "Scannée",
 	},
 
@@ -35,8 +46,32 @@ export const fr = {
 		expiringSoon: "Expire bientôt",
 	},
 
-	// Dashboard
+	// Dashboard / Carnet
 	dashboard: {
+		title: "Carnet",
+		filter: {
+			all: "Toutes",
+			loaded: "Chargées",
+			toDev: "À développer",
+			toScan: "À scanner",
+		},
+		stats: {
+			loaded: "chargées",
+			toDev: "à développer",
+			toScan: "à scanner",
+		},
+		emptyMoving: "Le carnet est vide",
+		emptyMovingSubtitle: "Charge une pellicule pour qu'elle apparaisse ici",
+		typeSuffix: "neg",
+		posesUnit: "poses",
+		state: {
+			loadedIn: "Chargée dans le {{camera}}",
+			partial: "Partielle — déchargée du {{camera}}",
+			exposed: "Exposée — terminée",
+			atLab: "Au labo — {{lab}}",
+			toScan: "Développée — à scanner",
+			noCamera: "Chargée",
+		},
 		inStock: "En stock",
 		loaded: "Chargées",
 		exposed: "Exposées",
@@ -75,6 +110,8 @@ export const fr = {
 		stateLabel: "Statut",
 		brand: "Marque",
 		iso: "ISO",
+		sort: "Tri",
+		scope: "Lot",
 		nameAsc: "Nom A→Z",
 		nameDesc: "Nom Z→A",
 		addedDate: "Date d'ajout ↓",
@@ -91,6 +128,8 @@ export const fr = {
 		tags: "Tags",
 		resultCount_one: "{{count}} pellicule",
 		resultCount_other: "{{count}} pellicules",
+		metaExp: "périme {{date}}",
+		metaRef: "réf {{ref}}",
 		tabs: {
 			active: "En cours",
 			stock: "Stock",
@@ -198,6 +237,11 @@ export const fr = {
 		"Polaroid 600": "Polaroïd 600",
 		"Polaroid I-Type": "Polaroïd I-Type",
 		"Polaroid Go": "Polaroïd Go",
+	},
+
+	// Film packaging header (FilmDetail + AddFilm preview)
+	filmPackaging: {
+		subline: "négatif",
 	},
 
 	// Film detail screen
@@ -609,11 +653,12 @@ export const fr = {
 	fab: {
 		openMenu: "Menu d'ajout rapide",
 		title: "Ajouter",
-		film: "Ajouter une pellicule",
-		camera: "Ajouter un appareil",
-		lens: "Ajouter un objectif",
-		back: "Ajouter un dos",
-		quickShot: "Noter une prise",
+		add: "Ajouter",
+		film: "Pellicule",
+		camera: "Boîtier",
+		lens: "Objectif",
+		back: "Dos",
+		quickShot: "Prise de vue",
 	},
 
 	// Quick shot dialog
@@ -739,43 +784,47 @@ export const fr = {
 		welcome: {
 			title: "Bienvenue dans FilmVault !",
 			description:
-				"Découvre comment gérer ton stock de pellicules, suivre tes appareils et analyser ta consommation argentique.",
+				"Voici ton carnet de pellicules — un mini-guide pour découvrir les écrans clés. Tu peux passer à tout moment.",
 		},
-		dashboardStats: {
-			title: "Ton tableau de bord",
+		carnetFilters: {
+			title: "Le carnet, ton fil du jour",
 			description:
-				"Ces compteurs te montrent combien de pellicules tu as dans chaque état : en stock, chargées, exposées et développées.",
+				"Le Carnet rassemble les pellicules en cours : chargées, à développer, à scanner. Bascule entre les filtres pour zoomer sur une étape.",
 		},
-		dashboardEquipment: {
-			title: "Ton équipement",
-			description: "Retrouve tes appareils photo ici. Un indicateur vert signifie qu'une pellicule est chargée.",
-		},
-		dashboardActive: {
-			title: "Pellicules actives",
+		carnetCard: {
+			title: "Une pellicule en un coup d'œil",
 			description:
-				"Les pellicules actuellement chargées dans tes appareils. Tu peux noter tes poses directement depuis ici.",
+				"Format, ISO, état, jauge de poses, boîtier où elle est chargée — toutes les infos utiles tiennent sur la carte. Tape dessus pour ouvrir la fiche détaillée.",
 		},
 		stock: {
-			title: "Ton stock de pellicules",
-			description: "Toutes tes pellicules sont listées ici avec leur état. Tu peux filtrer, trier et rechercher.",
-		},
-		filmDetail: {
-			title: "Détail et historique",
+			title: "Ton stock complet",
 			description:
-				"Chaque pellicule a un historique complet : du stock au scan, en passant par le chargement et le développement.",
+				"L'écran Pellicules liste tout ce que tu possèdes, regroupé par marque. La recherche est dans le header.",
+		},
+		stockFilters: {
+			title: "Filtres et tri",
+			description:
+				"Le bouton filtres ouvre une modale qui s'adapte à ton stock : seuls les formats / marques / ISO réellement présents apparaissent. C'est aussi ici qu'on bascule entre Stock et Archive.",
+		},
+		filmLifecycle: {
+			title: "Le cycle de vie",
+			description:
+				"Chaque pellicule traverse 6 étapes — du stock au scan. Le stepper te dit où tu en es et propose la prochaine action.",
 		},
 		equipment: {
-			title: "Gestion de l'équipement",
-			description: "Ajoute tes boîtiers et objectifs. FilmVault les proposera quand tu charges une pellicule.",
+			title: "Boîtiers, objectifs, dos",
+			description:
+				"L'écran Matériel regroupe tes appareils photo, objectifs et dos interchangeables dans trois onglets. FilmVault les propose automatiquement quand tu charges une pellicule.",
 		},
 		stats: {
 			title: "Tes statistiques",
-			description: "Analyse ta consommation par type, marque, format et appareil. Suis aussi tes dépenses.",
+			description:
+				"Choisis une période en haut (30 j / année / 12 mois / tout), puis explore ta cadence, tes formats favoris et tes dépenses.",
 		},
 		tourEnd: {
-			title: "C'est parti !",
+			title: "Tu es prêt !",
 			description:
-				"Tu es prêt à utiliser FilmVault. Ajoute ta première pellicule ou ton premier appareil pour commencer.",
+				"Ajoute ta première pellicule ou un boîtier pour commencer. Tu peux relancer ce guide depuis les Réglages.",
 		},
 		next: "Suivant",
 		prev: "Précédent",

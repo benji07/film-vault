@@ -31,7 +31,6 @@ export function PhotoImg({ src, className, alt = "", ...props }: PhotoImgProps) 
 			return;
 		}
 
-		// Storage path — clear previous and resolve async
 		setResolvedSrc(null);
 		setLoading(true);
 		let cancelled = false;
@@ -48,9 +47,8 @@ export function PhotoImg({ src, className, alt = "", ...props }: PhotoImgProps) 
 
 	if (!src) return null;
 
-	// Placeholder while loading a storage path
 	if (loading || (!resolvedSrc && !isBase64Photo(src))) {
-		return <div className={cn("animate-pulse bg-surface-alt rounded", className)} {...props} />;
+		return <div className={cn("animate-pulse bg-paper-dark", className)} {...props} />;
 	}
 
 	if (!resolvedSrc) return null;

@@ -25,7 +25,18 @@ export const en = {
 		loaded: "Loaded",
 		partial: "Partial",
 		exposed: "Exposed",
+		atLab: "At the lab",
 		developed: "Developed",
+		scanned: "Scanned",
+	},
+
+	// Film lifecycle steps (FilmDetail stepper)
+	lifecycle: {
+		stock: "Stock",
+		loaded: "Loaded",
+		exposed: "Exposed",
+		lab: "Lab",
+		developed: "Devel.",
 		scanned: "Scanned",
 	},
 
@@ -35,8 +46,32 @@ export const en = {
 		expiringSoon: "Expiring soon",
 	},
 
-	// Dashboard
+	// Dashboard / Carnet
 	dashboard: {
+		title: "Notebook",
+		filter: {
+			all: "All",
+			loaded: "Loaded",
+			toDev: "To develop",
+			toScan: "To scan",
+		},
+		stats: {
+			loaded: "loaded",
+			toDev: "to develop",
+			toScan: "to scan",
+		},
+		emptyMoving: "Your notebook is empty",
+		emptyMovingSubtitle: "Load a film to see it appear here",
+		typeSuffix: "neg",
+		posesUnit: "frames",
+		state: {
+			loadedIn: "Loaded in the {{camera}}",
+			partial: "Partial — unloaded from the {{camera}}",
+			exposed: "Exposed — finished",
+			atLab: "At the lab — {{lab}}",
+			toScan: "Developed — to scan",
+			noCamera: "Loaded",
+		},
 		inStock: "In stock",
 		loaded: "Loaded",
 		exposed: "Exposed",
@@ -75,6 +110,8 @@ export const en = {
 		stateLabel: "Status",
 		brand: "Brand",
 		iso: "ISO",
+		sort: "Sort",
+		scope: "Scope",
 		nameAsc: "Name A→Z",
 		nameDesc: "Name Z→A",
 		addedDate: "Date added ↓",
@@ -91,6 +128,8 @@ export const en = {
 		tags: "Tags",
 		resultCount_one: "{{count}} film",
 		resultCount_other: "{{count}} films",
+		metaExp: "expires {{date}}",
+		metaRef: "ref {{ref}}",
 		tabs: {
 			active: "Active",
 			stock: "Stock",
@@ -198,6 +237,11 @@ export const en = {
 		"Polaroid 600": "Polaroid 600",
 		"Polaroid I-Type": "Polaroid I-Type",
 		"Polaroid Go": "Polaroid Go",
+	},
+
+	// Film packaging header (FilmDetail + AddFilm preview)
+	filmPackaging: {
+		subline: "negative",
 	},
 
 	// Film detail screen
@@ -609,11 +653,12 @@ export const en = {
 	fab: {
 		openMenu: "Quick add menu",
 		title: "Add",
-		film: "Add a film",
-		camera: "Add a camera",
-		lens: "Add a lens",
-		back: "Add a back",
-		quickShot: "Log a shot",
+		add: "Add",
+		film: "Film",
+		camera: "Camera",
+		lens: "Lens",
+		back: "Back",
+		quickShot: "Shot",
 	},
 
 	// Quick shot dialog
@@ -738,41 +783,46 @@ export const en = {
 	tour: {
 		welcome: {
 			title: "Welcome to FilmVault!",
+			description: "This is your film notebook — a quick tour of the key screens. You can skip at any time.",
+		},
+		carnetFilters: {
+			title: "The Notebook, your daily feed",
 			description:
-				"Discover how to manage your film stock, track your cameras and analyze your analog photography habits.",
+				"The Notebook gathers your in-flight rolls: loaded, ready to develop, ready to scan. Use the filter chips to zoom into one stage.",
 		},
-		dashboardStats: {
-			title: "Your dashboard",
+		carnetCard: {
+			title: "A roll at a glance",
 			description:
-				"These counters show how many films you have in each state: in stock, loaded, exposed and developed.",
-		},
-		dashboardEquipment: {
-			title: "Your equipment",
-			description: "Find your cameras here. A green indicator means a film is currently loaded.",
-		},
-		dashboardActive: {
-			title: "Active rolls",
-			description: "Films currently loaded in your cameras. You can log your shots directly from here.",
+				"Format, ISO, state, exposure progress, the body it's loaded in — every useful bit sits on the card. Tap to open the full detail.",
 		},
 		stock: {
-			title: "Your film stock",
-			description: "All your films are listed here with their status. You can filter, sort and search.",
+			title: "Your full stock",
+			description: "The Stock screen lists everything you own, grouped by brand. Search lives in the header.",
 		},
-		filmDetail: {
-			title: "Detail and history",
-			description: "Each film has a complete history: from stock to scan, through loading and development.",
+		stockFilters: {
+			title: "Filters and sort",
+			description:
+				"The filters button opens a modal that adapts to your stock: only formats / brands / ISO actually present appear. This is also where you flip between Stock and Archive.",
+		},
+		filmLifecycle: {
+			title: "The lifecycle",
+			description:
+				"Every roll moves through 6 stages — from stock to scan. The stepper shows where you are and suggests the next action.",
 		},
 		equipment: {
-			title: "Equipment management",
-			description: "Add your camera bodies and lenses. FilmVault will suggest them when you load a film.",
+			title: "Bodies, lenses, backs",
+			description:
+				"The Equipment screen groups your camera bodies, lenses and interchangeable backs into three tabs. FilmVault offers them up automatically when you load a film.",
 		},
 		stats: {
 			title: "Your statistics",
-			description: "Analyze your consumption by type, brand, format and camera. Also track your expenses.",
+			description:
+				"Pick a period at the top (30d / year / 12m / all), then dig into your cadence, favourite formats and spending.",
 		},
 		tourEnd: {
-			title: "You're all set!",
-			description: "You're ready to use FilmVault. Add your first film or camera to get started.",
+			title: "You're ready!",
+			description:
+				"Add your first roll or a camera body to get started. You can replay this guide from Settings whenever you want.",
 		},
 		next: "Next",
 		prev: "Previous",

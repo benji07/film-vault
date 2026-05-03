@@ -37,7 +37,7 @@ export function MonthYearPicker({ value, onChange, className }: MonthYearPickerP
 		<div className={cn("flex items-center gap-2", className)}>
 			<div className="grid grid-cols-2 gap-2 flex-1">
 				<Select value={monthStr || undefined} onValueChange={handleMonthChange}>
-					<SelectTrigger className="font-mono">
+					<SelectTrigger className="font-typewriter">
 						<SelectValue placeholder={t("monthPlaceholder")} />
 					</SelectTrigger>
 					<SelectContent>
@@ -52,7 +52,7 @@ export function MonthYearPicker({ value, onChange, className }: MonthYearPickerP
 					</SelectContent>
 				</Select>
 				<Select value={yearStr || undefined} onValueChange={handleYearChange}>
-					<SelectTrigger className="font-mono">
+					<SelectTrigger className="font-typewriter">
 						<SelectValue placeholder={t("yearPlaceholder")} />
 					</SelectTrigger>
 					<SelectContent>
@@ -69,7 +69,7 @@ export function MonthYearPicker({ value, onChange, className }: MonthYearPickerP
 					type="button"
 					onClick={() => onChange("")}
 					aria-label={t("aria.clearDate")}
-					className="shrink-0 size-9 rounded-lg border border-border bg-card text-text-secondary hover:text-text-primary hover:bg-surface flex items-center justify-center transition-colors"
+					className="shrink-0 size-9 border-[1.5px] border-ink bg-paper-card text-ink-soft hover:text-ink shadow-[2px_2px_0_var(--color-ink)] flex items-center justify-center transition-colors"
 				>
 					<X size={16} />
 				</button>

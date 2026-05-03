@@ -1,27 +1,15 @@
-import { Camera, Check, Edit3, Eye, PackageX, RotateCcw, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Camera } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
-import { PhotoPicker } from "@/components/PhotoPicker";
+import { EquipmentItemCard } from "@/components/equipment/EquipmentItemCard";
+import { SoldEquipmentCard } from "@/components/equipment/SoldEquipmentCard";
 import { PhotoViewer } from "@/components/PhotoViewer";
-import { AutocompleteInput } from "@/components/ui/autocomplete-input";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FormField } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
-import { PhotoImg } from "@/components/ui/photo-img";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { SHUTTER_SPEEDS } from "@/constants/photography";
-import { alpha, T } from "@/constants/theme";
-import { type AppData, type Camera as CameraType, INSTANT_FORMATS } from "@/types";
+import type { AppData } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
-import { filmName } from "@/utils/film-helpers";
-import { collectMounts } from "@/utils/lens-helpers";
+import { filmIso, filmName } from "@/utils/film-helpers";
 
 interface CamerasTabProps {
 	data: AppData;
@@ -31,47 +19,11 @@ interface CamerasTabProps {
 
 export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 	const { t } = useTranslation();
-	const [editCam, setEditCam] = useState<(CameraType & { mount?: string | null }) | null>(null);
 	const [viewerPhoto, setViewerPhoto] = useState<string | null>(null);
 	const [pendingHardDeleteId, setPendingHardDeleteId] = useState<string | null>(null);
-	const mountSuggestions = useMemo(() => collectMounts(data.cameras, data.lenses), [data.cameras, data.lenses]);
 
 	const activeCameras = data.cameras.filter((c) => !c.soldAt);
 	const soldCameras = data.cameras.filter((c) => c.soldAt);
-
-	const saveEditCamera = () => {
-		if (!editCam?.brand && !editCam?.model) return;
-		const hasLens = editCam.hasInterchangeableLens ?? true;
-		const hasManual = editCam.hasManualControls ?? true;
-		const newCams = data.cameras.map((c) =>
-			c.id === editCam.id
-				? {
-						...c,
-						brand: editCam.brand,
-						model: editCam.model,
-						nickname: editCam.nickname,
-						serial: editCam.serial,
-						format: editCam.format,
-						mount: hasLens ? editCam.mount || null : null,
-						hasInterchangeableBack: editCam.hasInterchangeableBack || false,
-						hasInterchangeableLens: hasLens,
-						hasManualControls: hasManual,
-						photo: editCam.photo,
-						shutterSpeedMin: hasManual ? editCam.shutterSpeedMin || null : null,
-						shutterSpeedMax: hasManual ? editCam.shutterSpeedMax || null : null,
-					}
-				: c,
-		);
-		setData({ ...data, cameras: newCams });
-		setEditCam(null);
-	};
-
-	const sellCamera = (camId: string) => {
-		const hasLoaded = data.films.some((f) => f.state === "loaded" && f.cameraId === camId);
-		if (hasLoaded) return;
-		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, soldAt: new Date().toISOString() } : c));
-		setData({ ...data, cameras: newCams });
-	};
 
 	const unarchiveCamera = (camId: string) => {
 		const newCams = data.cameras.map((c) => (c.id === camId ? { ...c, soldAt: null } : c));
@@ -90,128 +42,33 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("cameras.title")}</h2>
-
-				<div className="flex flex-col gap-2.5">
-					{activeCameras.map((cam) => {
+				<div className="flex flex-col gap-4">
+					{activeCameras.map((cam, idx) => {
 						const loadedFilms = data.films.filter((f) => f.state === "loaded" && f.cameraId === cam.id);
 						const camBacks = data.backs.filter((b) => !b.soldAt && b.compatibleCameraIds.includes(cam.id));
-						const handleCardClick = () => onCameraClick?.(cam.id);
-						const canArchive = loadedFilms.length === 0;
+						const totalRolls = data.films.filter((f) => f.cameraId === cam.id).length;
+						const totalShots = data.films
+							.filter((f) => f.cameraId === cam.id)
+							.reduce((sum, f) => sum + (f.posesShot ?? 0), 0);
+						const loadedSummary = loadedFilms[0]
+							? `${filmName(loadedFilms[0])} — ${filmIso(loadedFilms[0])} ISO`
+							: null;
 						return (
-							<Card
+							<EquipmentItemCard
 								key={cam.id}
-								onClick={onCameraClick ? handleCardClick : undefined}
-								role={onCameraClick ? "button" : undefined}
-								tabIndex={onCameraClick ? 0 : undefined}
-								onKeyDown={
-									onCameraClick
-										? (e) => {
-												if (e.key === "Enter" || e.key === " ") {
-													e.preventDefault();
-													handleCardClick();
-												}
-											}
-										: undefined
-								}
-								className={onCameraClick ? "cursor-pointer hover:bg-card-hover" : undefined}
-							>
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-3">
-										{cam.photo ? (
-											<button
-												type="button"
-												onClick={(e) => {
-													e.stopPropagation();
-													setViewerPhoto(cam.photo!);
-												}}
-												aria-label={t("aria.openPhoto", { index: 1 })}
-												className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
-											>
-												<PhotoImg
-													src={cam.photo}
-													alt=""
-													aria-hidden="true"
-													className="w-full h-full object-cover border border-border cursor-pointer"
-												/>
-											</button>
-										) : (
-											<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
-												<Camera size={20} className="text-text-muted opacity-40" />
-											</div>
-										)}
-										<div>
-											<div className="text-[15px] font-semibold text-text-primary font-body">
-												{cameraDisplayName(cam)}
-											</div>
-											<div className="flex gap-1.5 mt-1.5">
-												<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{cam.format}</Badge>
-												{camBacks.length > 0 && (
-													<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
-														{camBacks.length} {t("cameras.backs")}
-													</Badge>
-												)}
-												{loadedFilms.length > 0 && (
-													<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
-														{t("cameras.loaded", { count: loadedFilms.length })}
-													</Badge>
-												)}
-											</div>
-										</div>
-									</div>
-									<div className="flex gap-1.5">
-										{onCameraClick && (
-											<Button
-												variant="outline"
-												size="icon"
-												onClick={(e) => {
-													e.stopPropagation();
-													onCameraClick(cam.id);
-												}}
-												className="w-11 h-11 rounded-lg"
-												aria-label={t("aria.viewCamera")}
-											>
-												<Eye size={14} className="text-text-sec" />
-											</Button>
-										)}
-										<Button
-											variant="outline"
-											size="icon"
-											onClick={(e) => {
-												e.stopPropagation();
-												setEditCam({ ...cam });
-											}}
-											className="w-11 h-11 rounded-lg"
-											aria-label={t("aria.editCamera")}
-										>
-											<Edit3 size={14} className="text-text-sec" />
-										</Button>
-										{canArchive && (
-											<Button
-												variant="destructive"
-												size="icon"
-												onClick={(e) => {
-													e.stopPropagation();
-													sellCamera(cam.id);
-												}}
-												className="w-11 h-11 rounded-lg"
-												aria-label={t("aria.sellCamera")}
-											>
-												<PackageX size={14} className="text-accent" />
-											</Button>
-										)}
-									</div>
-								</div>
-								{loadedFilms.length > 0 && (
-									<div className="mt-3 pt-3 border-t border-border">
-										{loadedFilms.map((f) => (
-											<div key={f.id} className="text-[13px] font-body" style={{ color: T.green }}>
-												{filmName(f)} — ISO {f.shootIso}
-											</div>
-										))}
-									</div>
-								)}
-							</Card>
+								name={cameraDisplayName(cam)}
+								year={cam.format}
+								formatLabel={cam.format}
+								photo={cam.photo}
+								index={idx}
+								onClick={onCameraClick ? () => onCameraClick(cam.id) : undefined}
+								stats={[
+									{ value: totalRolls, label: t("cameras.rolls", { defaultValue: "rolls" }) },
+									{ value: totalShots || "—", label: t("cameras.shots", { defaultValue: "poses" }) },
+									{ value: camBacks.length, label: t("cameras.backsLabel", { defaultValue: "dos" }) },
+								]}
+								loadedSummary={loadedSummary}
+							/>
 						);
 					})}
 					{activeCameras.length === 0 && (
@@ -224,206 +81,28 @@ export function CamerasTab({ data, setData, onCameraClick }: CamerasTabProps) {
 						<div className="flex flex-col gap-2.5">
 							{soldCameras.map((cam) => {
 								const associatedFilms = data.films.filter((f) => f.cameraId === cam.id).length;
-								const soldDate = cam.soldAt ? new Date(cam.soldAt).toLocaleDateString() : "";
+								const soldDate = cam.soldAt ? new Date(cam.soldAt).toLocaleDateString() : null;
 								return (
-									<Card key={cam.id} className="opacity-70">
-										<div className="flex items-center justify-between">
-											<div className="flex items-center gap-3">
-												{cam.photo ? (
-													<button
-														type="button"
-														onClick={(e) => {
-															e.stopPropagation();
-															setViewerPhoto(cam.photo!);
-														}}
-														aria-label={t("aria.openPhoto", { index: 1 })}
-														className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
-													>
-														<PhotoImg
-															src={cam.photo}
-															alt=""
-															aria-hidden="true"
-															className="w-full h-full object-cover border border-border cursor-pointer grayscale"
-														/>
-													</button>
-												) : (
-													<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
-														<Camera size={20} className="text-text-muted opacity-40" />
-													</div>
-												)}
-												<div>
-													<div className="text-[15px] font-semibold text-text-primary font-body">
-														{cameraDisplayName(cam)}
-													</div>
-													<div className="flex gap-1.5 mt-1.5 flex-wrap">
-														<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
-															{cam.format}
-														</Badge>
-														{soldDate && (
-															<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
-																{t("equipment.soldOn", { date: soldDate })}
-															</Badge>
-														)}
-														{associatedFilms > 0 && (
-															<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
-																{t("equipment.associatedFilms", { count: associatedFilms })}
-															</Badge>
-														)}
-													</div>
-												</div>
-											</div>
-											<div className="flex gap-1.5">
-												<Button
-													variant="outline"
-													size="icon"
-													onClick={() => unarchiveCamera(cam.id)}
-													className="w-11 h-11 rounded-lg"
-													aria-label={t("aria.unarchiveCamera")}
-												>
-													<RotateCcw size={14} className="text-text-sec" />
-												</Button>
-												<Button
-													variant="destructive"
-													size="icon"
-													onClick={() => setPendingHardDeleteId(cam.id)}
-													className="w-11 h-11 rounded-lg"
-													aria-label={t("aria.hardDeleteCamera")}
-												>
-													<Trash2 size={14} className="text-accent" />
-												</Button>
-											</div>
-										</div>
-									</Card>
+									<SoldEquipmentCard
+										key={cam.id}
+										name={cameraDisplayName(cam)}
+										photo={cam.photo}
+										fallbackIcon={Camera}
+										soldDate={soldDate}
+										formatLabel={cam.format}
+										associatedFilmsCount={associatedFilms}
+										onPhotoClick={() => cam.photo && setViewerPhoto(cam.photo)}
+										onUnarchive={() => unarchiveCamera(cam.id)}
+										onHardDelete={() => setPendingHardDeleteId(cam.id)}
+										unarchiveLabel={t("aria.unarchiveCamera")}
+										hardDeleteLabel={t("aria.hardDeleteCamera")}
+									/>
 								);
 							})}
 						</div>
 					</CollapsibleSection>
 				)}
 			</div>
-
-			{/* Edit camera modal */}
-			<Dialog open={!!editCam} onOpenChange={(open) => !open && setEditCam(null)}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>{t("cameras.editCamera")}</DialogTitle>
-						<DialogCloseButton />
-					</DialogHeader>
-					{editCam && (
-						<div className="flex flex-col gap-4">
-							<PhotoPicker
-								photos={editCam.photo ? [editCam.photo] : []}
-								onChange={(p) => setEditCam({ ...editCam, photo: p[0] || undefined })}
-								max={1}
-								size={48}
-								placeholderIcon
-								label={t("cameras.photo")}
-							/>
-							<FormField label={t("cameras.brand")}>
-								<Input value={editCam.brand} onChange={(e) => setEditCam({ ...editCam, brand: e.target.value })} />
-							</FormField>
-							<FormField label={t("cameras.model")}>
-								<Input value={editCam.model} onChange={(e) => setEditCam({ ...editCam, model: e.target.value })} />
-							</FormField>
-							<FormField label={t("cameras.nickname")}>
-								<Input
-									value={editCam.nickname}
-									onChange={(e) => setEditCam({ ...editCam, nickname: e.target.value })}
-								/>
-							</FormField>
-							<FormField label={t("cameras.serial")}>
-								<Input value={editCam.serial} onChange={(e) => setEditCam({ ...editCam, serial: e.target.value })} />
-							</FormField>
-							<FormField label={t("cameras.format")}>
-								<Select value={editCam.format} onValueChange={(v) => setEditCam({ ...editCam, format: v })}>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="35mm">{t("filmFormats.35mm")}</SelectItem>
-										<SelectItem value="120">{t("filmFormats.120")}</SelectItem>
-										{INSTANT_FORMATS.map((f) => (
-											<SelectItem key={f} value={f}>
-												{t(`filmFormats.${f}`)}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</FormField>
-							<div className="flex items-center justify-between gap-3">
-								<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
-									{t("cameras.interchangeableLens")}
-								</label>
-								<Switch
-									checked={editCam.hasInterchangeableLens ?? true}
-									onCheckedChange={(v) => setEditCam({ ...editCam, hasInterchangeableLens: v })}
-								/>
-							</div>
-							{(editCam.hasInterchangeableLens ?? true) && (
-								<AutocompleteInput
-									label={t("cameras.mount")}
-									value={editCam.mount || ""}
-									onChange={(v) => setEditCam({ ...editCam, mount: v })}
-									suggestions={mountSuggestions}
-									placeholder={t("cameras.mountPlaceholder")}
-									showAllOnFocus
-								/>
-							)}
-							<div className="flex items-center justify-between gap-3">
-								<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
-									{t("cameras.manualControls")}
-								</label>
-								<Switch
-									checked={editCam.hasManualControls ?? true}
-									onCheckedChange={(v) => setEditCam({ ...editCam, hasManualControls: v })}
-								/>
-							</div>
-							<div className="flex items-center justify-between gap-3">
-								<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
-									{t("cameras.interchangeableBack")}
-								</label>
-								<Switch
-									checked={editCam.hasInterchangeableBack || false}
-									onCheckedChange={(v) => setEditCam({ ...editCam, hasInterchangeableBack: v })}
-								/>
-							</div>
-
-							{(editCam.hasManualControls ?? true) && (
-								<>
-									<div className="border-t border-border pt-4 mt-1">
-										<span className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">
-											{t("cameras.exposureSection")}
-										</span>
-									</div>
-									<div className="grid grid-cols-2 gap-3">
-										<AutocompleteInput
-											label={t("cameras.shutterSpeedMin")}
-											value={editCam.shutterSpeedMin || ""}
-											onChange={(v) => setEditCam({ ...editCam, shutterSpeedMin: v || null })}
-											suggestions={SHUTTER_SPEEDS}
-											showAllOnFocus
-										/>
-										<AutocompleteInput
-											label={t("cameras.shutterSpeedMax")}
-											value={editCam.shutterSpeedMax || ""}
-											onChange={(v) => setEditCam({ ...editCam, shutterSpeedMax: v || null })}
-											suggestions={SHUTTER_SPEEDS}
-											showAllOnFocus
-										/>
-									</div>
-								</>
-							)}
-
-							<Button
-								onClick={saveEditCamera}
-								disabled={!editCam.brand && !editCam.model}
-								className="w-full justify-center"
-							>
-								<Check size={16} /> {t("cameras.save")}
-							</Button>
-						</div>
-					)}
-				</DialogContent>
-			</Dialog>
 
 			{viewerPhoto && <PhotoViewer photos={[viewerPhoto]} initialIndex={0} onClose={() => setViewerPhoto(null)} />}
 

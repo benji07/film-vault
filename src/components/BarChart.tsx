@@ -1,31 +1,49 @@
-import { alpha, T } from "@/constants/theme";
+import { useMemo } from "react";
+import { T } from "@/constants/theme";
 
 interface BarChartProps {
 	data: Record<string, number>;
 	color?: string;
 	sort?: boolean;
+	limit?: number;
 	formatValue?: (v: number) => string;
 }
 
-export function BarChart({ data: chartData, color = T.accent, sort = true, formatValue }: BarChartProps) {
-	const entries = Object.entries(chartData);
-	const sorted = sort ? entries.sort((a, b) => b[1] - a[1]) : entries;
-	const max = Math.max(...Object.values(chartData), 1);
+export function BarChart({ data: chartData, color = T.yellow, sort = true, limit, formatValue }: BarChartProps) {
+	const visible = useMemo(() => {
+		const entries = Object.entries(chartData);
+		const sorted = sort ? entries.sort((a, b) => b[1] - a[1]) : entries;
+		return typeof limit === "number" ? sorted.slice(0, limit) : sorted;
+	}, [chartData, sort, limit]);
+	// Scale bars against the highest value among the visible rows so the
+	// top entry still spans the full track when limit truncates the list.
+	const max = Math.max(...visible.map(([, v]) => v), 1);
 	return (
-		<div className="flex flex-col gap-1.5">
-			{sorted.map(([k, v]) => (
-				<div key={k} className="flex items-center gap-2.5">
-					<span className="text-xs text-text-sec font-body min-w-[80px] text-right">{k}</span>
-					<div className="flex-1 h-[22px] bg-surface-alt rounded-md overflow-hidden">
+		<div className="flex flex-col">
+			{visible.map(([k, v], i) => (
+				<div
+					key={k}
+					className="grid items-center gap-2.5 py-1.5"
+					style={{
+						gridTemplateColumns: "80px 1fr 36px",
+						borderBottom: i < visible.length - 1 ? "1px dashed rgba(60,40,20,0.18)" : undefined,
+					}}
+				>
+					<span className="font-archivo-black text-[10px] uppercase tracking-[0.05em] text-ink leading-tight">{k}</span>
+					<div className="h-4 bg-ink relative overflow-hidden">
 						<div
-							className="h-full rounded-md transition-[width] duration-500 ease-out"
-							style={{
-								width: `${(v / max) * 100}%`,
-								background: `linear-gradient(90deg, ${color}, ${alpha(color, 0.53)})`,
-							}}
-						/>
+							className="h-full transition-[width] duration-500 ease-out"
+							style={{ width: `${(v / max) * 100}%`, background: color }}
+						>
+							<div
+								className="absolute inset-0"
+								style={{
+									backgroundImage: "repeating-linear-gradient(90deg, transparent 0 6px, rgba(0,0,0,0.2) 6px 7px)",
+								}}
+							/>
+						</div>
 					</div>
-					<span className="text-[13px] font-mono text-text-primary min-w-[24px] font-semibold">
+					<span className="font-archivo-black text-[12px] text-ink text-right leading-none">
 						{formatValue ? formatValue(v) : v}
 					</span>
 				</div>

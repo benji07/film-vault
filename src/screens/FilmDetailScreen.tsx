@@ -1,5 +1,5 @@
-import { CopyPlus, Film, History, Info, NotebookPen, Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { CopyPlus, Film, History, Info, NotebookPen, Trash2 } from "lucide-react";
+import { type Ref, useCallback, useImperativeHandle, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmLifecycleStepper } from "@/components/FilmLifecycleStepper";
@@ -8,11 +8,13 @@ import { ShotNotesSection } from "@/components/ShotNotesSection";
 import { Timeline } from "@/components/Timeline";
 import { useToast } from "@/components/Toast";
 import { Alert } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
-import { alpha, T } from "@/constants/theme";
-import type { AppData, Film as FilmType } from "@/types";
+import { FilmPackagingHeader } from "@/components/ui/film-packaging-header";
+import { WashiTape } from "@/components/ui/washi-tape";
+import { filmTypeToVariant, T } from "@/constants/theme";
+import { cn } from "@/lib/utils";
+import type { AppData, FilmState, Film as FilmType } from "@/types";
 import { createNewFilm } from "@/utils/film-factory";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { today } from "@/utils/helpers";
@@ -25,6 +27,10 @@ import { FloatingActionBar } from "./film-detail/FloatingActionBar";
 import { TransitionModals } from "./film-detail/TransitionModals";
 import type { ActionData, ActionType, EditData } from "./film-detail/types";
 
+export interface FilmDetailScreenHandle {
+	openEdit: () => void;
+}
+
 interface FilmDetailScreenProps {
 	data: AppData;
 	setData: (data: AppData) => void;
@@ -35,6 +41,7 @@ interface FilmDetailScreenProps {
 	onNavigateToCamera?: (camId: string) => void;
 	autoOpenShotNote?: boolean;
 	setAutoOpenShotNote?: (open: boolean) => void;
+	ref?: Ref<FilmDetailScreenHandle>;
 }
 
 export function FilmDetailScreen({
@@ -47,6 +54,7 @@ export function FilmDetailScreen({
 	onNavigateToCamera,
 	autoOpenShotNote,
 	setAutoOpenShotNote,
+	ref,
 }: FilmDetailScreenProps) {
 	const { t } = useTranslation();
 	const film = data.films.find((f) => f.id === filmId);
@@ -85,16 +93,8 @@ export function FilmDetailScreen({
 	const [viewerPhotos, setViewerPhotos] = useState<string[] | null>(null);
 	const [viewerIndex, setViewerIndex] = useState(0);
 
-	if (!film)
-		return (
-			<EmptyState
-				icon={Film}
-				title={t("filmDetail.notFound")}
-				action={<Button onClick={onExit}>{t("filmDetail.back")}</Button>}
-			/>
-		);
-
-	const openEdit = () => {
+	const openEdit = useCallback(() => {
+		if (!film) return;
 		const editCam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
 		const soleLens =
 			!film.lensId && editCam?.hasInterchangeableLens ? pickSoleCompatibleLens(data.lenses, editCam) : null;
@@ -127,7 +127,20 @@ export function FilmDetailScreen({
 			scanCost: film.scanCost != null ? String(film.scanCost) : "",
 		});
 		setShowAction("edit");
-	};
+	}, [film, data.cameras, data.lenses]);
+
+	// Imperative handle for the AppHeader pencil → openEdit, replaces the
+	// previous editTrigger counter prop.
+	useImperativeHandle(ref, () => ({ openEdit }), [openEdit]);
+
+	if (!film)
+		return (
+			<EmptyState
+				icon={Film}
+				title={t("filmDetail.notFound")}
+				action={<Button onClick={onExit}>{t("filmDetail.back")}</Button>}
+			/>
+		);
 
 	const fIso = filmIso(film);
 
@@ -208,30 +221,62 @@ export function FilmDetailScreen({
 				)
 			: [];
 
+	const variant = filmTypeToVariant(filmType(film));
+	const stateBanner = computeStateBanner(film.state, film, t);
+
 	return (
 		<div className="flex flex-col gap-5 pb-20">
-			{/* Header: name + edit + badges */}
-			<div>
-				<div className="flex items-center justify-between mb-2">
-					<h2 className="font-display text-[22px] text-text-primary m-0 italic">{filmName(film)}</h2>
-					<Button variant="ghost" size="icon" onClick={openEdit} aria-label={t("aria.editFilm")}>
-						<Pencil size={18} className="text-text-sec" />
-					</Button>
+			{/* Packaging Kodak header */}
+			<FilmPackagingHeader
+				brand={film.brand || "—"}
+				model={filmName(film)}
+				iso={fIso ?? "—"}
+				format={film.format ?? ""}
+				type={filmType(film)}
+				variant={variant}
+				refCode={film.labRef?.trim() || undefined}
+				exposures={film.posesTotal ?? undefined}
+			/>
+
+			{/* État banner — coloré, légère rotation */}
+			<div
+				className={cn(
+					"relative border-2 border-ink shadow-[4px_4px_0_var(--color-ink)] flex items-center justify-between px-4 py-3 rotate-[0.6deg]",
+					stateBanner.bg,
+					stateBanner.fg,
+				)}
+			>
+				<div className="font-archivo-black text-[22px] tracking-[0.05em] leading-none uppercase">
+					{stateBanner.label}
+					<small className="block font-archivo not-italic font-bold text-[10px] tracking-[0.18em] mt-1.5 opacity-85">
+						{stateBanner.sub}
+					</small>
 				</div>
-				<div className="flex gap-2 flex-wrap">
-					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{film.format}</Badge>
-					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{filmType(film)}</Badge>
-					<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>ISO {fIso}</Badge>
-					{film.tags?.map((tag) => (
-						<Badge key={tag} style={{ color: T.accent, background: alpha(T.accent, 0.12) }}>
-							{tag}
-						</Badge>
-					))}
+				<div className="text-right font-archivo-black">
+					<div className="text-[28px] leading-[0.85] tracking-[-1px]">
+						{film.posesShot && film.posesShot > 0 ? film.posesShot : (film.posesTotal ?? "—")}
+						{film.posesShot && film.posesShot > 0 && film.posesTotal && (
+							<span className="text-[16px] opacity-55">/{film.posesTotal}</span>
+						)}
+					</div>
+					<div className="font-typewriter font-normal text-[8px] tracking-[0.18em] mt-1 opacity-75 uppercase">
+						poses
+					</div>
 				</div>
 			</div>
 
-			{/* Lifecycle stepper */}
-			<FilmLifecycleStepper currentState={film.state} />
+			{/* Lifecycle stepper — 6 étapes */}
+			<section
+				data-tour="film-lifecycle"
+				className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 pt-5 pb-4 -rotate-[0.3deg]"
+			>
+				<WashiTape color="w2" rotate={-2} width={50} className="-top-[9px] left-6" />
+				<div className="font-archivo-black text-[11px] tracking-[0.2em] uppercase mb-3.5 flex items-center gap-2">
+					<span className="w-2.5 h-2.5 bg-kodak-yellow border-[1.5px] border-ink" />
+					{t("filmDetail.lifecycleTitle", { defaultValue: "Parcours de la pellicule" })}
+				</div>
+				<FilmLifecycleStepper currentState={film.state} history={film.history} />
+			</section>
 
 			{film.state === "stock" &&
 				(() => {
@@ -243,7 +288,7 @@ export function FilmDetailScreen({
 							(f.expDate || "") === (film.expDate || ""),
 					);
 					return siblings.length > 0 ? (
-						<Alert icon={CopyPlus} color={T.accent}>
+						<Alert icon={CopyPlus} color={T.red}>
 							<span>
 								{siblings.length === 1
 									? t("filmDetail.oneOtherInStock")
@@ -286,7 +331,7 @@ export function FilmDetailScreen({
 					count={film.history.length}
 					defaultOpen={false}
 				>
-					<div data-tour="film-timeline">
+					<div>
 						<Timeline
 							entries={film.history}
 							onPhotoClick={(photos, index) => {
@@ -361,4 +406,78 @@ export function FilmDetailScreen({
 			)}
 		</div>
 	);
+}
+
+interface StateBannerInfo {
+	label: string;
+	sub: string;
+	bg: string;
+	fg: string;
+}
+
+function computeStateBanner(
+	state: FilmState,
+	film: FilmType,
+	t: (key: string, opts?: Record<string, unknown>) => string,
+): StateBannerInfo {
+	const sentDev = film.history?.some((h) => h.actionCode === "sent_dev");
+	if (state === "exposed" && sentDev) {
+		return {
+			label: t("states.atLab", { defaultValue: "Au labo" }) as string,
+			sub: t("filmDetail.stateSub.atLab", { defaultValue: "développement en cours" }) as string,
+			bg: "bg-kodak-teal",
+			fg: "text-paper",
+		};
+	}
+	switch (state) {
+		case "stock":
+			return {
+				label: t("states.stock") as string,
+				sub: t("filmDetail.stateSub.stock", { defaultValue: "prête à charger" }) as string,
+				bg: "bg-paper-dark",
+				fg: "text-ink",
+			};
+		case "loaded":
+			return {
+				label: t("states.loaded") as string,
+				sub: t("filmDetail.stateSub.loaded", { defaultValue: "en cours d'exposition" }) as string,
+				bg: "bg-kodak-red",
+				fg: "text-paper",
+			};
+		case "partial":
+			return {
+				label: t("states.partial") as string,
+				sub: t("filmDetail.stateSub.partial", { defaultValue: "déchargée, à reprendre" }) as string,
+				bg: "bg-kodak-yellow-deep",
+				fg: "text-ink",
+			};
+		case "exposed":
+			return {
+				label: t("states.exposed") as string,
+				sub: t("filmDetail.stateSub.exposed", { defaultValue: "à envoyer au labo" }) as string,
+				bg: "bg-ink",
+				fg: "text-kodak-yellow",
+			};
+		case "developed":
+			return {
+				label: t("states.developed") as string,
+				sub: t("filmDetail.stateSub.developed", { defaultValue: "à scanner" }) as string,
+				bg: "bg-kodak-gold",
+				fg: "text-ink",
+			};
+		case "scanned":
+			return {
+				label: t("states.scanned") as string,
+				sub: t("filmDetail.stateSub.scanned", { defaultValue: "archive complète" }) as string,
+				bg: "bg-paper-dark",
+				fg: "text-ink",
+			};
+		default:
+			return {
+				label: state,
+				sub: "",
+				bg: "bg-paper-dark",
+				fg: "text-ink",
+			};
+	}
 }

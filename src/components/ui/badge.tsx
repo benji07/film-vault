@@ -3,11 +3,16 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-	"inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold font-body tracking-wide",
+	"inline-flex items-center gap-1 px-2 py-0.5 font-archivo font-extrabold text-[9px] uppercase tracking-[0.15em] leading-none border-[1.5px]",
 	{
 		variants: {
 			variant: {
-				default: "",
+				default: "bg-kodak-yellow text-ink border-ink",
+				ink: "bg-ink text-paper border-ink",
+				red: "bg-kodak-red text-paper border-ink",
+				teal: "bg-kodak-teal text-paper border-ink",
+				gold: "bg-kodak-gold text-ink border-ink",
+				outline: "bg-transparent text-ink border-ink-faded",
 			},
 		},
 		defaultVariants: {

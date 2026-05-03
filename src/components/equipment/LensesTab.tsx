@@ -1,16 +1,13 @@
-import { Edit3, Focus, PackageX, RotateCcw, Trash2 } from "lucide-react";
+import { Focus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
+import { EquipmentItemCard } from "@/components/equipment/EquipmentItemCard";
+import { SoldEquipmentCard } from "@/components/equipment/SoldEquipmentCard";
 import { PhotoViewer } from "@/components/PhotoViewer";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Dialog, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { PhotoImg } from "@/components/ui/photo-img";
-import { alpha, T } from "@/constants/theme";
 import type { AppData, Lens } from "@/types";
 import { collectMounts, lensApertureLabel, lensDisplayName, lensFocalLabel } from "@/utils/lens-helpers";
 import { emptyLensForm, formToLens, LensForm, type LensFormData, lensToForm } from "./LensForm";
@@ -75,85 +72,29 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<h2 className="font-display text-2xl text-text-primary m-0 italic">{t("lenses.title")}</h2>
-
-				<div className="flex flex-col gap-2.5">
-					{activeLenses.map((lens) => {
+				<div className="flex flex-col gap-4">
+					{activeLenses.map((lens, idx) => {
 						const loadedFilms = data.films.filter((f) => f.state === "loaded" && f.lensId === lens.id);
 						const focal = lensFocalLabel(lens);
 						const aperture = lensApertureLabel(lens);
+						const totalShots = data.films.filter((f) => f.lensId === lens.id).length;
 						return (
-							<Card key={lens.id}>
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-3">
-										{lens.photo ? (
-											<button
-												type="button"
-												onClick={(e) => {
-													e.stopPropagation();
-													setViewerPhoto(lens.photo!);
-												}}
-												aria-label={t("aria.openPhoto", { index: 1 })}
-												className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
-											>
-												<PhotoImg
-													src={lens.photo}
-													alt=""
-													aria-hidden="true"
-													className="w-full h-full object-cover border border-border cursor-pointer"
-												/>
-											</button>
-										) : (
-											<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
-												<Focus size={20} className="text-text-muted opacity-40" />
-											</div>
-										)}
-										<div>
-											<div className="text-[15px] font-semibold text-text-primary font-body">
-												{lensDisplayName(lens)}
-											</div>
-											<div className="flex gap-1.5 mt-1.5 flex-wrap">
-												{focal && (
-													<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>{focal}</Badge>
-												)}
-												{aperture && (
-													<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>{aperture}</Badge>
-												)}
-												{lens.mount && (
-													<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
-														{lens.mount}
-													</Badge>
-												)}
-												{loadedFilms.length > 0 && (
-													<Badge style={{ color: T.green, background: alpha(T.green, 0.09) }}>
-														{t("lenses.loaded", { count: loadedFilms.length })}
-													</Badge>
-												)}
-											</div>
-										</div>
-									</div>
-									<div className="flex gap-1.5">
-										<Button
-											variant="outline"
-											size="icon"
-											onClick={() => openEdit(lens)}
-											className="w-11 h-11 rounded-lg"
-											aria-label={t("aria.editLens")}
-										>
-											<Edit3 size={14} className="text-text-sec" />
-										</Button>
-										<Button
-											variant="destructive"
-											size="icon"
-											onClick={() => sellLens(lens.id)}
-											className="w-11 h-11 rounded-lg"
-											aria-label={t("aria.sellLens")}
-										>
-											<PackageX size={14} className="text-accent" />
-										</Button>
-									</div>
-								</div>
-							</Card>
+							<EquipmentItemCard
+								key={lens.id}
+								name={lensDisplayName(lens)}
+								year={lens.mount ? `monture ${lens.mount}` : undefined}
+								photo={lens.photo}
+								vignette="lens"
+								index={idx}
+								washiOffset={1}
+								onClick={() => openEdit(lens)}
+								stats={[
+									{ value: focal || "—", label: t("lenses.focalLabel", { defaultValue: "focale" }) },
+									{ value: aperture || "—", label: t("lenses.apertureLabel", { defaultValue: "ouv." }) },
+									{ value: totalShots, label: t("lenses.usesLabel", { defaultValue: "utilis." }) },
+								]}
+								loadedSummary={loadedFilms.length > 0 ? t("lenses.loaded", { count: loadedFilms.length }) : null}
+							/>
 						);
 					})}
 					{activeLenses.length === 0 && (
@@ -168,73 +109,21 @@ export function LensesTab({ data, setData }: LensesTabProps) {
 								const associatedFilms = data.films.filter(
 									(f) => f.lensId === lens.id || f.shotNotes?.some((n) => n.lensId === lens.id),
 								).length;
-								const soldDate = lens.soldAt ? new Date(lens.soldAt).toLocaleDateString() : "";
+								const soldDate = lens.soldAt ? new Date(lens.soldAt).toLocaleDateString() : null;
 								return (
-									<Card key={lens.id} className="opacity-70">
-										<div className="flex items-center justify-between">
-											<div className="flex items-center gap-3">
-												{lens.photo ? (
-													<button
-														type="button"
-														onClick={(e) => {
-															e.stopPropagation();
-															setViewerPhoto(lens.photo!);
-														}}
-														aria-label={t("aria.openPhoto", { index: 1 })}
-														className="w-12 h-12 rounded-lg overflow-hidden shrink-0"
-													>
-														<PhotoImg
-															src={lens.photo}
-															alt=""
-															aria-hidden="true"
-															className="w-full h-full object-cover border border-border cursor-pointer grayscale"
-														/>
-													</button>
-												) : (
-													<div className="w-12 h-12 rounded-lg bg-surface-alt flex items-center justify-center shrink-0">
-														<Focus size={20} className="text-text-muted opacity-40" />
-													</div>
-												)}
-												<div>
-													<div className="text-[15px] font-semibold text-text-primary font-body">
-														{lensDisplayName(lens)}
-													</div>
-													<div className="flex gap-1.5 mt-1.5 flex-wrap">
-														{soldDate && (
-															<Badge style={{ color: T.textMuted, background: alpha(T.textMuted, 0.09) }}>
-																{t("equipment.soldOn", { date: soldDate })}
-															</Badge>
-														)}
-														{associatedFilms > 0 && (
-															<Badge style={{ color: T.blue, background: alpha(T.blue, 0.09) }}>
-																{t("equipment.associatedFilms", { count: associatedFilms })}
-															</Badge>
-														)}
-													</div>
-												</div>
-											</div>
-											<div className="flex gap-1.5">
-												<Button
-													variant="outline"
-													size="icon"
-													onClick={() => unarchiveLens(lens.id)}
-													className="w-11 h-11 rounded-lg"
-													aria-label={t("aria.unarchiveLens")}
-												>
-													<RotateCcw size={14} className="text-text-sec" />
-												</Button>
-												<Button
-													variant="destructive"
-													size="icon"
-													onClick={() => setPendingHardDeleteId(lens.id)}
-													className="w-11 h-11 rounded-lg"
-													aria-label={t("aria.hardDeleteLens")}
-												>
-													<Trash2 size={14} className="text-accent" />
-												</Button>
-											</div>
-										</div>
-									</Card>
+									<SoldEquipmentCard
+										key={lens.id}
+										name={lensDisplayName(lens)}
+										photo={lens.photo}
+										fallbackIcon={Focus}
+										soldDate={soldDate}
+										associatedFilmsCount={associatedFilms}
+										onPhotoClick={() => lens.photo && setViewerPhoto(lens.photo)}
+										onUnarchive={() => unarchiveLens(lens.id)}
+										onHardDelete={() => setPendingHardDeleteId(lens.id)}
+										unarchiveLabel={t("aria.unarchiveLens")}
+										hardDeleteLabel={t("aria.hardDeleteLens")}
+									/>
 								);
 							})}
 						</div>

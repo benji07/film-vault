@@ -11,7 +11,9 @@ function FormField({ label, children, className }: FormFieldProps) {
 	return (
 		<div className={cn("flex flex-col gap-1.5", className)}>
 			{label && (
-				<label className="text-[11px] font-semibold text-text-sec font-body uppercase tracking-wide">{label}</label>
+				<label className="text-[9px] font-extrabold text-ink-faded font-archivo uppercase tracking-[0.18em]">
+					{label}
+				</label>
 			)}
 			{children}
 		</div>

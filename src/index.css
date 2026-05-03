@@ -1,82 +1,91 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Special+Elite&family=Archivo+Black&family=Archivo:wght@400;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 @theme {
-	--color-bg: #0d0d0d;
-	--color-surface: #1a1a1a;
-	--color-surface-alt: #242424;
-	--color-card: #1e1e1e;
-	--color-card-hover: #252525;
-	--color-border: #2a2a2a;
-	--color-border-light: #333333;
-	--color-text-primary: #e8e4df;
-	--color-text-sec: #a09a92;
-	--color-text-muted: #827d75;
-	--color-accent: #c4392d;
-	--color-accent-hover: #d44435;
-	--color-accent-soft: rgba(196, 57, 45, 0.12);
-	--color-orange: #e07940;
-	--color-orange-soft: rgba(224, 121, 64, 0.12);
-	--color-amber: #d4a858;
-	--color-amber-soft: rgba(212, 168, 88, 0.1);
-	--color-green: #4a8c5c;
-	--color-green-soft: rgba(74, 140, 92, 0.12);
-	--color-blue: #5b7fa5;
-	--color-blue-soft: rgba(91, 127, 165, 0.1);
+	/* Direction artistique : Carnet + Kodak Gold vintage 80s.
+	   Surfaces — papier ivoire chaud · Encres — brun chocolat. */
 
-	--font-display: "Instrument Serif", serif;
-	--font-body: "DM Sans", sans-serif;
-	--font-mono: "DM Mono", monospace;
+	/* New Kodak vintage tokens (preferred) */
+	--color-paper: #f6efde;
+	--color-paper-card: #fdf8ea;
+	--color-paper-dark: #ece2c9;
+	--color-ink: #1f1410;
+	--color-ink-soft: #3a2a1c;
+	--color-ink-faded: #6b5d44;
+
+	--color-kodak-yellow: #e8a818;
+	--color-kodak-yellow-deep: #c8861a;
+	--color-kodak-gold: #a8843a;
+	--color-kodak-red: #b8362a;
+	--color-kodak-teal: #2d4a32;
+
+	--color-washi-1: #d4a574;
+	--color-washi-2: #a8c4a2;
+	--color-washi-3: #d97a6c;
+	--color-washi-4: #9bb5c8;
+
+	/* Legacy tokens — repointed to vintage palette so non-refonted screens
+	   already inherit the new look. They will be progressively removed
+	   as each screen is migrated. */
+	--color-bg: var(--color-paper);
+	--color-surface: var(--color-paper-card);
+	--color-surface-alt: var(--color-paper-dark);
+	--color-card: var(--color-paper-card);
+	--color-card-hover: var(--color-paper-dark);
+	--color-border: var(--color-ink-faded);
+	--color-border-light: var(--color-paper-dark);
+	--color-text-primary: var(--color-ink);
+	--color-text-sec: var(--color-ink-soft);
+	--color-text-muted: var(--color-ink-faded);
+	--color-accent: var(--color-kodak-red);
+	--color-accent-hover: #a02e23;
+	--color-accent-soft: rgba(184, 54, 42, 0.12);
+	--color-orange: var(--color-washi-1);
+	--color-orange-soft: rgba(212, 165, 116, 0.18);
+	--color-amber: var(--color-kodak-yellow);
+	--color-amber-soft: rgba(232, 168, 24, 0.14);
+	--color-green: var(--color-kodak-teal);
+	--color-green-soft: rgba(45, 74, 50, 0.14);
+	--color-blue: var(--color-washi-4);
+	--color-blue-soft: rgba(155, 181, 200, 0.18);
+
+	/* Typo */
+	--font-caveat: "Caveat", cursive;
+	--font-cormorant: "Cormorant Garamond", Georgia, serif;
+	--font-typewriter: "Special Elite", monospace;
+	--font-archivo: "Archivo", sans-serif;
+	--font-archivo-black: "Archivo Black", sans-serif;
+
+	/* Legacy font tokens repointed for transition */
+	--font-display: var(--font-caveat);
+	--font-body: var(--font-cormorant);
+	--font-mono: var(--font-typewriter);
 }
 
 @layer base {
 	:root {
-		--background: var(--color-bg);
-		--foreground: var(--color-text-primary);
-		--card: var(--color-card);
-		--card-foreground: var(--color-text-primary);
-		--popover: var(--color-surface);
-		--popover-foreground: var(--color-text-primary);
-		--primary: var(--color-accent);
-		--primary-foreground: #ffffff;
-		--secondary: var(--color-surface-alt);
-		--secondary-foreground: var(--color-text-primary);
-		--muted: var(--color-surface-alt);
-		--muted-foreground: var(--color-text-muted);
-		--accent: var(--color-surface-alt);
-		--accent-foreground: var(--color-text-primary);
-		--destructive: var(--color-accent);
-		--destructive-foreground: #ffffff;
-		--border: var(--color-border);
-		--input: var(--color-border);
-		--ring: var(--color-accent);
-		--radius: 14px;
+		--background: var(--color-paper);
+		--foreground: var(--color-ink);
+		--card: var(--color-paper-card);
+		--card-foreground: var(--color-ink);
+		--popover: var(--color-paper-card);
+		--popover-foreground: var(--color-ink);
+		--primary: var(--color-kodak-red);
+		--primary-foreground: var(--color-paper);
+		--secondary: var(--color-paper-dark);
+		--secondary-foreground: var(--color-ink);
+		--muted: var(--color-paper-dark);
+		--muted-foreground: var(--color-ink-faded);
+		--accent: var(--color-paper-dark);
+		--accent-foreground: var(--color-ink);
+		--destructive: var(--color-kodak-red);
+		--destructive-foreground: var(--color-paper);
+		--border: var(--color-ink-faded);
+		--input: var(--color-ink-faded);
+		--ring: var(--color-kodak-yellow);
+		--radius: 0px;
 	}
 
-	/* Chambre claire — light theme */
-	html.light {
-		--color-bg: #f5f0e8;
-		--color-surface: #fffdf8;
-		--color-surface-alt: #ede8e0;
-		--color-card: #fffdf8;
-		--color-card-hover: #f8f3eb;
-		--color-border: #ddd5c8;
-		--color-border-light: #e8e0d5;
-		--color-text-primary: #2c2520;
-		--color-text-sec: #6b6158;
-		--color-text-muted: #928980;
-		--color-accent: #c4392d;
-		--color-accent-hover: #b0322a;
-		--color-accent-soft: rgba(196, 57, 45, 0.1);
-		--color-orange: #d06a30;
-		--color-orange-soft: rgba(208, 106, 48, 0.1);
-		--color-amber: #b8912e;
-		--color-amber-soft: rgba(184, 145, 46, 0.08);
-		--color-green: #3d7a4e;
-		--color-green-soft: rgba(61, 122, 78, 0.1);
-		--color-blue: #4a6f94;
-		--color-blue-soft: rgba(74, 111, 148, 0.08);
-	}
 	html,
 	body,
 	#root {
@@ -87,18 +96,53 @@
 		-webkit-overflow-scrolling: touch;
 	}
 	body {
-		background: var(--color-bg);
+		background-color: var(--color-paper);
+		background-image:
+			radial-gradient(ellipse at 20% 10%, rgba(255, 240, 200, 0.5), transparent 50%),
+			radial-gradient(ellipse at 80% 90%, rgba(140, 100, 50, 0.18), transparent 60%),
+			url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.15  0 0 0 0 0.08  0 0 0 0.18 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+		background-size:
+			auto,
+			auto,
+			200px 200px;
+		background-attachment: fixed, fixed, fixed;
+		color: var(--color-ink);
 		overflow-x: hidden;
 		-webkit-font-smoothing: antialiased;
+		font-family: var(--font-cormorant);
 	}
 	::-webkit-scrollbar {
 		display: none;
 	}
+	* {
+		scrollbar-width: none;
+	}
 	input,
 	select,
-	button {
+	button,
+	textarea {
 		font-family: inherit;
 	}
+}
+
+/* Bande Kodak rouge verticale — signature packaging argentique, posée
+   au bord gauche du viewport, au-dessus de tout le contenu. */
+.fv-redstripe {
+	position: fixed;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 4px;
+	background: var(--color-kodak-red);
+	z-index: 50;
+	pointer-events: none;
+	box-shadow: 1px 0 0 var(--color-ink);
+}
+
+/* Mask pour effet déchiré sur les washi tapes */
+.fv-washi-mask {
+	-webkit-mask-image: linear-gradient(90deg, transparent 0, black 8%, black 92%, transparent 100%);
+	mask-image: linear-gradient(90deg, transparent 0, black 8%, black 92%, transparent 100%);
 }
 
 @keyframes fadeIn {
@@ -183,10 +227,10 @@
 @keyframes timelinePulse {
 	0%,
 	100% {
-		box-shadow: 0 0 0 0 rgba(196, 57, 45, 0.4);
+		box-shadow: 0 0 0 0 rgba(184, 54, 42, 0.4);
 	}
 	50% {
-		box-shadow: 0 0 0 5px rgba(196, 57, 45, 0);
+		box-shadow: 0 0 0 5px rgba(184, 54, 42, 0);
 	}
 }
 
@@ -209,6 +253,17 @@
 	to {
 		opacity: 1;
 		transform: translateX(0);
+	}
+}
+
+@keyframes fabPop {
+	from {
+		transform: translateY(20px) scale(0.6);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0) scale(1);
+		opacity: 1;
 	}
 }
 
@@ -247,6 +302,10 @@
 
 .animate-timeline-pulse {
 	animation: timelinePulse 2s ease-in-out infinite;
+}
+
+.animate-fab-pop {
+	animation: fabPop 0.25s cubic-bezier(0.2, 0.8, 0.3, 1.2) backwards;
 }
 
 @keyframes bannerEnter {
@@ -292,3 +351,16 @@
 .animate-tour-backdrop-fade-in {
 	animation: tourBackdropFadeIn 0.25s ease-out;
 }
+
+/* biome-ignore-start lint/complexity/noImportantStyles: intentional override of any inline transition or animation when the user opts into reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: see above */

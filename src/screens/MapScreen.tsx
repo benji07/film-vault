@@ -9,12 +9,12 @@ import { ClusterSheet } from "@/components/map/ClusterSheet";
 import { MapFilterBar } from "@/components/map/MapFilterBar";
 import { NoteMarker } from "@/components/map/NoteMarker";
 import { NoteSheet } from "@/components/map/NoteSheet";
-import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import type { AppData, FilmType } from "@/types";
 import { collectAllTags } from "@/utils/film-helpers";
 import type { Cluster, GeoNote } from "@/utils/map-helpers";
-import { clusterNotes, collectGeoNotes, DARK_STYLE, fitMapToBounds, LIGHT_STYLE } from "@/utils/map-helpers";
+import { clusterNotes, collectGeoNotes, fitMapToBounds, LIGHT_STYLE } from "@/utils/map-helpers";
 
 interface MapScreenProps {
 	data: AppData;
@@ -26,7 +26,6 @@ interface MapScreenProps {
 
 export function MapScreen({ data, onOpenFilm, onOpenStock, filterFilmId, onClearFilter }: MapScreenProps) {
 	const { t } = useTranslation();
-	const { theme } = useTheme();
 	const mapRef = useRef<maplibregl.Map | null>(null);
 
 	const [zoom, setZoom] = useState(3);
@@ -127,69 +126,73 @@ export function MapScreen({ data, onOpenFilm, onOpenStock, filterFilmId, onClear
 	}
 
 	return (
-		<div className="relative w-full h-full">
-			<MapGL
-				mapLib={maplibregl}
-				mapStyle={theme === "dark" ? DARK_STYLE : LIGHT_STYLE}
-				initialViewState={{ longitude: 2.35, latitude: 46.85, zoom: 5 }}
-				style={{ width: "100%", height: "100%" }}
-				onLoad={(e) => {
-					mapRef.current = e.target;
-					fitMapToBounds(e.target, filteredNotes);
-				}}
-				onMoveEnd={(e) => setZoom(Math.floor(e.viewState.zoom))}
-				onClick={() => {
-					setSelectedNote(null);
-					setSelectedCluster(null);
-				}}
-				attributionControl={false}
-			>
-				{clusters.map((cluster) => (
-					<NoteMarker key={cluster.id} cluster={cluster} onClick={handleClusterClick} />
-				))}
-			</MapGL>
-
-			<MapFilterBar
-				films={data.films}
-				filterFilmId={localFilterFilmId}
-				filterType={filterType}
-				filterTag={filterTag}
-				availableTags={availableTags}
-				onFilterFilm={setLocalFilterFilmId}
-				onFilterType={setFilterType}
-				onFilterTag={setFilterTag}
-				onClearFilter={onClearFilter}
-			/>
-
-			<Button
-				variant="outline"
-				size="icon"
-				onClick={handleLocateMe}
-				disabled={locating}
-				className="absolute bottom-3 left-3 z-10 shadow-lg bg-card/90 backdrop-blur"
-				aria-label={t("map.locateMe")}
-			>
-				{locating ? (
-					<Loader2 size={18} className="text-accent animate-spin" />
-				) : (
-					<LocateFixed size={18} className="text-text-sec" />
-				)}
-			</Button>
-
-			{selectedNote && (
-				<NoteSheet geoNote={selectedNote} onClose={() => setSelectedNote(null)} onViewFilm={handleViewFilm} />
-			)}
-
-			{selectedCluster && !selectedNote && (
-				<ClusterSheet
-					cluster={selectedCluster}
-					onClose={() => setSelectedCluster(null)}
-					onSelectNote={(geoNote) => {
-						setSelectedCluster(null);
-						setSelectedNote(geoNote);
-					}}
+		<div className="relative w-full h-full flex flex-col">
+			<PageHeader title={t("nav.map")} count={allGeoNotes.length} className="shrink-0">
+				<MapFilterBar
+					films={data.films}
+					filterFilmId={localFilterFilmId}
+					filterType={filterType}
+					filterTag={filterTag}
+					availableTags={availableTags}
+					onFilterFilm={setLocalFilterFilmId}
+					onFilterType={setFilterType}
+					onFilterTag={setFilterTag}
+					onClearFilter={onClearFilter}
 				/>
-			)}
+			</PageHeader>
+
+			<div className="relative flex-1 min-h-0">
+				<MapGL
+					mapLib={maplibregl}
+					mapStyle={LIGHT_STYLE}
+					initialViewState={{ longitude: 2.35, latitude: 46.85, zoom: 5 }}
+					style={{ width: "100%", height: "100%" }}
+					onLoad={(e) => {
+						mapRef.current = e.target;
+						fitMapToBounds(e.target, filteredNotes);
+					}}
+					onMoveEnd={(e) => setZoom(Math.floor(e.viewState.zoom))}
+					onClick={() => {
+						setSelectedNote(null);
+						setSelectedCluster(null);
+					}}
+					attributionControl={false}
+				>
+					{clusters.map((cluster) => (
+						<NoteMarker key={cluster.id} cluster={cluster} onClick={handleClusterClick} />
+					))}
+				</MapGL>
+
+				<Button
+					variant="outline"
+					size="icon"
+					onClick={handleLocateMe}
+					disabled={locating}
+					className="absolute bottom-3 left-3 z-10 shadow-lg bg-card/90 backdrop-blur"
+					aria-label={t("map.locateMe")}
+				>
+					{locating ? (
+						<Loader2 size={18} className="text-accent animate-spin" />
+					) : (
+						<LocateFixed size={18} className="text-text-sec" />
+					)}
+				</Button>
+
+				{selectedNote && (
+					<NoteSheet geoNote={selectedNote} onClose={() => setSelectedNote(null)} onViewFilm={handleViewFilm} />
+				)}
+
+				{selectedCluster && !selectedNote && (
+					<ClusterSheet
+						cluster={selectedCluster}
+						onClose={() => setSelectedCluster(null)}
+						onSelectNote={(geoNote) => {
+							setSelectedCluster(null);
+							setSelectedNote(geoNote);
+						}}
+					/>
+				)}
+			</div>
 		</div>
 	);
 }
