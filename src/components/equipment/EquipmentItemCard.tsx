@@ -165,7 +165,12 @@ export function EquipmentItemCard({
 			)}
 
 			{/* Actions floated top-right so they live outside the main button. */}
-			{actions && <div className="absolute top-2 right-2 flex gap-1.5 z-10">{actions}</div>}
+			{actions && (
+				// biome-ignore lint/a11y/useKeyWithClickEvents: wrapper only stops propagation; inner buttons handle keyboard.
+				<div className="absolute top-2 right-2 flex gap-1.5 z-10" onClick={(e) => e.stopPropagation()}>
+					{actions}
+				</div>
+			)}
 		</article>
 	);
 }

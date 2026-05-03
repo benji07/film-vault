@@ -9,7 +9,7 @@ interface FilmPackagingHeaderProps {
 	format: string;
 	type?: string;
 	variant: FilmLabelVariant;
-	ref?: string;
+	refCode?: string;
 	exposures?: number | string;
 	className?: string;
 	rotate?: number;
@@ -49,7 +49,7 @@ export function FilmPackagingHeader({
 	format,
 	type,
 	variant,
-	ref,
+	refCode,
 	exposures,
 	className,
 	rotate = -0.5,
@@ -79,11 +79,11 @@ export function FilmPackagingHeader({
 					</KodakBadge>
 					{brand}
 				</div>
-				{ref && (
+				{refCode && (
 					<div className="font-typewriter text-[9px] tracking-[0.12em] text-right leading-tight">
 						REF
 						<KodakBadge size="sm" className="block mt-0.5">
-							{ref}
+							{refCode}
 						</KodakBadge>
 					</div>
 				)}
