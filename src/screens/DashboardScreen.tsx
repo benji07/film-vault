@@ -52,7 +52,7 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 			return;
 		}
 		if (!selectedYear || !yearBuckets.some(([y]) => y === selectedYear)) {
-			setSelectedYear(yearBuckets[0][0]);
+			setSelectedYear(yearBuckets[0]?.[0] ?? null);
 		}
 	}, [yearBuckets, selectedYear]);
 
