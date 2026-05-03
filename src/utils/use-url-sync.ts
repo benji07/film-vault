@@ -66,13 +66,28 @@ export function hashToEntry(rawHash: string): NavigationEntry {
  * Two-way sync between the navigation stack and `window.location.hash`.
  *
  * - On mount, reads the current hash and pushes the matching entry.
- * - When the navigation entry changes, updates the hash without reloading.
- * - Listens to `hashchange` (browser back/forward, manual edits) and
- *   updates the navigation stack accordingly.
+ * - When the navigation entry changes, updates the hash. Whether we
+ *   push or replace depends on `nav.lastSource`:
+ *     - `navigate` → `pushState` (grows the browser back stack)
+ *     - everything else (`goBack`, `replace`, `resetTo`, `pop`) →
+ *       `replaceState` so we don't pile a forward entry every time the
+ *       user backs out of a screen.
+ * - Listens to `hashchange` / `popstate` (browser back/forward, manual
+ *   edits) and dispatches `pop`, which preserves the in-app history
+ *   stack when the URL matches the previous entry — and falls back to
+ *   a clean reset when it doesn't.
+ *
+ * Caveat: in-app `goBack` does **not** trigger a real `history.back()`,
+ * so the browser back stack is monotone — back arrow will replay older
+ * entries even after the user navigated away in-app. That trade-off
+ * keeps the in-app reducer authoritative; if true symmetric history is
+ * needed later, route `goBack()` through `window.history.back()` and
+ * let `popstate` drive the reducer.
  */
 export function useUrlSync(nav: NavigationStack): void {
 	const lastSyncedHash = useRef<string | null>(null);
 	const initialized = useRef(false);
+	const { resetTo, pop } = nav;
 
 	// Bootstrap: apply the URL hash on first render so a deep-link lands on
 	// the right screen.
@@ -86,27 +101,35 @@ export function useUrlSync(nav: NavigationStack): void {
 		// Only override the in-memory state if the URL points somewhere
 		// other than the default home screen.
 		if (initial.screen !== "home" || initial.selectedFilm || initial.selectedCamera) {
-			nav.resetTo(initial);
+			resetTo(initial);
 		}
 	}, []);
 
-	// Push hash updates whenever the current entry changes.
+	// Push or replace the URL whenever the current entry changes.
 	useEffect(() => {
 		if (!initialized.current) return;
 		const next = entryToHash(nav.current);
 		if (lastSyncedHash.current === next) return;
 		lastSyncedHash.current = next;
 		const url = next ? `#${next}` : window.location.pathname + window.location.search;
-		window.history.pushState(null, "", url);
-	}, [nav.current]);
+		if (nav.lastSource === "navigate") {
+			window.history.pushState(null, "", url);
+		} else {
+			window.history.replaceState(null, "", url);
+		}
+	}, [nav.current, nav.lastSource]);
 
-	// Browser back/forward (or manual hash edit) → apply to navigation stack.
+	// Browser back/forward (or manual hash edit) → apply to navigation stack
+	// via `pop`, which tries to match the new entry against the in-app
+	// history top (preserves the back stack) and falls back to a clean
+	// reset if the URL doesn't correspond to a known previous entry.
 	useEffect(() => {
 		const onHashChange = () => {
-			const next = entryToHash(hashToEntry(window.location.hash));
+			const target = hashToEntry(window.location.hash);
+			const next = entryToHash(target);
 			if (lastSyncedHash.current === next) return;
 			lastSyncedHash.current = next;
-			nav.resetTo(hashToEntry(window.location.hash));
+			pop(target);
 		};
 		window.addEventListener("popstate", onHashChange);
 		window.addEventListener("hashchange", onHashChange);
@@ -114,5 +137,5 @@ export function useUrlSync(nav: NavigationStack): void {
 			window.removeEventListener("popstate", onHashChange);
 			window.removeEventListener("hashchange", onHashChange);
 		};
-	}, [nav]);
+	}, [pop]);
 }
