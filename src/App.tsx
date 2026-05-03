@@ -373,11 +373,6 @@ function AppContent({
 		(filmId?: string) => navigate({ screen: "map", mapFilterFilmId: filmId ?? null }),
 		[navigate],
 	);
-	const openStockFiltered = useCallback(
-		(stateFilter: string) => navigate({ screen: "stock", stockStateFilter: stateFilter }),
-		[navigate],
-	);
-	const openCamerasList = useCallback(() => navigate({ screen: "cameras" }), [navigate]);
 	const openSettings = useCallback(() => navigate({ screen: "settings" }), [navigate]);
 	const openLegal = useCallback(() => navigate({ screen: "legal" }), [navigate]);
 
@@ -398,16 +393,7 @@ function AppContent({
 	const renderScreen = () => {
 		switch (screen) {
 			case "home":
-				return (
-					<DashboardScreen
-						data={effectiveData}
-						onOpenFilm={openFilm}
-						onOpenCameras={openCamerasList}
-						onOpenSettings={openSettings}
-						setAutoOpenShotNote={setAutoOpenShotNote}
-						onNavigateToStock={openStockFiltered}
-					/>
-				);
+				return <DashboardScreen data={effectiveData} onOpenFilm={openFilm} onOpenSettings={openSettings} />;
 			case "stock":
 				return <StockScreen data={effectiveData} onOpenFilm={openFilm} initialStateFilter={stockStateFilter ?? null} />;
 			case "filmDetail":
@@ -473,16 +459,7 @@ function AppContent({
 			case "legal":
 				return <LegalScreen onBack={goBack} />;
 			default:
-				return (
-					<DashboardScreen
-						data={effectiveData}
-						onOpenFilm={openFilm}
-						onOpenCameras={openCamerasList}
-						onOpenSettings={openSettings}
-						setAutoOpenShotNote={setAutoOpenShotNote}
-						onNavigateToStock={openStockFiltered}
-					/>
-				);
+				return <DashboardScreen data={effectiveData} onOpenFilm={openFilm} onOpenSettings={openSettings} />;
 		}
 	};
 

@@ -49,17 +49,6 @@ export const fr = {
 	// Dashboard / Carnet
 	dashboard: {
 		title: "Carnet",
-		filter: {
-			all: "Toutes",
-			loaded: "Chargées",
-			toDev: "À développer",
-			toScan: "À scanner",
-		},
-		stats: {
-			loaded: "chargées",
-			toDev: "à développer",
-			toScan: "à scanner",
-		},
 		emptyMoving: "Le carnet est vide",
 		emptyMovingSubtitle: "Charge une pellicule pour qu'elle apparaisse ici",
 		typeSuffix: "neg",
@@ -70,6 +59,7 @@ export const fr = {
 			exposed: "Exposée — terminée",
 			atLab: "Au labo — {{lab}}",
 			toScan: "Développée — à scanner",
+			scanned: "Scannée — archivée",
 			noCamera: "Chargée",
 		},
 		inStock: "En stock",
@@ -787,9 +777,9 @@ export const fr = {
 				"Voici ton carnet de pellicules — un mini-guide pour découvrir les écrans clés. Tu peux passer à tout moment.",
 		},
 		carnetFilters: {
-			title: "Le carnet, ton fil du jour",
+			title: "Le carnet, année par année",
 			description:
-				"Le Carnet rassemble les pellicules en cours : chargées, à développer, à scanner. Bascule entre les filtres pour zoomer sur une étape.",
+				"Le Carnet liste tes pellicules de l'année : en cours et finies, de la plus récente à la plus ancienne. Bascule sur une autre année pour feuilleter ton historique.",
 		},
 		carnetCard: {
 			title: "Une pellicule en un coup d'œil",

@@ -26,7 +26,7 @@ export function ActiveRollCard({ film, camera, back, onShotClick, onClick, class
 	const loadedDate = getLoadedDate(film);
 
 	const formattedDate = loadedDate
-		? new Date(`${loadedDate}T00:00:00`).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", {
+		? new Date(`${loadedDate}T00:00:00`).toLocaleDateString(i18n.language.startsWith("fr") ? "fr-FR" : "en-US", {
 				day: "numeric",
 				month: "long",
 				year: "numeric",

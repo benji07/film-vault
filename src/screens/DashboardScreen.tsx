@@ -1,60 +1,74 @@
 import { Film as FilmIcon, Settings } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CarnetFilmCard } from "@/components/CarnetFilmCard";
 import { EmptyState } from "@/components/EmptyState";
 import { Chip } from "@/components/ui/chip";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
-import type { AppData, Film as FilmType } from "@/types";
+import type { AppData, Film, FilmState } from "@/types";
+import { filmLastActionDate } from "@/utils/film-helpers";
 
 interface DashboardScreenProps {
 	data: AppData;
 	onOpenFilm: (id: string) => void;
-	onOpenCameras?: () => void;
 	onOpenSettings?: () => void;
-	setAutoOpenShotNote?: (open: boolean) => void;
-	onNavigateToStock?: (stateFilter: string) => void;
 }
 
-type CarnetFilter = "all" | "loaded" | "toDev" | "toScan";
-
-const MOVING_STATES: ReadonlySet<FilmType["state"]> = new Set(["loaded", "partial", "exposed", "developed"]);
-
-function matchesFilter(state: FilmType["state"], filter: CarnetFilter): boolean {
-	if (filter === "all") return MOVING_STATES.has(state);
-	if (filter === "loaded") return state === "loaded" || state === "partial";
-	if (filter === "toDev") return state === "exposed";
-	return state === "developed";
-}
+const CARNET_STATES: ReadonlySet<FilmState> = new Set(["loaded", "partial", "exposed", "developed", "scanned"]);
 
 export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardScreenProps) {
 	const { t } = useTranslation();
 	const { films, cameras } = data;
-	const [filter, setFilter] = useState<CarnetFilter>("all");
 
-	const moving = films.filter((f) => MOVING_STATES.has(f.state));
-	const counts = {
-		all: moving.length,
-		loaded: moving.filter((f) => f.state === "loaded" || f.state === "partial").length,
-		toDev: moving.filter((f) => f.state === "exposed").length,
-		toScan: moving.filter((f) => f.state === "developed").length,
-	};
+	const datedFilms = useMemo(() => {
+		const list: Array<{ film: Film; lastDate: string }> = [];
+		for (const film of films) {
+			if (!CARNET_STATES.has(film.state)) continue;
+			const lastDate = filmLastActionDate(film);
+			if (lastDate) list.push({ film, lastDate });
+		}
+		return list;
+	}, [films]);
 
-	const visible = moving.filter((f) => matchesFilter(f.state, filter));
+	const yearBuckets = useMemo(() => {
+		const map = new Map<string, number>();
+		for (const { lastDate } of datedFilms) {
+			const year = lastDate.slice(0, 4);
+			map.set(year, (map.get(year) ?? 0) + 1);
+		}
+		return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+	}, [datedFilms]);
 
-	const filterDefs: { id: CarnetFilter; label: string; count: number }[] = [
-		{ id: "all", label: t("dashboard.filter.all"), count: counts.all },
-		{ id: "loaded", label: t("dashboard.filter.loaded"), count: counts.loaded },
-		{ id: "toDev", label: t("dashboard.filter.toDev"), count: counts.toDev },
-		{ id: "toScan", label: t("dashboard.filter.toScan"), count: counts.toScan },
-	];
+	const [selectedYear, setSelectedYear] = useState<string | null>(() => {
+		if (yearBuckets.length === 0) return null;
+		const currentYear = new Date().getFullYear().toString();
+		return yearBuckets.some(([y]) => y === currentYear) ? currentYear : (yearBuckets[0]?.[0] ?? null);
+	});
+
+	useEffect(() => {
+		if (yearBuckets.length === 0) {
+			if (selectedYear !== null) setSelectedYear(null);
+			return;
+		}
+		if (!selectedYear || !yearBuckets.some(([y]) => y === selectedYear)) {
+			setSelectedYear(yearBuckets[0]?.[0] ?? null);
+		}
+	}, [yearBuckets, selectedYear]);
+
+	const visible = useMemo(() => {
+		if (!selectedYear) return [];
+		return datedFilms
+			.filter(({ lastDate }) => lastDate.startsWith(selectedYear))
+			.sort((a, b) => b.lastDate.localeCompare(a.lastDate))
+			.map(({ film }) => film);
+	}, [datedFilms, selectedYear]);
 
 	return (
 		<div className="-mx-4 md:-mx-8 -mt-5 md:-mt-[max(1.25rem,env(safe-area-inset-top))]">
 			<PageHeader
 				title={t("dashboard.title")}
-				count={counts.all}
+				count={visible.length}
 				right={
 					onOpenSettings ? (
 						<button
@@ -68,25 +82,32 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 					) : undefined
 				}
 			>
-				<nav
-					className="flex gap-2 overflow-x-auto px-[18px] pb-2.5 fv-noscroll"
-					aria-label={t("dashboard.title")}
-					data-tour="carnet-filters"
-				>
-					{filterDefs.map((f) => (
-						<Chip key={f.id} active={filter === f.id} onClick={() => setFilter(f.id)} className="flex-none">
-							{f.label}
-							<span
-								className={cn(
-									"font-archivo-black text-[9px] px-1.5 py-px",
-									filter === f.id ? "bg-ink/20 text-ink" : "bg-ink/10 text-ink",
-								)}
+				{yearBuckets.length > 0 && (
+					<nav
+						className="flex gap-2 overflow-x-auto px-[18px] pb-2.5 fv-noscroll"
+						aria-label={t("dashboard.title")}
+						data-tour="carnet-filters"
+					>
+						{yearBuckets.map(([year, count]) => (
+							<Chip
+								key={year}
+								active={selectedYear === year}
+								onClick={() => setSelectedYear(year)}
+								className="flex-none"
 							>
-								{f.count}
-							</span>
-						</Chip>
-					))}
-				</nav>
+								{year}
+								<span
+									className={cn(
+										"font-archivo-black text-[9px] px-1.5 py-px",
+										selectedYear === year ? "bg-ink/20 text-ink" : "bg-ink/10 text-ink",
+									)}
+								>
+									{count}
+								</span>
+							</Chip>
+						))}
+					</nav>
+				)}
 			</PageHeader>
 
 			<main className="px-[18px] pt-8 pb-32 flex flex-col gap-[18px]">
