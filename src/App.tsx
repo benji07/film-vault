@@ -16,7 +16,7 @@ import { ToastProvider, useToast } from "@/components/Toast";
 import { CameraDetailScreen } from "@/screens/CameraDetailScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { EquipmentScreen } from "@/screens/EquipmentScreen";
-import { FilmDetailScreen } from "@/screens/FilmDetailScreen";
+import { FilmDetailScreen, type FilmDetailScreenHandle } from "@/screens/FilmDetailScreen";
 import { LegalScreen } from "@/screens/LegalScreen";
 import { SettingsScreen } from "@/screens/SettingsScreen";
 import { StatsScreen } from "@/screens/StatsScreen";
@@ -336,7 +336,7 @@ function AppContent({
 
 	useUrlSync(nav);
 
-	const [editFilmTrigger, setEditFilmTrigger] = useState(0);
+	const filmDetailRef = useRef<FilmDetailScreenHandle>(null);
 
 	const { current, navigate, goBack, resetTo, replace } = nav;
 	const { screen, selectedFilm, selectedCamera, mapFilterFilmId, stockStateFilter } = current;
@@ -413,12 +413,12 @@ function AppContent({
 			case "filmDetail":
 				return (
 					<FilmDetailScreen
+						ref={filmDetailRef}
 						data={effectiveData}
 						setData={effectiveUpdateData}
 						onExit={exitToStock}
 						onFilmDuplicated={replaceSelectedFilm}
 						filmId={selectedFilm ?? null}
-						editTrigger={editFilmTrigger}
 						onNavigateToMap={openMap}
 						onNavigateToCamera={openCamera}
 						autoOpenShotNote={autoOpenShotNote}
@@ -510,7 +510,7 @@ function AppContent({
 					screen={screen}
 					goBack={goBack}
 					onOpenSettings={openSettings}
-					onEditFilm={screen === "filmDetail" ? () => setEditFilmTrigger((n) => n + 1) : undefined}
+					onEditFilm={screen === "filmDetail" ? () => filmDetailRef.current?.openEdit() : undefined}
 					filmTitle={filmTitle}
 					cameraTitle={cameraTitle}
 					className="md:hidden"

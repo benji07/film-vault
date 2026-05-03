@@ -1,5 +1,5 @@
 import { CopyPlus, Film, History, Info, NotebookPen, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { type Ref, useCallback, useImperativeHandle, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/EmptyState";
 import { FilmLifecycleStepper } from "@/components/FilmLifecycleStepper";
@@ -27,17 +27,21 @@ import { FloatingActionBar } from "./film-detail/FloatingActionBar";
 import { TransitionModals } from "./film-detail/TransitionModals";
 import type { ActionData, ActionType, EditData } from "./film-detail/types";
 
+export interface FilmDetailScreenHandle {
+	openEdit: () => void;
+}
+
 interface FilmDetailScreenProps {
 	data: AppData;
 	setData: (data: AppData) => void;
 	onExit: () => void;
 	onFilmDuplicated: (id: string) => void;
 	filmId: string | null;
-	editTrigger?: number;
 	onNavigateToMap?: (filmId: string) => void;
 	onNavigateToCamera?: (camId: string) => void;
 	autoOpenShotNote?: boolean;
 	setAutoOpenShotNote?: (open: boolean) => void;
+	ref?: Ref<FilmDetailScreenHandle>;
 }
 
 export function FilmDetailScreen({
@@ -46,11 +50,11 @@ export function FilmDetailScreen({
 	onExit,
 	onFilmDuplicated,
 	filmId,
-	editTrigger = 0,
 	onNavigateToMap,
 	onNavigateToCamera,
 	autoOpenShotNote,
 	setAutoOpenShotNote,
+	ref,
 }: FilmDetailScreenProps) {
 	const { t } = useTranslation();
 	const film = data.films.find((f) => f.id === filmId);
@@ -89,7 +93,7 @@ export function FilmDetailScreen({
 	const [viewerPhotos, setViewerPhotos] = useState<string[] | null>(null);
 	const [viewerIndex, setViewerIndex] = useState(0);
 
-	const openEdit = () => {
+	const openEdit = useCallback(() => {
 		if (!film) return;
 		const editCam = film.cameraId ? data.cameras.find((c) => c.id === film.cameraId) : null;
 		const soleLens =
@@ -123,17 +127,11 @@ export function FilmDetailScreen({
 			scanCost: film.scanCost != null ? String(film.scanCost) : "",
 		});
 		setShowAction("edit");
-	};
+	}, [film, data.cameras, data.lenses]);
 
-	// Edit requested from the AppHeader (lifted trigger).
-	const lastEditTrigger = useRef(editTrigger);
-	// biome-ignore lint/correctness/useExhaustiveDependencies: openEdit is stable enough; only react to trigger changes
-	useEffect(() => {
-		if (editTrigger !== lastEditTrigger.current) {
-			lastEditTrigger.current = editTrigger;
-			openEdit();
-		}
-	}, [editTrigger]);
+	// Imperative handle for the AppHeader pencil → openEdit, replaces the
+	// previous editTrigger counter prop.
+	useImperativeHandle(ref, () => ({ openEdit }), [openEdit]);
 
 	if (!film)
 		return (
