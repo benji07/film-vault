@@ -28,8 +28,13 @@ export const filmType = (film: Film): string => film.type || "?";
 
 export const filmIso = (film: Film): number | string => film.iso || "?";
 
-export const filmLastActionDate = (film: Film): string | null =>
-	film.history[film.history.length - 1]?.date ?? film.startDate ?? null;
+export const filmLastActionDate = (film: Film): string | null => {
+	let latest: string | null = null;
+	for (const entry of film.history) {
+		if (entry.date && (latest === null || entry.date > latest)) latest = entry.date;
+	}
+	return latest ?? film.startDate ?? null;
+};
 
 export const collectAllTags = (films: Film[]): string[] => {
 	const canonical = new Map<string, string>();
