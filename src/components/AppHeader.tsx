@@ -30,13 +30,13 @@ export function AppHeader({ screen, goBack, onEditFilm, filmTitle, cameraTitle, 
 	// right, e.g. edit on filmDetail). Root screens render their own header
 	// via PageHeader inside the scroll container — nothing to render here.
 	// The safe-area-inset-top is handled by the root container's padding,
-	// so this header just uses a fixed pt-3.
+	// so this header sits flush below it with no extra pt.
 	if (!isSubScreen) return null;
 
 	return (
 		<div
 			className={cn(
-				"shrink-0 flex items-center justify-between gap-2 px-4 pt-3 pb-2 bg-paper border-b border-ink-faded/40",
+				"shrink-0 flex items-center justify-between gap-2 px-4 pt-2 pb-2 bg-paper border-b border-ink-faded/40",
 				className,
 			)}
 		>

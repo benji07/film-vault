@@ -13,6 +13,7 @@ import { PwaUpdateBanner } from "@/components/PwaUpdateBanner";
 import { QuickShotDialog } from "@/components/QuickShotDialog";
 import { TabBar } from "@/components/TabBar";
 import { ToastProvider, useToast } from "@/components/Toast";
+import { cn } from "@/lib/utils";
 import { CameraDetailScreen } from "@/screens/CameraDetailScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { EquipmentScreen } from "@/screens/EquipmentScreen";
@@ -495,7 +496,7 @@ function AppContent({
 				{screen === "map" ? (
 					<div className="flex-1 min-h-0">{renderScreen()}</div>
 				) : (
-					<div className="flex-1 overflow-y-auto px-4 md:px-8 pt-5 pb-5">
+					<div className={cn("flex-1 overflow-y-auto px-4 md:px-8 pb-5", SUB_SCREENS.has(screen) && "pt-5")}>
 						<div className="max-w-3xl mx-auto">
 							<div
 								key={`${screen}-${selectedFilm || ""}`}
