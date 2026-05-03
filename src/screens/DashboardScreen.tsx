@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Chip } from "@/components/ui/chip";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
-import type { AppData, Film } from "@/types";
+import type { AppData, Film, FilmState } from "@/types";
 import { filmLastActionDate } from "@/utils/film-helpers";
 
 interface DashboardScreenProps {
@@ -15,6 +15,8 @@ interface DashboardScreenProps {
 	onOpenSettings?: () => void;
 }
 
+const CARNET_STATES: ReadonlySet<FilmState> = new Set(["loaded", "partial", "exposed", "developed", "scanned"]);
+
 export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardScreenProps) {
 	const { t } = useTranslation();
 	const { films, cameras } = data;
@@ -22,7 +24,7 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 	const datedFilms = useMemo(() => {
 		const list: Array<{ film: Film; lastDate: string }> = [];
 		for (const film of films) {
-			if (!film.startDate) continue;
+			if (!CARNET_STATES.has(film.state)) continue;
 			const lastDate = filmLastActionDate(film);
 			if (lastDate) list.push({ film, lastDate });
 		}
