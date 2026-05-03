@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { FilmLabelVariant } from "@/components/ui/film-label";
 import { KodakBadge } from "@/components/ui/kodak-badge";
 import { cn } from "@/lib/utils";
@@ -54,8 +55,10 @@ export function FilmPackagingHeader({
 	className,
 	rotate = -0.5,
 }: FilmPackagingHeaderProps) {
+	const { t } = useTranslation();
+	const negativeLabel = t("filmPackaging.subline");
 	const brandCode = brand.slice(0, 2).toUpperCase();
-	const subline = type ? type.toLowerCase() : "negative";
+	const subline = type ? type.toLowerCase() : negativeLabel;
 	const modelLine = model.split(" ")[0]?.toUpperCase() || model.toUpperCase();
 
 	return (
@@ -93,7 +96,7 @@ export function FilmPackagingHeader({
 				<div className="font-archivo-black text-[28px] leading-[0.92] tracking-[-1px] uppercase">
 					{modelLine}
 					<em className="block font-archivo not-italic font-bold text-[12px] tracking-[0.15em] mt-1.5 normal-case">
-						{subline} · negative
+						{subline} · {negativeLabel}
 					</em>
 				</div>
 				<div className="text-right leading-[0.85]">

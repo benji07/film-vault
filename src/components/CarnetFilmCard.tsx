@@ -124,7 +124,11 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 				<div className="flex items-start justify-between gap-2.5">
 					<div className="font-cormorant text-[20px] font-semibold leading-[1.05] text-ink tracking-[-0.2px] min-w-0">
 						{displayName}
-						{sub && <em className="block italic font-normal text-[13px] text-ink-faded mt-0.5">{sub} · neg</em>}
+						{sub && (
+							<em className="block italic font-normal text-[13px] text-ink-faded mt-0.5">
+								{sub} · {t("dashboard.typeSuffix")}
+							</em>
+						)}
 					</div>
 					{labRef && (
 						<div className="font-typewriter text-[9px] tracking-[0.12em] text-ink-faded text-right leading-tight flex-shrink-0">
@@ -162,7 +166,7 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 					<span className="font-archivo-black text-[13px] text-ink tracking-[-0.3px] flex-shrink-0">
 						{shot > 0 ? shot : total}
 						<span className="font-archivo font-normal text-[11px] text-ink-faded">
-							{shot > 0 ? `/${total}` : " poses"}
+							{shot > 0 ? `/${total}` : ` ${t("dashboard.posesUnit")}`}
 						</span>
 					</span>
 				</div>

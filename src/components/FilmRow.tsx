@@ -7,6 +7,7 @@ import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
 import { pickRotation } from "@/utils/card-decorations";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { filmName, filmType } from "@/utils/film-helpers";
+import { fmtPrice } from "@/utils/helpers";
 
 interface FilmRowProps {
 	film: Film;
@@ -38,12 +39,13 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount, index = 0 }
 	const tone = STATE_TONE[film.state];
 
 	const sub = film.type ? film.type.toLowerCase() : "";
+	const localeTag = t("dateLocale");
 	const metaParts: string[] = [];
 	if (film.type) metaParts.push(film.type.toLowerCase());
-	if (film.expDate) metaParts.push(`périme ${fmtExpDate(film.expDate, t("dateLocale"))}`);
-	if (film.price != null) metaParts.push(`${film.price.toFixed(2)} €`);
+	if (film.expDate) metaParts.push(t("stock.metaExp", { date: fmtExpDate(film.expDate, localeTag) }));
+	if (film.price != null) metaParts.push(fmtPrice(film.price, localeTag));
 	if (cam) metaParts.push(cameraDisplayName(cam) + (back ? ` · ${backDisplayName(back)}` : ""));
-	if (film.labRef) metaParts.push(`ref ${film.labRef}`);
+	if (film.labRef) metaParts.push(t("stock.metaRef", { ref: film.labRef }));
 
 	return (
 		<button

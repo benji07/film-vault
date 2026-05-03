@@ -62,6 +62,8 @@ export const fr = {
 		},
 		emptyMoving: "Le carnet est vide",
 		emptyMovingSubtitle: "Charge une pellicule pour qu'elle apparaisse ici",
+		typeSuffix: "neg",
+		posesUnit: "poses",
 		state: {
 			loadedIn: "Chargée dans le {{camera}}",
 			partial: "Partielle — déchargée du {{camera}}",
@@ -126,6 +128,8 @@ export const fr = {
 		tags: "Tags",
 		resultCount_one: "{{count}} pellicule",
 		resultCount_other: "{{count}} pellicules",
+		metaExp: "périme {{date}}",
+		metaRef: "réf {{ref}}",
 		tabs: {
 			active: "En cours",
 			stock: "Stock",
@@ -233,6 +237,11 @@ export const fr = {
 		"Polaroid 600": "Polaroïd 600",
 		"Polaroid I-Type": "Polaroïd I-Type",
 		"Polaroid Go": "Polaroïd Go",
+	},
+
+	// Film packaging header (FilmDetail + AddFilm preview)
+	filmPackaging: {
+		subline: "négatif",
 	},
 
 	// Film detail screen
