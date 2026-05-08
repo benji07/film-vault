@@ -12,11 +12,8 @@ interface AlertProps extends HTMLAttributes<HTMLDivElement> {
 function Alert({ icon: Icon, color, className, children, ...props }: AlertProps) {
 	return (
 		<div
-			className={cn(
-				"flex items-center gap-2 px-3 py-2 text-[12px] font-cormorant border-2 border-ink shadow-[3px_3px_0_var(--color-ink)]",
-				className,
-			)}
-			style={{ color, background: alpha(color, 0.12) }}
+			className={cn("flex items-center gap-2 px-3 py-2 text-sm rounded-[10px] ring-1", className)}
+			style={{ color, background: alpha(color, 0.1), boxShadow: `inset 0 0 0 1px ${alpha(color, 0.3)}` }}
 			{...props}
 		>
 			{Icon && <Icon size={14} />}

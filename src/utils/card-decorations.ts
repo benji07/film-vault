@@ -1,27 +1,18 @@
 export type WashiColor = "w1" | "w2" | "w3" | "w4";
 
-const ROTATIONS_LIVELY = [
-	"-rotate-[0.3deg]",
-	"rotate-[0.25deg]",
-	"rotate-[0.5deg]",
-	"-rotate-[0.4deg]",
-	"rotate-[0.3deg]",
-];
-
-const ROTATIONS_SUBTLE = ["-rotate-[0.2deg]", "rotate-[0.15deg]", "rotate-[0.3deg]", "-rotate-[0.25deg]"];
-
 const WASHI_POSITIONS: Array<{ left: string; rotate: number }> = [
-	{ left: "left-[30px]", rotate: -2 },
-	{ left: "right-[30px]", rotate: 2 },
-	{ left: "left-[60%]", rotate: -1 },
-	{ left: "left-6", rotate: 3 },
+	{ left: "left-[30px]", rotate: 0 },
+	{ left: "right-[30px]", rotate: 0 },
+	{ left: "left-[60%]", rotate: 0 },
+	{ left: "left-6", rotate: 0 },
 ];
 
 const WASHI_COLORS: WashiColor[] = ["w1", "w2", "w3", "w4"];
 
-export function pickRotation(index: number, intensity: "lively" | "subtle" = "lively"): string {
-	const set = intensity === "subtle" ? ROTATIONS_SUBTLE : ROTATIONS_LIVELY;
-	return set[index % set.length] ?? "";
+// Rotations désactivées dans le thème monochrome moderne — l'API est conservée
+// pour ne pas casser les callers existants pendant la migration incrémentale.
+export function pickRotation(_index: number, _intensity: "lively" | "subtle" = "lively"): string {
+	return "";
 }
 
 export function pickWashiPosition(index: number): { left: string; rotate: number } {

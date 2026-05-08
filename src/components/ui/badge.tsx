@@ -2,24 +2,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-const badgeVariants = cva(
-	"inline-flex items-center gap-1 px-2 py-0.5 font-archivo font-extrabold text-[9px] uppercase tracking-[0.15em] leading-none border-[1.5px]",
-	{
-		variants: {
-			variant: {
-				default: "bg-kodak-yellow text-ink border-ink",
-				ink: "bg-ink text-paper border-ink",
-				red: "bg-kodak-red text-paper border-ink",
-				teal: "bg-kodak-teal text-paper border-ink",
-				gold: "bg-kodak-gold text-ink border-ink",
-				outline: "bg-transparent text-ink border-ink-faded",
-			},
-		},
-		defaultVariants: {
-			variant: "default",
+const badgeVariants = cva("inline-flex items-center gap-1 px-2 py-0.5 font-medium text-xs leading-tight rounded-full", {
+	variants: {
+		variant: {
+			default: "bg-surface-2 text-text",
+			ink: "bg-text text-bg",
+			red: "bg-accent text-bg",
+			teal: "bg-fill-2 text-text",
+			gold: "bg-fill-1 text-text",
+			outline: "bg-transparent text-text-2 ring-1 ring-line",
 		},
 	},
-);
+	defaultVariants: {
+		variant: "default",
+	},
+});
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {}
 

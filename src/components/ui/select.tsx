@@ -12,10 +12,9 @@ function SelectTrigger({ className, children, ...props }: ComponentProps<typeof 
 		<SelectPrimitive.Trigger
 			className={cn(
 				"flex h-auto w-full items-center justify-between gap-2",
-				"bg-paper-card/60 border-[1.5px] border-ink py-2 px-3 rounded-none",
-				"shadow-[2px_2px_0_var(--color-ink)]",
-				"font-cormorant text-[15px] text-ink outline-none transition-colors",
-				"focus:border-kodak-yellow focus:shadow-[2px_2px_0_var(--color-kodak-yellow)]",
+				"bg-surface ring-1 ring-line rounded-[10px] py-2 px-3",
+				"text-base text-text outline-none transition-shadow",
+				"focus:ring-2 focus:ring-text",
 				"disabled:cursor-not-allowed disabled:opacity-50",
 				"[&>span]:truncate",
 				className,
@@ -24,7 +23,7 @@ function SelectTrigger({ className, children, ...props }: ComponentProps<typeof 
 		>
 			{children}
 			<SelectPrimitive.Icon asChild>
-				<ChevronDown className="h-4 w-4 shrink-0 text-ink-faded" />
+				<ChevronDown className="h-4 w-4 shrink-0 text-text-3" />
 			</SelectPrimitive.Icon>
 		</SelectPrimitive.Trigger>
 	);
@@ -41,7 +40,7 @@ function SelectContent({
 			<SelectPrimitive.Content
 				className={cn(
 					"relative z-[1001] max-h-[300px] min-w-[8rem] overflow-hidden",
-					"bg-paper-card border-2 border-ink shadow-[4px_4px_0_var(--color-ink)] rounded-none",
+					"bg-surface ring-1 ring-line rounded-[10px] shadow-lg",
 					"data-[state=open]:animate-in data-[state=closed]:animate-out",
 					"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
 					"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -69,9 +68,9 @@ function SelectItem({ className, children, ...props }: ComponentProps<typeof Sel
 	return (
 		<SelectPrimitive.Item
 			className={cn(
-				"relative flex w-full cursor-pointer select-none items-center py-2 pl-8 pr-3",
-				"font-cormorant text-[15px] text-ink outline-none",
-				"focus:bg-kodak-yellow/30 hover:bg-kodak-yellow/30",
+				"relative flex w-full cursor-pointer select-none items-center py-2 pl-8 pr-3 rounded-[8px]",
+				"text-base text-text outline-none",
+				"focus:bg-surface-2 hover:bg-surface-2",
 				"data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
 				className,
 			)}
@@ -79,7 +78,7 @@ function SelectItem({ className, children, ...props }: ComponentProps<typeof Sel
 		>
 			<span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
 				<SelectPrimitive.ItemIndicator>
-					<Check className="h-4 w-4 text-kodak-red" />
+					<Check className="h-4 w-4 text-text" />
 				</SelectPrimitive.ItemIndicator>
 			</span>
 			<SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

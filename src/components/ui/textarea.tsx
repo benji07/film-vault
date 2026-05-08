@@ -5,12 +5,11 @@ function Textarea({ className, ...props }: ComponentProps<"textarea">) {
 	return (
 		<textarea
 			className={cn(
-				"bg-paper-card/60 border-[1.5px] border-ink rounded-none py-2 px-3",
-				"shadow-[2px_2px_0_var(--color-ink)]",
-				"font-cormorant text-[16px] text-ink outline-none transition-colors",
-				"focus:border-kodak-yellow focus:shadow-[2px_2px_0_var(--color-kodak-yellow)]",
+				"bg-surface ring-1 ring-line rounded-[10px] py-2 px-3",
+				"text-base text-text outline-none transition-shadow",
+				"focus:ring-2 focus:ring-text",
 				"disabled:cursor-not-allowed disabled:opacity-50",
-				"placeholder:text-ink-faded placeholder:italic",
+				"placeholder:text-text-3",
 				"resize-y min-h-[80px]",
 				className,
 			)}

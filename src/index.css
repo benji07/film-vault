@@ -1,89 +1,99 @@
-@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Special+Elite&family=Archivo+Black&family=Archivo:wght@400;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 @theme {
-	/* Direction artistique : Carnet + Kodak Gold vintage 80s.
-	   Surfaces — papier ivoire chaud · Encres — brun chocolat. */
+	/* Bichromie monochrome claire — accent rouge utilisé avec parcimonie. */
 
-	/* New Kodak vintage tokens (preferred) */
-	--color-paper: #f6efde;
-	--color-paper-card: #fdf8ea;
-	--color-paper-dark: #ece2c9;
-	--color-ink: #1f1410;
-	--color-ink-soft: #3a2a1c;
-	--color-ink-faded: #6b5d44;
+	/* Surfaces */
+	--color-bg: #fafaf9;
+	--color-surface: #ffffff;
+	--color-surface-2: #f1f1ef;
+	--color-line: #e6e6e3;
 
-	--color-kodak-yellow: #e8a818;
-	--color-kodak-yellow-deep: #c8861a;
-	--color-kodak-gold: #a8843a;
-	--color-kodak-red: #b8362a;
-	--color-kodak-teal: #2d4a32;
+	/* Texte */
+	--color-text: #111111;
+	--color-text-2: #4a4a48;
+	--color-text-3: #8a8a86;
 
-	--color-washi-1: #d4a574;
-	--color-washi-2: #a8c4a2;
-	--color-washi-3: #d97a6c;
-	--color-washi-4: #9bb5c8;
-
-	/* Legacy tokens — repointed to vintage palette so non-refonted screens
-	   already inherit the new look. They will be progressively removed
-	   as each screen is migrated. */
-	--color-bg: var(--color-paper);
-	--color-surface: var(--color-paper-card);
-	--color-surface-alt: var(--color-paper-dark);
-	--color-card: var(--color-paper-card);
-	--color-card-hover: var(--color-paper-dark);
-	--color-border: var(--color-ink-faded);
-	--color-border-light: var(--color-paper-dark);
-	--color-text-primary: var(--color-ink);
-	--color-text-sec: var(--color-ink-soft);
-	--color-text-muted: var(--color-ink-faded);
-	--color-accent: var(--color-kodak-red);
+	/* Accent rouge */
+	--color-accent: #c4392d;
 	--color-accent-hover: #a02e23;
-	--color-accent-soft: rgba(184, 54, 42, 0.12);
-	--color-orange: var(--color-washi-1);
-	--color-orange-soft: rgba(212, 165, 116, 0.18);
-	--color-amber: var(--color-kodak-yellow);
-	--color-amber-soft: rgba(232, 168, 24, 0.14);
-	--color-green: var(--color-kodak-teal);
-	--color-green-soft: rgba(45, 74, 50, 0.14);
-	--color-blue: var(--color-washi-4);
-	--color-blue-soft: rgba(155, 181, 200, 0.18);
+	--color-accent-soft: color-mix(in srgb, #c4392d 12%, transparent);
 
-	/* Typo */
-	--font-caveat: "Caveat", cursive;
-	--font-cormorant: "Cormorant Garamond", Georgia, serif;
-	--font-typewriter: "Special Elite", monospace;
-	--font-archivo: "Archivo", sans-serif;
-	--font-archivo-black: "Archivo Black", sans-serif;
+	/* Ramp neutre pour fills d'états */
+	--color-fill-1: #ededea;
+	--color-fill-2: #cfcfcb;
 
-	/* Legacy font tokens repointed for transition */
-	--font-display: var(--font-caveat);
-	--font-body: var(--font-cormorant);
-	--font-mono: var(--font-typewriter);
+	/* Police unique — system stack */
+	--font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+	/* DEPRECATED — alias legacy maintenus pour transition incrémentale.
+	   Tous re-aimés vers la nouvelle palette monochrome. À supprimer une
+	   fois les écrans migrés (grep `paper`/`ink`/`kodak`/`washi`). */
+	--color-paper: var(--color-bg);
+	--color-paper-card: var(--color-surface);
+	--color-paper-dark: var(--color-surface-2);
+	--color-ink: var(--color-text);
+	--color-ink-soft: var(--color-text-2);
+	--color-ink-faded: var(--color-text-3);
+	--color-kodak-yellow: var(--color-fill-2);
+	--color-kodak-yellow-deep: var(--color-fill-2);
+	--color-kodak-gold: var(--color-fill-1);
+	--color-kodak-red: var(--color-accent);
+	--color-kodak-teal: var(--color-text-2);
+	--color-washi-1: var(--color-fill-2);
+	--color-washi-2: var(--color-fill-2);
+	--color-washi-3: var(--color-fill-2);
+	--color-washi-4: var(--color-fill-2);
+	--color-surface-alt: var(--color-surface-2);
+	--color-card: var(--color-surface);
+	--color-card-hover: var(--color-surface-2);
+	--color-border: var(--color-line);
+	--color-border-light: var(--color-line);
+	--color-text-primary: var(--color-text);
+	--color-text-sec: var(--color-text-2);
+	--color-text-muted: var(--color-text-3);
+	--color-orange: var(--color-fill-2);
+	--color-orange-soft: color-mix(in srgb, var(--color-text-3) 18%, transparent);
+	--color-amber: var(--color-fill-2);
+	--color-amber-soft: color-mix(in srgb, var(--color-text-3) 14%, transparent);
+	--color-green: var(--color-text-2);
+	--color-green-soft: color-mix(in srgb, var(--color-text-2) 14%, transparent);
+	--color-blue: var(--color-text-3);
+	--color-blue-soft: color-mix(in srgb, var(--color-text-3) 18%, transparent);
+
+	/* Font alias re-aimés vers la sans-serif unique. */
+	--font-caveat: var(--font-sans);
+	--font-cormorant: var(--font-sans);
+	--font-typewriter: var(--font-sans);
+	--font-archivo: var(--font-sans);
+	--font-archivo-black: var(--font-sans);
+	--font-display: var(--font-sans);
+	--font-body: var(--font-sans);
+	--font-mono: var(--font-sans);
 }
 
 @layer base {
 	:root {
-		--background: var(--color-paper);
-		--foreground: var(--color-ink);
-		--card: var(--color-paper-card);
-		--card-foreground: var(--color-ink);
-		--popover: var(--color-paper-card);
-		--popover-foreground: var(--color-ink);
-		--primary: var(--color-kodak-red);
-		--primary-foreground: var(--color-paper);
-		--secondary: var(--color-paper-dark);
-		--secondary-foreground: var(--color-ink);
-		--muted: var(--color-paper-dark);
-		--muted-foreground: var(--color-ink-faded);
-		--accent: var(--color-paper-dark);
-		--accent-foreground: var(--color-ink);
-		--destructive: var(--color-kodak-red);
-		--destructive-foreground: var(--color-paper);
-		--border: var(--color-ink-faded);
-		--input: var(--color-ink-faded);
-		--ring: var(--color-kodak-yellow);
-		--radius: 0px;
+		--background: var(--color-bg);
+		--foreground: var(--color-text);
+		--card: var(--color-surface);
+		--card-foreground: var(--color-text);
+		--popover: var(--color-surface);
+		--popover-foreground: var(--color-text);
+		--primary: var(--color-text);
+		--primary-foreground: var(--color-bg);
+		--secondary: var(--color-surface-2);
+		--secondary-foreground: var(--color-text);
+		--muted: var(--color-surface-2);
+		--muted-foreground: var(--color-text-3);
+		--accent: var(--color-accent);
+		--accent-foreground: var(--color-bg);
+		--destructive: var(--color-accent);
+		--destructive-foreground: var(--color-bg);
+		--border: var(--color-line);
+		--input: var(--color-line);
+		--ring: var(--color-text);
+		--radius: 10px;
 	}
 
 	html,
@@ -96,20 +106,11 @@
 		-webkit-overflow-scrolling: touch;
 	}
 	body {
-		background-color: var(--color-paper);
-		background-image:
-			radial-gradient(ellipse at 20% 10%, rgba(255, 240, 200, 0.5), transparent 50%),
-			radial-gradient(ellipse at 80% 90%, rgba(140, 100, 50, 0.18), transparent 60%),
-			url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.15  0 0 0 0 0.08  0 0 0 0.18 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
-		background-size:
-			auto,
-			auto,
-			200px 200px;
-		background-attachment: fixed, fixed, fixed;
-		color: var(--color-ink);
+		background-color: var(--color-bg);
+		color: var(--color-text);
 		overflow-x: hidden;
 		-webkit-font-smoothing: antialiased;
-		font-family: var(--font-cormorant);
+		font-family: var(--font-sans);
 	}
 	::-webkit-scrollbar {
 		display: none;
@@ -123,26 +124,6 @@
 	textarea {
 		font-family: inherit;
 	}
-}
-
-/* Bande Kodak rouge verticale — signature packaging argentique, posée
-   au bord gauche du viewport, au-dessus de tout le contenu. */
-.fv-redstripe {
-	position: fixed;
-	left: 0;
-	top: 0;
-	bottom: 0;
-	width: 4px;
-	background: var(--color-kodak-red);
-	z-index: 50;
-	pointer-events: none;
-	box-shadow: 1px 0 0 var(--color-ink);
-}
-
-/* Mask pour effet déchiré sur les washi tapes */
-.fv-washi-mask {
-	-webkit-mask-image: linear-gradient(90deg, transparent 0, black 8%, black 92%, transparent 100%);
-	mask-image: linear-gradient(90deg, transparent 0, black 8%, black 92%, transparent 100%);
 }
 
 @keyframes fadeIn {
@@ -227,10 +208,10 @@
 @keyframes timelinePulse {
 	0%,
 	100% {
-		box-shadow: 0 0 0 0 rgba(184, 54, 42, 0.4);
+		box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 40%, transparent);
 	}
 	50% {
-		box-shadow: 0 0 0 5px rgba(184, 54, 42, 0);
+		box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-accent) 0%, transparent);
 	}
 }
 

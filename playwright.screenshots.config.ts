@@ -1,26 +1,27 @@
 import { defineConfig, devices } from "@playwright/test";
 
+/**
+ * Configuration dédiée à la génération de screenshots manuels du thème.
+ * Utiliser via `npm run screenshots`. Les artefacts sont écrits dans
+ * `docs/screenshots/<pr-N>/<viewport>/<screen>.png` (voir e2e/screenshots.spec.ts).
+ */
 export default defineConfig({
 	testDir: "./e2e",
-	// Screenshots spec is a manual artifact tool (run via `npm run screenshots`).
-	// Exclude from the default test run so CI stays focused on functional e2e.
-	testIgnore: ["**/screenshots.spec.ts"],
+	testMatch: ["**/screenshots.spec.ts"],
 	fullyParallel: true,
-	forbidOnly: !!process.env.CI,
-	retries: process.env.CI ? 2 : 0,
-	workers: process.env.CI ? 1 : undefined,
-	reporter: "html",
+	retries: 0,
+	workers: 1,
+	reporter: "list",
 	use: {
 		baseURL: "http://localhost:5173",
-		trace: "on-first-retry",
 	},
 	projects: [
 		{
-			name: "chromium",
+			name: "desktop",
 			use: { ...devices["Desktop Chrome"] },
 		},
 		{
-			name: "Mobile Chrome",
+			name: "mobile",
 			use: { ...devices["Pixel 5"] },
 		},
 	],

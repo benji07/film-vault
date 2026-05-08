@@ -9,23 +9,15 @@ interface PageHeaderProps {
 	className?: string;
 }
 
-/**
- * Header standard à 2 niveaux :
- *   1. Ligne titre compact (titre Caveat, badge compteur Archivo Black rouge,
- *      slot droit pour élément contextuel)
- *   2. Ligne contextuelle optionnelle (chips, tabs, switch — passée en children)
- *
- * Sticky par défaut avec dégradé de fond papier qui s'estompe.
- */
 export function PageHeader({ title, count, right, children, className }: PageHeaderProps) {
 	return (
-		<header className={cn("sticky top-0 z-30 bg-paper", "shadow-[0_2px_0_var(--color-ink-faded)]", className)}>
-			<div className="flex items-center gap-2.5 px-4 pt-2 md:pt-4 pb-2.5 pl-[18px] pr-3.5">
-				<h1 className="font-caveat font-bold text-[28px] leading-none text-ink tracking-[-0.5px] flex-shrink-0">
+		<header className={cn("sticky top-0 z-30 bg-bg/85 backdrop-blur-md", className)}>
+			<div className="flex items-center gap-2.5 px-4 pt-3 md:pt-5 pb-3">
+				<h1 className="text-2xl font-semibold leading-none text-text tracking-tight flex-shrink-0">
 					{title}
 					{count != null && (
-						<span className="font-archivo-black text-[11px] text-kodak-red ml-1.5 tracking-wider">
-							·{typeof count === "number" ? String(count).padStart(2, "0") : count}
+						<span className="text-sm font-normal text-text-3 ml-2">
+							{typeof count === "number" ? String(count).padStart(2, "0") : count}
 						</span>
 					)}
 				</h1>
