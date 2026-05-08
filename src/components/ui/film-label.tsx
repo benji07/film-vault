@@ -1,4 +1,4 @@
-import { monogram, tileColor } from "@/constants/theme";
+import { monogram, tileColor, typeColor } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 
 export type FilmLabelVariant = "color" | "bw" | "slide" | "tungsten";
@@ -7,6 +7,7 @@ interface FilmLabelProps {
 	iso: number | string;
 	format: string;
 	brand?: string;
+	type?: string;
 	variant?: FilmLabelVariant;
 	size?: "sm" | "md";
 	typeLabel?: string;
@@ -14,14 +15,14 @@ interface FilmLabelProps {
 }
 
 /**
- * Vignette monogramme dérivée de la marque. Le carré est teinté d'un gris
- * neutre déterministe via `tileColor(brand)`. ISO et format sont affichés
- * en métadonnée discrète sous le monogramme. `variant` est conservé pour
- * compat ascendante mais n'a plus d'effet visuel.
+ * Vignette monogramme dérivée de la marque. Le carré prend la teinte
+ * earth-tone du type de pellicule (`typeColor(type)`) ou retombe sur un
+ * gris déterministe via `tileColor(brand)` quand le type est inconnu.
+ * Le monogramme reste basé sur la marque pour identifier d'un coup d'œil.
  */
-export function FilmLabel({ iso, format, brand, size = "md", className }: FilmLabelProps) {
+export function FilmLabel({ iso, format, brand, type, size = "md", className }: FilmLabelProps) {
 	const isSm = size === "sm";
-	const bg = tileColor(brand);
+	const bg = type ? typeColor(type) : tileColor(brand);
 	const initials = monogram(brand);
 
 	return (

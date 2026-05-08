@@ -2,13 +2,13 @@ import path from "node:path";
 import { test } from "@playwright/test";
 import { seedDemoData, seedEmpty } from "./fixtures/seed";
 
-const OUT_DIR = path.join(process.cwd(), "docs", "screenshots", "pr-2");
+const OUT_DIR = path.join(process.cwd(), "docs", "screenshots", "pr-3");
 
 function shotPath(project: string, name: string) {
 	return path.join(OUT_DIR, project, `${name}.png`);
 }
 
-test.describe("Theme screenshots — PR 2 (bespoke components refonte)", () => {
+test.describe("Theme screenshots — PR 3 (earth tones + semantic color)", () => {
 	test("welcome (empty storage)", async ({ page }, testInfo) => {
 		await seedEmpty(page);
 		await page.goto("/");

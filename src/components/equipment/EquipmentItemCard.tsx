@@ -24,9 +24,9 @@ interface EquipmentItemCardProps {
 const VIGNETTE_BG: Record<EquipmentVignette, string> = {
 	default: "linear-gradient(180deg, #4a4845 0%, #2a2825 100%)",
 	silver: "linear-gradient(180deg, #d8d6d2 0%, #9c9a96 100%)",
-	red: "linear-gradient(180deg, #4a4845 0%, #2a2825 100%)",
-	lens: "linear-gradient(180deg, #3a3a38 0%, #18181a 100%)",
-	back: "linear-gradient(180deg, #524f4a 0%, #2c2a26 100%)",
+	red: "linear-gradient(180deg, #8a3a2d 0%, #4a1a14 100%)",
+	lens: "linear-gradient(180deg, #4a5a68 0%, #1c2630 100%)",
+	back: "linear-gradient(180deg, #6e5a35 0%, #2c2418 100%)",
 };
 
 export function EquipmentItemCard({

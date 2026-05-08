@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { FilmLabelVariant } from "@/components/ui/film-label";
-import { monogram, tileColor } from "@/constants/theme";
+import { monogram, tileColor, typeColor } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 
 interface FilmPackagingHeaderProps {
@@ -17,9 +17,9 @@ interface FilmPackagingHeaderProps {
 }
 
 /**
- * En-tête de pellicule épuré : tile monogramme déterministe (gris dérivé
- * de la marque) + métadonnées en typo claire. Le packaging Kodak Gold a
- * été retiré au profit d'une mise en page minimaliste.
+ * En-tête de pellicule épuré : tile monogramme + métadonnées en typo
+ * claire. Le tile prend la teinte earth-tone du type quand il est connu,
+ * et retombe sur un gris déterministe via `tileColor(brand)` sinon.
  */
 export function FilmPackagingHeader({
 	brand,
@@ -32,7 +32,7 @@ export function FilmPackagingHeader({
 	className,
 }: FilmPackagingHeaderProps) {
 	const initials = monogram(brand);
-	const bg = tileColor(brand);
+	const bg = type ? typeColor(type) : tileColor(brand);
 
 	return (
 		<section className={cn("flex items-stretch gap-4 bg-surface rounded-[14px] p-4", className)}>

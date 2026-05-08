@@ -6,17 +6,19 @@ interface FormatStackProps {
 	className?: string;
 }
 
-// Ramp neutre dérivée de la palette monochrome — du plus foncé au plus clair.
+// Palette qualitative earth-tone — chaque segment d'un format doit être
+// distinguable d'un coup d'œil. L'accent rouge est volontairement absent
+// pour ne pas être confondu avec un état d'erreur.
 const SEGMENT_COLORS = [
-	"var(--color-text)",
+	"var(--color-amber)",
+	"var(--color-sage)",
+	"var(--color-smoke)",
+	"var(--color-terracotta)",
 	"var(--color-text-2)",
 	"var(--color-text-3)",
-	"var(--color-fill-2)",
-	"var(--color-fill-1)",
-	"var(--color-line)",
 ] as const;
 
-const SEGMENT_FG = ["text-bg", "text-bg", "text-bg", "text-text", "text-text", "text-text"] as const;
+const SEGMENT_FG = ["text-bg", "text-bg", "text-bg", "text-bg", "text-bg", "text-bg"] as const;
 
 interface Segment {
 	key: string;

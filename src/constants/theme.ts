@@ -15,6 +15,16 @@ export const T = {
 	accentHover: "var(--color-accent-hover)",
 	accentSoft: "var(--color-accent-soft)",
 
+	// Earth tones — palette sémantique désaturée
+	sage: "var(--color-sage)",
+	sageSoft: "var(--color-sage-soft)",
+	amber: "var(--color-amber)",
+	amberSoft: "var(--color-amber-soft)",
+	smoke: "var(--color-smoke)",
+	smokeSoft: "var(--color-smoke-soft)",
+	terracotta: "var(--color-terracotta)",
+	terracottaSoft: "var(--color-terracotta-soft)",
+
 	// Ramp gris pour fills d'états
 	fill1: "var(--color-fill-1)",
 	fill2: "var(--color-fill-2)",
@@ -27,22 +37,21 @@ export const T = {
 	ink: "var(--color-text)",
 	inkSoft: "var(--color-text-2)",
 	inkFaded: "var(--color-text-3)",
-	yellow: "var(--color-fill-2)",
-	yellowDeep: "var(--color-fill-2)",
-	gold: "var(--color-fill-1)",
+	yellow: "var(--color-amber)",
+	yellowDeep: "var(--color-amber)",
+	gold: "var(--color-amber)",
 	red: "var(--color-accent)",
-	teal: "var(--color-text-2)",
+	teal: "var(--color-sage)",
 	black: "var(--color-text)",
-	w1: "var(--color-fill-2)",
-	w2: "var(--color-fill-2)",
-	w3: "var(--color-fill-2)",
-	w4: "var(--color-fill-2)",
+	w1: "var(--color-amber)",
+	w2: "var(--color-sage)",
+	w3: "var(--color-terracotta)",
+	w4: "var(--color-smoke)",
 	textSec: "var(--color-text-2)",
 	textMuted: "var(--color-text-3)",
-	orange: "var(--color-fill-2)",
-	amber: "var(--color-fill-2)",
-	green: "var(--color-text-2)",
-	blue: "var(--color-text-3)",
+	orange: "var(--color-terracotta)",
+	green: "var(--color-sage)",
+	blue: "var(--color-smoke)",
 } as const;
 
 /** Returns a CSS color-mix() expression for a CSS variable with the given opacity (0–1). */
@@ -61,6 +70,41 @@ export function tileColor(brand?: string): string {
 	return TILE_RAMP[Math.abs(h) % TILE_RAMP.length] ?? TILE_FALLBACK;
 }
 
+/** Returns the earth-tone CSS variable for a film type (used for state badges,
+ *  type chips, BrandTile background). Falls back to a neutral text-2 when the
+ *  type is unknown so the result is always a valid CSS color. */
+export function typeColor(type?: string): string {
+	switch (type) {
+		case "Couleur":
+			return "var(--color-amber)";
+		case "N&B":
+			return "var(--color-text-2)";
+		case "Diapo":
+			return "var(--color-smoke)";
+		case "ECN-2":
+			return "var(--color-terracotta)";
+		default:
+			return "var(--color-text-2)";
+	}
+}
+
+/** Soft variant of {@link typeColor} for fills/backgrounds that need to stay
+ *  on a light surface without overwhelming the rest of the UI. */
+export function typeColorSoft(type?: string): string {
+	switch (type) {
+		case "Couleur":
+			return "var(--color-amber-soft)";
+		case "N&B":
+			return "var(--color-fill-2)";
+		case "Diapo":
+			return "var(--color-smoke-soft)";
+		case "ECN-2":
+			return "var(--color-terracotta-soft)";
+		default:
+			return "var(--color-fill-2)";
+	}
+}
+
 /** 1-2 letter monogram extracted from a brand name (e.g., "Kodak" → "KO", "Cinestill" → "CI"). */
 export function monogram(brand?: string): string {
 	if (!brand) return "·";
@@ -75,13 +119,13 @@ export function monogram(brand?: string): string {
 	return cleaned.slice(0, cleaned.length === 1 ? 1 : 2).toUpperCase();
 }
 
-/** DEPRECATED — kept for backward-compat with callers that haven't migrated yet.
- *  Maps every Film type to a single muted gray; there is no longer a per-type color. */
+/** Per-type color used for badges, chips and `ActiveRollCard` accents.
+ *  Earth-tone palette aligned with {@link typeColor}. */
 export const FILM_TYPE_COLORS: Record<string, string> = {
-	Couleur: T.fill2,
-	"N&B": T.fill2,
-	Diapo: T.fill2,
-	"ECN-2": T.fill2,
+	Couleur: T.amber,
+	"N&B": T.text2,
+	Diapo: T.smoke,
+	"ECN-2": T.terracotta,
 };
 
 /** DEPRECATED — variants no longer drive distinct visuals. Kept as a typed alias

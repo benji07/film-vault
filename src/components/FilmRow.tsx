@@ -19,10 +19,10 @@ interface FilmRowProps {
 const STATE_TONE: Record<Film["state"], { className: string; dot: "accent" | "none" }> = {
 	stock: { className: "bg-transparent text-text-3 ring-1 ring-line", dot: "none" },
 	loaded: { className: "bg-text text-bg", dot: "none" },
-	partial: { className: "bg-fill-2 text-text", dot: "none" },
+	partial: { className: "bg-amber-soft text-amber", dot: "none" },
 	exposed: { className: "bg-text text-bg", dot: "accent" },
-	developed: { className: "bg-fill-1 text-text", dot: "none" },
-	scanned: { className: "bg-transparent text-text-2 ring-1 ring-line", dot: "none" },
+	developed: { className: "bg-sage-soft text-sage", dot: "none" },
+	scanned: { className: "bg-smoke-soft text-smoke", dot: "none" },
 };
 
 export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowProps) {
@@ -53,7 +53,7 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowPr
 				"transition-colors hover:bg-surface-2",
 			)}
 		>
-			<FilmLabel iso={film.iso ?? "—"} format={film.format ?? ""} brand={film.brand} size="sm" />
+			<FilmLabel iso={film.iso ?? "—"} format={film.format ?? ""} brand={film.brand} type={film.type} size="sm" />
 
 			<div className="px-3 py-2.5 min-w-0">
 				<div className="text-[15px] font-semibold text-text leading-tight">

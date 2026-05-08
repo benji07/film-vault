@@ -184,25 +184,25 @@ export function StatsScreen({ data }: StatsScreenProps) {
 						icon={Film}
 						label={t("stats.bigStats.collected", { defaultValue: "Rolls collectés" })}
 						value={filtered.length}
-						color={T.yellow}
+						color={T.amber}
 					/>
 					<StatCard
 						icon={Archive}
 						label={t("stats.bigStats.toDev", { defaultValue: "À développer" })}
 						value={aggregates.exposedCount}
-						color={T.red}
+						color={T.accent}
 					/>
 					<StatCard
 						icon={Snowflake}
 						label={t("stats.bigStats.inStock", { defaultValue: "En stock" })}
 						value={aggregates.stockCount}
-						color={T.teal}
+						color={T.smoke}
 					/>
 					<StatCard
 						icon={Sparkles}
 						label={t("stats.bigStats.brands", { defaultValue: "Marques essayées" })}
 						value={aggregates.uniqueBrandsCount}
-						color={T.gold}
+						color={T.sage}
 					/>
 				</section>
 
@@ -212,7 +212,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 							{t("stats.byBrand")}
 							<span className="text-xs text-text-3 font-normal ml-2">— top</span>
 						</h2>
-						<BarChart data={aggregates.byBrand} color={T.yellow} limit={5} />
+						<BarChart data={aggregates.byBrand} color={T.amber} limit={5} />
 					</section>
 				)}
 
@@ -232,7 +232,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 							{t("stats.byType")}
 							<span className="text-xs text-text-3 font-normal ml-2">— rolls par type</span>
 						</h2>
-						<BarChart data={aggregates.byType} color={T.teal} />
+						<BarChart data={aggregates.byType} color={T.sage} />
 					</section>
 				)}
 
@@ -252,21 +252,21 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				{Object.keys(aggregates.byCamera).length > 0 && (
 					<Card>
 						<h2 className="text-base font-semibold text-text leading-tight mb-3">{t("stats.byCamera")}</h2>
-						<BarChart data={aggregates.byCamera} color={T.text} limit={5} />
+						<BarChart data={aggregates.byCamera} color={T.smoke} limit={5} />
 					</Card>
 				)}
 
 				{Object.keys(aggregates.byLens).length > 0 && (
 					<Card>
 						<h2 className="text-base font-semibold text-text leading-tight mb-3">{t("stats.byLens")}</h2>
-						<BarChart data={aggregates.byLens} color={T.teal} limit={5} />
+						<BarChart data={aggregates.byLens} color={T.terracotta} limit={5} />
 					</Card>
 				)}
 
 				{Object.keys(aggregates.byTag).length > 0 && (
 					<Card>
 						<h2 className="text-base font-semibold text-text leading-tight mb-3">{t("stats.byTag")}</h2>
-						<BarChart data={aggregates.byTag} color={T.red} limit={5} />
+						<BarChart data={aggregates.byTag} color={T.accent} limit={5} />
 					</Card>
 				)}
 
@@ -306,24 +306,24 @@ export function StatsScreen({ data }: StatsScreenProps) {
 					<>
 						<h3 className="text-lg font-semibold text-text leading-tight mt-2 tracking-tight">{t("stats.expenses")}</h3>
 						<div className="grid grid-cols-3 gap-2.5">
+							<StatCard icon={Coins} label={t("stats.totalSpent")} value={fmtPrice(costs.totalSpent)} color={T.amber} />
 							<StatCard
 								icon={Coins}
-								label={t("stats.totalSpent")}
-								value={fmtPrice(costs.totalSpent)}
-								color={T.yellow}
+								label={t("stats.avgPerFilm")}
+								value={fmtPrice(costs.avgPerFilm)}
+								color={T.terracotta}
 							/>
-							<StatCard icon={Coins} label={t("stats.avgPerFilm")} value={fmtPrice(costs.avgPerFilm)} color={T.red} />
 							<StatCard
 								icon={Coins}
 								label={t("stats.avgPerFrame")}
 								value={fmtPrice(costs.avgPerFrame)}
-								color={T.teal}
+								color={T.sage}
 							/>
 						</div>
 						{Object.keys(costs.costByCategory).length > 1 && (
 							<Card>
 								<h2 className="text-base font-semibold text-text leading-tight mb-3">{t("stats.costByCategory")}</h2>
-								<BarChart data={costs.costByCategory} color={T.text} formatValue={(v) => fmtPrice(v)} />
+								<BarChart data={costs.costByCategory} color={T.amber} formatValue={(v) => fmtPrice(v)} />
 							</Card>
 						)}
 					</>
