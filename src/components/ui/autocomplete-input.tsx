@@ -41,11 +41,7 @@ function AutocompleteInput({
 
 	return (
 		<div className={cn("flex flex-col gap-1.5", className)}>
-			{label && (
-				<label className="text-[9px] font-extrabold text-ink-faded font-archivo uppercase tracking-[0.18em]">
-					{label}
-				</label>
-			)}
+			{label && <label className="text-xs font-medium text-text-2">{label}</label>}
 			<PopoverPrimitive.Root open={isOpen && filtered.length > 0} onOpenChange={setIsOpen}>
 				<PopoverPrimitive.Anchor asChild>
 					<Input
@@ -63,7 +59,7 @@ function AutocompleteInput({
 				</PopoverPrimitive.Anchor>
 				<PopoverPrimitive.Portal>
 					<PopoverPrimitive.Content
-						className="z-[1001] w-[var(--radix-popover-trigger-width)] bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] overflow-hidden max-h-[220px] overflow-y-auto"
+						className="z-[1001] w-[var(--radix-popover-trigger-width)] bg-surface ring-1 ring-line rounded-[10px] shadow-lg overflow-hidden max-h-[220px] overflow-y-auto"
 						sideOffset={4}
 						onOpenAutoFocus={(e) => e.preventDefault()}
 						onInteractOutside={() => setIsOpen(false)}
@@ -73,7 +69,7 @@ function AutocompleteInput({
 								<li key={item}>
 									<button
 										type="button"
-										className="w-full text-left px-3 py-2 font-cormorant text-[15px] text-ink hover:bg-kodak-yellow/30 cursor-pointer border-none bg-transparent"
+										className="w-full text-left px-3 py-2 text-base text-text hover:bg-surface-2 cursor-pointer border-none bg-transparent"
 										onMouseDown={(e) => {
 											e.preventDefault();
 											handleSelect(item);

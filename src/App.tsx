@@ -582,7 +582,6 @@ function AppContent({
 export default function FilmVaultApp() {
 	return (
 		<ToastProvider>
-			<div className="fv-redstripe" aria-hidden="true" />
 			<FilmVaultInner />
 		</ToastProvider>
 	);

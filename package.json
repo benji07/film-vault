@@ -10,7 +10,8 @@
     "lint": "biome check src/",
     "format": "biome check --write src/",
     "test": "playwright test",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "screenshots": "playwright test e2e/screenshots.spec.ts --config playwright.screenshots.config.ts"
   },
   "keywords": [],
   "author": "",
