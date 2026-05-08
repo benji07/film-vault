@@ -88,9 +88,9 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 							type="button"
 							onClick={onOpenSettings}
 							aria-label={t("nav.settings")}
-							className="flex items-center justify-center bg-paper-card border-2 border-ink shadow-[2px_2px_0_var(--color-ink)] w-9 h-9 cursor-pointer hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_var(--color-ink)] transition-all"
+							className="flex items-center justify-center bg-surface-2 hover:bg-line w-9 h-9 rounded-full cursor-pointer transition-colors"
 						>
-							<Settings size={15} className="text-ink-faded" />
+							<Settings size={16} className="text-text-2" />
 						</button>
 					) : undefined
 				}

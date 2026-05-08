@@ -11,7 +11,6 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { FilmPackagingHeader } from "@/components/ui/film-packaging-header";
-import { WashiTape } from "@/components/ui/washi-tape";
 import { filmTypeToVariant, T } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 import type { AppData, FilmState, Film as FilmType } from "@/types";
@@ -238,41 +237,32 @@ export function FilmDetailScreen({
 				exposures={film.posesTotal ?? undefined}
 			/>
 
-			{/* État banner — coloré, légère rotation */}
+			{/* État banner */}
 			<div
 				className={cn(
-					"relative border-2 border-ink shadow-[4px_4px_0_var(--color-ink)] flex items-center justify-between px-4 py-3 rotate-[0.6deg]",
+					"relative rounded-[14px] flex items-center justify-between px-4 py-3.5",
 					stateBanner.bg,
 					stateBanner.fg,
 				)}
 			>
-				<div className="font-archivo-black text-[22px] tracking-[0.05em] leading-none uppercase">
-					{stateBanner.label}
-					<small className="block font-archivo not-italic font-bold text-[10px] tracking-[0.18em] mt-1.5 opacity-85">
-						{stateBanner.sub}
-					</small>
+				<div>
+					<div className="text-base font-semibold leading-tight">{stateBanner.label}</div>
+					<div className="text-xs opacity-75 mt-1">{stateBanner.sub}</div>
 				</div>
-				<div className="text-right font-archivo-black">
-					<div className="text-[28px] leading-[0.85] tracking-[-1px]">
+				<div className="text-right">
+					<div className="text-2xl font-semibold tabular-nums leading-none tracking-tight">
 						{film.posesShot && film.posesShot > 0 ? film.posesShot : (film.posesTotal ?? "—")}
 						{film.posesShot && film.posesShot > 0 && film.posesTotal && (
-							<span className="text-[16px] opacity-55">/{film.posesTotal}</span>
+							<span className="text-sm font-normal opacity-60">/{film.posesTotal}</span>
 						)}
 					</div>
-					<div className="font-typewriter font-normal text-[8px] tracking-[0.18em] mt-1 opacity-75 uppercase">
-						poses
-					</div>
+					<div className="text-[10px] uppercase tracking-wider mt-1 opacity-70">poses</div>
 				</div>
 			</div>
 
-			{/* Lifecycle stepper — 6 étapes */}
-			<section
-				data-tour="film-lifecycle"
-				className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 pt-5 pb-4 -rotate-[0.3deg]"
-			>
-				<WashiTape color="w2" rotate={-2} width={50} className="-top-[9px] left-6" />
-				<div className="font-archivo-black text-[11px] tracking-[0.2em] uppercase mb-3.5 flex items-center gap-2">
-					<span className="w-2.5 h-2.5 bg-kodak-yellow border-[1.5px] border-ink" />
+			{/* Lifecycle stepper */}
+			<section data-tour="film-lifecycle" className="relative bg-surface rounded-[14px] px-4 pt-4 pb-4">
+				<div className="text-sm font-medium text-text-2 mb-3">
 					{t("filmDetail.lifecycleTitle", { defaultValue: "Parcours de la pellicule" })}
 				</div>
 				<FilmLifecycleStepper currentState={film.state} history={film.history} />

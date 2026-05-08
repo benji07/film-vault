@@ -76,8 +76,8 @@ export function StockFilterDialog({
 
 				<div className="flex flex-col gap-5">
 					<FormField label={t("stock.scope", { defaultValue: "Lot" })}>
-						<nav className="grid grid-cols-2 border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card">
-							{scopeItems.map((item, i) => {
+						<nav className="grid grid-cols-2 rounded-[10px] bg-surface-2 p-1 gap-1">
+							{scopeItems.map((item) => {
 								const active = scope === item.key;
 								return (
 									<button
@@ -86,16 +86,13 @@ export function StockFilterDialog({
 										onClick={() => onScopeChange(item.key)}
 										aria-pressed={active}
 										className={cn(
-											"font-archivo-black text-[10px] uppercase tracking-[0.15em] py-2 px-2 cursor-pointer leading-none",
-											"flex items-center justify-center gap-1.5",
-											active ? "bg-kodak-yellow text-ink" : "bg-transparent text-ink-faded hover:bg-paper-dark/30",
-											i === 0 && "border-r-2 border-ink",
+											"text-xs font-medium py-2 px-2 cursor-pointer leading-none rounded-[8px]",
+											"flex items-center justify-center gap-1.5 transition-colors",
+											active ? "bg-surface text-text shadow-sm" : "bg-transparent text-text-3 hover:text-text",
 										)}
 									>
 										{item.label}
-										<span className="font-archivo font-bold text-[9px] tracking-[0.15em] opacity-70">
-											{String(item.count).padStart(2, "0")}
-										</span>
+										<span className="text-[11px] font-normal opacity-70">{String(item.count).padStart(2, "0")}</span>
 									</button>
 								);
 							})}

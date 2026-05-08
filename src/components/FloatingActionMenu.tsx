@@ -30,52 +30,14 @@ interface ActionDef {
 	id: ActionId;
 	icon: LucideIcon;
 	labelKey: string;
-	bg: string;
-	fg: string;
-	dark: boolean;
 }
 
 const ACTION_DEFS: Record<ActionId, ActionDef> = {
-	roll: {
-		id: "roll",
-		icon: FilmIcon,
-		labelKey: "fab.film",
-		bg: "bg-kodak-yellow",
-		fg: "text-ink",
-		dark: false,
-	},
-	shot: {
-		id: "shot",
-		icon: NotebookPen,
-		labelKey: "fab.quickShot",
-		bg: "bg-kodak-red",
-		fg: "text-paper",
-		dark: true,
-	},
-	camera: {
-		id: "camera",
-		icon: Camera,
-		labelKey: "fab.camera",
-		bg: "bg-kodak-teal",
-		fg: "text-paper",
-		dark: true,
-	},
-	lens: {
-		id: "lens",
-		icon: Focus,
-		labelKey: "fab.lens",
-		bg: "bg-washi-1",
-		fg: "text-ink",
-		dark: false,
-	},
-	back: {
-		id: "back",
-		icon: Package,
-		labelKey: "fab.back",
-		bg: "bg-washi-2",
-		fg: "text-ink",
-		dark: false,
-	},
+	roll: { id: "roll", icon: FilmIcon, labelKey: "fab.film" },
+	shot: { id: "shot", icon: NotebookPen, labelKey: "fab.quickShot" },
+	camera: { id: "camera", icon: Camera, labelKey: "fab.camera" },
+	lens: { id: "lens", icon: Focus, labelKey: "fab.lens" },
+	back: { id: "back", icon: Package, labelKey: "fab.back" },
 };
 
 const PRIORITY: Record<FabContext, ActionId[]> = {
@@ -134,8 +96,6 @@ export function FloatingActionMenu({
 		handlerFor(id)();
 	};
 
-	const primary = ACTION_DEFS[order[0] as ActionId];
-
 	return (
 		<>
 			{open && (
@@ -143,7 +103,7 @@ export function FloatingActionMenu({
 					type="button"
 					aria-label={t("aria.close")}
 					onClick={() => setOpen(false)}
-					className="fixed inset-0 z-30 bg-ink/55 backdrop-blur-sm animate-backdrop-fade-in cursor-default"
+					className="fixed inset-0 z-30 bg-text/35 backdrop-blur-sm animate-backdrop-fade-in cursor-default"
 				/>
 			)}
 
@@ -175,17 +135,12 @@ export function FloatingActionMenu({
 				aria-expanded={open}
 				className={cn(
 					"fixed bottom-[calc(7rem+env(safe-area-inset-bottom))] right-5 md:bottom-8 md:right-8 z-40",
-					"w-16 h-16 border-[3px] border-ink flex flex-col items-center justify-center cursor-pointer",
-					"shadow-[4px_4px_0_var(--color-ink),0_8px_20px_rgba(0,0,0,0.3)] transition-transform duration-200 ease-out",
-					open ? `bg-ink text-kodak-yellow rotate-45` : cn(primary.bg, primary.dark ? "text-paper" : "text-ink"),
+					"w-14 h-14 rounded-full flex items-center justify-center cursor-pointer",
+					"shadow-lg transition-transform duration-200 ease-out",
+					open ? "bg-surface-2 text-text rotate-45" : "bg-accent text-bg hover:bg-accent-hover",
 				)}
 			>
-				<Plus size={open ? 30 : 26} strokeWidth={2.6} />
-				{!open && (
-					<span className="font-archivo-black text-[8px] tracking-[0.15em] mt-0.5 uppercase">
-						{t("fab.add", { defaultValue: "Ajouter" })}
-					</span>
-				)}
+				<Plus size={26} strokeWidth={2.4} />
 			</button>
 		</>
 	);
@@ -202,8 +157,8 @@ interface SpeedDialItemProps {
 
 function SpeedDialItem({ action, label, onClick, primary, delayMs, extraMargin }: SpeedDialItemProps) {
 	const Icon = action.icon;
-	const btnSize = primary ? "w-14 h-14" : "w-11 h-11";
-	const iconSize = primary ? 22 : 18;
+	const btnSize = primary ? "w-12 h-12" : "w-10 h-10";
+	const iconSize = primary ? 20 : 16;
 	return (
 		<button
 			type="button"
@@ -216,15 +171,8 @@ function SpeedDialItem({ action, label, onClick, primary, delayMs, extraMargin }
 		>
 			<span
 				className={cn(
-					"font-archivo-black uppercase tracking-[0.12em] leading-none text-right border-2 border-ink",
-					primary
-						? cn(
-								"px-3 py-2 text-[12px]",
-								action.bg,
-								action.dark ? "text-paper" : "text-ink",
-								"shadow-[3px_3px_0_var(--color-ink)]",
-							)
-						: "px-2.5 py-1.5 text-[10px] bg-paper-card text-ink shadow-[2px_2px_0_var(--color-ink)]",
+					"text-xs font-medium leading-none rounded-full px-3 py-1.5 shadow-sm",
+					primary ? "bg-text text-bg" : "bg-surface text-text",
 				)}
 			>
 				{label}
@@ -232,12 +180,8 @@ function SpeedDialItem({ action, label, onClick, primary, delayMs, extraMargin }
 			<span
 				className={cn(
 					btnSize,
-					action.bg,
-					action.dark ? "text-paper" : "text-ink",
-					"flex items-center justify-center flex-shrink-0",
-					primary
-						? "border-[3px] border-ink shadow-[4px_4px_0_var(--color-ink)]"
-						: "border-2 border-ink shadow-[3px_3px_0_var(--color-ink)]",
+					"flex items-center justify-center flex-shrink-0 rounded-full shadow-sm",
+					primary ? "bg-text text-bg" : "bg-surface text-text",
 				)}
 			>
 				<Icon size={iconSize} />

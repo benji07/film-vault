@@ -9,7 +9,6 @@ import { FormatStack } from "@/components/stats/FormatStack";
 import { PeriodSwitch, type StatsPeriod } from "@/components/stats/PeriodSwitch";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { WashiTape } from "@/components/ui/washi-tape";
 import { T } from "@/constants/theme";
 import type { AppData, Film as FilmType } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
@@ -208,54 +207,42 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				</section>
 
 				{Object.keys(aggregates.byBrand).length > 0 && (
-					<section className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 py-4 -rotate-[0.2deg]">
-						<WashiTape color="w1" rotate={-2} width={60} className="-top-[8px] left-10" />
-						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
+					<section className="relative bg-surface rounded-[14px] px-4 py-4">
+						<h2 className="text-base font-semibold text-text leading-tight mb-3">
 							{t("stats.byBrand")}
-							<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
-								— top
-							</span>
+							<span className="text-xs text-text-3 font-normal ml-2">— top</span>
 						</h2>
 						<BarChart data={aggregates.byBrand} color={T.yellow} limit={5} />
 					</section>
 				)}
 
 				{Object.keys(aggregates.byFormat).length > 0 && (
-					<section className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 py-4 rotate-[0.2deg]">
-						<WashiTape color="w3" rotate={2} width={60} className="-top-[8px] right-10" />
-						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
+					<section className="relative bg-surface rounded-[14px] px-4 py-4">
+						<h2 className="text-base font-semibold text-text leading-tight mb-3">
 							{t("stats.byFormat")}
-							<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
-								— stack
-							</span>
+							<span className="text-xs text-text-3 font-normal ml-2">— stack</span>
 						</h2>
 						<FormatStack data={aggregates.byFormat} />
 					</section>
 				)}
 
 				{Object.keys(aggregates.byType).length > 0 && (
-					<section className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 py-4">
-						<WashiTape color="w2" rotate={-2} width={60} className="-top-[8px] left-10" />
-						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">
+					<section className="relative bg-surface rounded-[14px] px-4 py-4">
+						<h2 className="text-base font-semibold text-text leading-tight mb-3">
 							{t("stats.byType")}
-							<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
-								— rolls par type
-							</span>
+							<span className="text-xs text-text-3 font-normal ml-2">— rolls par type</span>
 						</h2>
 						<BarChart data={aggregates.byType} color={T.teal} />
 					</section>
 				)}
 
 				{/* Cadence — courbe SVG */}
-				<section className="relative bg-paper-card border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] px-4 py-4 -rotate-[0.2deg]">
-					<WashiTape color="w1" rotate={-2} width={60} className="-top-[8px] left-10" />
-					<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-1">
+				<section className="relative bg-surface rounded-[14px] px-4 py-4">
+					<h2 className="text-base font-semibold text-text leading-tight mb-1">
 						{t("stats.monthlyConsumption")}
-						<span className="font-typewriter text-[10px] tracking-[0.12em] text-ink-faded font-normal ml-2">
-							— rolls par mois
-						</span>
+						<span className="text-xs text-text-3 font-normal ml-2">— rolls par mois</span>
 					</h2>
-					<div className="font-archivo flex justify-between font-extrabold text-[8px] tracking-[0.18em] uppercase text-ink-faded mb-1.5 mt-2">
+					<div className="flex justify-between text-[10px] uppercase tracking-wider text-text-3 mb-1.5 mt-2">
 						<span>nb. rolls</span>
 						<span>{yearLabel} · ytd</span>
 					</div>
@@ -263,42 +250,39 @@ export function StatsScreen({ data }: StatsScreenProps) {
 				</section>
 
 				{Object.keys(aggregates.byCamera).length > 0 && (
-					<Card className="-rotate-[0.15deg]">
-						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.byCamera")}</h2>
-						<BarChart data={aggregates.byCamera} color={T.gold} limit={5} />
+					<Card>
+						<h2 className="text-base font-semibold text-text leading-tight mb-3">{t("stats.byCamera")}</h2>
+						<BarChart data={aggregates.byCamera} color={T.text} limit={5} />
 					</Card>
 				)}
 
 				{Object.keys(aggregates.byLens).length > 0 && (
 					<Card>
-						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.byLens")}</h2>
+						<h2 className="text-base font-semibold text-text leading-tight mb-3">{t("stats.byLens")}</h2>
 						<BarChart data={aggregates.byLens} color={T.teal} limit={5} />
 					</Card>
 				)}
 
 				{Object.keys(aggregates.byTag).length > 0 && (
 					<Card>
-						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.byTag")}</h2>
+						<h2 className="text-base font-semibold text-text leading-tight mb-3">{t("stats.byTag")}</h2>
 						<BarChart data={aggregates.byTag} color={T.red} limit={5} />
 					</Card>
 				)}
 
 				{topFilmsSorted.length > 0 && (
-					<Card className="rotate-[0.15deg]">
-						<h2 className="font-caveat text-[24px] font-bold text-ink leading-none mb-3">{t("stats.favoriteFilms")}</h2>
+					<Card>
+						<h2 className="text-base font-semibold text-text leading-tight mb-3">{t("stats.favoriteFilms")}</h2>
 						<div className="flex flex-col gap-2">
 							{topFilmsSorted.map(([name, count], i) => (
-								<div
-									key={name}
-									className="flex items-center gap-3 py-1 border-b border-dashed border-ink-faded/30 last:border-0"
-								>
+								<div key={name} className="flex items-center gap-3 py-1.5">
 									<span
-										className={`font-archivo-black text-[16px] min-w-[28px] ${i === 0 ? "text-kodak-red" : "text-ink-faded"}`}
+										className={`text-sm font-semibold tabular-nums min-w-[24px] ${i === 0 ? "text-accent" : "text-text-3"}`}
 									>
 										#{i + 1}
 									</span>
-									<span className="font-cormorant text-[15px] text-ink flex-1">{name}</span>
-									<span className="font-archivo-black text-[14px] text-ink">{count}</span>
+									<span className="text-sm text-text flex-1 truncate">{name}</span>
+									<span className="text-sm font-semibold text-text tabular-nums">{count}</span>
 								</div>
 							))}
 						</div>
@@ -307,15 +291,12 @@ export function StatsScreen({ data }: StatsScreenProps) {
 
 				{/* Insight final — fond ink + washi jaune */}
 				{topCamera && (
-					<section className="relative bg-ink text-paper border-2 border-ink shadow-[4px_4px_0_var(--color-kodak-yellow)] px-4 py-4 rotate-[0.3deg]">
-						<WashiTape color="yellow" rotate={-2} width={60} className="-top-[8px] left-6" />
-						<div className="font-archivo font-extrabold text-[9px] uppercase tracking-[0.2em] text-kodak-yellow">
+					<section className="relative bg-text text-bg rounded-[14px] px-4 py-4">
+						<div className="text-[10px] uppercase tracking-wider text-bg/60 font-medium">
 							{t("stats.insight.favoriteCamera", { defaultValue: "★ ton boîtier favori" })}
 						</div>
-						<div className="font-archivo-black text-[20px] uppercase tracking-[-0.3px] leading-[1.1] mt-1.5">
-							{topCamera[0]}
-						</div>
-						<div className="font-caveat text-[18px] text-kodak-yellow mt-1.5 leading-[1.2]">
+						<div className="text-xl font-semibold leading-tight mt-1.5">{topCamera[0]}</div>
+						<div className="text-sm text-bg/70 mt-1.5">
 							{t("stats.insight.rollCount", { count: topCamera[1], defaultValue: "{{count}} rolls" })}
 						</div>
 					</section>
@@ -323,7 +304,7 @@ export function StatsScreen({ data }: StatsScreenProps) {
 
 				{costs.totalSpent > 0 && (
 					<>
-						<h3 className="font-caveat text-[26px] font-bold text-ink leading-none mt-2">{t("stats.expenses")}</h3>
+						<h3 className="text-lg font-semibold text-text leading-tight mt-2 tracking-tight">{t("stats.expenses")}</h3>
 						<div className="grid grid-cols-3 gap-2.5">
 							<StatCard
 								icon={Coins}
@@ -341,10 +322,8 @@ export function StatsScreen({ data }: StatsScreenProps) {
 						</div>
 						{Object.keys(costs.costByCategory).length > 1 && (
 							<Card>
-								<h2 className="font-caveat text-[22px] font-bold text-ink leading-none mb-3">
-									{t("stats.costByCategory")}
-								</h2>
-								<BarChart data={costs.costByCategory} color={T.gold} formatValue={(v) => fmtPrice(v)} />
+								<h2 className="text-base font-semibold text-text leading-tight mb-3">{t("stats.costByCategory")}</h2>
+								<BarChart data={costs.costByCategory} color={T.text} formatValue={(v) => fmtPrice(v)} />
 							</Card>
 						)}
 					</>

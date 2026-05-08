@@ -39,11 +39,8 @@ export function EquipmentScreen({ data, setData, onCameraClick }: EquipmentScree
 		<div className="-mx-4 md:-mx-8">
 			<PageHeader title={headerTitle} count={counts[activeTab]}>
 				<div className="px-[18px] pb-3">
-					<nav
-						className="grid grid-cols-3 border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card"
-						data-tour="equipment-tabs"
-					>
-						{tabs.map((tab, i) => {
+					<nav className="grid grid-cols-3 bg-surface-2 rounded-[10px] p-1 gap-1" data-tour="equipment-tabs">
+						{tabs.map((tab) => {
 							const active = activeTab === tab.key;
 							return (
 								<button
@@ -52,16 +49,13 @@ export function EquipmentScreen({ data, setData, onCameraClick }: EquipmentScree
 									onClick={() => setActiveTab(tab.key)}
 									aria-pressed={active}
 									className={cn(
-										"font-archivo-black text-[10px] uppercase tracking-[0.15em] py-2 px-2 cursor-pointer leading-none",
-										"flex items-center justify-center gap-1.5",
-										active ? "bg-kodak-yellow text-ink" : "bg-transparent text-ink-faded hover:bg-paper-dark/30",
-										i < 2 && "border-r-2 border-ink",
+										"text-xs font-medium py-2 px-2 cursor-pointer leading-none rounded-[8px]",
+										"flex items-center justify-center gap-1.5 transition-colors",
+										active ? "bg-surface text-text shadow-sm" : "bg-transparent text-text-3 hover:text-text",
 									)}
 								>
 									{tab.label}
-									<span className="font-archivo font-bold text-[9px] tracking-[0.15em] opacity-70">
-										{String(tab.count).padStart(2, "0")}
-									</span>
+									<span className="text-[11px] font-normal opacity-70">{String(tab.count).padStart(2, "0")}</span>
 								</button>
 							);
 						})}

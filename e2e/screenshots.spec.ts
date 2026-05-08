@@ -2,13 +2,13 @@ import path from "node:path";
 import { test } from "@playwright/test";
 import { seedDemoData, seedEmpty } from "./fixtures/seed";
 
-const OUT_DIR = path.join(process.cwd(), "docs", "screenshots", "pr-1");
+const OUT_DIR = path.join(process.cwd(), "docs", "screenshots", "pr-2");
 
 function shotPath(project: string, name: string) {
 	return path.join(OUT_DIR, project, `${name}.png`);
 }
 
-test.describe("Theme screenshots — PR 1 (token swap + decorations off)", () => {
+test.describe("Theme screenshots — PR 2 (bespoke components refonte)", () => {
 	test("welcome (empty storage)", async ({ page }, testInfo) => {
 		await seedEmpty(page);
 		await page.goto("/");
@@ -45,6 +45,19 @@ test.describe("Theme screenshots — PR 1 (token swap + decorations off)", () =>
 			await page.waitForTimeout(300);
 			await page.screenshot({
 				path: shotPath(testInfo.project.name, "stock"),
+				fullPage: true,
+			});
+		});
+
+		test("film detail (developed)", async ({ page }, testInfo) => {
+			await page.getByRole("button", { name: /pellicules|films/i }).first().click();
+			await page.waitForTimeout(300);
+			// Click the first FilmRow to open the detail screen.
+			const firstFilm = page.locator("button").filter({ hasText: /Portra|Tri-X|HP5|Delta|Superia/i }).first();
+			await firstFilm.click();
+			await page.waitForTimeout(400);
+			await page.screenshot({
+				path: shotPath(testInfo.project.name, "film-detail"),
 				fullPage: true,
 			});
 		});

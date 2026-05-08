@@ -112,7 +112,7 @@ export function MapFilterBar({
 						onFilterFilm(null);
 						onClearFilter();
 					}}
-					className="self-start flex items-center gap-1 font-archivo font-extrabold text-[10px] uppercase tracking-[0.12em] text-kodak-red bg-paper-card border-2 border-ink shadow-[2px_2px_0_var(--color-ink)] px-2.5 py-1.5 mt-1"
+					className="self-start flex items-center gap-1 text-xs font-medium text-accent bg-accent-soft rounded-full ring-1 ring-accent px-3 py-1.5 mt-1"
 				>
 					<X size={12} />
 					{t("map.allFilms")}

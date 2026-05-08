@@ -32,13 +32,14 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 	if (variant === "sidebar") {
 		return (
 			<nav
-				className={cn("w-[220px] shrink-0 bg-ink text-paper border-r-2 border-ink flex flex-col pt-8 pb-6", className)}
+				className={cn(
+					"w-[220px] shrink-0 bg-surface ring-1 ring-line flex flex-col pt-8 pb-6 rounded-r-[14px]",
+					className,
+				)}
 			>
 				<div className="px-6 mb-8">
-					<h1 className="font-caveat text-2xl text-kodak-yellow m-0">My Film Vault</h1>
-					<p className="font-typewriter text-[10px] tracking-[0.18em] uppercase text-paper/60 mt-1">
-						{t("nav.subtitle")}
-					</p>
+					<h1 className="text-2xl font-semibold text-text leading-none m-0 tracking-tight">My Film Vault</h1>
+					<p className="text-xs text-text-3 mt-1.5">{t("nav.subtitle")}</p>
 				</div>
 				<div className="flex flex-col gap-1 px-3 flex-1">
 					{tabs.map((tab) => {
@@ -49,14 +50,12 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 								key={tab.key}
 								onClick={() => setScreen(tab.key)}
 								className={cn(
-									"w-full flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors text-left",
-									"font-archivo font-extrabold text-[11px] uppercase tracking-[0.15em]",
-									active
-										? "bg-kodak-yellow text-ink"
-										: "bg-transparent text-paper/70 hover:bg-paper/10 hover:text-paper",
+									"w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] cursor-pointer transition-colors text-left",
+									"text-sm font-medium",
+									active ? "bg-surface-2 text-text" : "bg-transparent text-text-3 hover:bg-surface-2 hover:text-text",
 								)}
 							>
-								<tab.icon size={18} strokeWidth={active ? 2.4 : 1.6} />
+								<tab.icon size={18} strokeWidth={active ? 2.2 : 1.6} />
 								{tab.label}
 							</button>
 						);
@@ -69,9 +68,9 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 	return (
 		<nav
 			className={cn(
-				"shrink-0 relative w-full bg-ink flex justify-around items-stretch",
-				"pt-3 pb-[max(0.625rem,env(safe-area-inset-bottom))]",
-				"border-t-2 border-kodak-yellow",
+				"shrink-0 relative w-full bg-surface flex justify-around items-stretch",
+				"pt-2 pb-[max(0.625rem,env(safe-area-inset-bottom))]",
+				"border-t border-line",
 				className,
 			)}
 		>
@@ -84,21 +83,15 @@ export function TabBar({ screen, setScreen, variant = "bar", className }: TabBar
 						onClick={() => setScreen(tab.key)}
 						aria-pressed={active}
 						className={cn(
-							"flex-1 flex flex-col items-center gap-1 px-2 py-1.5 cursor-pointer",
-							"font-archivo font-bold text-[9px] uppercase tracking-[0.18em] leading-none",
+							"flex-1 flex flex-col items-center gap-1 px-2 py-1.5 cursor-pointer relative",
+							"text-[10px] font-medium leading-none",
 							"transition-colors",
-							active ? "text-kodak-yellow" : "text-paper/55 hover:text-paper",
+							active ? "text-text" : "text-text-3 hover:text-text-2",
 						)}
 					>
-						<span
-							className={cn(
-								"w-7 h-7 flex items-center justify-center transition-colors",
-								active ? "bg-kodak-yellow text-ink" : "bg-transparent",
-							)}
-						>
-							<tab.icon size={16} strokeWidth={active ? 2.4 : 1.8} />
-						</span>
+						<tab.icon size={20} strokeWidth={active ? 2.2 : 1.7} />
 						{tab.label}
+						{active && <span className="absolute bottom-[-2px] h-0.5 w-6 rounded-full bg-accent" aria-hidden="true" />}
 					</button>
 				);
 			})}

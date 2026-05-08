@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { T } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 
 interface FormatStackProps {
@@ -7,8 +6,17 @@ interface FormatStackProps {
 	className?: string;
 }
 
-const SEGMENT_COLORS = [T.yellow, T.red, T.w2, T.ink, T.gold, T.teal] as const;
-const SEGMENT_FG = ["text-ink", "text-paper", "text-ink", "text-paper", "text-ink", "text-paper"] as const;
+// Ramp neutre dérivée de la palette monochrome — du plus foncé au plus clair.
+const SEGMENT_COLORS = [
+	"var(--color-text)",
+	"var(--color-text-2)",
+	"var(--color-text-3)",
+	"var(--color-fill-2)",
+	"var(--color-fill-1)",
+	"var(--color-line)",
+] as const;
+
+const SEGMENT_FG = ["text-bg", "text-bg", "text-bg", "text-text", "text-text", "text-text"] as const;
 
 interface Segment {
 	key: string;
@@ -26,8 +34,8 @@ export function FormatStack({ data, className }: FormatStackProps) {
 			key: k,
 			value: v,
 			pct: (v / total) * 100,
-			color: SEGMENT_COLORS[i % SEGMENT_COLORS.length] ?? T.yellow,
-			fg: SEGMENT_FG[i % SEGMENT_FG.length] ?? "text-ink",
+			color: SEGMENT_COLORS[i % SEGMENT_COLORS.length] ?? SEGMENT_COLORS[0],
+			fg: SEGMENT_FG[i % SEGMENT_FG.length] ?? "text-text",
 		}));
 	}, [data]);
 
@@ -35,31 +43,23 @@ export function FormatStack({ data, className }: FormatStackProps) {
 
 	return (
 		<div className={className}>
-			{/* Stack horizontal */}
-			<div className="flex h-[50px] border-2 border-ink overflow-hidden mb-3">
-				{segments.map((s, i) => (
-					<div
-						key={s.key}
-						className={cn(
-							"flex items-center justify-center relative",
-							i < segments.length - 1 && "border-r-2 border-ink",
-						)}
-						style={{ width: `${s.pct}%`, background: s.color }}
-					>
-						{s.pct > 8 && <span className={cn("font-archivo-black text-[14px]", s.fg)}>{Math.round(s.pct)}%</span>}
-					</div>
-				))}
-			</div>
-			{/* Légende grille 2 colonnes */}
-			<div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+			<div className="flex h-10 rounded-full overflow-hidden mb-3 gap-0.5">
 				{segments.map((s) => (
 					<div
 						key={s.key}
-						className="flex items-center gap-2 font-archivo font-bold text-[10px] uppercase tracking-[0.1em] text-ink-soft"
+						className="flex items-center justify-center relative"
+						style={{ width: `${s.pct}%`, background: s.color }}
 					>
-						<span className="w-2.5 h-2.5 border-[1.5px] border-ink shrink-0" style={{ background: s.color }} />
+						{s.pct > 8 && <span className={cn("text-xs font-medium tabular-nums", s.fg)}>{Math.round(s.pct)}%</span>}
+					</div>
+				))}
+			</div>
+			<div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+				{segments.map((s) => (
+					<div key={s.key} className="flex items-center gap-2 text-xs text-text-2">
+						<span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: s.color }} />
 						<span className="truncate">{s.key}</span>
-						<span className="font-archivo-black text-[11px] text-ink ml-auto">{s.value}</span>
+						<span className="text-sm font-medium text-text ml-auto tabular-nums">{s.value}</span>
 					</div>
 				))}
 			</div>

@@ -1,13 +1,9 @@
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { FilmLabel } from "@/components/ui/film-label";
-import { KodakBadge } from "@/components/ui/kodak-badge";
-import { WashiTape } from "@/components/ui/washi-tape";
-import { filmTypeToVariant } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 import type { Camera, Film } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
-import { pickRotation, pickWashiColor, pickWashiPosition } from "@/utils/card-decorations";
 import { filmLastActionDate } from "@/utils/film-helpers";
 
 interface CarnetFilmCardProps {
@@ -18,17 +14,19 @@ interface CarnetFilmCardProps {
 	className?: string;
 }
 
-const STATE_BG: Record<string, string> = {
-	loaded: "bg-kodak-red text-paper",
-	partial: "bg-kodak-yellow-deep text-ink",
-	exposed: "bg-ink text-kodak-yellow",
-	atLab: "bg-kodak-teal text-paper",
-	developed: "bg-kodak-gold text-ink",
-	scanned: "bg-paper-dark text-ink-soft border border-ink-faded/60",
+type StateKey = "loaded" | "partial" | "exposed" | "atLab" | "developed" | "scanned";
+
+const STATE_BADGE: Record<StateKey, { className: string; dot: "accent" | "none" }> = {
+	loaded: { className: "bg-text text-bg", dot: "none" },
+	partial: { className: "bg-fill-2 text-text", dot: "none" },
+	exposed: { className: "bg-text text-bg", dot: "accent" },
+	atLab: { className: "bg-surface ring-1 ring-text-2 text-text", dot: "accent" },
+	developed: { className: "bg-fill-1 text-text", dot: "none" },
+	scanned: { className: "bg-transparent text-text-2 ring-1 ring-line", dot: "none" },
 };
 
 interface StateInfo {
-	key: keyof typeof STATE_BG;
+	key: StateKey;
 	label: string;
 }
 
@@ -57,7 +55,6 @@ function describeState(
 		};
 	}
 	if (film.state === "exposed") {
-		// Detect "au labo" via last sent_dev actionCode without subsequent developed entry
 		const sentDev = [...(film.history || [])].reverse().find((h) => h.actionCode === "sent_dev");
 		const labName = film.lab || (sentDev?.params?.lab as string | undefined);
 		if (labName || sentDev) {
@@ -89,12 +86,8 @@ function describeState(
 	};
 }
 
-export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: CarnetFilmCardProps) {
+export function CarnetFilmCard({ film, camera, onClick, className }: CarnetFilmCardProps) {
 	const { t, i18n } = useTranslation();
-	const variant = filmTypeToVariant(film.type);
-	const rotation = pickRotation(index);
-	const washiPos = pickWashiPosition(index);
-	const washiColor = pickWashiColor(index);
 	const { state, description } = describeState(film, camera, t);
 
 	const total = film.posesTotal ?? 36;
@@ -113,86 +106,59 @@ export function CarnetFilmCard({ film, camera, onClick, index = 0, className }: 
 			})
 		: null;
 
+	const badge = STATE_BADGE[state.key];
+
 	return (
 		<button
 			type="button"
 			onClick={onClick}
 			className={cn(
-				"relative grid bg-paper-card overflow-hidden cursor-pointer transition-transform text-left w-full",
-				"shadow-[0_1px_0_rgba(60,40,20,0.05),0_8px_16px_-8px_rgba(50,35,15,0.18),0_2px_4px_-2px_rgba(50,35,15,0.18)]",
-				"min-h-[128px]",
-				"grid-cols-[88px_1fr]",
-				"active:scale-[.98]",
-				rotation,
+				"relative grid bg-surface rounded-[14px] overflow-hidden cursor-pointer text-left w-full",
+				"min-h-[128px] grid-cols-[88px_1fr] transition-colors hover:bg-surface-2",
 				className,
 			)}
 		>
-			<WashiTape
-				color={washiColor}
-				rotate={washiPos.rotate}
-				width={64}
-				className={cn("-top-[7px]", washiPos.left)}
-				style={washiPos.left.includes("right") ? { right: 30, left: "auto" } : undefined}
-			/>
-			<FilmLabel iso={film.iso ?? "—"} format={film.format ?? ""} variant={variant} typeLabel={sub} />
+			<FilmLabel iso={film.iso ?? "—"} format={film.format ?? ""} brand={film.brand} typeLabel={sub} />
 
 			<div className="px-4 py-3.5 flex flex-col justify-between min-w-0">
 				<div className="flex items-start justify-between gap-2.5">
-					<div className="font-cormorant text-[20px] font-semibold leading-[1.05] text-ink tracking-[-0.2px] min-w-0">
-						{displayName}
-						{sub && (
-							<em className="block italic font-normal text-[13px] text-ink-faded mt-0.5">
-								{sub} · {t("dashboard.typeSuffix")}
-							</em>
-						)}
+					<div className="text-base font-semibold leading-tight text-text min-w-0">
+						<div className="truncate">{displayName}</div>
+						{sub && <div className="text-xs font-normal text-text-3 mt-0.5">{sub}</div>}
 					</div>
 					{labRef && (
-						<div className="font-typewriter text-[9px] tracking-[0.12em] text-ink-faded text-right leading-tight flex-shrink-0">
-							REF
-							<KodakBadge size="xs" className="block mt-0.5">
-								{labRef}
-							</KodakBadge>
+						<div className="text-[10px] text-text-3 text-right leading-tight flex-shrink-0">
+							<div className="uppercase tracking-wider">REF</div>
+							<div className="font-medium text-text-2">{labRef}</div>
 						</div>
 					)}
 				</div>
 
 				{(description || lastActionLabel) && (
 					<div className="mt-2">
-						{description && <div className="font-caveat text-[17px] leading-[1.3] text-ink-soft">{description}</div>}
-						{lastActionLabel && (
-							<div className="font-typewriter text-[9px] tracking-[0.12em] uppercase text-ink-faded mt-1">
-								{lastActionLabel}
-							</div>
-						)}
+						{description && <div className="text-sm leading-snug text-text-2">{description}</div>}
+						{lastActionLabel && <div className="text-[11px] text-text-3 mt-1">{lastActionLabel}</div>}
 					</div>
 				)}
 
-				<div className="flex items-center gap-2.5 mt-2.5 pt-2.5 border-t border-dashed border-ink-faded/35">
+				<div className="flex items-center gap-2.5 mt-2.5">
 					<span
 						className={cn(
-							"inline-flex items-center font-archivo font-extrabold text-[9px] uppercase tracking-[0.15em] px-2 py-1 leading-none flex-shrink-0",
-							STATE_BG[state.key],
+							"inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 leading-none rounded-full flex-shrink-0",
+							badge.className,
 						)}
 					>
-						● {state.label}
+						{badge.dot === "accent" && <span className="w-1.5 h-1.5 rounded-full bg-accent" />}
+						{state.label}
 					</span>
-					<div className="flex-1 h-2 bg-ink relative overflow-hidden">
+					<div className="flex-1 h-1.5 bg-fill-1 rounded-full relative overflow-hidden">
 						{shot > 0 && (
-							<div className="absolute left-0 top-0 bottom-0 bg-kodak-yellow" style={{ width: `${pct}%` }}>
-								<div
-									className="absolute inset-0"
-									style={{
-										backgroundImage: "repeating-linear-gradient(90deg, transparent 0 8px, rgba(0,0,0,0.18) 8px 9px)",
-									}}
-								/>
-							</div>
+							<div className="absolute left-0 top-0 bottom-0 bg-text rounded-full" style={{ width: `${pct}%` }} />
 						)}
 					</div>
-					<span className="font-archivo-black text-[13px] text-ink tracking-[-0.3px] flex-shrink-0">
+					<span className="text-sm font-medium text-text flex-shrink-0">
 						{shot > 0 ? shot : total}
-						<span className="font-archivo font-normal text-[11px] text-ink-faded">
-							{shot > 0 ? `/${total}` : ` ${t("dashboard.posesUnit")}`}
-						</span>
+						<span className="text-text-3 font-normal">{shot > 0 ? `/${total}` : ` ${t("dashboard.posesUnit")}`}</span>
 					</span>
 				</div>
 			</div>
