@@ -19,6 +19,18 @@
 	--color-accent-hover: #a02e23;
 	--color-accent-soft: color-mix(in srgb, #c4392d 12%, transparent);
 
+	/* Earth tones — palette désaturée pour la sémantique colorée
+	   (états des films, types, charts, toasts). Pensée pour cohabiter
+	   avec le rouge accent sans le concurrencer. */
+	--color-sage: #6b8068;
+	--color-sage-soft: color-mix(in srgb, #6b8068 14%, transparent);
+	--color-amber: #b88a3a;
+	--color-amber-soft: color-mix(in srgb, #b88a3a 14%, transparent);
+	--color-smoke: #6b7c8a;
+	--color-smoke-soft: color-mix(in srgb, #6b7c8a 14%, transparent);
+	--color-terracotta: #b8674d;
+	--color-terracotta-soft: color-mix(in srgb, #b8674d 14%, transparent);
+
 	/* Ramp neutre pour fills d'états */
 	--color-fill-1: #ededea;
 	--color-fill-2: #cfcfcb;
@@ -52,14 +64,12 @@
 	--color-text-primary: var(--color-text);
 	--color-text-sec: var(--color-text-2);
 	--color-text-muted: var(--color-text-3);
-	--color-orange: var(--color-fill-2);
-	--color-orange-soft: color-mix(in srgb, var(--color-text-3) 18%, transparent);
-	--color-amber: var(--color-fill-2);
-	--color-amber-soft: color-mix(in srgb, var(--color-text-3) 14%, transparent);
-	--color-green: var(--color-text-2);
-	--color-green-soft: color-mix(in srgb, var(--color-text-2) 14%, transparent);
-	--color-blue: var(--color-text-3);
-	--color-blue-soft: color-mix(in srgb, var(--color-text-3) 18%, transparent);
+	--color-orange: var(--color-terracotta);
+	--color-orange-soft: var(--color-terracotta-soft);
+	--color-green: var(--color-sage);
+	--color-green-soft: var(--color-sage-soft);
+	--color-blue: var(--color-smoke);
+	--color-blue-soft: var(--color-smoke-soft);
 
 	/* Font alias re-aimés vers la sans-serif unique. */
 	--font-caveat: var(--font-sans);

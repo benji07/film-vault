@@ -12,18 +12,18 @@ interface ToastItem {
 
 const TOAST_STYLES: Record<ToastType, { background: string; color: string; border: string }> = {
 	success: {
-		background: "var(--color-text)",
+		background: "var(--color-sage)",
 		color: "var(--color-bg)",
 		border: "transparent",
 	},
 	info: {
-		background: "var(--color-text)",
+		background: "var(--color-smoke)",
 		color: "var(--color-bg)",
 		border: "transparent",
 	},
 	warning: {
-		background: "var(--color-fill-2)",
-		color: "var(--color-text)",
+		background: "var(--color-amber)",
+		color: "var(--color-bg)",
 		border: "transparent",
 	},
 	error: {

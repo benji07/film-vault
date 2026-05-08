@@ -16,13 +16,13 @@ interface CarnetFilmCardProps {
 
 type StateKey = "loaded" | "partial" | "exposed" | "atLab" | "developed" | "scanned";
 
-const STATE_BADGE: Record<StateKey, { className: string; dot: "accent" | "none" }> = {
+const STATE_BADGE: Record<StateKey, { className: string; dot: "accent" | "terracotta" | "none" }> = {
 	loaded: { className: "bg-text text-bg", dot: "none" },
-	partial: { className: "bg-fill-2 text-text", dot: "none" },
+	partial: { className: "bg-amber-soft text-amber", dot: "none" },
 	exposed: { className: "bg-text text-bg", dot: "accent" },
-	atLab: { className: "bg-surface ring-1 ring-text-2 text-text", dot: "accent" },
-	developed: { className: "bg-fill-1 text-text", dot: "none" },
-	scanned: { className: "bg-transparent text-text-2 ring-1 ring-line", dot: "none" },
+	atLab: { className: "bg-terracotta-soft text-terracotta", dot: "terracotta" },
+	developed: { className: "bg-sage-soft text-sage", dot: "none" },
+	scanned: { className: "bg-smoke-soft text-smoke", dot: "none" },
 };
 
 interface StateInfo {
@@ -118,7 +118,7 @@ export function CarnetFilmCard({ film, camera, onClick, className }: CarnetFilmC
 				className,
 			)}
 		>
-			<FilmLabel iso={film.iso ?? "—"} format={film.format ?? ""} brand={film.brand} typeLabel={sub} />
+			<FilmLabel iso={film.iso ?? "—"} format={film.format ?? ""} brand={film.brand} type={film.type} typeLabel={sub} />
 
 			<div className="px-4 py-3.5 flex flex-col justify-between min-w-0">
 				<div className="flex items-start justify-between gap-2.5">
@@ -149,6 +149,7 @@ export function CarnetFilmCard({ film, camera, onClick, className }: CarnetFilmC
 						)}
 					>
 						{badge.dot === "accent" && <span className="w-1.5 h-1.5 rounded-full bg-accent" />}
+						{badge.dot === "terracotta" && <span className="w-1.5 h-1.5 rounded-full bg-terracotta" />}
 						{state.label}
 					</span>
 					<div className="flex-1 h-1.5 bg-fill-1 rounded-full relative overflow-hidden">
