@@ -16,6 +16,7 @@ interface DashboardScreenProps {
 }
 
 const CARNET_STATES: ReadonlySet<FilmState> = new Set(["loaded", "partial", "exposed", "developed", "scanned"]);
+const ACTIVE_STATE_ORDER: Record<string, number> = { loaded: 0, partial: 1 };
 
 export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardScreenProps) {
 	const { t } = useTranslation();
@@ -29,6 +30,18 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 			if (lastDate) list.push({ film, lastDate });
 		}
 		return list;
+	}, [films]);
+
+	const activeFilms = useMemo(() => {
+		return films
+			.filter((f) => f.state === "loaded" || f.state === "partial")
+			.map((film) => ({ film, lastDate: filmLastActionDate(film) ?? "" }))
+			.sort((a, b) => {
+				const orderDiff = (ACTIVE_STATE_ORDER[a.film.state] ?? 99) - (ACTIVE_STATE_ORDER[b.film.state] ?? 99);
+				if (orderDiff !== 0) return orderDiff;
+				return b.lastDate.localeCompare(a.lastDate);
+			})
+			.map(({ film }) => film);
 	}, [films]);
 
 	const yearBuckets = useMemo(() => {
@@ -111,6 +124,22 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 			</PageHeader>
 
 			<main className="px-[18px] pt-8 pb-32 flex flex-col gap-[18px]">
+				{activeFilms.length > 0 && (
+					<section className="flex flex-col gap-[18px]" aria-label={t("dashboard.activeRolls")}>
+						<header className="flex items-center justify-between">
+							<h2 className="font-archivo-black text-[11px] tracking-[0.2em] uppercase flex items-center gap-2 text-ink">
+								<span className="w-2.5 h-2.5 bg-kodak-red border-[1.5px] border-ink" />
+								{t("dashboard.activeRolls")}
+							</h2>
+							<span className="font-archivo-black text-[11px] text-ink-faded">{activeFilms.length}</span>
+						</header>
+						{activeFilms.map((f, idx) => {
+							const cam = f.cameraId ? cameras.find((c) => c.id === f.cameraId) : null;
+							return <CarnetFilmCard key={f.id} film={f} camera={cam} index={idx} onClick={() => onOpenFilm(f.id)} />;
+						})}
+						<hr className="border-0 border-t border-dashed border-ink-faded/35" />
+					</section>
+				)}
 				{visible.length === 0 ? (
 					<EmptyState
 						icon={FilmIcon}
