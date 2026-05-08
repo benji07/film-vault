@@ -111,8 +111,8 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 								{year}
 								<span
 									className={cn(
-										"font-archivo-black text-[9px] px-1.5 py-px",
-										selectedYear === year ? "bg-ink/20 text-ink" : "bg-ink/10 text-ink",
+										"text-[10px] font-medium px-1.5 py-px rounded-full",
+										selectedYear === year ? "bg-text/15 text-text" : "bg-surface-2 text-text-2",
 									)}
 								>
 									{count}
@@ -127,11 +127,11 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 				{activeFilms.length > 0 && (
 					<section className="flex flex-col gap-[18px]" aria-label={t("dashboard.activeRolls")}>
 						<header className="flex items-center justify-between">
-							<h2 className="font-archivo-black text-[11px] tracking-[0.2em] uppercase flex items-center gap-2 text-ink">
-								<span className="w-2.5 h-2.5 bg-kodak-red border-[1.5px] border-ink" />
+							<h2 className="text-sm font-semibold flex items-center gap-2 text-text">
+								<span className="w-1.5 h-1.5 rounded-full bg-accent" />
 								{t("dashboard.activeRolls")}
 							</h2>
-							<span className="font-archivo-black text-[11px] text-ink-faded">{activeFilms.length}</span>
+							<span className="text-sm font-medium text-text-3">{activeFilms.length}</span>
 						</header>
 						{activeFilms.map((f, idx) => {
 							const cam = f.cameraId ? cameras.find((c) => c.id === f.cameraId) : null;

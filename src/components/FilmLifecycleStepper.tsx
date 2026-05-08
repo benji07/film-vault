@@ -8,7 +8,6 @@ interface FilmLifecycleStepperProps {
 	className?: string;
 }
 
-/** 6 étapes visuelles du parcours d'une pellicule. */
 const STEPS = [
 	{ key: "stock", labelKey: "lifecycle.stock", fallback: "Stock" },
 	{ key: "loaded", labelKey: "lifecycle.loaded", fallback: "Chargée" },
@@ -44,13 +43,7 @@ export function FilmLifecycleStepper({ currentState, history, className }: FilmL
 
 	return (
 		<div className={cn("relative flex items-center justify-between px-1", className)}>
-			{/* Ligne de connexion en pointillés */}
-			<div
-				className="absolute left-4 right-4 top-3.5 h-[2px] z-0"
-				style={{
-					backgroundImage: "repeating-linear-gradient(90deg, var(--color-ink-faded) 0 4px, transparent 4px 8px)",
-				}}
-			/>
+			<div className="absolute left-4 right-4 top-3.5 h-[2px] bg-line z-0" />
 			{STEPS.map((step, i) => {
 				const done = i < currentIdx;
 				const current = i === currentIdx;
@@ -59,22 +52,18 @@ export function FilmLifecycleStepper({ currentState, history, className }: FilmL
 					<div key={step.key} className="relative z-10 flex flex-col items-center gap-1.5">
 						<div
 							className={cn(
-								"w-7 h-7 flex items-center justify-center font-archivo-black text-[11px] border-2 transition-all",
-								current && "bg-kodak-red text-paper border-ink scale-[1.15] animate-timeline-pulse",
-								done && "bg-ink text-kodak-yellow border-ink",
-								!current && !done && "bg-paper text-ink-faded border-ink-faded",
+								"w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all",
+								current && "bg-accent text-bg scale-[1.15] animate-timeline-pulse",
+								done && "bg-text text-bg",
+								!current && !done && "bg-surface-2 text-text-3",
 							)}
 						>
 							{done ? "✓" : current ? "●" : "·"}
 						</div>
 						<div
 							className={cn(
-								"font-archivo text-[9px] tracking-[0.12em] uppercase text-center leading-none whitespace-nowrap",
-								current
-									? "font-black text-kodak-red"
-									: done
-										? "font-extrabold text-ink-soft"
-										: "font-bold text-ink-faded",
+								"text-[10px] font-medium text-center leading-none whitespace-nowrap",
+								current ? "text-accent font-semibold" : done ? "text-text-2" : "text-text-3",
 							)}
 						>
 							{label}

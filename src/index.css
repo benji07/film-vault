@@ -70,16 +70,6 @@
 	--color-green-soft: var(--color-sage-soft);
 	--color-blue: var(--color-smoke);
 	--color-blue-soft: var(--color-smoke-soft);
-
-	/* Font alias re-aimés vers la sans-serif unique. */
-	--font-caveat: var(--font-sans);
-	--font-cormorant: var(--font-sans);
-	--font-typewriter: var(--font-sans);
-	--font-archivo: var(--font-sans);
-	--font-archivo-black: var(--font-sans);
-	--font-display: var(--font-sans);
-	--font-body: var(--font-sans);
-	--font-mono: var(--font-sans);
 }
 
 @layer base {

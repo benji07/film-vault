@@ -10,8 +10,8 @@ interface CadenceCurveProps {
 }
 
 /**
- * Vintage cadence curve : polyline noire avec area jaune translucide,
- * points rouges + point fort jaune (max). Grille fine en pointillés.
+ * Cadence curve : polyline noire avec aire ambrée translucide. Points
+ * fumés (smoke) + point fort ambré (max). Grille discrète, axes neutres.
  */
 export function CadenceCurve({ data, yTicks, className }: CadenceCurveProps) {
 	const entries = Object.entries(data);
@@ -51,16 +51,16 @@ export function CadenceCurve({ data, yTicks, className }: CadenceCurveProps) {
 		<div className={className}>
 			<div className="relative pl-6">
 				{/* Y axis ticks */}
-				<div className="absolute -left-1 top-0 bottom-6 w-5 flex flex-col justify-between font-archivo font-bold text-[8px] text-ink-faded text-right">
+				<div className="absolute -left-1 top-0 bottom-6 w-5 flex flex-col justify-between text-[10px] font-medium text-text-3 text-right">
 					{ticks.map((v) => (
 						<span key={v}>{v}</span>
 					))}
 				</div>
 				<div
-					className="relative h-[130px] border-l-[1.5px] border-b-[1.5px] border-ink"
+					className="relative h-[130px] border-l border-b border-line"
 					style={{
 						backgroundImage:
-							"linear-gradient(to right, rgba(60,40,20,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(60,40,20,0.08) 1px, transparent 1px)",
+							"linear-gradient(to right, var(--color-line) 1px, transparent 1px), linear-gradient(to bottom, var(--color-line) 1px, transparent 1px)",
 						backgroundSize: "calc(100%/12) 100%, 100% 25%",
 					}}
 				>
@@ -73,12 +73,12 @@ export function CadenceCurve({ data, yTicks, className }: CadenceCurveProps) {
 						<title>Cadence</title>
 						{points.length >= 2 && (
 							<>
-								<polygon points={area} fill="rgba(232,168,24,0.35)" />
+								<polygon points={area} fill="var(--color-amber-soft)" />
 								<polyline
 									points={polyline}
 									fill="none"
-									stroke="var(--color-ink)"
-									strokeWidth="2.5"
+									stroke="var(--color-text)"
+									strokeWidth="2"
 									strokeLinejoin="round"
 									strokeLinecap="round"
 								/>
@@ -88,9 +88,9 @@ export function CadenceCurve({ data, yTicks, className }: CadenceCurveProps) {
 										key={i}
 										cx={p.x}
 										cy={p.y}
-										r={i === maxIndex ? 4.5 : 3.5}
-										fill={i === maxIndex ? "var(--color-kodak-yellow)" : "var(--color-kodak-red)"}
-										stroke="var(--color-ink)"
+										r={i === maxIndex ? 4 : 3}
+										fill={i === maxIndex ? "var(--color-amber)" : "var(--color-smoke)"}
+										stroke="var(--color-bg)"
 										strokeWidth="1.5"
 									/>
 								))}
@@ -99,7 +99,7 @@ export function CadenceCurve({ data, yTicks, className }: CadenceCurveProps) {
 					</svg>
 				</div>
 				{/* X axis labels (month initials) */}
-				<div className="flex justify-between mt-1 font-archivo font-bold text-[8px] uppercase text-ink-faded">
+				<div className="flex justify-between mt-1.5 text-[10px] font-medium text-text-3">
 					{months.map((m, i) => (
 						// biome-ignore lint/suspicious/noArrayIndexKey: positional month label
 						<span key={i}>{m}</span>
