@@ -146,10 +146,5 @@ export function filmTypeToVariant(type: string | undefined): FilmLabelVariant {
 }
 
 export const FONT = {
-	caveat: "var(--font-sans)",
-	cormorant: "var(--font-sans)",
-	typewriter: "var(--font-sans)",
-	archivo: "var(--font-sans)",
-	archivoBlack: "var(--font-sans)",
 	sans: "var(--font-sans)",
 } as const;
