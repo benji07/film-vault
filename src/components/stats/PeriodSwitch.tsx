@@ -18,8 +18,8 @@ const ITEMS: { id: StatsPeriod; label: (year: string) => string }[] = [
 
 export function PeriodSwitch({ value, onChange, yearLabel, className }: PeriodSwitchProps) {
 	return (
-		<nav className={cn("flex border-2 border-ink shadow-[3px_3px_0_var(--color-ink)] bg-paper-card", className)}>
-			{ITEMS.map((item, i) => {
+		<nav className={cn("flex bg-surface-2 rounded-[10px] p-1 gap-1", className)}>
+			{ITEMS.map((item) => {
 				const active = value === item.id;
 				return (
 					<button
@@ -28,10 +28,9 @@ export function PeriodSwitch({ value, onChange, yearLabel, className }: PeriodSw
 						onClick={() => onChange(item.id)}
 						aria-pressed={active}
 						className={cn(
-							"flex-1 px-2 py-2 cursor-pointer leading-none",
-							"font-archivo-black text-[10px] uppercase tracking-[0.15em]",
-							active ? "bg-kodak-yellow text-ink" : "bg-transparent text-ink-faded hover:bg-paper-dark/30",
-							i < ITEMS.length - 1 && "border-r-2 border-ink",
+							"flex-1 px-2 py-1.5 cursor-pointer leading-none rounded-[8px] transition-colors",
+							"text-xs font-medium",
+							active ? "bg-surface text-text shadow-sm" : "bg-transparent text-text-3 hover:text-text",
 						)}
 					>
 						{item.label(yearLabel)}

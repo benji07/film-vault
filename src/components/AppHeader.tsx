@@ -36,19 +36,19 @@ export function AppHeader({ screen, goBack, onEditFilm, filmTitle, cameraTitle, 
 	return (
 		<div
 			className={cn(
-				"shrink-0 flex items-center justify-between gap-2 px-4 pt-2 pb-2 bg-paper border-b border-ink-faded/40",
+				"shrink-0 flex items-center justify-between gap-2 px-4 pt-2 pb-3 bg-bg/85 backdrop-blur-md",
 				className,
 			)}
 		>
 			<div className="flex items-center gap-2 min-w-0 flex-1">
 				<Button variant="ghost" size="icon" onClick={goBack} className="-ml-2" aria-label={t("aria.back")}>
-					<ArrowLeft size={20} className="text-ink-soft" />
+					<ArrowLeft size={20} className="text-text-2" />
 				</Button>
-				<h1 className="font-caveat text-2xl text-ink m-0 truncate">{subScreenTitles[screen]}</h1>
+				<h1 className="text-lg font-semibold text-text m-0 truncate tracking-tight">{subScreenTitles[screen]}</h1>
 			</div>
 			{screen === "filmDetail" && onEditFilm && (
 				<Button variant="ghost" size="icon" onClick={onEditFilm} aria-label={t("aria.editFilm")}>
-					<Pencil size={18} className="text-ink-soft" />
+					<Pencil size={18} className="text-text-2" />
 				</Button>
 			)}
 		</div>

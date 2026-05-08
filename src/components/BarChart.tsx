@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { T } from "@/constants/theme";
 
 interface BarChartProps {
 	data: Record<string, number>;
@@ -9,41 +8,26 @@ interface BarChartProps {
 	formatValue?: (v: number) => string;
 }
 
-export function BarChart({ data: chartData, color = T.yellow, sort = true, limit, formatValue }: BarChartProps) {
+export function BarChart({ data: chartData, color, sort = true, limit, formatValue }: BarChartProps) {
 	const visible = useMemo(() => {
 		const entries = Object.entries(chartData);
 		const sorted = sort ? entries.sort((a, b) => b[1] - a[1]) : entries;
 		return typeof limit === "number" ? sorted.slice(0, limit) : sorted;
 	}, [chartData, sort, limit]);
-	// Scale bars against the highest value among the visible rows so the
-	// top entry still spans the full track when limit truncates the list.
 	const max = Math.max(...visible.map(([, v]) => v), 1);
+	const barColor = color ?? "var(--color-text)";
 	return (
 		<div className="flex flex-col">
-			{visible.map(([k, v], i) => (
-				<div
-					key={k}
-					className="grid items-center gap-2.5 py-1.5"
-					style={{
-						gridTemplateColumns: "80px 1fr 36px",
-						borderBottom: i < visible.length - 1 ? "1px dashed rgba(60,40,20,0.18)" : undefined,
-					}}
-				>
-					<span className="font-archivo-black text-[10px] uppercase tracking-[0.05em] text-ink leading-tight">{k}</span>
-					<div className="h-4 bg-ink relative overflow-hidden">
+			{visible.map(([k, v]) => (
+				<div key={k} className="grid items-center gap-2.5 py-2" style={{ gridTemplateColumns: "80px 1fr 36px" }}>
+					<span className="text-xs font-medium text-text-2 leading-tight truncate">{k}</span>
+					<div className="h-2 bg-fill-1 rounded-full relative overflow-hidden">
 						<div
-							className="h-full transition-[width] duration-500 ease-out"
-							style={{ width: `${(v / max) * 100}%`, background: color }}
-						>
-							<div
-								className="absolute inset-0"
-								style={{
-									backgroundImage: "repeating-linear-gradient(90deg, transparent 0 6px, rgba(0,0,0,0.2) 6px 7px)",
-								}}
-							/>
-						</div>
+							className="h-full rounded-full transition-[width] duration-500 ease-out"
+							style={{ width: `${(v / max) * 100}%`, background: barColor }}
+						/>
 					</div>
-					<span className="font-archivo-black text-[12px] text-ink text-right leading-none">
+					<span className="text-sm font-medium text-text text-right leading-none">
 						{formatValue ? formatValue(v) : v}
 					</span>
 				</div>

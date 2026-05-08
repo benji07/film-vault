@@ -10,11 +10,27 @@ interface ToastItem {
 	exiting: boolean;
 }
 
-const TOAST_COLORS: Record<ToastType, string> = {
-	success: "var(--color-kodak-teal)",
-	info: "var(--color-ink)",
-	warning: "var(--color-kodak-yellow-deep)",
-	error: "var(--color-kodak-red)",
+const TOAST_STYLES: Record<ToastType, { background: string; color: string; border: string }> = {
+	success: {
+		background: "var(--color-text)",
+		color: "var(--color-bg)",
+		border: "transparent",
+	},
+	info: {
+		background: "var(--color-text)",
+		color: "var(--color-bg)",
+		border: "transparent",
+	},
+	warning: {
+		background: "var(--color-fill-2)",
+		color: "var(--color-text)",
+		border: "transparent",
+	},
+	error: {
+		background: "var(--color-accent)",
+		color: "var(--color-bg)",
+		border: "transparent",
+	},
 };
 
 interface ToastContextValue {
@@ -50,27 +66,27 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 				className="fixed left-1/2 z-[300] pointer-events-none flex flex-col gap-2"
 				style={{ top: "max(0.75rem, env(safe-area-inset-top))" }}
 			>
-				{toasts.map((t) => (
-					<div
-						key={t.id}
-						className={t.exiting ? "animate-toast-exit" : "animate-toast-enter"}
-						style={{
-							background: TOAST_COLORS[t.type],
-							color: t.type === "warning" ? "var(--color-ink)" : "var(--color-paper)",
-							padding: "8px 16px",
-							fontSize: "11px",
-							fontFamily: "var(--font-archivo-black)",
-							fontWeight: 900,
-							letterSpacing: "0.12em",
-							textTransform: "uppercase",
-							whiteSpace: "nowrap",
-							border: "2px solid var(--color-ink)",
-							boxShadow: "3px 3px 0 var(--color-ink)",
-						}}
-					>
-						{t.message}
-					</div>
-				))}
+				{toasts.map((t) => {
+					const style = TOAST_STYLES[t.type];
+					return (
+						<div
+							key={t.id}
+							className={t.exiting ? "animate-toast-exit" : "animate-toast-enter"}
+							style={{
+								background: style.background,
+								color: style.color,
+								padding: "10px 16px",
+								fontSize: "13px",
+								fontWeight: 500,
+								whiteSpace: "nowrap",
+								borderRadius: "10px",
+								boxShadow: "0 4px 16px -4px rgba(0,0,0,0.18)",
+							}}
+						>
+							{t.message}
+						</div>
+					);
+				})}
 			</div>
 		</ToastContext>
 	);
