@@ -1,0 +1,335 @@
+[
+	{
+		"brand": "CineStill",
+		"model": "400Dynamic",
+		"iso": 400,
+		"type": "Couleur",
+		"format": "120",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00255_000.jpg"
+	},
+	{
+		"brand": "CineStill",
+		"model": "400Dynamic",
+		"iso": 400,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00330_000.jpg"
+	},
+	{
+		"brand": "Foma",
+		"model": "Ortho 400",
+		"iso": 400,
+		"type": "N&B",
+		"format": "120",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00127_000.jpg"
+	},
+	{
+		"brand": "Foma",
+		"model": "Ortho 400",
+		"iso": 400,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00187_000.jpg"
+	},
+	{
+		"brand": "Fujifilm",
+		"model": "200",
+		"iso": 200,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00073_000.jpg"
+	},
+	{
+		"brand": "Ilford",
+		"model": "Ilfochrome",
+		"iso": 100,
+		"type": "Diapo",
+		"format": "35mm",
+		"developmentProcess": "E-6",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00302_000.jpg"
+	},
+	{
+		"brand": "Ilford",
+		"model": "Ilfocolor 400 Plus",
+		"iso": 400,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00522_000.jpg"
+	},
+	{
+		"brand": "Ilford",
+		"model": "Ortho Plus",
+		"iso": 80,
+		"type": "N&B",
+		"format": "120",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00487_000.jpg"
+	},
+	{
+		"brand": "Kodak",
+		"model": "Black & White +",
+		"iso": 400,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00189_000.jpg"
+	},
+	{
+		"brand": "Kodak",
+		"model": "Ektachrome E100",
+		"iso": 100,
+		"type": "Diapo",
+		"format": "35mm",
+		"developmentProcess": "E-6",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00155_000.jpg"
+	},
+	{
+		"brand": "Kodak",
+		"model": "Gold 200",
+		"iso": 200,
+		"type": "Couleur",
+		"format": "120",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00021_000.jpg"
+	},
+	{
+		"brand": "Kodak",
+		"model": "Kodacolor 100",
+		"iso": 100,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00453_000.jpg"
+	},
+	{
+		"brand": "Kodak",
+		"model": "Kodacolor 200",
+		"iso": 200,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00519_000.jpg"
+	},
+	{
+		"brand": "Kodak",
+		"model": "Plus-X",
+		"iso": 50,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00424_000.jpg"
+	},
+	{
+		"brand": "Kodak",
+		"model": "ProImage 100",
+		"iso": 100,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00239_000.jpg"
+	},
+	{
+		"brand": "Kodak",
+		"model": "TMAX 400",
+		"iso": 400,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00273_000.jpg"
+	},
+	{
+		"brand": "Kodak",
+		"model": "TMAX P3200",
+		"iso": 3200,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00104_000.jpg"
+	},
+	{
+		"brand": "Kodak",
+		"model": "Ultra",
+		"iso": 400,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00043_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Babylon",
+		"iso": 13,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00147_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Berlin",
+		"iso": 400,
+		"type": "N&B",
+		"format": "120",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00494_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Berlin",
+		"iso": 400,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00549_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Color Negative Film",
+		"iso": 800,
+		"type": "Couleur",
+		"format": "120",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00313_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Fantome",
+		"iso": 8,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00141_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Lomochrome Color'92",
+		"iso": 400,
+		"type": "Couleur",
+		"format": "120",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00314_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Lomochrome Color'92",
+		"iso": 400,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00225_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Lomochrome Metropolis",
+		"iso": 100,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00236_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Lomochrome Purple",
+		"iso": 100,
+		"type": "Couleur",
+		"format": "35mm",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00078_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Lomochrome Turquoise",
+		"iso": 100,
+		"type": "Couleur",
+		"format": "120",
+		"developmentProcess": "C-41",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00008_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Postdam",
+		"iso": 100,
+		"type": "N&B",
+		"format": "120",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00548_000.jpg"
+	},
+	{
+		"brand": "Lomography",
+		"model": "Postdam",
+		"iso": 100,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00475_000.jpg"
+	},
+	{
+		"brand": "Rollei",
+		"model": "Infrared",
+		"iso": 200,
+		"type": "N&B",
+		"format": "120",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00030_000.jpg"
+	},
+	{
+		"brand": "Rollei",
+		"model": "Infrared",
+		"iso": 200,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00047_000.jpg"
+	},
+	{
+		"brand": "Rollei",
+		"model": "Retro 400S",
+		"iso": 400,
+		"type": "N&B",
+		"format": "120",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00508_000.jpg"
+	},
+	{
+		"brand": "Rollei",
+		"model": "Retro 400S",
+		"iso": 400,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00559_000.jpg"
+	},
+	{
+		"brand": "Rollei",
+		"model": "Retro 80S",
+		"iso": 80,
+		"type": "N&B",
+		"format": "120",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00005_000.jpg"
+	},
+	{
+		"brand": "Rollei",
+		"model": "Retro 80S",
+		"iso": 80,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00169_000.jpg"
+	},
+	{
+		"brand": "Rollei",
+		"model": "SUPERPAN 200",
+		"iso": 200,
+		"type": "N&B",
+		"format": "35mm",
+		"developmentProcess": "B&W",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00071_000.jpg"
+	}
+]

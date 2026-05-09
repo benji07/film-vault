@@ -147,6 +147,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 	const previewIso = iso.trim() ? iso : "—";
 	const previewBrand = brand.trim() || "Kodak";
 	const previewModel = model.trim() || t("addFilm.title");
+	const previewImageUrl = brand.trim() && model.trim() ? filmDataFor(brand, model)?.imageUrl : undefined;
 
 	return (
 		<Dialog open={open} onOpenChange={(v) => !v && onOpenChange(false)}>
@@ -165,6 +166,7 @@ export function AddFilmDialog({ open, onOpenChange, data, setData }: AddFilmDial
 						format={format}
 						type={type}
 						variant={previewVariant}
+						imageUrl={previewImageUrl}
 						rotate={-0.5}
 					/>
 				</div>

@@ -1,11 +1,15 @@
 import type { FilmFormat, FilmType } from "@/types";
 
+export type FilmDevelopmentProcess = "C-41" | "E-6" | "B&W" | "ECN-2" | "K-14";
+
 export interface FilmCatalogEntry {
 	brand: string;
 	model: string;
 	iso: number;
 	type: FilmType;
 	format: FilmFormat;
+	developmentProcess?: FilmDevelopmentProcess;
+	imageUrl?: string;
 }
 
 export const FILM_CATALOG: FilmCatalogEntry[] = [

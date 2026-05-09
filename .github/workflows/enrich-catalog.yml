@@ -1,0 +1,34 @@
+name: Enrich film catalog
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx tsx scripts/enrich-catalog.ts
+
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/enrich-catalog
+          title: "chore: refresh film catalog enrichment"
+          body-path: enrichment-report.md
+          commit-message: "chore: refresh film catalog enrichment"
+          add-paths: |
+            src/constants/film-catalog-enrichment.json
+            src/constants/film-catalog-discoveries.json

@@ -1,5 +1,7 @@
-import type { FilmCatalogEntry } from "@/constants/film-catalog";
+import type { FilmCatalogEntry, FilmDevelopmentProcess } from "@/constants/film-catalog";
 import { FILM_CATALOG } from "@/constants/film-catalog";
+import discoveriesRaw from "@/constants/film-catalog-discoveries.json";
+import enrichmentRaw from "@/constants/film-catalog-enrichment.json";
 import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 
 // --- Types ---
@@ -24,6 +26,52 @@ const FILM_CATALOG_KEY = "filmvault-catalog-films";
 const CAMERA_CATALOG_KEY = "filmvault-catalog-cameras";
 const CATALOG_TIMESTAMP_KEY = "filmvault-catalog-updated";
 
+// --- Enrichment sidecar ---
+
+interface EnrichmentEntry {
+	imageUrl?: string;
+	developmentProcess?: FilmDevelopmentProcess;
+	sourceUrl?: string;
+	sourceUuid?: string;
+}
+
+const enrichmentMap = enrichmentRaw as Record<string, EnrichmentEntry>;
+const discoveries = discoveriesRaw as FilmCatalogEntry[];
+
+function enrichmentKey(brand: string, model: string, format: string): string {
+	return `${brand.toLowerCase()}|${model.toLowerCase()}|${format.toLowerCase()}`;
+}
+
+function applyEnrichment(entry: FilmCatalogEntry): FilmCatalogEntry {
+	const found = enrichmentMap[enrichmentKey(entry.brand, entry.model, entry.format)];
+	if (!found) return entry;
+	return {
+		...entry,
+		imageUrl: entry.imageUrl ?? found.imageUrl,
+		developmentProcess: entry.developmentProcess ?? found.developmentProcess,
+	};
+}
+
+/**
+ * Append auto-discovered entries to the canonical list, deduped by
+ * (brand, model, format). Curation in FILM_CATALOG always wins.
+ */
+function withDiscoveries(base: FilmCatalogEntry[]): FilmCatalogEntry[] {
+	if (discoveries.length === 0) return base;
+	const seen = new Set<string>();
+	for (const e of base) {
+		seen.add(enrichmentKey(e.brand, e.model, e.format));
+	}
+	const merged = [...base];
+	for (const d of discoveries) {
+		const k = enrichmentKey(d.brand, d.model, d.format);
+		if (seen.has(k)) continue;
+		seen.add(k);
+		merged.push(d);
+	}
+	return merged;
+}
+
 // --- In-memory cache ---
 
 let filmCatalogCache: FilmCatalogEntry[] | null = null;
@@ -42,7 +90,8 @@ export function getFilmCatalog(): FilmCatalogEntry[] {
 	try {
 		const cached = localStorage.getItem(FILM_CATALOG_KEY);
 		if (cached) {
-			filmCatalogCache = JSON.parse(cached) as FilmCatalogEntry[];
+			const parsed = JSON.parse(cached) as FilmCatalogEntry[];
+			filmCatalogCache = withDiscoveries(parsed).map(applyEnrichment);
 			return filmCatalogCache;
 		}
 	} catch {
@@ -50,7 +99,25 @@ export function getFilmCatalog(): FilmCatalogEntry[] {
 	}
 
 	// Fallback to hardcoded catalog
-	return FILM_CATALOG;
+	return withDiscoveries(FILM_CATALOG).map(applyEnrichment);
+}
+
+/**
+ * Find a single catalog entry matching a stored film's brand/model/format.
+ * Case-insensitive; returns the first match including any enrichment.
+ */
+export function findCatalogEntry(
+	brand: string | undefined,
+	model: string | undefined,
+	format: string | undefined,
+): FilmCatalogEntry | undefined {
+	if (!brand || !model || !format) return undefined;
+	const lb = brand.toLowerCase();
+	const lm = model.toLowerCase();
+	const lf = format.toLowerCase();
+	return getFilmCatalog().find(
+		(c) => c.brand.toLowerCase() === lb && c.model.toLowerCase() === lm && c.format.toLowerCase() === lf,
+	);
 }
 
 /**
@@ -103,13 +170,15 @@ export async function refreshCatalogs(): Promise<void> {
 			return;
 		}
 
+		let mergedFilms: FilmCatalogEntry[];
 		if (filmSince) {
 			const newEntries = films as FilmCatalogRow[];
-			filmCatalogCache = newEntries.length > 0 ? mergeFilmCatalogs(existingFilms, newEntries) : existingFilms;
+			mergedFilms = newEntries.length > 0 ? mergeFilmCatalogs(existingFilms, newEntries) : existingFilms;
 		} else {
-			filmCatalogCache = films as FilmCatalogEntry[];
+			mergedFilms = films as FilmCatalogEntry[];
 		}
-		localStorage.setItem(FILM_CATALOG_KEY, JSON.stringify(filmCatalogCache));
+		localStorage.setItem(FILM_CATALOG_KEY, JSON.stringify(mergedFilms));
+		filmCatalogCache = withDiscoveries(mergedFilms).map(applyEnrichment);
 
 		// Track max server timestamp from film rows
 		for (const row of films as FilmCatalogRow[]) {
