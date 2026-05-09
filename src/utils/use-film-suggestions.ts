@@ -62,7 +62,7 @@ export function useFilmSuggestions(films: Film[]) {
 				formats.add(c.format);
 			}
 
-			// Catalog enrichment (image + process) is independent of whether the user
+			// Catalog metadata (image + process) is independent of whether the user
 			// has already recorded a stock entry — always carry it through if available.
 			const fromCatalog = catalogMatches[0];
 

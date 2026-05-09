@@ -4,6 +4,7 @@ import {
 	BookOpen,
 	Camera as CameraIcon,
 	Check,
+	ChevronRight,
 	Cloud,
 	Copy,
 	Database,
@@ -18,6 +19,7 @@ import {
 	Package,
 	Play,
 	RefreshCw,
+	Shield,
 	Upload,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -41,6 +43,7 @@ import {
 	verifyOtpErrorMessage,
 } from "@/utils/supabase";
 import { fetchRecoveryCode, getLastSync, linkRecoveryCode, pullFromCloud } from "@/utils/sync";
+import { useIsAdmin } from "@/utils/use-is-admin";
 
 interface SettingsScreenProps {
 	data: AppData;
@@ -51,6 +54,7 @@ interface SettingsScreenProps {
 	onSyncNow: () => void;
 	persistent: boolean;
 	onOpenLegal: () => void;
+	onOpenAdminCatalog: () => void;
 }
 
 export function SettingsScreen({
@@ -62,6 +66,7 @@ export function SettingsScreen({
 	onSyncNow,
 	persistent,
 	onOpenLegal,
+	onOpenAdminCatalog,
 }: SettingsScreenProps) {
 	const { t, i18n } = useTranslation();
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -204,6 +209,7 @@ export function SettingsScreen({
 	const lastSync = getLastSync();
 	const currentLang = i18n.language;
 	const userEmail = session?.user.email;
+	const isAdmin = useIsAdmin(session);
 
 	return (
 		<div className="flex flex-col gap-5">
@@ -408,6 +414,25 @@ export function SettingsScreen({
 							</Button>
 						</div>
 					)}
+				</Card>
+			)}
+
+			{/* Admin section — only visible when user_profiles.is_admin = true */}
+			{isAdmin && (
+				<Card>
+					<div className="flex items-center gap-3 mb-3">
+						<Shield size={18} className="text-accent" />
+						<span className="text-sm font-bold text-text-primary font-body">Administration</span>
+					</div>
+					<span className="text-xs text-text-sec font-body block mb-3">
+						Gérer le référentiel des pellicules (ajout, modification, archivage, images).
+					</span>
+					<Button variant="outline" onClick={onOpenAdminCatalog} className="w-full justify-between">
+						<span className="flex items-center gap-2">
+							<Film size={16} /> Catalogue des pellicules
+						</span>
+						<ChevronRight size={16} className="text-text-3" />
+					</Button>
 				</Card>
 			)}
 

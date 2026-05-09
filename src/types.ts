@@ -165,6 +165,7 @@ export type ScreenName =
 	| "cameraDetail"
 	| "stats"
 	| "settings"
+	| "adminCatalog"
 	| "legal"
 	| "map"
 	| "welcome";
