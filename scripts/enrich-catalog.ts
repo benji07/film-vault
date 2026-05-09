@@ -37,29 +37,19 @@ interface EnrichmentEntry {
 	sourceUuid?: string;
 }
 
-interface DekuRow {
-	brand: string;
-	product: string;
-	process: string;
-	itemType: string;
-	uuid: string;
-	filename: string;
-}
-
-interface DxRow {
-	manufacturer: string;
-	name: string;
-	pic: string;
-}
-
 // --- CSV parsing -----------------------------------------------------------
 
 /**
- * Minimal CSV parser handling quoted fields and embedded commas / newlines.
- * Both source files are well-formed CSV so a hand-rolled parser is enough
- * and saves a runtime dependency.
+ * Minimal CSV parser handling quoted fields and embedded delimiters / newlines.
+ * Delimiter is auto-detected from the header line (dxdatabase uses `;`).
  */
-function parseCsv(text: string): string[][] {
+function detectDelimiter(firstLine: string): string {
+	const commas = (firstLine.match(/,/g) ?? []).length;
+	const semis = (firstLine.match(/;/g) ?? []).length;
+	return semis > commas ? ";" : ",";
+}
+
+function parseCsv(text: string, delimiter: string): string[][] {
 	const rows: string[][] = [];
 	let row: string[] = [];
 	let field = "";
@@ -80,7 +70,7 @@ function parseCsv(text: string): string[][] {
 		} else {
 			if (c === '"') {
 				inQuotes = true;
-			} else if (c === ",") {
+			} else if (c === delimiter) {
 				row.push(field);
 				field = "";
 			} else if (c === "\n") {
@@ -103,7 +93,9 @@ function parseCsv(text: string): string[][] {
 }
 
 function csvToObjects(text: string): Record<string, string>[] {
-	const rows = parseCsv(text);
+	const firstLine = text.split("\n", 1)[0] ?? "";
+	const delimiter = detectDelimiter(firstLine);
+	const rows = parseCsv(text, delimiter);
 	const headerRow = rows[0];
 	if (!headerRow) return [];
 	const headers = headerRow.map((h) => h.trim());
@@ -146,10 +138,6 @@ function normalize(s: string): string {
 function normalizeBrand(s: string): string {
 	const n = normalize(s);
 	return BRAND_ALIASES[n] ?? n;
-}
-
-function joinKey(brand: string, model: string): string {
-	return `${normalizeBrand(brand)}|${normalize(model)}`;
 }
 
 // --- Similarity ------------------------------------------------------------
@@ -195,64 +183,14 @@ function fallbackProcessFromType(type: string): FilmDevelopmentProcess | undefin
 	}
 }
 
-// --- Indexing --------------------------------------------------------------
-
-function indexDeku(rows: Record<string, string>[]): Map<string, DekuRow[]> {
-	const index = new Map<string, DekuRow[]>();
-	for (const r of rows) {
-		const brand = r["brand"] ?? "";
-		const product = r["product"] ?? "";
-		if (!brand || !product) continue;
-		const key = joinKey(brand, product);
-		const entry: DekuRow = {
-			brand,
-			product,
-			process: r["process"] ?? "",
-			itemType: r["item_type"] ?? "",
-			uuid: r["uuid"] ?? "",
-			filename: r["filename"] ?? "",
-		};
-		const list = index.get(key);
-		if (list) list.push(entry);
-		else index.set(key, [entry]);
-	}
-	return index;
-}
-
-function indexDx(rows: Record<string, string>[]): Map<string, DxRow> {
-	const index = new Map<string, DxRow>();
-	for (const r of rows) {
-		const manufacturer = r["Manufacturer"] ?? "";
-		const name = r["Name"] ?? "";
-		if (!manufacturer || !name) continue;
-		const key = joinKey(manufacturer, name);
-		// First match wins; the CSV has duplicates for variants, we just need an image
-		if (!index.has(key)) {
-			index.set(key, {
-				manufacturer,
-				name,
-				pic: r["Pic"] ?? "",
-			});
-		}
-	}
-	return index;
-}
-
-function pickDekuRow(rows: DekuRow[]): DekuRow | undefined {
-	// Prefer outside box; fallback to inside; then any with a non-empty filename.
-	const outside = rows.find((r) => r.itemType === "film_box_outside");
-	if (outside) return outside;
-	const inside = rows.find((r) => r.itemType === "film_box_inside");
-	if (inside) return inside;
-	return rows.find((r) => r.filename) ?? rows[0];
-}
-
-// --- Brand-grouped indexes (for candidate suggestions) ---------------------
+// --- Dedup --------------------------------------------------------------
 
 interface DekuProduct {
 	brand: string;
 	product: string;
+	iso: string;
 	process: string;
+	uuid: string;
 	filename: string;
 }
 
@@ -262,39 +200,165 @@ interface DxProduct {
 	pic: string;
 }
 
-function indexDekuByBrand(dekuByKey: Map<string, DekuRow[]>): Map<string, DekuProduct[]> {
-	const out = new Map<string, DekuProduct[]>();
-	for (const [key, rows] of dekuByKey) {
-		const brandKey = key.split("|")[0] ?? "";
-		const pick = pickDekuRow(rows);
-		if (!pick) continue;
-		const product: DekuProduct = {
-			brand: pick.brand,
-			product: pick.product,
-			process: pick.process,
-			filename: pick.filename,
-		};
-		const list = out.get(brandKey);
-		if (list) list.push(product);
-		else out.set(brandKey, [product]);
+/**
+ * Collapse multiple deku rows for the same (brand, product) into a single
+ * canonical entry. Image priority: film_box_outside > film_box_inside > any.
+ */
+function dedupDekuRows(rows: Record<string, string>[]): DekuProduct[] {
+	const itemTypeRank = (t: string): number => {
+		if (t === "film_box_outside") return 0;
+		if (t === "film_box_inside") return 1;
+		return 2;
+	};
+	const groups = new Map<string, Record<string, string>[]>();
+	for (const r of rows) {
+		const brand = r["brand"] ?? "";
+		const product = r["product"] ?? "";
+		if (!brand || !product) continue;
+		const key = `${normalizeBrand(brand)}|${normalize(product)}`;
+		const list = groups.get(key);
+		if (list) list.push(r);
+		else groups.set(key, [r]);
+	}
+	const out: DekuProduct[] = [];
+	for (const list of groups.values()) {
+		// Sort: best image first, then prefer rows with non-empty filename
+		list.sort((a, b) => {
+			const ra = itemTypeRank(a["item_type"] ?? "");
+			const rb = itemTypeRank(b["item_type"] ?? "");
+			if (ra !== rb) return ra - rb;
+			const fa = (a["filename"] ?? "") ? 0 : 1;
+			const fb = (b["filename"] ?? "") ? 0 : 1;
+			return fa - fb;
+		});
+		const best = list[0];
+		if (!best) continue;
+		out.push({
+			brand: best["brand"] ?? "",
+			product: best["product"] ?? "",
+			iso: best["film_speed_iso"] ?? "",
+			process: best["process"] ?? "",
+			uuid: best["uuid"] ?? "",
+			filename: best["filename"] ?? "",
+		});
 	}
 	return out;
 }
 
-function indexDxByBrand(dxByKey: Map<string, DxRow>): Map<string, DxProduct[]> {
-	const out = new Map<string, DxProduct[]>();
-	for (const [key, row] of dxByKey) {
-		const brandKey = key.split("|")[0] ?? "";
-		const product: DxProduct = {
-			manufacturer: row.manufacturer,
-			name: row.name,
-			pic: row.pic,
+/**
+ * Collapse dxdatabase rows by Name, keeping rows with a non-empty Pic in priority.
+ */
+function dedupDxRows(rows: Record<string, string>[]): DxProduct[] {
+	const groups = new Map<string, DxProduct>();
+	for (const r of rows) {
+		const name = r["Name"] ?? "";
+		if (!name) continue;
+		const key = normalize(name);
+		const candidate: DxProduct = {
+			manufacturer: r["Manufacturer"] ?? "",
+			name,
+			pic: r["Pic"] ?? "",
 		};
-		const list = out.get(brandKey);
-		if (list) list.push(product);
-		else out.set(brandKey, [product]);
+		const existing = groups.get(key);
+		if (!existing) {
+			groups.set(key, candidate);
+		} else if (!existing.pic && candidate.pic) {
+			groups.set(key, candidate);
+		}
+	}
+	return Array.from(groups.values());
+}
+
+// --- Token-inclusion matching ----------------------------------------------
+
+/**
+ * Score a deku row against a catalog entry. Returns -1 for hard miss.
+ *
+ * Match rule: the source row's brand must equal the catalog brand (with
+ * alias mapping), and the source product tokens must be a superset of the
+ * catalog model tokens. ISO match adds a bonus; extra tokens add a penalty
+ * so "Lady Grey" in the catalog prefers "Lady Grey 400" over "Lady Grey 400
+ * Special Edition".
+ */
+function scoreDekuMatch(row: DekuProduct, brand: string, model: string, iso: number): number {
+	if (normalizeBrand(row.brand) !== normalizeBrand(brand)) return -1;
+	const cat = tokens(model);
+	const src = tokens(row.product);
+	for (const t of cat) if (!src.has(t)) return -1;
+	const isoBonus = row.iso === String(iso) ? 10 : 0;
+	const extra = src.size - cat.size;
+	return 100 + isoBonus - extra;
+}
+
+/**
+ * Score a dx row against a catalog entry. dxdatabase concatenates brand+model
+ * in the Name column, so we require all tokens of (brand + " " + model) to be
+ * present in tokens(Name). ISO bonus applies if the catalog ISO appears as a
+ * token in the Name.
+ */
+function scoreDxMatch(row: DxProduct, brand: string, model: string, iso: number): number {
+	const brandToks = tokens(brand);
+	const modelToks = tokens(model);
+	const catToks = new Set([...brandToks, ...modelToks]);
+	const nameToks = tokens(row.name);
+	for (const t of catToks) if (!nameToks.has(t)) return -1;
+	const isoBonus = nameToks.has(String(iso)) ? 10 : 0;
+	const extra = nameToks.size - catToks.size;
+	return 100 + isoBonus - extra;
+}
+
+function bestDekuMatch(rows: DekuProduct[], brand: string, model: string, iso: number): DekuProduct | undefined {
+	let best: DekuProduct | undefined;
+	let bestScore = -1;
+	for (const r of rows) {
+		const s = scoreDekuMatch(r, brand, model, iso);
+		if (s > bestScore) {
+			bestScore = s;
+			best = r;
+		}
+	}
+	return bestScore >= 0 ? best : undefined;
+}
+
+function bestDxMatch(rows: DxProduct[], brand: string, model: string, iso: number): DxProduct | undefined {
+	let best: DxProduct | undefined;
+	let bestScore = -1;
+	for (const r of rows) {
+		const s = scoreDxMatch(r, brand, model, iso);
+		if (s > bestScore) {
+			bestScore = s;
+			best = r;
+		}
+	}
+	return bestScore >= 0 ? best : undefined;
+}
+
+// --- Brand grouping (for candidate suggestions in the report) --------------
+
+function groupDekuByBrand(rows: DekuProduct[]): Map<string, DekuProduct[]> {
+	const out = new Map<string, DekuProduct[]>();
+	for (const r of rows) {
+		const key = normalizeBrand(r.brand);
+		const list = out.get(key);
+		if (list) list.push(r);
+		else out.set(key, [r]);
 	}
 	return out;
+}
+
+/**
+ * Find dx rows whose Name contains all tokens of `brand` (e.g. all rows
+ * starting with "Lomography" for the Lomography brand). Used to surface
+ * near-matches in the report.
+ */
+function dxRowsForBrand(rows: DxProduct[], brand: string): DxProduct[] {
+	const brandToks = tokens(brand);
+	if (brandToks.size === 0) return [];
+	return rows.filter((r) => {
+		const nameToks = tokens(r.name);
+		for (const t of brandToks) if (!nameToks.has(t)) return false;
+		return true;
+	});
 }
 
 interface ScoredCandidate<T> {
@@ -334,10 +398,10 @@ async function main(): Promise<void> {
 	const dxRows = csvToObjects(dxCsv);
 	console.log(`  dekuNukem: ${dekuRows.length} rows, dxdatabase: ${dxRows.length} rows`);
 
-	const dekuIndex = indexDeku(dekuRows);
-	const dxIndex = indexDx(dxRows);
-	const dekuByBrand = indexDekuByBrand(dekuIndex);
-	const dxByBrand = indexDxByBrand(dxIndex);
+	const dekuProducts = dedupDekuRows(dekuRows);
+	const dxProducts = dedupDxRows(dxRows);
+	console.log(`  after dedup: dekuNukem ${dekuProducts.length} products, dxdatabase ${dxProducts.length} products`);
+	const dekuByBrand = groupDekuByBrand(dekuProducts);
 
 	const enrichment: Record<string, EnrichmentEntry> = {};
 	const noImage: FilmCatalogEntry[] = [];
@@ -345,10 +409,8 @@ async function main(): Promise<void> {
 	let withProcess = 0;
 
 	for (const entry of FILM_CATALOG) {
-		const key = joinKey(entry.brand, entry.model);
-		const dekuMatches = dekuIndex.get(key);
-		const dx = dxIndex.get(key);
-		const deku = dekuMatches ? pickDekuRow(dekuMatches) : undefined;
+		const deku = bestDekuMatch(dekuProducts, entry.brand, entry.model, entry.iso);
+		const dx = bestDxMatch(dxProducts, entry.brand, entry.model, entry.iso);
 
 		// Image: dxdatabase first, dekuNukem fallback
 		let imageUrl: string | undefined;
@@ -428,39 +490,58 @@ async function main(): Promise<void> {
 			reportLines.push(`### ${ref.brand} — ${ref.model} _(${formats})_`);
 			reportLines.push("");
 
+			// Did we actually match a source row, just one with no image?
+			const matchedDeku = bestDekuMatch(dekuProducts, ref.brand, ref.model, ref.iso);
+			const matchedDx = bestDxMatch(dxProducts, ref.brand, ref.model, ref.iso);
+			if (matchedDeku && !matchedDeku.filename) {
+				reportLines.push(
+					`- ✓ matched in dekuNukem as \`${matchedDeku.brand} — ${matchedDeku.product}\`, but source has no image file`,
+				);
+				reportLines.push("");
+			}
+			if (matchedDx && !matchedDx.pic) {
+				reportLines.push(`- ✓ matched in dxdatabase as \`${matchedDx.name}\`, but source has no \`Pic\``);
+				reportLines.push("");
+			}
+
+			// Suggest brand-overlap candidates only when no exact match was found in that source.
 			const brandKey = normalizeBrand(ref.brand);
 			const dekuBrandList = dekuByBrand.get(brandKey);
-			const dxBrandList = dxByBrand.get(brandKey);
+			const dxBrandList = dxRowsForBrand(dxProducts, ref.brand);
 			const dekuCandidates = topCandidates(dekuBrandList, (p) => p.product, ref.model, 5);
 			const dxCandidates = topCandidates(dxBrandList, (p) => p.name, ref.model, 5);
 
-			reportLines.push("**dekuNukem**:");
-			if (!dekuBrandList || dekuBrandList.length === 0) {
-				reportLines.push("- _brand absent from source_");
-			} else if (dekuCandidates.length === 0) {
-				reportLines.push(`- _brand has ${dekuBrandList.length} entries but none with overlapping model tokens_`);
-			} else {
-				for (const c of dekuCandidates) {
-					const meta = [c.item.process && `process=${c.item.process}`, c.item.filename && "image=yes"]
-						.filter(Boolean)
-						.join(", ");
-					reportLines.push(`- _score ${c.score.toFixed(2)}_ — \`${c.item.product}\`${meta ? ` (${meta})` : ""}`);
+			if (!matchedDeku) {
+				reportLines.push("**dekuNukem candidates**:");
+				if (!dekuBrandList || dekuBrandList.length === 0) {
+					reportLines.push("- _brand absent from source_");
+				} else if (dekuCandidates.length === 0) {
+					reportLines.push(`- _brand has ${dekuBrandList.length} entries but none with overlapping model tokens_`);
+				} else {
+					for (const c of dekuCandidates) {
+						const meta = [c.item.process && `process=${c.item.process}`, c.item.filename && "image=yes"]
+							.filter(Boolean)
+							.join(", ");
+						reportLines.push(`- _score ${c.score.toFixed(2)}_ — \`${c.item.product}\`${meta ? ` (${meta})` : ""}`);
+					}
 				}
+				reportLines.push("");
 			}
-			reportLines.push("");
 
-			reportLines.push("**dxdatabase**:");
-			if (!dxBrandList || dxBrandList.length === 0) {
-				reportLines.push("- _brand absent from source_");
-			} else if (dxCandidates.length === 0) {
-				reportLines.push(`- _brand has ${dxBrandList.length} entries but none with overlapping model tokens_`);
-			} else {
-				for (const c of dxCandidates) {
-					const meta = c.item.pic ? "image=yes" : "no image";
-					reportLines.push(`- _score ${c.score.toFixed(2)}_ — \`${c.item.name}\` (${meta})`);
+			if (!matchedDx) {
+				reportLines.push("**dxdatabase candidates**:");
+				if (dxBrandList.length === 0) {
+					reportLines.push("- _brand absent from source_");
+				} else if (dxCandidates.length === 0) {
+					reportLines.push(`- _brand has ${dxBrandList.length} entries but none with overlapping model tokens_`);
+				} else {
+					for (const c of dxCandidates) {
+						const meta = c.item.pic ? "image=yes" : "no image";
+						reportLines.push(`- _score ${c.score.toFixed(2)}_ — \`${c.item.name}\` (${meta})`);
+					}
 				}
+				reportLines.push("");
 			}
-			reportLines.push("");
 		}
 	}
 
