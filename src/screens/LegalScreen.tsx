@@ -63,6 +63,13 @@ export function LegalScreen({ onBack }: LegalScreenProps) {
 				<h2 className="text-sm font-bold text-text-primary font-body">{t("legal.contactTitle")}</h2>
 				<p className="text-xs text-text-sec font-body leading-relaxed">{t("legal.contactContent")}</p>
 			</Card>
+
+			<Card className="p-4 flex flex-col gap-3">
+				<h2 className="text-sm font-bold text-text-primary font-body">{t("legal.imageCreditsTitle")}</h2>
+				<p className="text-xs text-text-sec font-body leading-relaxed whitespace-pre-line">
+					{t("legal.imageCreditsContent")}
+				</p>
+			</Card>
 		</div>
 	);
 }

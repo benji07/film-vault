@@ -767,6 +767,9 @@ export const en = {
 		contactTitle: "Contact",
 		contactContent:
 			"For any questions about your data or to exercise your rights, you can contact the publisher via GitHub: github.com/benji07/film-vault/issues.",
+		imageCreditsTitle: "Film box image credits",
+		imageCreditsContent:
+			"Box photos shown in the catalog come from two open-source databases:\n• dekuNukem/Film-Packaging (github.com/dekuNukem/Film-Packaging) — MIT-licensed code, fair-use images\n• dxdatabase/Open-source-film-database (github.com/dxdatabase/Open-source-film-database) — fair-use images\n\nImage rights belong to the respective manufacturers (Kodak, Ilford, Fujifilm, Lomography, etc.). They are used as a visual reference for film identification. No image is redistributed or stored by FilmVault — they are loaded directly from the source repositories via raw.githubusercontent.com.",
 	},
 
 	// Tour / Guide
