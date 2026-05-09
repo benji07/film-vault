@@ -27,11 +27,6 @@ jobs:
         with:
           branch: chore/enrich-catalog
           title: "chore: refresh film catalog enrichment"
-          body: |
-            Auto-generated update of `src/constants/film-catalog-enrichment.json` from:
-            - https://github.com/dekuNukem/Film-Packaging
-            - https://github.com/dxdatabase/Open-source-film-database
-
-            Run `npx tsx scripts/enrich-catalog.ts` locally to reproduce.
+          body-path: enrichment-report.md
           commit-message: "chore: refresh film catalog enrichment"
           add-paths: src/constants/film-catalog-enrichment.json

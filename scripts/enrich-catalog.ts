@@ -26,6 +26,7 @@ const DX_IMAGE_BASE_URL = "https://raw.githubusercontent.com/dxdatabase/Open-sou
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(here, "../src/constants/film-catalog-enrichment.json");
+const REPORT_PATH = resolve(here, "../enrichment-report.md");
 
 // --- Types -----------------------------------------------------------------
 
@@ -151,6 +152,21 @@ function joinKey(brand: string, model: string): string {
 	return `${normalizeBrand(brand)}|${normalize(model)}`;
 }
 
+// --- Similarity ------------------------------------------------------------
+
+function tokens(s: string): Set<string> {
+	return new Set(normalize(s).split(" ").filter(Boolean));
+}
+
+function jaccard(a: string, b: string): number {
+	const ta = tokens(a);
+	const tb = tokens(b);
+	if (ta.size === 0 || tb.size === 0) return 0;
+	let inter = 0;
+	for (const t of ta) if (tb.has(t)) inter++;
+	return inter / (ta.size + tb.size - inter);
+}
+
 // --- Process mapping -------------------------------------------------------
 
 function mapDekuProcess(raw: string): FilmDevelopmentProcess | undefined {
@@ -231,6 +247,75 @@ function pickDekuRow(rows: DekuRow[]): DekuRow | undefined {
 	return rows.find((r) => r.filename) ?? rows[0];
 }
 
+// --- Brand-grouped indexes (for candidate suggestions) ---------------------
+
+interface DekuProduct {
+	brand: string;
+	product: string;
+	process: string;
+	filename: string;
+}
+
+interface DxProduct {
+	manufacturer: string;
+	name: string;
+	pic: string;
+}
+
+function indexDekuByBrand(dekuByKey: Map<string, DekuRow[]>): Map<string, DekuProduct[]> {
+	const out = new Map<string, DekuProduct[]>();
+	for (const [key, rows] of dekuByKey) {
+		const brandKey = key.split("|")[0] ?? "";
+		const pick = pickDekuRow(rows);
+		if (!pick) continue;
+		const product: DekuProduct = {
+			brand: pick.brand,
+			product: pick.product,
+			process: pick.process,
+			filename: pick.filename,
+		};
+		const list = out.get(brandKey);
+		if (list) list.push(product);
+		else out.set(brandKey, [product]);
+	}
+	return out;
+}
+
+function indexDxByBrand(dxByKey: Map<string, DxRow>): Map<string, DxProduct[]> {
+	const out = new Map<string, DxProduct[]>();
+	for (const [key, row] of dxByKey) {
+		const brandKey = key.split("|")[0] ?? "";
+		const product: DxProduct = {
+			manufacturer: row.manufacturer,
+			name: row.name,
+			pic: row.pic,
+		};
+		const list = out.get(brandKey);
+		if (list) list.push(product);
+		else out.set(brandKey, [product]);
+	}
+	return out;
+}
+
+interface ScoredCandidate<T> {
+	score: number;
+	item: T;
+}
+
+function topCandidates<T>(
+	items: T[] | undefined,
+	modelOf: (t: T) => string,
+	target: string,
+	max = 5,
+): ScoredCandidate<T>[] {
+	if (!items) return [];
+	const scored = items
+		.map((item) => ({ score: jaccard(modelOf(item), target), item }))
+		.filter((s) => s.score > 0)
+		.sort((a, b) => b.score - a.score);
+	return scored.slice(0, max);
+}
+
 // --- Pipeline --------------------------------------------------------------
 
 async function fetchText(url: string): Promise<string> {
@@ -251,9 +336,11 @@ async function main(): Promise<void> {
 
 	const dekuIndex = indexDeku(dekuRows);
 	const dxIndex = indexDx(dxRows);
+	const dekuByBrand = indexDekuByBrand(dekuIndex);
+	const dxByBrand = indexDxByBrand(dxIndex);
 
 	const enrichment: Record<string, EnrichmentEntry> = {};
-	const unmatched: FilmCatalogEntry[] = [];
+	const noImage: FilmCatalogEntry[] = [];
 	let withImage = 0;
 	let withProcess = 0;
 
@@ -283,15 +370,14 @@ async function main(): Promise<void> {
 		if (sourceUrl) out.sourceUrl = sourceUrl;
 		if (deku?.uuid) out.sourceUuid = deku.uuid;
 
-		if (Object.keys(out).length === 0) {
-			unmatched.push(entry);
-			continue;
+		if (Object.keys(out).length > 0) {
+			const enrichmentKey = `${entry.brand.toLowerCase()}|${entry.model.toLowerCase()}|${entry.format.toLowerCase()}`;
+			enrichment[enrichmentKey] = out;
+			if (out.imageUrl) withImage++;
+			if (out.developmentProcess) withProcess++;
 		}
 
-		const enrichmentKey = `${entry.brand.toLowerCase()}|${entry.model.toLowerCase()}|${entry.format.toLowerCase()}`;
-		enrichment[enrichmentKey] = out;
-		if (out.imageUrl) withImage++;
-		if (out.developmentProcess) withProcess++;
+		if (!imageUrl) noImage.push(entry);
 	}
 
 	// Sort keys for stable diffs
@@ -303,21 +389,92 @@ async function main(): Promise<void> {
 
 	writeFileSync(OUTPUT_PATH, `${JSON.stringify(sorted, null, "\t")}\n`, "utf8");
 
-	// --- Report ---
+	// --- Markdown report ---
+	const reportLines: string[] = [];
+	reportLines.push("# Film catalog enrichment");
+	reportLines.push("");
+	reportLines.push(`Generated ${new Date().toISOString()}.`);
+	reportLines.push("");
+	reportLines.push("## Summary");
+	reportLines.push("");
+	reportLines.push(`- Catalog entries: **${FILM_CATALOG.length}**`);
+	reportLines.push(`- With image: **${withImage}** (${Math.round((100 * withImage) / FILM_CATALOG.length)}%)`);
+	reportLines.push(`- With process: **${withProcess}**`);
+	reportLines.push(`- Without image: **${noImage.length}**`);
+	reportLines.push("");
+
+	// Group "no image" entries by brand+model so we don't duplicate per format
+	const noImageByBrandModel = new Map<string, FilmCatalogEntry[]>();
+	for (const e of noImage) {
+		const k = `${e.brand}|${e.model}`;
+		const list = noImageByBrandModel.get(k);
+		if (list) list.push(e);
+		else noImageByBrandModel.set(k, [e]);
+	}
+
+	if (noImageByBrandModel.size > 0) {
+		reportLines.push("## Entries without image");
+		reportLines.push("");
+		reportLines.push(
+			"For each entry, candidates with the same brand are listed, ranked by Jaccard token overlap on the model name. " +
+				"If a candidate looks like the same product under another name, align the catalog entry to pick up enrichment on the next run.",
+		);
+		reportLines.push("");
+
+		for (const [, entries] of noImageByBrandModel) {
+			const ref = entries[0];
+			if (!ref) continue;
+			const formats = entries.map((e) => e.format).join(", ");
+			reportLines.push(`### ${ref.brand} — ${ref.model} _(${formats})_`);
+			reportLines.push("");
+
+			const brandKey = normalizeBrand(ref.brand);
+			const dekuBrandList = dekuByBrand.get(brandKey);
+			const dxBrandList = dxByBrand.get(brandKey);
+			const dekuCandidates = topCandidates(dekuBrandList, (p) => p.product, ref.model, 5);
+			const dxCandidates = topCandidates(dxBrandList, (p) => p.name, ref.model, 5);
+
+			reportLines.push("**dekuNukem**:");
+			if (!dekuBrandList || dekuBrandList.length === 0) {
+				reportLines.push("- _brand absent from source_");
+			} else if (dekuCandidates.length === 0) {
+				reportLines.push(`- _brand has ${dekuBrandList.length} entries but none with overlapping model tokens_`);
+			} else {
+				for (const c of dekuCandidates) {
+					const meta = [c.item.process && `process=${c.item.process}`, c.item.filename && "image=yes"]
+						.filter(Boolean)
+						.join(", ");
+					reportLines.push(`- _score ${c.score.toFixed(2)}_ — \`${c.item.product}\`${meta ? ` (${meta})` : ""}`);
+				}
+			}
+			reportLines.push("");
+
+			reportLines.push("**dxdatabase**:");
+			if (!dxBrandList || dxBrandList.length === 0) {
+				reportLines.push("- _brand absent from source_");
+			} else if (dxCandidates.length === 0) {
+				reportLines.push(`- _brand has ${dxBrandList.length} entries but none with overlapping model tokens_`);
+			} else {
+				for (const c of dxCandidates) {
+					const meta = c.item.pic ? "image=yes" : "no image";
+					reportLines.push(`- _score ${c.score.toFixed(2)}_ — \`${c.item.name}\` (${meta})`);
+				}
+			}
+			reportLines.push("");
+		}
+	}
+
+	writeFileSync(REPORT_PATH, `${reportLines.join("\n")}\n`, "utf8");
+
+	// --- Stdout summary ---
 	console.log("");
 	console.log(`Catalog entries: ${FILM_CATALOG.length}`);
 	console.log(`  with image:    ${withImage}`);
 	console.log(`  with process:  ${withProcess}`);
-	console.log(`  unmatched:     ${unmatched.length}`);
-	if (unmatched.length > 0) {
-		console.log("");
-		console.log("Unmatched entries:");
-		for (const u of unmatched) {
-			console.log(`  - ${u.brand} ${u.model} (${u.format})`);
-		}
-	}
+	console.log(`  without image: ${noImage.length}`);
 	console.log("");
 	console.log(`Wrote ${OUTPUT_PATH}`);
+	console.log(`Wrote ${REPORT_PATH}`);
 }
 
 main().catch((err) => {
