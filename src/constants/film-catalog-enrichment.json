@@ -1,0 +1,317 @@
+{
+	"cinestill|50d|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00254_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "9213a1fbffc44178878f7bd9c5d33452"
+	},
+	"cinestill|50d|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00254_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "9213a1fbffc44178878f7bd9c5d33452"
+	},
+	"cinestill|800t|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00006_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "53253eca96d841f5b98bfb3590fec86a"
+	},
+	"cinestill|800t|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00006_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "53253eca96d841f5b98bfb3590fec86a"
+	},
+	"cinestill|bwxx|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00256_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "e4493fbb55e044edaaca55ecd22366eb"
+	},
+	"foma|fomapan 100|120": {
+		"developmentProcess": "B&W"
+	},
+	"foma|fomapan 100|35mm": {
+		"developmentProcess": "B&W"
+	},
+	"foma|fomapan 200|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00183_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "840026a068594c3389b34374204f60ee"
+	},
+	"foma|fomapan 200|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00183_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "840026a068594c3389b34374204f60ee"
+	},
+	"foma|fomapan 400|120": {
+		"developmentProcess": "B&W"
+	},
+	"foma|fomapan 400|35mm": {
+		"developmentProcess": "B&W"
+	},
+	"fujifilm|acros ii 100|120": {
+		"developmentProcess": "B&W"
+	},
+	"fujifilm|acros ii 100|35mm": {
+		"developmentProcess": "B&W"
+	},
+	"fujifilm|c200|35mm": {
+		"developmentProcess": "C-41"
+	},
+	"fujifilm|instax mini monochrome|instax mini": {
+		"developmentProcess": "B&W"
+	},
+	"fujifilm|instax mini|instax mini": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00307_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "b8ea314888b244f8ab8ace49c734e5e7"
+	},
+	"fujifilm|instax square monochrome|instax square": {
+		"developmentProcess": "B&W"
+	},
+	"fujifilm|instax square|instax square": {
+		"developmentProcess": "C-41"
+	},
+	"fujifilm|instax wide|instax wide": {
+		"developmentProcess": "C-41"
+	},
+	"fujifilm|provia 100f|120": {
+		"developmentProcess": "E-6"
+	},
+	"fujifilm|provia 100f|35mm": {
+		"developmentProcess": "E-6"
+	},
+	"fujifilm|superia 400|35mm": {
+		"developmentProcess": "C-41"
+	},
+	"fujifilm|velvia 100|120": {
+		"developmentProcess": "E-6"
+	},
+	"fujifilm|velvia 100|35mm": {
+		"developmentProcess": "E-6"
+	},
+	"fujifilm|velvia 50|120": {
+		"developmentProcess": "E-6"
+	},
+	"fujifilm|velvia 50|35mm": {
+		"developmentProcess": "E-6"
+	},
+	"ilford|delta 100|120": {
+		"developmentProcess": "B&W"
+	},
+	"ilford|delta 100|35mm": {
+		"developmentProcess": "B&W"
+	},
+	"ilford|delta 3200|120": {
+		"developmentProcess": "B&W"
+	},
+	"ilford|delta 3200|35mm": {
+		"developmentProcess": "B&W"
+	},
+	"ilford|delta 400|120": {
+		"developmentProcess": "B&W"
+	},
+	"ilford|delta 400|35mm": {
+		"developmentProcess": "B&W"
+	},
+	"ilford|fp4 plus|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00111_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "c6c88d6d009048e9ac3721bdc7f076e7"
+	},
+	"ilford|fp4 plus|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00111_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "c6c88d6d009048e9ac3721bdc7f076e7"
+	},
+	"ilford|hp5 plus|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00000_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "36151f6b7cc045c2b43d7f5cbee41a5d"
+	},
+	"ilford|hp5 plus|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00000_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "36151f6b7cc045c2b43d7f5cbee41a5d"
+	},
+	"ilford|pan f plus 50|120": {
+		"developmentProcess": "B&W"
+	},
+	"ilford|pan f plus 50|35mm": {
+		"developmentProcess": "B&W"
+	},
+	"ilford|xp2 super|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00170_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "5863564ab1ef43a4b41fb5312dd0622a"
+	},
+	"ilford|xp2 super|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00170_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "5863564ab1ef43a4b41fb5312dd0622a"
+	},
+	"kodak|colorplus 200|35mm": {
+		"developmentProcess": "C-41"
+	},
+	"kodak|ektar 100|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00081_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "8552091a80a844a5aec3e9b8185e3498"
+	},
+	"kodak|ektar 100|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00081_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "8552091a80a844a5aec3e9b8185e3498"
+	},
+	"kodak|gold 200|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00021_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "e8aefc10fa0d43cebbac73bdcf10933f"
+	},
+	"kodak|portra 160|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00089_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "9131fb90db70475dbad5f63f1448ce56"
+	},
+	"kodak|portra 160|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00089_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "9131fb90db70475dbad5f63f1448ce56"
+	},
+	"kodak|portra 400|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00200_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "5bdddffe29bd464cab4630d85485cf9c"
+	},
+	"kodak|portra 400|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00200_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "5bdddffe29bd464cab4630d85485cf9c"
+	},
+	"kodak|portra 800|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00088_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "7ebac9d7fb8c4ff9b7fbabcaec1d7d65"
+	},
+	"kodak|portra 800|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00088_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "7ebac9d7fb8c4ff9b7fbabcaec1d7d65"
+	},
+	"kodak|t-max 100|120": {
+		"developmentProcess": "B&W"
+	},
+	"kodak|t-max 100|35mm": {
+		"developmentProcess": "B&W"
+	},
+	"kodak|t-max 400|120": {
+		"developmentProcess": "B&W"
+	},
+	"kodak|t-max 400|35mm": {
+		"developmentProcess": "B&W"
+	},
+	"kodak|tri-x 400|120": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00028_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "f7f99b9d46a4491c9cbfda4f030f88c5"
+	},
+	"kodak|tri-x 400|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00028_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "f7f99b9d46a4491c9cbfda4f030f88c5"
+	},
+	"kodak|ultramax 400|35mm": {
+		"developmentProcess": "C-41"
+	},
+	"kodak|vision3 250d|35mm": {
+		"developmentProcess": "ECN-2"
+	},
+	"kodak|vision3 500t|35mm": {
+		"developmentProcess": "ECN-2"
+	},
+	"kodak|vision3 50d|35mm": {
+		"developmentProcess": "ECN-2"
+	},
+	"lomography|color negative 100|35mm": {
+		"developmentProcess": "C-41"
+	},
+	"lomography|color negative 400|35mm": {
+		"developmentProcess": "C-41"
+	},
+	"lomography|color negative 800|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00495_000.jpg",
+		"developmentProcess": "C-41",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "7daedd3c10164aa3a9ca3f7a9eae7796"
+	},
+	"lomography|lady grey|35mm": {
+		"developmentProcess": "B&W"
+	},
+	"lomography|redscale xr 50-200|35mm": {
+		"developmentProcess": "C-41"
+	},
+	"polaroid|b&w 600|polaroid 600": {
+		"developmentProcess": "B&W"
+	},
+	"polaroid|b&w go|polaroid go": {
+		"developmentProcess": "B&W"
+	},
+	"polaroid|b&w i-type|polaroid i-type": {
+		"developmentProcess": "B&W"
+	},
+	"polaroid|b&w sx-70|polaroid sx-70": {
+		"developmentProcess": "B&W"
+	},
+	"polaroid|color 600|polaroid 600": {
+		"developmentProcess": "C-41"
+	},
+	"polaroid|color go|polaroid go": {
+		"developmentProcess": "C-41"
+	},
+	"polaroid|color i-type|polaroid i-type": {
+		"developmentProcess": "C-41"
+	},
+	"polaroid|color sx-70|polaroid sx-70": {
+		"developmentProcess": "C-41"
+	},
+	"rollei|rpx 100|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00258_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "201ce1e1831a483ab7fd569cc50e7cd1"
+	},
+	"rollei|rpx 25|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00400_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "38e7af3c3ff34abeb7ae0badd310b14c"
+	},
+	"rollei|rpx 400|35mm": {
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00136_000.jpg",
+		"developmentProcess": "B&W",
+		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
+		"sourceUuid": "19ef81d6d03844b088250c7b54032155"
+	}
+}

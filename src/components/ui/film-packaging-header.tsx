@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { FilmLabelVariant } from "@/components/ui/film-label";
 import { monogram, tileColor, typeColor } from "@/constants/theme";
@@ -12,6 +13,7 @@ interface FilmPackagingHeaderProps {
 	variant?: FilmLabelVariant;
 	refCode?: string;
 	exposures?: number | string;
+	imageUrl?: string;
 	className?: string;
 	rotate?: number;
 }
@@ -29,20 +31,35 @@ export function FilmPackagingHeader({
 	type,
 	refCode,
 	exposures,
+	imageUrl,
 	className,
 }: FilmPackagingHeaderProps) {
 	const initials = monogram(brand);
 	const bg = type ? typeColor(type) : tileColor(brand);
 
+	// Track the URL that failed (not just a boolean) so a new imageUrl
+	// triggers a fresh attempt without needing a useEffect to reset state.
+	const [failedUrl, setFailedUrl] = useState<string | null>(null);
+	const showImage = Boolean(imageUrl) && imageUrl !== failedUrl;
+
 	return (
 		<section className={cn("flex items-stretch gap-4 bg-surface rounded-[14px] p-4", className)}>
-			<div
-				className="flex flex-col items-center justify-center text-white shrink-0 rounded-[10px] w-[88px] h-[88px]"
-				style={{ backgroundColor: bg }}
-			>
-				<div className="text-3xl font-semibold leading-none tracking-tight">{initials}</div>
-				<div className="text-[10px] font-medium text-white/75 leading-none mt-1.5">{format}</div>
-			</div>
+			{showImage ? (
+				<img
+					src={imageUrl}
+					alt={`${brand} ${model}`}
+					onError={() => setFailedUrl(imageUrl ?? null)}
+					className="shrink-0 rounded-[10px] w-[88px] h-[88px] object-cover bg-surface-2"
+				/>
+			) : (
+				<div
+					className="flex flex-col items-center justify-center text-white shrink-0 rounded-[10px] w-[88px] h-[88px]"
+					style={{ backgroundColor: bg }}
+				>
+					<div className="text-3xl font-semibold leading-none tracking-tight">{initials}</div>
+					<div className="text-[10px] font-medium text-white/75 leading-none mt-1.5">{format}</div>
+				</div>
+			)}
 
 			<div className="flex-1 min-w-0 flex flex-col justify-between gap-2">
 				<div className="flex items-start justify-between gap-3 min-w-0">

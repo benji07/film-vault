@@ -14,6 +14,7 @@ import { FilmPackagingHeader } from "@/components/ui/film-packaging-header";
 import { filmTypeToVariant, T } from "@/constants/theme";
 import { cn } from "@/lib/utils";
 import type { AppData, FilmState, Film as FilmType } from "@/types";
+import { findCatalogEntry } from "@/utils/catalog";
 import { createNewFilm } from "@/utils/film-factory";
 import { filmIso, filmName, filmType } from "@/utils/film-helpers";
 import { today } from "@/utils/helpers";
@@ -222,6 +223,7 @@ export function FilmDetailScreen({
 
 	const variant = filmTypeToVariant(filmType(film));
 	const stateBanner = computeStateBanner(film.state, film, t);
+	const catalogImageUrl = findCatalogEntry(film.brand, film.model, film.format)?.imageUrl;
 
 	return (
 		<div className="flex flex-col gap-5 pb-20">
@@ -235,6 +237,7 @@ export function FilmDetailScreen({
 				variant={variant}
 				refCode={film.labRef?.trim() || undefined}
 				exposures={film.posesTotal ?? undefined}
+				imageUrl={catalogImageUrl}
 			/>
 
 			{/* État banner */}
