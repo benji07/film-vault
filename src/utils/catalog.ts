@@ -1,5 +1,6 @@
 import type { FilmCatalogEntry, FilmDevelopmentProcess } from "@/constants/film-catalog";
 import { FILM_CATALOG } from "@/constants/film-catalog";
+import discoveriesRaw from "@/constants/film-catalog-discoveries.json";
 import enrichmentRaw from "@/constants/film-catalog-enrichment.json";
 import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 
@@ -35,6 +36,7 @@ interface EnrichmentEntry {
 }
 
 const enrichmentMap = enrichmentRaw as Record<string, EnrichmentEntry>;
+const discoveries = discoveriesRaw as FilmCatalogEntry[];
 
 function enrichmentKey(brand: string, model: string, format: string): string {
 	return `${brand.toLowerCase()}|${model.toLowerCase()}|${format.toLowerCase()}`;
@@ -48,6 +50,26 @@ function applyEnrichment(entry: FilmCatalogEntry): FilmCatalogEntry {
 		imageUrl: entry.imageUrl ?? found.imageUrl,
 		developmentProcess: entry.developmentProcess ?? found.developmentProcess,
 	};
+}
+
+/**
+ * Append auto-discovered entries to the canonical list, deduped by
+ * (brand, model, format). Curation in FILM_CATALOG always wins.
+ */
+function withDiscoveries(base: FilmCatalogEntry[]): FilmCatalogEntry[] {
+	if (discoveries.length === 0) return base;
+	const seen = new Set<string>();
+	for (const e of base) {
+		seen.add(enrichmentKey(e.brand, e.model, e.format));
+	}
+	const merged = [...base];
+	for (const d of discoveries) {
+		const k = enrichmentKey(d.brand, d.model, d.format);
+		if (seen.has(k)) continue;
+		seen.add(k);
+		merged.push(d);
+	}
+	return merged;
 }
 
 // --- In-memory cache ---
@@ -69,7 +91,7 @@ export function getFilmCatalog(): FilmCatalogEntry[] {
 		const cached = localStorage.getItem(FILM_CATALOG_KEY);
 		if (cached) {
 			const parsed = JSON.parse(cached) as FilmCatalogEntry[];
-			filmCatalogCache = parsed.map(applyEnrichment);
+			filmCatalogCache = withDiscoveries(parsed).map(applyEnrichment);
 			return filmCatalogCache;
 		}
 	} catch {
@@ -77,7 +99,7 @@ export function getFilmCatalog(): FilmCatalogEntry[] {
 	}
 
 	// Fallback to hardcoded catalog
-	return FILM_CATALOG.map(applyEnrichment);
+	return withDiscoveries(FILM_CATALOG).map(applyEnrichment);
 }
 
 /**
@@ -156,7 +178,7 @@ export async function refreshCatalogs(): Promise<void> {
 			mergedFilms = films as FilmCatalogEntry[];
 		}
 		localStorage.setItem(FILM_CATALOG_KEY, JSON.stringify(mergedFilms));
-		filmCatalogCache = mergedFilms.map(applyEnrichment);
+		filmCatalogCache = withDiscoveries(mergedFilms).map(applyEnrichment);
 
 		// Track max server timestamp from film rows
 		for (const row of films as FilmCatalogRow[]) {

@@ -2,8 +2,7 @@
 	"cinestill|50d|120": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/Cinestill50D135.jpg",
 		"developmentProcess": "C-41",
-		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "9213a1fbffc44178878f7bd9c5d33452"
+		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database"
 	},
 	"cinestill|50d|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/Cinestill50D135.jpg",
@@ -21,19 +20,18 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/Cinestill800Tnew.jpg",
 		"developmentProcess": "C-41",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "53253eca96d841f5b98bfb3590fec86a"
+		"sourceUuid": "81978ca6f6d048b3a759dffdb80fb3ff"
 	},
 	"cinestill|bwxx|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/CinestillXX.jpg",
 		"developmentProcess": "B&W",
-		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "e4493fbb55e044edaaca55ecd22366eb"
+		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database"
 	},
 	"foma|fomapan 100|120": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/Fomapan100.jpg",
 		"developmentProcess": "B&W",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "bf1734a1ea48495d92afb7d03bdf0030"
+		"sourceUuid": "a0786cc1bc884f66bbb84118d55665ad"
 	},
 	"foma|fomapan 100|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/Fomapan100.jpg",
@@ -45,7 +43,7 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/FomapanCreativ200.jpg",
 		"developmentProcess": "B&W",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "840026a068594c3389b34374204f60ee"
+		"sourceUuid": "7be1cb0047f14034a7386cd7b1843e4f"
 	},
 	"foma|fomapan 200|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/FomapanCreativ200.jpg",
@@ -56,8 +54,7 @@
 	"foma|fomapan 400|120": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/Fomapan400first.jpg",
 		"developmentProcess": "B&W",
-		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "3296821c76484d32b09ff0f32057189e"
+		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database"
 	},
 	"foma|fomapan 400|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/Fomapan400first.jpg",
@@ -69,7 +66,7 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/FujiAcros100II.jpg",
 		"developmentProcess": "B&W",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "1f1865a95b8847d69dcd18cf52bc9ea9"
+		"sourceUuid": "fbb052b5a0024308b4d11dd3a78b4027"
 	},
 	"fujifilm|acros ii 100|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/FujiAcros100II.jpg",
@@ -87,10 +84,7 @@
 		"developmentProcess": "B&W"
 	},
 	"fujifilm|instax mini|instax mini": {
-		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00307_000.jpg",
-		"developmentProcess": "C-41",
-		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
-		"sourceUuid": "b8ea314888b244f8ab8ace49c734e5e7"
+		"developmentProcess": "C-41"
 	},
 	"fujifilm|instax square monochrome|instax square": {
 		"developmentProcess": "B&W"
@@ -102,10 +96,10 @@
 		"developmentProcess": "C-41"
 	},
 	"fujifilm|provia 100f|120": {
-		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00055_000.jpg",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00281_000.jpg",
 		"developmentProcess": "E-6",
 		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
-		"sourceUuid": "a3603dbdd8ca49b893c8ce2bc76f356d"
+		"sourceUuid": "c7a59b3560b04f3a93f2ee26d1b21b4b"
 	},
 	"fujifilm|provia 100f|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00055_000.jpg",
@@ -141,7 +135,7 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/Delta100.jpg",
 		"developmentProcess": "B&W",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "e39c5eca4e3e4e5badfa00ee512deb8d"
+		"sourceUuid": "179f22ce3d644d728b189f6ef7a9bf01"
 	},
 	"ilford|delta 3200|120": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/IlfordDelta3200-2018.jpg",
@@ -153,13 +147,12 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/IlfordDelta3200-2018.jpg",
 		"developmentProcess": "B&W",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "78d1111d1b234dcfb272c00d7935920f"
+		"sourceUuid": "d6f377dbe74745a0aacdf51ce7669b54"
 	},
 	"ilford|delta 400|120": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/Delta400.jpg",
 		"developmentProcess": "B&W",
-		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "3b21d893a52242f886e7057855d7f3da"
+		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database"
 	},
 	"ilford|delta 400|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/Delta400.jpg",
@@ -177,7 +170,7 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/FP4PlusWhite.jpg",
 		"developmentProcess": "B&W",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "c6c88d6d009048e9ac3721bdc7f076e7"
+		"sourceUuid": "c1bab96948014588adbde72665853bc0"
 	},
 	"ilford|hp5 plus|120": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/HP5plusfirst.jpg",
@@ -189,7 +182,7 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/HP5plusfirst.jpg",
 		"developmentProcess": "B&W",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "36151f6b7cc045c2b43d7f5cbee41a5d"
+		"sourceUuid": "8db6d8343d544c21bfd539c32525df49"
 	},
 	"ilford|pan f plus 50|120": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/IlfordPanFplusBlack.jpg",
@@ -205,7 +198,7 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/IlfordXP2super2018.jpg",
 		"developmentProcess": "C-41",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "5863564ab1ef43a4b41fb5312dd0622a"
+		"sourceUuid": "08ab5616c0644099aceffb457b7e484f"
 	},
 	"ilford|xp2 super|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/IlfordXP2super2018.jpg",
@@ -219,10 +212,10 @@
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database"
 	},
 	"kodak|ektar 100|120": {
-		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00081_000.jpg",
+		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00251_000.jpg",
 		"developmentProcess": "C-41",
 		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
-		"sourceUuid": "8552091a80a844a5aec3e9b8185e3498"
+		"sourceUuid": "22bb063ec2ca4f2ea5b9f4be4dce4631"
 	},
 	"kodak|ektar 100|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00081_000.jpg",
@@ -234,13 +227,12 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/KodakGold200Generic.jpg",
 		"developmentProcess": "C-41",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "e8aefc10fa0d43cebbac73bdcf10933f"
+		"sourceUuid": "e7fb9bd0f50c401dbf51f7c858167d4b"
 	},
 	"kodak|portra 160|120": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/KodakPortra160new.jpg",
 		"developmentProcess": "C-41",
-		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "9131fb90db70475dbad5f63f1448ce56"
+		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database"
 	},
 	"kodak|portra 160|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/KodakPortra160new.jpg",
@@ -252,7 +244,7 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/KodakPortra400new.jpg",
 		"developmentProcess": "C-41",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "5bdddffe29bd464cab4630d85485cf9c"
+		"sourceUuid": "12ee41c6f8fe493fbda516802e039f18"
 	},
 	"kodak|portra 400|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/KodakPortra400new.jpg",
@@ -264,7 +256,7 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/KodakPortra800.jpg",
 		"developmentProcess": "C-41",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "7ebac9d7fb8c4ff9b7fbabcaec1d7d65"
+		"sourceUuid": "3663afb2b2d340d3a5c9e0d0e9f021f9"
 	},
 	"kodak|portra 800|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/KodakPortra800.jpg",
@@ -302,7 +294,7 @@
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/KodakTX400Pro.jpg",
 		"developmentProcess": "B&W",
 		"sourceUrl": "https://github.com/dxdatabase/Open-source-film-database",
-		"sourceUuid": "f7f99b9d46a4491c9cbfda4f030f88c5"
+		"sourceUuid": "0417faf4f5be42538db49741140bc671"
 	},
 	"kodak|ultramax 400|35mm": {
 		"developmentProcess": "C-41"
@@ -343,34 +335,22 @@
 		"developmentProcess": "B&W"
 	},
 	"polaroid|b&w i-type|polaroid i-type": {
-		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00565_000.jpg",
-		"developmentProcess": "B&W",
-		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
-		"sourceUuid": "d0c5d59f8d974c83b651e1b9e8f7963a"
+		"developmentProcess": "B&W"
 	},
 	"polaroid|b&w sx-70|polaroid sx-70": {
 		"developmentProcess": "B&W"
 	},
 	"polaroid|color 600|polaroid 600": {
-		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00498_000.jpg",
-		"developmentProcess": "C-41",
-		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
-		"sourceUuid": "51d75e2058564d668402d5f1bf3fe12f"
+		"developmentProcess": "C-41"
 	},
 	"polaroid|color go|polaroid go": {
 		"developmentProcess": "C-41"
 	},
 	"polaroid|color i-type|polaroid i-type": {
-		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00563_000.jpg",
-		"developmentProcess": "C-41",
-		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
-		"sourceUuid": "a0f16870196d400eb47971a65ab747a7"
+		"developmentProcess": "C-41"
 	},
 	"polaroid|color sx-70|polaroid sx-70": {
-		"imageUrl": "https://raw.githubusercontent.com/dekuNukem/Film-Packaging/master/film_packaging/00156_000.jpg",
-		"developmentProcess": "C-41",
-		"sourceUrl": "https://github.com/dekuNukem/Film-Packaging",
-		"sourceUuid": "b4af154cea6f40c0aa1d4154d0c2dc7f"
+		"developmentProcess": "C-41"
 	},
 	"rollei|rpx 100|35mm": {
 		"imageUrl": "https://raw.githubusercontent.com/dxdatabase/Open-source-film-database/main/Images/RolleiRPX100.jpg",

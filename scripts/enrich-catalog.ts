@@ -26,6 +26,7 @@ const DX_IMAGE_BASE_URL = "https://raw.githubusercontent.com/dxdatabase/Open-sou
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(here, "../src/constants/film-catalog-enrichment.json");
+const DISCOVERIES_PATH = resolve(here, "../src/constants/film-catalog-discoveries.json");
 const REPORT_PATH = resolve(here, "../enrichment-report.md");
 
 // --- Types -----------------------------------------------------------------
@@ -183,11 +184,39 @@ function fallbackProcessFromType(type: string): FilmDevelopmentProcess | undefin
 	}
 }
 
+// Reverse: derive the catalog's `type` from the dev process. Used for discovery
+// where dekuNukem gives us `process` directly but no `type`.
+function typeFromProcess(p: FilmDevelopmentProcess): "Couleur" | "N&B" | "Diapo" | "ECN-2" | undefined {
+	switch (p) {
+		case "C-41":
+			return "Couleur";
+		case "E-6":
+			return "Diapo";
+		case "B&W":
+			return "N&B";
+		case "ECN-2":
+			return "ECN-2";
+		case "K-14":
+			return undefined; // Kodachrome — no longer processed; not in app's FilmType
+	}
+}
+
+// dekuNukem `film_format` → app's FilmFormat. Only roll formats are kept;
+// instant film formats can't be reliably classified into Instax/Polaroid
+// variants from dekuNukem alone, so we skip them in discovery.
+function mapDekuFormat(raw: string): "35mm" | "120" | undefined {
+	const v = raw.trim();
+	if (v === "35mm") return "35mm";
+	if (v === "120") return "120";
+	return undefined;
+}
+
 // --- Dedup --------------------------------------------------------------
 
 interface DekuProduct {
 	brand: string;
 	product: string;
+	format: string;
 	iso: string;
 	process: string;
 	uuid: string;
@@ -198,6 +227,9 @@ interface DxProduct {
 	manufacturer: string;
 	name: string;
 	pic: string;
+	beginYear: string;
+	endYear: string;
+	ava: string;
 }
 
 /**
@@ -210,12 +242,15 @@ function dedupDekuRows(rows: Record<string, string>[]): DekuProduct[] {
 		if (t === "film_box_inside") return 1;
 		return 2;
 	};
+	// Dedup key includes format so 35mm and 120 of the same product stay separate
+	// (they have distinct box photos).
 	const groups = new Map<string, Record<string, string>[]>();
 	for (const r of rows) {
 		const brand = r["brand"] ?? "";
 		const product = r["product"] ?? "";
+		const format = r["film_format"] ?? "";
 		if (!brand || !product) continue;
-		const key = `${normalizeBrand(brand)}|${normalize(product)}`;
+		const key = `${normalizeBrand(brand)}|${normalize(product)}|${normalize(format)}`;
 		const list = groups.get(key);
 		if (list) list.push(r);
 		else groups.set(key, [r]);
@@ -236,6 +271,7 @@ function dedupDekuRows(rows: Record<string, string>[]): DekuProduct[] {
 		out.push({
 			brand: best["brand"] ?? "",
 			product: best["product"] ?? "",
+			format: best["film_format"] ?? "",
 			iso: best["film_speed_iso"] ?? "",
 			process: best["process"] ?? "",
 			uuid: best["uuid"] ?? "",
@@ -258,11 +294,21 @@ function dedupDxRows(rows: Record<string, string>[]): DxProduct[] {
 			manufacturer: r["Manufacturer"] ?? "",
 			name,
 			pic: r["Pic"] ?? "",
+			beginYear: r["Beginning year"] ?? "",
+			endYear: r["End year"] ?? "",
+			ava: r["Ava"] ?? "",
 		};
 		const existing = groups.get(key);
 		if (!existing) {
 			groups.set(key, candidate);
-		} else if (!existing.pic && candidate.pic) {
+			continue;
+		}
+		// Prefer the row that's still produced; among ties prefer one with a Pic.
+		const existingLive = !existing.endYear && existing.ava !== "0";
+		const candidateLive = !candidate.endYear && candidate.ava !== "0";
+		if (candidateLive && !existingLive) {
+			groups.set(key, candidate);
+		} else if (candidateLive === existingLive && !existing.pic && candidate.pic) {
 			groups.set(key, candidate);
 		}
 	}
@@ -280,8 +326,9 @@ function dedupDxRows(rows: Record<string, string>[]): DxProduct[] {
  * so "Lady Grey" in the catalog prefers "Lady Grey 400" over "Lady Grey 400
  * Special Edition".
  */
-function scoreDekuMatch(row: DekuProduct, brand: string, model: string, iso: number): number {
+function scoreDekuMatch(row: DekuProduct, brand: string, model: string, format: string, iso: number): number {
 	if (normalizeBrand(row.brand) !== normalizeBrand(brand)) return -1;
+	if (normalize(row.format) !== normalize(format)) return -1;
 	const cat = tokens(model);
 	const src = tokens(row.product);
 	for (const t of cat) if (!src.has(t)) return -1;
@@ -307,11 +354,17 @@ function scoreDxMatch(row: DxProduct, brand: string, model: string, iso: number)
 	return 100 + isoBonus - extra;
 }
 
-function bestDekuMatch(rows: DekuProduct[], brand: string, model: string, iso: number): DekuProduct | undefined {
+function bestDekuMatch(
+	rows: DekuProduct[],
+	brand: string,
+	model: string,
+	format: string,
+	iso: number,
+): DekuProduct | undefined {
 	let best: DekuProduct | undefined;
 	let bestScore = -1;
 	for (const r of rows) {
-		const s = scoreDekuMatch(r, brand, model, iso);
+		const s = scoreDekuMatch(r, brand, model, format, iso);
 		if (s > bestScore) {
 			bestScore = s;
 			best = r;
@@ -324,6 +377,33 @@ function bestDxMatch(rows: DxProduct[], brand: string, model: string, iso: numbe
 	let best: DxProduct | undefined;
 	let bestScore = -1;
 	for (const r of rows) {
+		const s = scoreDxMatch(r, brand, model, iso);
+		if (s > bestScore) {
+			bestScore = s;
+			best = r;
+		}
+	}
+	return bestScore >= 0 ? best : undefined;
+}
+
+/**
+ * A dx row is "live" (still produced/sold) when End year is empty AND Ava != "0".
+ * Empirically, Ava=2 marks current/recent stock in the dxdatabase CSV.
+ */
+function isDxLive(row: DxProduct): boolean {
+	return !row.endYear.trim() && row.ava.trim() !== "0";
+}
+
+/**
+ * Returns the best "live" dx row matching this product, or undefined if none.
+ * Scans all rows (even those losing the dedup tiebreak), so generations like
+ * "Portra 400 new" can win over "Portra 400 NC Bulk".
+ */
+function findLiveDxRow(rows: DxProduct[], brand: string, model: string, iso: number): DxProduct | undefined {
+	let best: DxProduct | undefined;
+	let bestScore = -1;
+	for (const r of rows) {
+		if (!isDxLive(r)) continue;
 		const s = scoreDxMatch(r, brand, model, iso);
 		if (s > bestScore) {
 			bestScore = s;
@@ -409,7 +489,7 @@ async function main(): Promise<void> {
 	let withProcess = 0;
 
 	for (const entry of FILM_CATALOG) {
-		const deku = bestDekuMatch(dekuProducts, entry.brand, entry.model, entry.iso);
+		const deku = bestDekuMatch(dekuProducts, entry.brand, entry.model, entry.format, entry.iso);
 		const dx = bestDxMatch(dxProducts, entry.brand, entry.model, entry.iso);
 
 		// Image: dxdatabase first, dekuNukem fallback
@@ -451,6 +531,75 @@ async function main(): Promise<void> {
 
 	writeFileSync(OUTPUT_PATH, `${JSON.stringify(sorted, null, "\t")}\n`, "utf8");
 
+	// --- Discovery: still-produced films of catalog brands ---
+	// Runs after enrichment so we can use the same matchers. Strategy:
+	//   1. Iterate dekuNukem products (have format + image + process).
+	//   2. Skip if format isn't 35mm/120 — instant variants can't be classified
+	//      reliably without brand-specific rules.
+	//   3. Skip if brand isn't in the catalog (avoid 8000+ obscure brands).
+	//   4. Skip if a catalog entry already covers this product (token subset).
+	//   5. Cross-ref dxdatabase: require a matching row that's still produced
+	//      (End year empty AND Ava != "0"). This is the "encore vendu" gate.
+	const catalogBrands = new Set(FILM_CATALOG.map((c) => normalizeBrand(c.brand)));
+
+	function alreadyInCatalog(brand: string, model: string, format: "35mm" | "120"): boolean {
+		const brandKey = normalizeBrand(brand);
+		const newToks = tokens(model);
+		const isSubset = (a: Set<string>, b: Set<string>) => {
+			for (const t of a) if (!b.has(t)) return false;
+			return true;
+		};
+		for (const c of FILM_CATALOG) {
+			if (normalizeBrand(c.brand) !== brandKey) continue;
+			if (c.format !== format) continue;
+			const cToks = tokens(c.model);
+			// Same product if either side's tokens are a subset of the other:
+			// catalog "Gold 200" vs discovered "Gold" → match (catalog is more specific).
+			// catalog "FP4 Plus" vs discovered "FP4" → match (discovered is more general).
+			if (isSubset(cToks, newToks) || isSubset(newToks, cToks)) return true;
+		}
+		return false;
+	}
+
+	const discoveries: FilmCatalogEntry[] = [];
+	const seen = new Set<string>();
+	for (const dp of dekuProducts) {
+		if (!dp.filename) continue;
+		const format = mapDekuFormat(dp.format);
+		if (!format) continue;
+		const process = mapDekuProcess(dp.process);
+		if (!process) continue;
+		const type = typeFromProcess(process);
+		if (!type) continue;
+		const isoNum = Number.parseInt(dp.iso, 10);
+		if (!Number.isFinite(isoNum) || isoNum <= 0) continue;
+		if (!catalogBrands.has(normalizeBrand(dp.brand))) continue;
+		if (alreadyInCatalog(dp.brand, dp.product, format)) continue;
+		if (!findLiveDxRow(dxProducts, dp.brand, dp.product, isoNum)) continue;
+
+		const dedupKey = `${normalizeBrand(dp.brand)}|${normalize(dp.product)}|${format}`;
+		if (seen.has(dedupKey)) continue;
+		seen.add(dedupKey);
+
+		discoveries.push({
+			brand: dp.brand.trim(),
+			model: dp.product.trim(),
+			iso: isoNum,
+			type,
+			format,
+			developmentProcess: process,
+			imageUrl: DEKU_FILE_BASE_URL + encodeURIComponent(dp.filename),
+		});
+	}
+	// Stable order: sort by brand, model, format
+	discoveries.sort((a, b) => {
+		if (a.brand !== b.brand) return a.brand.localeCompare(b.brand);
+		if (a.model !== b.model) return a.model.localeCompare(b.model);
+		return a.format.localeCompare(b.format);
+	});
+
+	writeFileSync(DISCOVERIES_PATH, `${JSON.stringify(discoveries, null, "\t")}\n`, "utf8");
+
 	// --- Markdown report ---
 	const reportLines: string[] = [];
 	reportLines.push("# Film catalog enrichment");
@@ -463,7 +612,32 @@ async function main(): Promise<void> {
 	reportLines.push(`- With image: **${withImage}** (${Math.round((100 * withImage) / FILM_CATALOG.length)}%)`);
 	reportLines.push(`- With process: **${withProcess}**`);
 	reportLines.push(`- Without image: **${noImage.length}**`);
+	reportLines.push(`- Discovered (still-produced, auto-added): **${discoveries.length}**`);
 	reportLines.push("");
+
+	if (discoveries.length > 0) {
+		reportLines.push("## Discovered films (still produced)");
+		reportLines.push("");
+		reportLines.push(
+			"Films from dekuNukem matching catalog brands, with a matching dxdatabase row marked as still produced (End year empty, Ava ≠ 0). Auto-added to the merged catalog at runtime via `film-catalog-discoveries.json`. Move any of these into the canonical `FILM_CATALOG` if you want to curate the entry by hand.",
+		);
+		reportLines.push("");
+		// Group discoveries by brand for readability
+		const byBrand = new Map<string, FilmCatalogEntry[]>();
+		for (const d of discoveries) {
+			const list = byBrand.get(d.brand);
+			if (list) list.push(d);
+			else byBrand.set(d.brand, [d]);
+		}
+		for (const [brand, list] of byBrand) {
+			reportLines.push(`### ${brand} (${list.length})`);
+			reportLines.push("");
+			for (const d of list) {
+				reportLines.push(`- \`${d.model}\` — ${d.iso} ISO, ${d.format}, ${d.developmentProcess ?? "?"}`);
+			}
+			reportLines.push("");
+		}
+	}
 
 	// Group "no image" entries by brand+model so we don't duplicate per format
 	const noImageByBrandModel = new Map<string, FilmCatalogEntry[]>();
@@ -491,7 +665,7 @@ async function main(): Promise<void> {
 			reportLines.push("");
 
 			// Did we actually match a source row, just one with no image?
-			const matchedDeku = bestDekuMatch(dekuProducts, ref.brand, ref.model, ref.iso);
+			const matchedDeku = bestDekuMatch(dekuProducts, ref.brand, ref.model, ref.format, ref.iso);
 			const matchedDx = bestDxMatch(dxProducts, ref.brand, ref.model, ref.iso);
 			if (matchedDeku && !matchedDeku.filename) {
 				reportLines.push(
@@ -553,8 +727,10 @@ async function main(): Promise<void> {
 	console.log(`  with image:    ${withImage}`);
 	console.log(`  with process:  ${withProcess}`);
 	console.log(`  without image: ${noImage.length}`);
+	console.log(`Discoveries (still produced): ${discoveries.length}`);
 	console.log("");
 	console.log(`Wrote ${OUTPUT_PATH}`);
+	console.log(`Wrote ${DISCOVERIES_PATH}`);
 	console.log(`Wrote ${REPORT_PATH}`);
 }
 

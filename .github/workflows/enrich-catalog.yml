@@ -29,4 +29,6 @@ jobs:
           title: "chore: refresh film catalog enrichment"
           body-path: enrichment-report.md
           commit-message: "chore: refresh film catalog enrichment"
-          add-paths: src/constants/film-catalog-enrichment.json
+          add-paths: |
+            src/constants/film-catalog-enrichment.json
+            src/constants/film-catalog-discoveries.json
