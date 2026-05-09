@@ -23,7 +23,14 @@ jobs:
 
       - run: npx tsx scripts/enrich-catalog.ts
 
-      - uses: peter-evans/create-pull-request@v6
+      # Always surface what the script found in the run page, even when
+      # nothing changed and no PR is created.
+      - name: Publish report to job summary
+        if: always()
+        run: cat enrichment-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - id: cpr
+        uses: peter-evans/create-pull-request@v6
         with:
           branch: chore/enrich-catalog
           title: "chore: refresh film catalog enrichment"
@@ -32,3 +39,7 @@ jobs:
           add-paths: |
             src/constants/film-catalog-enrichment.json
             src/constants/film-catalog-discoveries.json
+
+      - name: Note when no changes
+        if: steps.cpr.outputs.pull-request-number == ''
+        run: echo "::notice::No catalog changes vs main — no PR opened. See the job summary above for current stats."
