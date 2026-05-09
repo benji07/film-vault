@@ -3,6 +3,7 @@ import { FilmLabel } from "@/components/ui/film-label";
 import { cn } from "@/lib/utils";
 import type { Back, Camera, Film } from "@/types";
 import { backDisplayName, cameraDisplayName } from "@/utils/camera-helpers";
+import { findCatalogEntry } from "@/utils/catalog";
 import { fmtExpDate, getExpirationStatus } from "@/utils/expiration";
 import { filmName } from "@/utils/film-helpers";
 import { fmtPrice } from "@/utils/helpers";
@@ -53,7 +54,14 @@ export function FilmRow({ film, onClick, cameras, backs, groupCount }: FilmRowPr
 				"transition-colors hover:bg-surface-2",
 			)}
 		>
-			<FilmLabel iso={film.iso ?? "—"} format={film.format ?? ""} brand={film.brand} type={film.type} size="sm" />
+			<FilmLabel
+				iso={film.iso ?? "—"}
+				format={film.format ?? ""}
+				brand={film.brand}
+				type={film.type}
+				size="sm"
+				imageUrl={findCatalogEntry(film.brand, film.model, film.format)?.imageUrl}
+			/>
 
 			<div className="px-3 py-2.5 min-w-0">
 				<div className="text-[15px] font-semibold text-text leading-tight">

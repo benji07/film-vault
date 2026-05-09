@@ -4,6 +4,7 @@ import { FilmLabel } from "@/components/ui/film-label";
 import { cn } from "@/lib/utils";
 import type { Camera, Film } from "@/types";
 import { cameraDisplayName } from "@/utils/camera-helpers";
+import { findCatalogEntry } from "@/utils/catalog";
 import { filmLastActionDate } from "@/utils/film-helpers";
 
 interface CarnetFilmCardProps {
@@ -118,7 +119,14 @@ export function CarnetFilmCard({ film, camera, onClick, className }: CarnetFilmC
 				className,
 			)}
 		>
-			<FilmLabel iso={film.iso ?? "—"} format={film.format ?? ""} brand={film.brand} type={film.type} typeLabel={sub} />
+			<FilmLabel
+				iso={film.iso ?? "—"}
+				format={film.format ?? ""}
+				brand={film.brand}
+				type={film.type}
+				typeLabel={sub}
+				imageUrl={findCatalogEntry(film.brand, film.model, film.format)?.imageUrl}
+			/>
 
 			<div className="px-4 py-3.5 flex flex-col justify-between min-w-0">
 				<div className="flex items-start justify-between gap-2.5">
