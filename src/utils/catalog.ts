@@ -1,7 +1,5 @@
 import type { FilmCatalogEntry, FilmDevelopmentProcess } from "@/constants/film-catalog";
 import { FILM_CATALOG } from "@/constants/film-catalog";
-import discoveriesRaw from "@/constants/film-catalog-discoveries.json";
-import enrichmentRaw from "@/constants/film-catalog-enrichment.json";
 import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 
 // --- Types ---
@@ -16,7 +14,16 @@ export interface CatalogCamera {
 	updated_at?: string;
 }
 
-interface FilmCatalogRow extends FilmCatalogEntry {
+interface FilmCatalogRow {
+	id?: number;
+	brand: string;
+	model: string;
+	iso: number;
+	type: string;
+	format: string;
+	development_process?: string | null;
+	image_url?: string | null;
+	active?: boolean;
 	updated_at?: string;
 }
 
@@ -26,56 +33,24 @@ const FILM_CATALOG_KEY = "filmvault-catalog-films";
 const CAMERA_CATALOG_KEY = "filmvault-catalog-cameras";
 const CATALOG_TIMESTAMP_KEY = "filmvault-catalog-updated";
 
-// --- Enrichment sidecar ---
-
-interface EnrichmentEntry {
-	imageUrl?: string;
-	developmentProcess?: FilmDevelopmentProcess;
-	sourceUrl?: string;
-	sourceUuid?: string;
-}
-
-const enrichmentMap = enrichmentRaw as Record<string, EnrichmentEntry>;
-const discoveries = discoveriesRaw as FilmCatalogEntry[];
-
-function enrichmentKey(brand: string, model: string, format: string): string {
-	return `${brand.toLowerCase()}|${model.toLowerCase()}|${format.toLowerCase()}`;
-}
-
-function applyEnrichment(entry: FilmCatalogEntry): FilmCatalogEntry {
-	const found = enrichmentMap[enrichmentKey(entry.brand, entry.model, entry.format)];
-	if (!found) return entry;
-	return {
-		...entry,
-		imageUrl: entry.imageUrl ?? found.imageUrl,
-		developmentProcess: entry.developmentProcess ?? found.developmentProcess,
-	};
-}
-
-/**
- * Append auto-discovered entries to the canonical list, deduped by
- * (brand, model, format). Curation in FILM_CATALOG always wins.
- */
-function withDiscoveries(base: FilmCatalogEntry[]): FilmCatalogEntry[] {
-	if (discoveries.length === 0) return base;
-	const seen = new Set<string>();
-	for (const e of base) {
-		seen.add(enrichmentKey(e.brand, e.model, e.format));
-	}
-	const merged = [...base];
-	for (const d of discoveries) {
-		const k = enrichmentKey(d.brand, d.model, d.format);
-		if (seen.has(k)) continue;
-		seen.add(k);
-		merged.push(d);
-	}
-	return merged;
-}
-
 // --- In-memory cache ---
 
 let filmCatalogCache: FilmCatalogEntry[] | null = null;
 let cameraCatalogCache: CatalogCamera[] | null = null;
+
+// --- Mapping ---
+
+function rowToEntry(row: FilmCatalogRow): FilmCatalogEntry {
+	return {
+		brand: row.brand,
+		model: row.model,
+		iso: row.iso,
+		type: row.type as FilmCatalogEntry["type"],
+		format: row.format as FilmCatalogEntry["format"],
+		developmentProcess: (row.development_process ?? undefined) as FilmDevelopmentProcess | undefined,
+		imageUrl: row.image_url ?? undefined,
+	};
+}
 
 // --- Film catalog ---
 
@@ -86,25 +61,37 @@ let cameraCatalogCache: CatalogCamera[] | null = null;
 export function getFilmCatalog(): FilmCatalogEntry[] {
 	if (filmCatalogCache) return filmCatalogCache;
 
-	// Try localStorage cache
 	try {
 		const cached = localStorage.getItem(FILM_CATALOG_KEY);
 		if (cached) {
 			const parsed = JSON.parse(cached) as FilmCatalogEntry[];
-			filmCatalogCache = withDiscoveries(parsed).map(applyEnrichment);
+			filmCatalogCache = parsed;
 			return filmCatalogCache;
 		}
 	} catch {
 		// ignore
 	}
 
-	// Fallback to hardcoded catalog
-	return withDiscoveries(FILM_CATALOG).map(applyEnrichment);
+	return FILM_CATALOG;
+}
+
+/**
+ * Drop the in-memory + localStorage caches so the next call re-fetches.
+ * Used after admin mutations so the editor sees fresh data immediately.
+ */
+export function invalidateFilmCatalogCache(): void {
+	filmCatalogCache = null;
+	try {
+		localStorage.removeItem(FILM_CATALOG_KEY);
+		localStorage.removeItem(CATALOG_TIMESTAMP_KEY);
+	} catch {
+		// ignore
+	}
 }
 
 /**
  * Find a single catalog entry matching a stored film's brand/model/format.
- * Case-insensitive; returns the first match including any enrichment.
+ * Case-insensitive; returns the first match.
  */
 export function findCatalogEntry(
 	brand: string | undefined,
@@ -151,11 +138,11 @@ export async function refreshCatalogs(): Promise<void> {
 
 	try {
 		const lastUpdate = localStorage.getItem(CATALOG_TIMESTAMP_KEY) ?? undefined;
-		const existingFilms = getFilmCatalog();
+		const existingFilmEntries = getFilmCatalog();
 		const existingCameras = getCameraCatalog();
 
 		// Only do incremental fetch if we have cached data; otherwise full fetch
-		const filmSince = lastUpdate && existingFilms.length > 0 ? lastUpdate : null;
+		const filmSince = lastUpdate && existingFilmEntries.length > 0 ? lastUpdate : null;
 		const cameraSince = lastUpdate && existingCameras.length > 0 ? lastUpdate : null;
 
 		let maxServerTimestamp = lastUpdate ?? "";
@@ -170,18 +157,20 @@ export async function refreshCatalogs(): Promise<void> {
 			return;
 		}
 
+		const filmRows = films as FilmCatalogRow[];
+		const newEntries = filmRows.map(rowToEntry);
+
 		let mergedFilms: FilmCatalogEntry[];
 		if (filmSince) {
-			const newEntries = films as FilmCatalogRow[];
-			mergedFilms = newEntries.length > 0 ? mergeFilmCatalogs(existingFilms, newEntries) : existingFilms;
+			mergedFilms = newEntries.length > 0 ? mergeFilmCatalogs(existingFilmEntries, newEntries) : existingFilmEntries;
 		} else {
-			mergedFilms = films as FilmCatalogEntry[];
+			mergedFilms = newEntries;
 		}
 		localStorage.setItem(FILM_CATALOG_KEY, JSON.stringify(mergedFilms));
-		filmCatalogCache = withDiscoveries(mergedFilms).map(applyEnrichment);
+		filmCatalogCache = mergedFilms;
 
 		// Track max server timestamp from film rows
-		for (const row of films as FilmCatalogRow[]) {
+		for (const row of filmRows) {
 			if (row.updated_at && row.updated_at > maxServerTimestamp) {
 				maxServerTimestamp = row.updated_at;
 			}
@@ -198,8 +187,8 @@ export async function refreshCatalogs(): Promise<void> {
 		}
 
 		if (cameraSince) {
-			const newEntries = cameras as CatalogCamera[];
-			cameraCatalogCache = newEntries.length > 0 ? mergeCameraCatalogs(existingCameras, newEntries) : existingCameras;
+			const newCams = cameras as CatalogCamera[];
+			cameraCatalogCache = newCams.length > 0 ? mergeCameraCatalogs(existingCameras, newCams) : existingCameras;
 		} else {
 			cameraCatalogCache = cameras as CatalogCamera[];
 		}

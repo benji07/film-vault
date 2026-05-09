@@ -14,7 +14,7 @@ interface AppHeaderProps {
 	className?: string;
 }
 
-const DETAIL_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetail", "settings"]);
+const DETAIL_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetail", "settings", "adminCatalog"]);
 
 export function AppHeader({ screen, goBack, onEditFilm, filmTitle, cameraTitle, className }: AppHeaderProps) {
 	const { t } = useTranslation();
@@ -24,6 +24,7 @@ export function AppHeader({ screen, goBack, onEditFilm, filmTitle, cameraTitle, 
 		filmDetail: filmTitle || t("filmDetail.back"),
 		cameraDetail: cameraTitle || t("cameraDetail.title"),
 		settings: t("nav.settings"),
+		adminCatalog: "Catalogue (admin)",
 	};
 
 	// Sub-screens: back button + title (+ optional contextual action on the

@@ -14,6 +14,7 @@ import { QuickShotDialog } from "@/components/QuickShotDialog";
 import { TabBar } from "@/components/TabBar";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { cn } from "@/lib/utils";
+import { AdminCatalogScreen } from "@/screens/AdminCatalogScreen";
 import { CameraDetailScreen } from "@/screens/CameraDetailScreen";
 import { DashboardScreen } from "@/screens/DashboardScreen";
 import { EquipmentScreen } from "@/screens/EquipmentScreen";
@@ -44,7 +45,13 @@ import { useUrlSync } from "@/utils/use-url-sync";
 const MapScreen = lazy(() => import("@/screens/MapScreen").then((m) => ({ default: m.MapScreen })));
 
 // Screens without a bottom tab: hide the tabbar and animate as sub-screens.
-const SUB_SCREENS: ReadonlySet<ScreenName> = new Set(["filmDetail", "cameraDetail", "settings", "legal"]);
+const SUB_SCREENS: ReadonlySet<ScreenName> = new Set([
+	"filmDetail",
+	"cameraDetail",
+	"settings",
+	"adminCatalog",
+	"legal",
+]);
 
 function FilmVaultInner() {
 	const [data, setData] = useState<AppData | null>(null);
@@ -375,6 +382,7 @@ function AppContent({
 		[navigate],
 	);
 	const openSettings = useCallback(() => navigate({ screen: "settings" }), [navigate]);
+	const openAdminCatalog = useCallback(() => navigate({ screen: "adminCatalog" }), [navigate]);
 	const openLegal = useCallback(() => navigate({ screen: "legal" }), [navigate]);
 
 	// Explicit redirects (not back): used after delete or when target not found.
@@ -455,8 +463,11 @@ function AppContent({
 						onSyncNow={triggerSync}
 						persistent={persistent}
 						onOpenLegal={openLegal}
+						onOpenAdminCatalog={openAdminCatalog}
 					/>
 				);
+			case "adminCatalog":
+				return <AdminCatalogScreen />;
 			case "legal":
 				return <LegalScreen onBack={goBack} />;
 			default:
