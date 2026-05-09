@@ -45,7 +45,12 @@ GRANT EXECUTE ON FUNCTION public.is_admin() TO anon;
 
 -- 3. Public catalog RPC (extended with new columns) -------------------------
 
-CREATE OR REPLACE FUNCTION public.get_film_catalog(p_since TIMESTAMPTZ DEFAULT NULL)
+-- DROP first: the original function returned SETOF catalog_film_stocks; we
+-- want a custom TABLE shape that excludes image_path. Postgres rejects the
+-- return-type change via CREATE OR REPLACE.
+DROP FUNCTION IF EXISTS public.get_film_catalog(TIMESTAMPTZ);
+
+CREATE FUNCTION public.get_film_catalog(p_since TIMESTAMPTZ DEFAULT NULL)
 RETURNS TABLE (
     id INTEGER,
     brand TEXT,
