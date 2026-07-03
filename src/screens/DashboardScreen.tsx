@@ -1,5 +1,5 @@
-import { Film as FilmIcon, Settings } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, Film as FilmIcon, Settings } from "lucide-react";
+import { type ReactNode, useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CarnetFilmCard } from "@/components/CarnetFilmCard";
 import { EmptyState } from "@/components/EmptyState";
@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
 import type { AppData, Film, FilmState } from "@/types";
 import { filmLastActionDate } from "@/utils/film-helpers";
+import { usePersistedState } from "@/utils/use-persisted-state";
 
 interface DashboardScreenProps {
 	data: AppData;
@@ -18,9 +19,67 @@ interface DashboardScreenProps {
 const CARNET_STATES: ReadonlySet<FilmState> = new Set(["loaded", "partial", "exposed", "developed", "scanned"]);
 const ACTIVE_STATE_ORDER: Record<string, number> = { loaded: 0, partial: 1 };
 
+interface CarnetSectionProps {
+	title: string;
+	count: number;
+	collapsed: boolean;
+	onToggle: () => void;
+	children: ReactNode;
+}
+
+function CarnetSection({ title, count, collapsed, onToggle, children }: CarnetSectionProps) {
+	const panelId = useId();
+
+	return (
+		<section className="flex flex-col" aria-label={title}>
+			<button
+				type="button"
+				onClick={onToggle}
+				aria-expanded={!collapsed}
+				aria-controls={panelId}
+				className="flex items-center gap-2 w-full cursor-pointer text-left"
+			>
+				<span className="w-1.5 h-1.5 rounded-full bg-accent flex-none" />
+				<h2 className="text-sm font-semibold text-text flex-1">{title}</h2>
+				<span className="text-sm font-medium text-text-3">{count}</span>
+				<ChevronDown
+					size={15}
+					className={cn("text-text-3 flex-none transition-transform duration-200", collapsed && "-rotate-90")}
+				/>
+			</button>
+			<div
+				id={panelId}
+				className={cn(
+					"grid transition-[grid-template-rows] duration-200 ease-out",
+					collapsed ? "grid-rows-[0fr]" : "grid-rows-[1fr]",
+				)}
+			>
+				<div className="overflow-hidden min-h-0">
+					<div className="flex flex-col gap-[18px] pt-[14px]">{children}</div>
+				</div>
+			</div>
+		</section>
+	);
+}
+
+function sortByLastActionDesc(films: Film[]): Film[] {
+	return films
+		.map((film) => ({ film, lastDate: filmLastActionDate(film) ?? "" }))
+		.sort((a, b) => b.lastDate.localeCompare(a.lastDate))
+		.map(({ film }) => film);
+}
+
 export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardScreenProps) {
 	const { t } = useTranslation();
 	const { films, cameras } = data;
+	const [collapsedSections, setCollapsedSections] = usePersistedState<Record<string, boolean>>(
+		"filmvault-carnet-collapsed",
+		{},
+	);
+
+	const toggleSection = (id: string) => {
+		setCollapsedSections((prev) => ({ ...prev, [id]: !prev[id] }));
+	};
 
 	const datedFilms = useMemo(() => {
 		const list: Array<{ film: Film; lastDate: string }> = [];
@@ -43,6 +102,10 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 			})
 			.map(({ film }) => film);
 	}, [films]);
+
+	const labFilms = useMemo(() => sortByLastActionDesc(films.filter((f) => f.state === "exposed")), [films]);
+
+	const scanFilms = useMemo(() => sortByLastActionDesc(films.filter((f) => f.state === "developed")), [films]);
 
 	const yearBuckets = useMemo(() => {
 		const map = new Map<string, number>();
@@ -76,6 +139,12 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 			.sort((a, b) => b.lastDate.localeCompare(a.lastDate))
 			.map(({ film }) => film);
 	}, [datedFilms, selectedYear]);
+
+	const statusSections: Array<{ id: string; title: string; films: Film[] }> = [
+		{ id: "active", title: t("dashboard.activeRolls"), films: activeFilms },
+		{ id: "lab", title: t("dashboard.labSection"), films: labFilms },
+		{ id: "scan", title: t("dashboard.scanSection"), films: scanFilms },
+	].filter((s) => s.films.length > 0);
 
 	return (
 		<div className="-mx-4 md:-mx-8">
@@ -124,22 +193,21 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 			</PageHeader>
 
 			<main className="px-[18px] pt-8 pb-32 flex flex-col gap-[18px]">
-				{activeFilms.length > 0 && (
-					<section className="flex flex-col gap-[18px]" aria-label={t("dashboard.activeRolls")}>
-						<header className="flex items-center justify-between">
-							<h2 className="text-sm font-semibold flex items-center gap-2 text-text">
-								<span className="w-1.5 h-1.5 rounded-full bg-accent" />
-								{t("dashboard.activeRolls")}
-							</h2>
-							<span className="text-sm font-medium text-text-3">{activeFilms.length}</span>
-						</header>
-						{activeFilms.map((f, idx) => {
+				{statusSections.map(({ id, title, films: sectionFilms }) => (
+					<CarnetSection
+						key={id}
+						title={title}
+						count={sectionFilms.length}
+						collapsed={collapsedSections[id] ?? false}
+						onToggle={() => toggleSection(id)}
+					>
+						{sectionFilms.map((f, idx) => {
 							const cam = f.cameraId ? cameras.find((c) => c.id === f.cameraId) : null;
 							return <CarnetFilmCard key={f.id} film={f} camera={cam} index={idx} onClick={() => onOpenFilm(f.id)} />;
 						})}
-						<hr className="border-0 border-t border-dashed border-ink-faded/35" />
-					</section>
-				)}
+					</CarnetSection>
+				))}
+				{statusSections.length > 0 && <hr className="border-0 border-t border-dashed border-ink-faded/35" />}
 				{visible.length === 0 ? (
 					<EmptyState
 						icon={FilmIcon}
