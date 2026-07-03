@@ -61,16 +61,16 @@ test.describe("carnet status sections", () => {
 		await seedAndOpen(page);
 
 		const activeBtn = page.getByRole("button", { name: /^Pellicules actives/ }).first();
-		const labBtn = page.getByRole("button", { name: /^Labo/ }).first();
+		const devBtn = page.getByRole("button", { name: /^À développer/ }).first();
 		const scanBtn = page.getByRole("button", { name: /^À numériser/ }).first();
 		await expect(activeBtn).toBeVisible();
 		await expect(activeBtn).toContainText("2");
-		await expect(labBtn).toBeVisible();
-		await expect(labBtn).toContainText("2");
+		await expect(devBtn).toBeVisible();
+		await expect(devBtn).toContainText("2");
 		await expect(scanBtn).toBeVisible();
 		await expect(scanBtn).toContainText("1");
 
-		// The Labo section mixes both variants: exposed (to drop off) and at the lab (sent_dev).
+		// The "À développer" section mixes both variants: exposed (to drop off) and at the lab (sent_dev).
 		const mainText = (await page.locator("main").last().innerText()).toLowerCase();
 		expect(mainText).toContain("exposée");
 		expect(mainText).toContain("au labo");
@@ -83,26 +83,26 @@ test.describe("carnet status sections", () => {
 	test("collapses, persists across reload, and re-expands", async ({ page }) => {
 		await seedAndOpen(page);
 
-		const labBtn = page.getByRole("button", { name: /^Labo/ }).first();
-		await expect(labBtn).toHaveAttribute("aria-expanded", "true");
-		await labBtn.click();
-		await expect(labBtn).toHaveAttribute("aria-expanded", "false");
+		const devBtn = page.getByRole("button", { name: /^À développer/ }).first();
+		await expect(devBtn).toHaveAttribute("aria-expanded", "true");
+		await devBtn.click();
+		await expect(devBtn).toHaveAttribute("aria-expanded", "false");
 
 		// The collapsible panel actually closes (clipped to zero height).
-		const panelId = await labBtn.getAttribute("aria-controls");
+		const panelId = await devBtn.getAttribute("aria-controls");
 		await expect
 			.poll(async () => page.evaluate((id) => document.getElementById(id as string)?.clientHeight ?? -1, panelId))
 			.toBe(0);
 
 		await page.reload();
 		await page.waitForLoadState("networkidle");
-		const labBtn2 = page.getByRole("button", { name: /^Labo/ }).first();
-		await expect(labBtn2).toHaveAttribute("aria-expanded", "false");
+		const devBtn2 = page.getByRole("button", { name: /^À développer/ }).first();
+		await expect(devBtn2).toHaveAttribute("aria-expanded", "false");
 		const stored = await page.evaluate(() => window.localStorage.getItem("filmvault-carnet-collapsed"));
-		expect(stored).toBe('{"lab":true}');
+		expect(stored).toBe('{"dev":true}');
 
-		await labBtn2.click();
-		await expect(labBtn2).toHaveAttribute("aria-expanded", "true");
+		await devBtn2.click();
+		await expect(devBtn2).toHaveAttribute("aria-expanded", "true");
 	});
 
 	test("hides empty sections", async ({ page }) => {
@@ -114,6 +114,6 @@ test.describe("carnet status sections", () => {
 
 		await expect(page.getByRole("button", { name: /^À numériser/ }).first()).toBeVisible();
 		await expect(page.getByRole("button", { name: /^Pellicules actives/ })).toHaveCount(0);
-		await expect(page.getByRole("button", { name: /^Labo/ })).toHaveCount(0);
+		await expect(page.getByRole("button", { name: /^À développer/ })).toHaveCount(0);
 	});
 });

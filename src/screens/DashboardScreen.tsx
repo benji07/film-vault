@@ -103,7 +103,7 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 			.map(({ film }) => film);
 	}, [films]);
 
-	const labFilms = useMemo(() => sortByLastActionDesc(films.filter((f) => f.state === "exposed")), [films]);
+	const devFilms = useMemo(() => sortByLastActionDesc(films.filter((f) => f.state === "exposed")), [films]);
 
 	const scanFilms = useMemo(() => sortByLastActionDesc(films.filter((f) => f.state === "developed")), [films]);
 
@@ -142,7 +142,7 @@ export function DashboardScreen({ data, onOpenFilm, onOpenSettings }: DashboardS
 
 	const statusSections: Array<{ id: string; title: string; films: Film[] }> = [
 		{ id: "active", title: t("dashboard.activeRolls"), films: activeFilms },
-		{ id: "lab", title: t("dashboard.labSection"), films: labFilms },
+		{ id: "dev", title: t("dashboard.devSection"), films: devFilms },
 		{ id: "scan", title: t("dashboard.scanSection"), films: scanFilms },
 	].filter((s) => s.films.length > 0);
 

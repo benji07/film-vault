@@ -11,7 +11,7 @@ Pour le routing et la propagation du state, voir `docs/architecture.md`.
 Accueil « Carnet » : trois sections repliables par statut (état de repli persisté dans `localStorage["filmvault-carnet-collapsed"]`, section masquée quand vide) suivies du journal chronologique filtré par année (chips dans le header) :
 
 1. **Pellicules actives** — films `loaded`/`partial` (chargées d'abord, puis date de dernière action décroissante)
-2. **Labo** — films `exposed` (le badge de `CarnetFilmCard` distingue « exposée » de « au labo » via l'historique `sent_dev`)
+2. **À développer** — films `exposed` (le badge de `CarnetFilmCard` distingue « exposée » de « au labo » via l'historique `sent_dev`)
 3. **À numériser** — films `developed`
 
 **Props**
