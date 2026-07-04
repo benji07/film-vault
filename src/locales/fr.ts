@@ -71,6 +71,8 @@ export const fr = {
 		partiallyExposed_other: "{{count}} pellicules partiellement exposées",
 		myEquipment: "Mon équipement",
 		activeRolls: "Pellicules actives",
+		devSection: "À développer",
+		scanSection: "À numériser",
 		todoSection: "À faire",
 		awaitingDev_one: "{{count}} pellicule à développer",
 		awaitingDev_other: "{{count}} pellicules à développer",

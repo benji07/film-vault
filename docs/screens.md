@@ -8,14 +8,18 @@ Pour le routing et la propagation du state, voir `docs/architecture.md`.
 
 `src/screens/DashboardScreen.tsx`
 
-Accueil : pellicules actives (chargées/partielles), équipement chargé, stats rapides, section « À faire » (dev/scan).
+Accueil « Carnet » : trois sections repliables par statut (état de repli persisté dans `localStorage["filmvault-carnet-collapsed"]`, section masquée quand vide) suivies du journal chronologique filtré par année (chips dans le header) :
+
+1. **Pellicules actives** — films `loaded`/`partial` (chargées d'abord, puis date de dernière action décroissante)
+2. **À développer** — films `exposed` (le badge de `CarnetFilmCard` distingue « exposée » de « au labo » via l'historique `sent_dev`)
+3. **À numériser** — films `developed`
 
 **Props**
 ```ts
-{ data, setScreen, setSelectedFilm, onAddFilm, setAutoOpenShotNote?, onNavigateToStock }
+{ data, onOpenFilm, onOpenSettings? }
 ```
 
-**Composants exploités** : `ActiveRollCard`, `EquipmentCard`, `StatCard`, `StatChip`, `TodoItem`, `EmptyState`.
+**Composants exploités** : `CarnetFilmCard`, `EmptyState`, `Chip`, `PageHeader`.
 
 ## `StockScreen` — `stock`
 
